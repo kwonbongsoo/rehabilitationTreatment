@@ -1,0 +1,14 @@
+node_modules
+dist
+npm-debug.log
+Dockerfile
+.dockerignore
+.env
+.env.*
+/postgres-data
+/.next
+coverage
+*.log
+*.sqlite
+prisma/client/
+src/generated/

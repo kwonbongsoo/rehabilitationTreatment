@@ -1,0 +1,28 @@
+{
+  "name": "fastify-member-server",
+  "version": "1.0.0",
+  "description": "A Fastify server for managing member functionalities including registration, modification, retrieval, and deletion.",
+  "main": "src/app.ts",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/app.js",
+    "dev": "ts-node-dev src/app.ts",
+    "format": "prettier --write \"src/**/*.{ts,js,json,md}\"",
+    "postinstall": "prisma generate"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.8.2",
+    "bcryptjs": "^3.0.2",
+    "fastify": "^4.29.1"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^22.15.21",
+    "prettier": "^3.5.3",
+    "prisma": "^6.8.2",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.8.3"
+  },
+  "license": "MIT"
+}

@@ -1,0 +1,55 @@
+services:
+  db:
+    image: postgres:16
+    container_name: postgres
+    env_file:
+      - ./fastify-member-server/.env
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+
+  fastify-member-server:
+    build: ./fastify-member-server
+    container_name: fastify-member-server
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./fastify-member-server/.env
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  koa-auth-server:
+    build: ./koa-auth-server
+    container_name: koa-auth-server
+    ports:
+      - "4000:4000"
+    env_file:
+      - ./koa-auth-server/.env
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  ecommerce-app:
+    build: ./ecommerce-app
+    container_name: ecommerce-app
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./ecommerce-app/.env
+    depends_on:
+      # 위 설정은 db(Postgres)가 먼저 시작된 후 fastify-member-server가 시작되도록 합니다.
+      # 주의: depends_on은 단순히 컨테이너의 시작 순서만 보장합니다.
+      # 데이터베이스가 "완전히 준비"될 때까지 기다려주지는 않습니다.
+      - db
+    restart: unless-stopped
+    # no (기본값): 자동 재시작 안 함
+    # always: 항상 재시작
+    # unless-stopped: 사용자가 중지하지 않는 한 항상 재시작
+    # on-failure: 비정상 종료(에러 코드)일 때만 재시작
+
+    # depends_on: 서비스 시작 순서 지정
+    # restart: 컨테이너 자동 재시작 정책 지정
+
+    # docker-compose -p myproject up --build
