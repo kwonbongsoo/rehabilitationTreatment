@@ -1,0 +1,24 @@
+_format_version: "3.0"
+_transform: true
+
+services:
+  - name: fastify-member-server
+    url: http://fastify-member-server:5000
+    routes:
+      - name: member-api
+        paths:
+          - /member
+
+  - name: koa-auth-server
+    url: http://koa-auth-server:4000
+    routes:
+      - name: auth-api
+        paths:
+          - /auth
+
+  - name: ecommerce-app
+    url: http://ecommerce-app:3000
+    routes:
+      - name: ecommerce-api
+        paths:
+          - /shop
