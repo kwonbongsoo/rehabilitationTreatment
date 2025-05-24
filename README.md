@@ -6,8 +6,7 @@
 Docker, Prisma, PostgreSQL, Koa, Next.js, Kong API Gateway, Nginx 등 다양한 기술 스택을 활용하여  
 모던한 백엔드/풀스택 환경을 구성합니다.
 
-**API Gateway(Kong)와 리버스 프록시(Nginx)를 도입하여, 모든 트래픽이 Nginx → Kong → 내부 서비스로만 흐르도록 보안적으로 강화했습니다.  
-**
+**API Gateway(Kong)와 리버스 프록시(Nginx)를 도입하여, 모든 트래픽이 Nginx → Kong → 내부 서비스로만 흐르도록 보안적으로 강화했습니다.**
 
 ---
 
