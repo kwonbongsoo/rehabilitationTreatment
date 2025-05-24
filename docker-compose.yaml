@@ -11,6 +11,7 @@ services:
       - ./postgres-data:/var/lib/postgresql/data
     networks:
       - app-network
+
   fastify-member-server:
     build:
       context: ./fastify-member-server
@@ -65,7 +66,7 @@ services:
       - app-network
     ports:
       - "8001:8001"
-    # 확인하고 주석 처리
+
   nginx:
     image: nginx:1.25
     container_name: nginx
@@ -73,7 +74,11 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/nginx.conf.template:/etc/nginx/nginx.conf.template:ro
+    env_file:
+      - ./nginx/.env
+    command: >
+      /bin/sh -c "envsubst '$$AUTH_SERVICE_URL $$AUTH_TIMEOUT' <  /etc/nginx/nginx.conf.template >  /etc/nginx/nginx.conf &&  nginx -g 'daemon off;'"
     depends_on:
       - kong
     restart: unless-stopped
@@ -85,7 +90,6 @@ networks:
     driver: bridge
     driver_opts:
       com.docker.network.bridge.name: app-network
-
-# This docker-compose file sets up a multi-container application with PostgreSQL, Fastify, Koa, and Nginx.
-# docker-compose -p rehabilitation-treatment up --build
-# docker-compose -p rehabilitation-treatment up --build -d
+      # This docker-compose file sets up a multi-container application with PostgreSQL, Fastify, Koa, and Nginx.
+      # docker-compose -p rehabilitation-treatment up --build
+      # docker-compose -p rehabilitation-treatment up --build -d

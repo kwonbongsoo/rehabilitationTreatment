@@ -33,9 +33,7 @@ export async function getMemberHandler(
 ): Promise<void> {
     const { prisma } = request.server;
     const memberService = new MemberService(prisma);
-
-    const parmas = request.params as RequestParams;
-    const id = parmas.id;
+    const { id } = request.params as RequestParams;
 
     const member = await memberService.findById(id);
     reply.send(member);
@@ -48,9 +46,7 @@ export async function updateMemberHandler(
 ): Promise<void> {
     const { prisma } = request.server;
     const memberService = new MemberService(prisma);
-
-    const parmas = request.params as RequestParams;
-    const id = parmas.id;
+    const { id } = request.params as RequestParams;
     const updateData = request.body as Partial<MemberInput>;
 
     const updatedMember = await memberService.update(id, updateData);
@@ -64,9 +60,7 @@ export async function deleteMemberHandler(
 ): Promise<void> {
     const { prisma } = request.server;
     const memberService = new MemberService(prisma);
-
-    const parmas = request.params as RequestParams;
-    const id = parmas.id;
+    const { id } = request.params as RequestParams;
 
     await memberService.delete(id);
     reply.code(204).send();

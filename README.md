@@ -15,8 +15,6 @@ Docker, Prisma, PostgreSQL, Koa, Next.js, Kong API Gateway, Nginx 등 다양한 
 - 회원 가입, 로그인, 정보 수정, 삭제
 - 인증 서버(koa-auth-server) 연동
 - 이커머스 프론트엔드(ecommerce-app) 연동
-- PostgreSQL 데이터베이스 사용
-- Prisma ORM 적용
 - Docker Compose로 전체 서비스 손쉽게 실행
 - **API Gateway(Kong) 및 Nginx 리버스 프록시 연동**
 - 사용자 정의 네트워크(app-network)로 서비스 간 통신 격리
