@@ -1,12 +1,32 @@
 import { FastifyInstance } from 'fastify';
-import { MemberController } from '../controllers/memberController';
+import {
+    createMemberHandler,
+    getMemberHandler,
+    updateMemberHandler,
+    deleteMemberHandler,
+} from '../controllers/memberController';
+import {
+    getMemberSchema,
+    createMemberSchema,
+    updateMemberSchema
+} from '../schemas/memberSchemas';
 
-export const setMemberRoutes = async (app: FastifyInstance) => {
-    const memberController = new MemberController();
+async function memberRoutes(fastify: FastifyInstance) {
+    // 인증이 필요 없는 엔드포인트
+    fastify.post('/', { schema: createMemberSchema }, createMemberHandler);
 
-    app.post('/members/register', memberController.registerUser.bind(memberController));
-    app.put('/members/:id', memberController.updateUser.bind(memberController));
-    app.get('/members/:id', memberController.getUser.bind(memberController));
-    app.delete('/members/:id', memberController.deleteUser.bind(memberController));
-    app.post('/members/login', memberController.login.bind(memberController));
-};
+    // 인증이 필요한 엔드포인트
+    fastify.get('/:id', {
+        schema: getMemberSchema
+    }, getMemberHandler);
+
+    fastify.put('/:id', {
+        schema: updateMemberSchema
+    }, updateMemberHandler);
+
+    fastify.delete('/:id', {
+        schema: getMemberSchema,
+    }, deleteMemberHandler);
+}
+
+export default memberRoutes;

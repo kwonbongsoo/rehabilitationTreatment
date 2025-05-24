@@ -1,57 +1,73 @@
+
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { MemberService } from '../services/memberService';
+import { MemberInput } from '../types/member';
 
-export class MemberController {
-    private memberService = new MemberService();
+interface RequestParams {
+    id: string;
+}
 
-    async registerUser(request: FastifyRequest, reply: FastifyReply) {
-        try {
-            const { username, email, password } = request.body as any;
-            const user = await this.memberService.register({ username, email, password });
-            reply.status(201).send(user);
-        } catch (err: any) {
-            reply.status(err.status || 400).send({ message: err.message });
-        }
+// 멤버 생성
+export async function createMemberHandler(
+    request: FastifyRequest,
+    reply: FastifyReply
+): Promise<void> {
+    const { prisma } = request.server;
+    const memberService = new MemberService(prisma);
+
+    try {
+        // 스키마에 의해 이미 검증된 데이터
+        const body = request.body as MemberInput;
+        const newMember = await memberService.create(body);
+        reply.code(201).send(newMember);
+    } catch (error) {
+        // 에러 핸들러로 전달
+        throw error;
     }
+}
 
-    async updateUser(request: FastifyRequest, reply: FastifyReply) {
-        try {
-            const { id } = request.params as any;
-            const update = request.body as any;
-            const user = await this.memberService.update(id, update);
-            reply.send(user);
-        } catch (err: any) {
-            reply.status(err.status || 400).send({ message: err.message });
-        }
-    }
+// 단일 멤버 조회
+export async function getMemberHandler(
+    request: FastifyRequest,
+    reply: FastifyReply
+): Promise<void> {
+    const { prisma } = request.server;
+    const memberService = new MemberService(prisma);
 
-    async getUser(request: FastifyRequest, reply: FastifyReply) {
-        try {
-            const { id } = request.params as any;
-            const user = await this.memberService.getById(id);
-            reply.send(user);
-        } catch (err: any) {
-            reply.status(err.status || 404).send({ message: err.message });
-        }
-    }
+    const parmas = request.params as RequestParams;
+    const id = parmas.id;
 
-    async deleteUser(request: FastifyRequest, reply: FastifyReply) {
-        try {
-            const { id } = request.params as any;
-            await this.memberService.delete(id);
-            reply.send({ message: '탈퇴 완료' });
-        } catch (err: any) {
-            reply.status(err.status || 404).send({ message: err.message });
-        }
-    }
+    const member = await memberService.findById(id);
+    reply.send(member);
+}
 
-    async login(request: FastifyRequest, reply: FastifyReply) {
-        try {
-            const { username, password } = request.body as any;
-            const user = await this.memberService.login(username, password);
-            reply.send({ message: '로그인 성공', user });
-        } catch (err: any) {
-            reply.status(err.status || 401).send({ message: err.message });
-        }
-    }
+// 멤버 정보 업데이트
+export async function updateMemberHandler(
+    request: FastifyRequest,
+    reply: FastifyReply
+): Promise<void> {
+    const { prisma } = request.server;
+    const memberService = new MemberService(prisma);
+
+    const parmas = request.params as RequestParams;
+    const id = parmas.id;
+    const updateData = request.body as Partial<MemberInput>;
+
+    const updatedMember = await memberService.update(id, updateData);
+    reply.send(updatedMember);
+}
+
+// 멤버 삭제
+export async function deleteMemberHandler(
+    request: FastifyRequest,
+    reply: FastifyReply
+): Promise<void> {
+    const { prisma } = request.server;
+    const memberService = new MemberService(prisma);
+
+    const parmas = request.params as RequestParams;
+    const id = parmas.id;
+
+    await memberService.delete(id);
+    reply.code(204).send();
 }

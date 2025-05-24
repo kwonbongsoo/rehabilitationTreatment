@@ -4,20 +4,26 @@ dotenv.config();
 import Koa from 'koa';
 import bodyParser from 'koa-bodyparser';
 import Router from 'koa-router';
+import { validateConfig } from './utils/config';
+import { errorHandler } from './middleware/errorHandler';
+import { requestLogger } from './middleware/logger';
 import { setAuthRoutes } from './routes/authRoutes';
 
-const app = new Koa();
-const router = new Router();
+export function createApp(): Koa {
+    // 환경변수 검증
+    validateConfig();
 
-// Middleware
-app.use(bodyParser());
+    const app = new Koa();
+    const router = new Router();
 
-// Routes
-setAuthRoutes(router);
-app.use(router.routes()).use(router.allowedMethods());
+    // 미들웨어 등록 (순서 중요)
+    app.use(errorHandler);
+    app.use(requestLogger);
+    app.use(bodyParser());
 
-// Start the server
-const PORT = process.env.AUTH_PORT || 4000;
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-});
+    // 라우터 등록
+    app.use(setAuthRoutes(router));
+    app.use(router.allowedMethods());
+
+    return app;
+}

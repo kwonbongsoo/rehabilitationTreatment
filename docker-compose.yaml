@@ -4,14 +4,13 @@ services:
     container_name: postgres
     env_file:
       - ./fastify-member-server/.env
-    # ports:
-    #   - "5432:5432"
+    ports:
+      - "5432:5432"
     # 확인하고 주석처리
     volumes:
       - ./postgres-data:/var/lib/postgresql/data
     networks:
       - app-network
-
   fastify-member-server:
     build:
       context: ./fastify-member-server
