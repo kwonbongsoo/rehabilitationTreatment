@@ -12,3 +12,4 @@ coverage
 *.sqlite
 prisma/client/
 src/generated/
+ddd-auth-server/

@@ -1,120 +1,114 @@
 import Redis from 'ioredis';
 import { Config } from '../config/config';
+import {
+    ApiTimeoutError,
+    ApiUnavailableError,
+    BusinessError
+} from '../middlewares/errorMiddleware';
 
-/**
- * Redis 클라이언트 클래스
- * 키-값 저장소 작업을 추상화하고 타입 안전성 보장
- */
 export class RedisClient {
     private client: Redis;
 
-    /**
-     * Redis 클라이언트 초기화
-     * @param config 설정 객체 (의존성 주입 용이)
-     */
     constructor(config?: Config) {
         const configInstance = config || new Config();
 
         try {
-            // Config 클래스에서 Redis 설정 가져오기
             const redisConfig = configInstance.getRedisConfig();
-            this.client = new Redis(redisConfig);
+            this.client = new Redis({
+                ...redisConfig,
+                retryStrategy: (times) => {
+                    const delay = Math.min(times * 500, 3000);
+                    console.log(`Redis 연결 재시도... (${times}번째, ${delay}ms 후)`);
+                    return delay;
+                }
+            });
 
-            // 연결 이벤트 리스너 추가
+            // 이벤트 리스너로 에러 처리 개선
+            this.client.on('error', (err) => {
+                console.error('Redis 에러:', err);
+                // 에러 이벤트는 로깅만 하고, 실제 에러는 작업 실행 시 던짐
+            });
+
             this.client.on('connect', () => {
                 console.log('Redis 서버에 연결됨');
             });
 
-            this.client.on('error', (err) => {
-                console.error('Redis 연결 오류:', err);
-                // 오류 발생 시에도 앱이 계속 실행되도록 함
-            });
         } catch (error) {
-            console.error('Redis 연결 실패:', error);
-            throw new Error('Redis 연결을 초기화할 수 없습니다');
+            console.error('Redis 초기화 실패:', error);
+            throw new ApiUnavailableError('Redis 서버를 사용할 수 없음', 'redis-service');
         }
     }
 
     /**
-     * 키-값 쌍 저장
-     * @param key 저장할 키
-     * @param value 저장할 값
-     * @param ttl 만료 시간(초), 지정 안하면 영구 저장
-     * @returns Promise 객체
+     * 세션 저장 - 타임아웃 및 Redis 에러 처리
      */
-    public async set(key: string, value: string, ttl?: number): Promise<'OK'> {
-        if (ttl) {
-            return this.client.set(key, value, 'EX', ttl);
+    public async set(key: string, value: string, ttlSeconds?: number): Promise<void> {
+        try {
+            if (ttlSeconds) {
+                await this.client.set(key, value, 'EX', ttlSeconds);
+            } else {
+                await this.client.set(key, value);
+            }
+        } catch (error) {
+            this.handleRedisError(error, 'set', key);
         }
-        return this.client.set(key, value);
     }
 
     /**
-     * 키에 해당하는 값 조회
-     * @param key 조회할 키
-     * @returns 저장된 값 또는 null
+     * 세션 조회 - 타임아웃 및 Redis 에러 처리
      */
     public async get(key: string): Promise<string | null> {
-        return this.client.get(key);
+        try {
+            return await this.client.get(key);
+        } catch (error) {
+            this.handleRedisError(error, 'get', key);
+            return null; // 컴파일러용 (실제로는 위에서 에러 throw)
+        }
     }
 
     /**
-     * 키 삭제
-     * @param key 삭제할 키
-     * @returns 삭제된 키 수
+     * 세션 삭제 - 타임아웃 및 Redis 에러 처리
      */
-    public async delete(key: string): Promise<number> {
-        return this.client.del(key);
+    public async del(key: string): Promise<void> {
+        try {
+            await this.client.del(key);
+        } catch (error) {
+            this.handleRedisError(error, 'del', key);
+        }
     }
 
     /**
-     * 키 존재 여부 확인
-     * @param key 확인할 키
-     * @returns 존재 여부
+     * Redis 에러 처리 헬퍼 - 에러 유형별 적절한 비즈니스 에러로 변환
      */
-    public async exists(key: string): Promise<boolean> {
-        const result = await this.client.exists(key);
-        return result === 1;
-    }
+    private handleRedisError(error: unknown, operation: string, key: string): never {
+        console.error(`Redis ${operation} 작업 실패 (${key}):`, error);
 
-    /**
-     * 키 만료 시간 설정
-     * @param key 대상 키
-     * @param ttl 만료 시간(초)
-     * @returns 성공 여부
-     */
-    public async expire(key: string, ttl: number): Promise<boolean> {
-        const result = await this.client.expire(key, ttl);
-        return result === 1;
-    }
+        // 에러 유형에 따른 분류
+        if (error instanceof Error) {
+            if (error.message.includes('timeout')) {
+                throw new ApiTimeoutError(`Redis 작업 타임아웃: ${operation}`, 'redis-service');
+            }
 
-    /**
-     * 해시 필드 설정
-     * @param key 해시 키
-     * @param field 필드 이름
-     * @param value 필드 값
-     */
-    public async hset(key: string, field: string, value: string): Promise<number> {
-        return this.client.hset(key, field, value);
-    }
+            if (error.message.includes('connection') || error.message.includes('ECONNREFUSED')) {
+                throw new ApiUnavailableError('Redis 서버 연결 불가', 'redis-service');
+            }
 
-    /**
-     * 해시 필드 조회
-     * @param key 해시 키
-     * @param field 필드 이름
-     * @returns 필드 값
-     */
-    public async hget(key: string, field: string): Promise<string | null> {
-        return this.client.hget(key, field);
-    }
+            // 그 외 Redis 에러
+            throw new BusinessError(
+                `Redis ${operation} 작업 실패: ${error.message}`,
+                500,
+                'REDIS_ERROR'
+            );
+        }
 
-    /**
-     * 연결 종료
-     */
-    public async close(): Promise<void> {
-        await this.client.quit();
+        // 알 수 없는 에러
+        throw new BusinessError(
+            `Redis ${operation} 작업 중 알 수 없는 오류 발생`,
+            500,
+            'UNKNOWN_REDIS_ERROR'
+        );
     }
 }
 
-// 싱글톤 인스턴스 제공
+// 싱글톤 인스턴스
 export const redis = new RedisClient();

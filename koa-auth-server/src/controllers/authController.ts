@@ -1,8 +1,9 @@
 import { Context } from 'koa';
 import { AuthService } from '../services/authService';
 import { Config } from '../config/config';
-import { extractCredentials, validateCredentials, extractBearerToken } from '../utils/requestHelpers';
+import { extractCredentials, extractBearerToken } from '../utils/requestHelpers';
 import { sendSuccessResponse, sendErrorResponse } from '../utils/responseHelpers';
+import { AuthenticationError, ValidationError } from '../middlewares/errorMiddleware';
 
 export class AuthController {
     private authService: AuthService;
@@ -20,12 +21,18 @@ export class AuthController {
     public login = async (ctx: Context): Promise<void> => {
         try {
             const credentials = extractCredentials(ctx);
-            validateCredentials(credentials)
 
             const { token } = await this.authService.login(credentials);
             sendSuccessResponse(ctx, { token });
         } catch (err: unknown) {
-            sendErrorResponse(ctx, err, 401, 'Login failed');
+            // 에러 타입에 따른 다양한 응답 처리
+            if (err instanceof ValidationError) {
+                sendErrorResponse(ctx, err, 400);
+            } else if (err instanceof AuthenticationError) {
+                sendErrorResponse(ctx, err, 401);
+            } else {
+                sendErrorResponse(ctx, err, 500, 'Login failed');
+            }
         }
     };
 
@@ -89,8 +96,8 @@ export class AuthController {
                 return;
             }
 
-            const secret = this.config.getJwtSecret();
-            const { status, message } = await this.authService.verifyTokenWithStatus(token, secret);
+            // secret 인자 제거
+            const { status, message } = await this.authService.verifyTokenWithStatus(token);
 
             ctx.status = status;
             ctx.body = { success: status === 200, message };
@@ -106,29 +113,20 @@ export class AuthController {
         try {
             const token = ctx.state.token;
             if (!token) {
-                ctx.status = 400;
-                ctx.body = {
-                    success: false,
-                    message: 'Token is required'
-                };
+                sendErrorResponse(ctx, new Error('Token is required'), 400);
                 return;
             }
 
-            // Redis에서 토큰 세션 삭제
+            // Redis에서 토큰 세션 삭제 (이제 예외를 던짐)
             await this.authService.removeSession(token);
 
-
-            ctx.status = 200;
-            ctx.body = {
-                success: true,
+            // 성공 시 항상 이 코드에 도달
+            sendSuccessResponse(ctx, {
                 message: 'Successfully logged out'
-            };
+            });
         } catch (err) {
-            ctx.status = 500;
-            ctx.body = {
-                success: false,
-                message: err instanceof Error ? err.message : 'Logout failed'
-            };
+            // 모든 오류는 여기서 처리
+            sendErrorResponse(ctx, err, 500, 'Logout failed');
         }
     };
 }
