@@ -42,11 +42,12 @@ Docker, Prisma, PostgreSQL, Koa, Next.js, Kong API Gateway, Nginx 등 다양한 
 
 ## 시스템 아키텍처
 
+```
 ┌──────────────┐     HTTP 요청     ┌──────────────┐                      ┌──────────────┐
 │              │ ─────────────────►│              │────────────────────► │              │
 │   클라이언트  │                   │    Nginx     │    인증 성공 시        │  API Gateway  │
 │  (브라우저/앱) │ ◄─────────────── │  (인증 프록시) │◄────────────────────  │   (Kong)     │
-└──────────────┘     HTTP 응답     └──────┬───────┘                      └────── ┬──────┘
+└──────────────┘     HTTP 응답     └──────┬───────┘                      └───────┬──────┘
                                           │                                     │
                                           │ auth_request                        │
                                           │ /auth_check                         │
@@ -75,6 +76,7 @@ Docker, Prisma, PostgreSQL, Koa, Next.js, Kong API Gateway, Nginx 등 다양한 
                                                      │  PostgreSQL  │
                                                      │  (Database)  │
                                                      └──────────────┘
+```
 
 ## 요청 흐름 상세 설명
 
