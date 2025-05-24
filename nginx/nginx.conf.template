@@ -1,22 +1,40 @@
-events {}
-
-upstream kong_upstream {
-    server kong:8000;
-    # 필요하면 더 추가
+events {
+  worker_connections 512; # 동시 연결 수 설정
 }
 
 http {
   # 기본 타임아웃 설정
   proxy_connect_timeout 5s;
-  proxy_send_timeout    5s;
-  proxy_read_timeout    5s;
+  proxy_send_timeout 5s;
+  proxy_read_timeout 5s;
+
+  # URL 기반 인증 검사 맵 설정
+  map $request_uri $skip_auth_check {
+    default 0;
+
+    # 인증 검사가 필요 없는 경로들
+    ~^/auth/login 1;
+    ~^/auth/guest-token 1;
+    ~^/auth/public 1;
+    ~^/auth/health 1;
+    ~^/member/health 1;
+
+    # 추가 정적 리소스도 제외 가능
+    ~^/static/ 1;
+    ~^/favicon\.ico 1;
+  }
+
+  upstream kong_upstream {
+    server kong:8000;
+    # 필요하면 더 추가
+  }
 
   server {
     listen 80;
     server_name _;
 
-    # 인증이 필요 없는 경로 (토큰 발급 등)
-    location ~ ^/auth/(login)$ {
+    # 1. 인증이 필요 없는 경로들을 명시적으로 처리
+    location ~ ^/auth/(login|guest-token|public|health)$ {
       proxy_pass http://kong_upstream;
       proxy_set_header Host $host;
       proxy_set_header X-Real-IP $remote_addr;
@@ -24,9 +42,22 @@ http {
       proxy_set_header X-Forwarded-Proto $scheme;
     }
 
-    # 그 외 모든 요청은 인증 체크
+    # 2. 건강 체크 엔드포인트
+    location = /member/health {
+      proxy_pass http://kong_upstream;
+      # 기타 proxy 설정...
+    }
+
+    # 3. 정적 파일
+    location ~ ^/(static|favicon\.ico) {
+      proxy_pass http://kong_upstream;
+      # 기타 proxy 설정...
+    }
+
+    # 4. 그 외 모든 요청에는 인증 필요
     location / {
-      auth_request /auth_check;
+      auth_request /auth_verify; # if 없이 직접 사용
+
       proxy_pass http://kong_upstream;
       proxy_set_header Host $host;
       proxy_set_header X-Real-IP $remote_addr;
@@ -34,18 +65,19 @@ http {
       proxy_set_header X-Forwarded-Proto $scheme;
     }
 
-    location = /auth_check {
-        internal;
-        proxy_pass ${AUTH_SERVICE_URL}/auth/verify;
-        proxy_set_header Authorization $http_authorization;
-        proxy_pass_request_body off;
-        proxy_set_header Content-Length "";
-        proxy_set_header X-Original-URI $request_uri;
-        
-        # 인증 체크 전용 타임아웃
-        proxy_connect_timeout ${AUTH_TIMEOUT};
-        proxy_send_timeout    ${AUTH_TIMEOUT};
-        proxy_read_timeout    ${AUTH_TIMEOUT};
+    # 인증 요청 처리
+    location = /auth_verify {
+      internal;
+      proxy_pass ${AUTH_SERVICE_URL}/auth/verify;
+      proxy_set_header Authorization $http_authorization;
+      proxy_pass_request_body off;
+      proxy_set_header Content-Length "";
+      proxy_set_header X-Original-URI $request_uri;
+
+      # 인증 체크 전용 타임아웃
+      proxy_connect_timeout ${AUTH_TIMEOUT}s;
+      proxy_send_timeout ${AUTH_TIMEOUT}s;
+      proxy_read_timeout ${AUTH_TIMEOUT}s;
     }
   }
 }

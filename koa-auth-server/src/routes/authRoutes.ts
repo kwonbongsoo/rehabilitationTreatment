@@ -1,21 +1,40 @@
 import Router from 'koa-router';
 import { AuthController } from '../controllers/authController';
-import { checkAuthUser, checkAuthOrGuest } from '../middleware/authMiddleware';
+import { AuthMiddleware } from '../middlewares/authMiddleware';
 
+// 인스턴스 생성
+const router = new Router({ prefix: '/auth' });
 const authController = new AuthController();
+const authMiddleware = new AuthMiddleware();
 
-export function setAuthRoutes(router: Router) {
-    // 헬스 체크 엔드포인트 추가
-    router.get('/health', async (ctx) => {
-        ctx.body = { status: 'ok' };
-    });
+/**
+ * 공개 엔드포인트 (인증 불필요)
+ */
+router.post('/login', authController.login);
+router.post('/guest-token', authController.guestToken);
+router.get('/public', authController.public);
 
-    router.post('/login', authController.login);
-    router.post('/auth/guest', authController.guestToken);
-    router.get('/auth/verify', authController.verify);
-    router.get('/profile', checkAuthUser, authController.profile);
-    router.get('/public', checkAuthOrGuest, authController.public);
-    router.get('/userinfo', checkAuthUser, authController.userInfo);
 
-    return router.routes();
-}
+/**
+ * 게스트, 사용자 토큰 검증
+ */
+
+router.get('/verify', authMiddleware.requireToken, authController.verify);
+
+/**
+ * 로그인 사용자 필요 엔드포인트 
+ */
+router.get('/profile', authMiddleware.requireUser, authController.profile);
+router.get('/user-info', authMiddleware.requireUser, authController.userInfo);
+router.post('/logout', authMiddleware.requireUser, authController.logout);
+
+// 헬스 체크 엔드포인트
+router.get('/health', async (ctx) => {
+    ctx.body = {
+        status: 'ok',
+        service: 'auth-service',
+        timestamp: new Date().toISOString()
+    };
+});
+
+export { router as authRouter };

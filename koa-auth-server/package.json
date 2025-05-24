@@ -11,6 +11,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "@koa/cors": "^5.0.0",
     "bcrypt": "^5.0.1",
     "dotenv": "^16.5.0",
     "got": "^12.6.1",
@@ -24,6 +25,7 @@
     "@types/bcrypt": "^5.0.1",
     "@types/jsonwebtoken": "^8.5.0",
     "@types/koa": "^2.13.3",
+    "@types/koa__cors": "^5.0.0",
     "@types/koa-bodyparser": "^4.3.12",
     "@types/koa-router": "^7.4.0",
     "prettier": "^3.5.3",
