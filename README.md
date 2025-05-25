@@ -129,7 +129,7 @@ Docker, Prisma, PostgreSQL, Koa, Next.js, Kong API Gateway, Nginx 등 다양한 
 
 2. **Docker Compose로 전체 서비스 실행**
    ```sh
-   docker-compose up --build
+   docker-compose -p project-name up --build
    ```
 
 3. **개별 서비스 개발 서버 실행**
