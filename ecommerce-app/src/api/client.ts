@@ -6,13 +6,15 @@ import { ApiError } from './types';
 export class ApiClient {
     private client: AxiosInstance;
 
-    constructor() {
+    constructor(config?: AxiosRequestConfig) {
         this.client = axios.create({
             baseURL: API_BASE_URL,
             timeout: API_TIMEOUT,
             headers: {
                 'Content-Type': 'application/json',
+                ...(config?.headers || {}) // 헤더 병합
             },
+            ...config // 다른 설정 옵션 병합
         });
 
         setupInterceptors(this.client);
@@ -95,4 +97,5 @@ export class ApiClient {
     }
 }
 
-export const createApiClient = () => new ApiClient();
+// 팩토리 함수 수정 - 설정 객체 매개변수 추가
+export const createApiClient = (config?: AxiosRequestConfig) => new ApiClient(config);

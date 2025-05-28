@@ -10,6 +10,8 @@
     "format": "prettier --write \"src/**/*.{ts,js,json,md}\""
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.77.2",
+    "@tanstack/react-query-devtools": "^5.77.2",
     "axios": "^1.9.0",
     "next": "latest",
     "react": "latest",
