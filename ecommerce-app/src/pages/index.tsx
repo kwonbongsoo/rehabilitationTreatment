@@ -1,18 +1,27 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { NextPage } from 'next';
 import { useCurrentUser } from '../hooks/queries/useAuth';
+import { ErrorMessage } from '../components/errors/ErrorMessage';
+import { useErrorHandler } from '../hooks/useErrorHandler';
 
 const MyApp: NextPage = () => {
-    // 커스텀 훅 사용
-    const { data: user, isLoading, error } = useCurrentUser();
+    // 커스텀 에러 핸들러 훅 사용
+    const { handleError } = useErrorHandler();
 
-    if (error) {
-        return (
-            <div className="error-container">
-                <p>문제가 발생했습니다. 다시 시도해주세요.</p>
-            </div>
-        );
-    }
+    // 사용자 정보 쿼리
+    const {
+        data: user,
+        isLoading,
+        error,
+        refetch
+    } = useCurrentUser();
+
+    // 에러가 발생하면 에러 핸들러에 전달
+    useEffect(() => {
+        if (error) {
+            handleError(error as any, 'toast');
+        }
+    }, [error, handleError]);
 
     return (
         <div className="home-page">
@@ -20,6 +29,13 @@ const MyApp: NextPage = () => {
 
             {isLoading ? (
                 <p>Loading...</p>
+            ) : error ? (
+                <ErrorMessage
+                    error={error as any}
+                    variant="inline"
+                    showRetry={true}
+                    onRetry={() => refetch()}
+                />
             ) : user ? (
                 <p>Welcome back, {user.firstName}!</p>
             ) : (
