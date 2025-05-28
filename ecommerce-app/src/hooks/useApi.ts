@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { ApiError } from '../api/types';
 
 interface UseApiState<T> {
@@ -7,45 +7,75 @@ interface UseApiState<T> {
     error: ApiError | null;
 }
 
-interface UseApiOptions {
-    onSuccess?: (data: any) => void;
-    onError?: (error: ApiError) => void;
-}
-
-export function useApi<T>(apiFunction: (...args: any[]) => Promise<T>, options?: UseApiOptions) {
+export function useApi<T, Args extends any[] = any[]>(
+    apiFunction: (...args: Args) => Promise<T>,
+    options?: {
+        onSuccess?: (data: T) => void;
+        onError?: (error: ApiError) => void;
+    }
+) {
     const [state, setState] = useState<UseApiState<T>>({
         data: null,
         loading: false,
         error: null
     });
 
+    const isMounted = useRef(true);
+    const abortControllerRef = useRef<AbortController | null>(null);
+
+    useEffect(() => {
+        return () => {
+            isMounted.current = false;
+            if (abortControllerRef.current) {
+                abortControllerRef.current.abort();
+            }
+        };
+    }, []);
+
+    const { onSuccess, onError } = options || {};
+
     const execute = useCallback(
-        async (...args: any[]) => {
+        async (...args: Args) => {
             try {
-                setState({ data: null, loading: true, error: null });
+                if (abortControllerRef.current) {
+                    abortControllerRef.current.abort();
+                }
+
+                abortControllerRef.current = new AbortController();
+
+                if (isMounted.current) {
+                    setState({ data: null, loading: true, error: null });
+                }
 
                 const response = await apiFunction(...args);
 
-                setState({ data: response, loading: false, error: null });
-                options?.onSuccess?.(response);
+                if (isMounted.current) {
+                    setState({ data: response, loading: false, error: null });
+                    onSuccess?.(response);
+                }
 
                 return response;
             } catch (e) {
-                const error = e as ApiError;
-                setState({ data: null, loading: false, error });
-                options?.onError?.(error);
+                if ((e as Error).name === 'AbortError') return;
 
+                const error = e as ApiError;
+                if (isMounted.current) {
+                    setState({ data: null, loading: false, error });
+                    onError?.(error);
+                }
                 throw error;
             }
         },
-        [apiFunction, options]
+        [apiFunction, onSuccess, onError]
     );
 
     return {
         ...state,
         execute,
         reset: useCallback(() => {
-            setState({ data: null, loading: false, error: null });
+            if (isMounted.current) {
+                setState({ data: null, loading: false, error: null });
+            }
         }, [])
     };
 }
