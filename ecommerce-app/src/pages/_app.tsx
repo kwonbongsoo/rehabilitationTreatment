@@ -1,8 +1,18 @@
-import { AppProps } from 'next/app';
 import '../styles/globals.css';
+import '../styles/error-styles.css';
+import type { AppProps } from 'next/app';
+import ErrorBoundary from '../components/errors/ErrorBoundary';
+import { GlobalErrorHandler } from '../components/errors/GlobalErrorHandler';
+import { ToastNotification } from '../components/errors/ToastNotification';
 
-const MyApp = ({ Component, pageProps }: AppProps) => {
-  return <Component {...pageProps} />;
-};
+function MyApp({ Component, pageProps }: AppProps) {
+  return (
+    <ErrorBoundary>
+      <GlobalErrorHandler />
+      <Component {...pageProps} />
+      <ToastNotification />
+    </ErrorBoundary>
+  );
+}
 
 export default MyApp;
