@@ -26,13 +26,13 @@ Docker, Prisma, PostgreSQL, Koa, Next.js, Kong API Gateway, Nginx 등 다양한 
 
 ```
 .
-├── fastify-member-server/   # Fastify 기반 회원 서버
-├── koa-auth-server/         # Koa 기반 인증 서버
-├── ecommerce-app/           # Next.js 기반 프론트엔드
-├── kong/                    # Kong declarative config (kong.yml)
-├── nginx/                   # Nginx 리버스 프록시 설정 (nginx.conf)
-├── docker-compose.yaml      # 전체 서비스 오케스트레이션
-└── postgres-data/           # DB 데이터 볼륨
+├── fastify-member-server/   # 회원 관리 서비스
+├── koa-auth-server/         # 인증 서비스
+├── ecommerce-app/           # 프론트엔드
+├── kong/                    # API Gateway 설정
+├── nginx/                   # 리버스 프록시 설정
+├── docker-compose.yml       # 컨테이너 구성
+└── README.md                # 프로젝트 문서
 ```
 
 ---
@@ -127,13 +127,17 @@ Docker, Prisma, PostgreSQL, Koa, Next.js, Kong API Gateway, Nginx 등 다양한 
 1. **환경 변수 파일 준비**
    - 각 서비스 폴더에 `.env` 파일을 생성하고 환경변수를 설정하세요.
 
-2. **Docker Compose로 전체 서비스 실행**
-   ```sh
+2. **전체 서비스 실행**
+   ```
+   # 환경 변수 설정
+   # 각 서비스 폴더에 .env 파일 생성 및 설정
+
+   # Docker로 전체 서비스 실행
    docker-compose -p project-name up --build
    ```
 
 3. **개별 서비스 개발 서버 실행**
-   ```sh
+   ```
    # 예시: Fastify 서버
    cd fastify-member-server
    npm install
@@ -144,14 +148,11 @@ Docker, Prisma, PostgreSQL, Koa, Next.js, Kong API Gateway, Nginx 등 다양한 
 
 ## 주요 기술 스택
 
-- Node.js, TypeScript
-- Fastify, Koa, Next.js
-- Prisma ORM
-- PostgreSQL
-- Docker, Docker Compose
-- Kong API Gateway
-- Nginx (Reverse Proxy)
-
+- 서버: Node.js, TypeScript
+- 프레임워크: Fastify, Koa, Next.js
+- ORM: Prisma ORM
+- DB: PostgreSQL
+- 인프라: Docker, Kong API Gateway, Nginx (Reverse Proxy)
 ---
 ## 라이선스
 

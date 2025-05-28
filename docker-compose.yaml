@@ -78,7 +78,7 @@ services:
     env_file:
       - ./nginx/.env
     command: >
-      /bin/sh -c "envsubst '$$AUTH_SERVICE_URL $$AUTH_TIMEOUT' <  /etc/nginx/nginx.conf.template >  /etc/nginx/nginx.conf &&  nginx -g 'daemon off;'"
+      /bin/sh -c "envsubst '$$AUTH_SERVICE_URL $$AUTH_TIMEOUT $$FRONTEND_URL $$PROXY_CONNECT_TIMEOUT $$PROXY_READ_TIMEOUT $$PROXY_SEND_TIMEOUT $$FRONTEND_TIMEOUT' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"
     depends_on:
       - kong
     restart: unless-stopped

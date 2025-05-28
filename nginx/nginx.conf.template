@@ -4,10 +4,9 @@ events {
 
 http {
   # 기본 타임아웃 설정
-  proxy_connect_timeout 5s;
-  proxy_send_timeout 5s;
-  proxy_read_timeout 5s;
-
+  proxy_connect_timeout ${PROXY_CONNECT_TIMEOUT}s;
+  proxy_send_timeout ${PROXY_SEND_TIMEOUT}s;
+  proxy_read_timeout ${PROXY_READ_TIMEOUT}s;
   # URL 기반 인증 검사 맵 설정
   map $request_uri $skip_auth_check {
     default 0;
@@ -31,53 +30,60 @@ http {
 
   server {
     listen 80;
-    server_name _;
+    server_name localhost;
 
-    # 1. 인증이 필요 없는 경로들을 명시적으로 처리
-    location ~ ^/auth/(login|guest-token|public|health)$ {
-      proxy_pass http://kong_upstream;
+    # 인증 관련 경로 - 인증 체크 우회
+    location ~ ^/api/auth/ {
+        # 인증 관련 요청은 auth_request 검사 없이 처리
+        proxy_pass http://kong:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # API 요청 - 인증 체크 필요
+    location /api/ {
+      auth_request /auth_check;
+      auth_request_set $auth_status $upstream_status;
+      
+      # 인증 성공 시 Kong API Gateway로 전달
+      proxy_pass http://kong:8000;
       proxy_set_header Host $host;
       proxy_set_header X-Real-IP $remote_addr;
       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
       proxy_set_header X-Forwarded-Proto $scheme;
+      
+      # 인증 헤더 처리
+      auth_request_set $auth_user $upstream_http_x_auth_user;
+      proxy_set_header X-Auth-User $auth_user;
     }
 
-    # 2. 건강 체크 엔드포인트
-    location = /member/health {
-      proxy_pass http://kong_upstream;
-      # 기타 proxy 설정...
-    }
-
-    # 3. 정적 파일
-    location ~ ^/(static|favicon\.ico) {
-      proxy_pass http://kong_upstream;
-      # 기타 proxy 설정...
-    }
-
-    # 4. 그 외 모든 요청에는 인증 필요
-    location / {
-      auth_request /auth_verify; # if 없이 직접 사용
-
-      proxy_pass http://kong_upstream;
-      proxy_set_header Host $host;
-      proxy_set_header X-Real-IP $remote_addr;
-      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-      proxy_set_header X-Forwarded-Proto $scheme;
-    }
-
-    # 인증 요청 처리
-    location = /auth_verify {
+    # 인증 체크용 내부 요청
+    location = /auth_check {
       internal;
       proxy_pass ${AUTH_SERVICE_URL}/auth/verify;
-      proxy_set_header Authorization $http_authorization;
       proxy_pass_request_body off;
       proxy_set_header Content-Length "";
       proxy_set_header X-Original-URI $request_uri;
-
-      # 인증 체크 전용 타임아웃
+      proxy_set_header X-Original-Method $request_method;
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
       proxy_connect_timeout ${AUTH_TIMEOUT}s;
-      proxy_send_timeout ${AUTH_TIMEOUT}s;
-      proxy_read_timeout ${AUTH_TIMEOUT}s;
+    }
+
+    # 프론트엔드 서비스 (Next.js)
+    location / {
+      proxy_pass ${FRONTEND_URL};
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto $scheme;
+
+      # 웹소켓 지원 (Next.js HMR용)
+      proxy_http_version 1.1;
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection "upgrade";
     }
   }
 }
