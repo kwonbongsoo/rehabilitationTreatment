@@ -1,7 +1,7 @@
-import { apiClient } from '../client';
+import { ApiClient } from '../client';
 import { User, UserUpdateRequest, Address } from '../models/user';
 
-export const userRepository = {
+export const createUserRepository = (apiClient: ApiClient) => ({
     /**
      * 현재 사용자 정보 조회
      */
@@ -43,4 +43,4 @@ export const userRepository = {
     deleteAddress: async (id: string): Promise<void> => {
         return apiClient.delete<void>(`/users/me/addresses/${id}`);
     }
-};
+})

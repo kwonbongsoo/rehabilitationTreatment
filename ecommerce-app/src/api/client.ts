@@ -3,11 +3,10 @@ import { API_BASE_URL, API_TIMEOUT } from './config';
 import { setupInterceptors } from './interceptors';
 import { ApiError } from './types';
 
-class ApiClient {
-    private static instance: ApiClient;
+export class ApiClient {
     private client: AxiosInstance;
 
-    private constructor() {
+    constructor() {
         this.client = axios.create({
             baseURL: API_BASE_URL,
             timeout: API_TIMEOUT,
@@ -16,15 +15,7 @@ class ApiClient {
             },
         });
 
-        // 인터셉터 설정
         setupInterceptors(this.client);
-    }
-
-    public static getInstance(): ApiClient {
-        if (!ApiClient.instance) {
-            ApiClient.instance = new ApiClient();
-        }
-        return ApiClient.instance;
     }
 
     public async get<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
@@ -104,4 +95,4 @@ class ApiClient {
     }
 }
 
-export const apiClient = ApiClient.getInstance();
+export const createApiClient = () => new ApiClient();

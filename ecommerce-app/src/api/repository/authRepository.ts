@@ -1,7 +1,8 @@
-import { apiClient } from '../client';
+import { ApiClient } from '../client';
 import { LoginRequest, LoginResponse, SignupRequest, UserResponse } from '../models/auth';
 
-export const authRepository = {
+// 팩토리 함수로 변경하여 매번 새 인스턴스 생성
+export const createAuthRepository = (apiClient: ApiClient) => ({
     /**
      * 사용자 로그인
      */
@@ -36,4 +37,4 @@ export const authRepository = {
     getUserInfo: async (): Promise<UserResponse> => {
         return apiClient.get<UserResponse>('/auth/me');
     }
-};
+});
