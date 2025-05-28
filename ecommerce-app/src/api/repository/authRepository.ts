@@ -24,18 +24,6 @@ export const authRepository = {
     },
 
     /**
-     * 토큰 검증
-     */
-    verifyToken: async (token: string): Promise<boolean> => {
-        try {
-            await apiClient.post<void>('/auth/verify', { token });
-            return true;
-        } catch (error) {
-            return false;
-        }
-    },
-
-    /**
      * 로그아웃
      */
     logout: async (): Promise<void> => {
