@@ -4,14 +4,21 @@ dotenv.config();
 import fastify, { FastifyInstance } from 'fastify';
 import { PrismaClient } from '@prisma/client';
 import fastifyCors from '@fastify/cors';
-import { validateConfig } from './utils/config';
 import memberRoutes from './routes/memberRoutes';
 import fastifySwagger from '@fastify/swagger';
 import fastifySwaggerUi, { FastifySwaggerUiOptions } from '@fastify/swagger-ui';
 
+function validateConfig(): void {
+  const requiredEnvVars = ['JWT_SECRET', 'REDIS_URL'];
+
+  for (const envVar of requiredEnvVars) {
+    if (!process.env[envVar]) {
+      throw new Error(`Missing required environment variable: ${envVar}`);
+    }
+  }
+}
 
 // 앱 생성 코드...
-
 export async function buildApp(): Promise<FastifyInstance> {
   validateConfig();
 

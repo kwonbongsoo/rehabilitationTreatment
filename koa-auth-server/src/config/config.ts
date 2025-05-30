@@ -120,4 +120,12 @@ export class Config {
 
         return config;
     }
+
+
+    getMemberServiceConfig() {
+        return {
+            url: process.env.MEMBER_SERVICE_URL || 'http://localhost',
+            timeout: Number(process.env.MEMBER_SERVICE_TIMEOUT) || 5000
+        };
+    }
 }
