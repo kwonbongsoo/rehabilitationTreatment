@@ -36,5 +36,13 @@ export const createAuthRepository = (apiClient: ApiClient) => ({
      */
     getUserInfo: async (): Promise<UserResponse> => {
         return apiClient.get<UserResponse>('/auth/me');
+    },
+
+
+    /**
+     * 토큰 갱신
+     */
+    getRefreshToken: async (): Promise<LoginResponse> => {
+        return apiClient.post<LoginResponse>('/auth/refresh-token');
     }
 });

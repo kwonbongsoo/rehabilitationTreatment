@@ -1,101 +1,134 @@
 import axios, { AxiosInstance, AxiosError, AxiosRequestConfig } from 'axios';
 import { API_BASE_URL, API_TIMEOUT } from './config';
-import { setupInterceptors } from './interceptors';
 import { ApiError } from './types';
+
+// API 응답 타입 정의
+interface ApiResponse<T> {
+    data: T;
+    message?: string;
+    status: number;
+}
+
+// HTTP 메서드 상수화
+enum HttpMethod {
+    GET = 'GET',
+    POST = 'POST',
+    PUT = 'PUT',
+    DELETE = 'DELETE',
+    PATCH = 'PATCH'
+}
 
 export class ApiClient {
     private client: AxiosInstance;
 
-    constructor(config?: AxiosRequestConfig) {
-        this.client = axios.create({
+    constructor(config?: AxiosRequestConfig & { setupInterceptors?: boolean }) {
+        // 기본값과 병합
+        const finalConfig = {
             baseURL: API_BASE_URL,
             timeout: API_TIMEOUT,
             headers: {
                 'Content-Type': 'application/json',
-                ...(config?.headers || {}) // 헤더 병합
+                ...(config?.headers || {})
             },
-            ...config // 다른 설정 옵션 병합
-        });
+            ...config
+        };
 
-        setupInterceptors(this.client);
+        this.client = axios.create(finalConfig);
+
+        // 선택적 인터셉터 설정
+        const setupIntercept = config?.setupInterceptors !== false;
+        if (setupIntercept) {
+            // 동적 임포트로 순환 참조 방지
+            import('./interceptors').then(({ setupInterceptors }) => {
+                setupInterceptors(this.client);
+            });
+        }
     }
 
+    // 공통 요청 메서드 - 코드 중복 감소
+    private async request<T>(
+        method: HttpMethod,
+        url: string,
+        data?: unknown,
+        config?: AxiosRequestConfig
+    ): Promise<T> {
+        try {
+            let response;
+
+            switch (method) {
+                case HttpMethod.GET:
+                    response = await this.client.get<T>(url, config);
+                    break;
+                case HttpMethod.POST:
+                    response = await this.client.post<T>(url, data, config);
+                    break;
+                case HttpMethod.PUT:
+                    response = await this.client.put<T>(url, data, config);
+                    break;
+                case HttpMethod.DELETE:
+                    response = await this.client.delete<T>(url, config);
+                    break;
+                case HttpMethod.PATCH:
+                    response = await this.client.patch<T>(url, data, config);
+                    break;
+            }
+
+            return response.data;
+        } catch (error) {
+            throw this.handleError(error);
+        }
+    }
+
+    // 메서드 구현 - 공통 request 메서드 활용
     public async get<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
-        try {
-            const response = await this.client.get<T>(url, config);
-            return response.data;
-        } catch (error) {
-            return this.handleError(error);
-        }
+        return this.request<T>(HttpMethod.GET, url, undefined, config);
     }
 
-    public async post<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
-        try {
-            const response = await this.client.post<T>(url, data, config);
-            return response.data;
-        } catch (error) {
-            return this.handleError(error);
-        }
+    public async post<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> {
+        return this.request<T>(HttpMethod.POST, url, data, config);
     }
 
-    public async put<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
-        try {
-            const response = await this.client.put<T>(url, data, config);
-            return response.data;
-        } catch (error) {
-            return this.handleError(error);
-        }
+    public async put<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> {
+        return this.request<T>(HttpMethod.PUT, url, data, config);
     }
 
     public async delete<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
-        try {
-            const response = await this.client.delete<T>(url, config);
-            return response.data;
-        } catch (error) {
-            return this.handleError(error);
-        }
+        return this.request<T>(HttpMethod.DELETE, url, undefined, config);
     }
 
-    // 멱등성을 위한 메서드
-    public async postWithIdempotency<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
-        const idempotencyKey = crypto.randomUUID();
-        const headers = {
-            ...config?.headers,
-            'X-Idempotency-Key': idempotencyKey,
-        };
-
-        return this.post<T>(url, data, { ...config, headers });
+    public async patch<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> {
+        return this.request<T>(HttpMethod.PATCH, url, data, config);
     }
 
+    // 에러 처리 개선 - 명확한 에러 타입
     private handleError(error: unknown): never {
         if (axios.isAxiosError(error)) {
             const axiosError = error as AxiosError;
 
             if (axiosError.response) {
-                // 서버에서 응답이 왔지만 오류 상태코드
                 const status = axiosError.response.status;
                 const data = axiosError.response.data as any;
+                const message = data?.message || '서버에서 오류가 발생했습니다';
 
-                if (status === 401) {
-                    // 로그인 페이지로 리다이렉트 또는 토큰 재발급 시도
-                    // window.location.href = '/login';
-                }
+                throw new ApiError(message, status, data);
+            }
 
-                throw new ApiError(
-                    data.message || '서버에서 오류가 발생했습니다',
-                    status,
-                    data
-                );
-            } else if (axiosError.request) {
-                // 요청은 보냈지만 응답이 없음
+            if (axiosError.request) {
                 throw new ApiError('서버에 연결할 수 없습니다', 0);
             }
         }
 
-        // 그 외 모든 오류
         throw new ApiError('알 수 없는 오류가 발생했습니다', 0);
+    }
+
+    public getAxiosInstance(): AxiosInstance {
+        return this.client;
     }
 }
 
-// 팩토리 함수 수정 - 설정 객체 매개변수 추가
-export const createApiClient = (config?: AxiosRequestConfig) => new ApiClient(config);
+// 팩토리 함수들
+export const createApiClient = (config?: AxiosRequestConfig & { setupInterceptors?: boolean }) =>
+    new ApiClient(config);
+
+export const createBasicApiClient = () =>
+    new ApiClient({ setupInterceptors: false });
