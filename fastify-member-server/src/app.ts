@@ -77,7 +77,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   });
 
   // 라우트 등록
-  app.register(memberRoutes, { prefix: '/member' });
+  app.register(memberRoutes);
 
   return app;
 }
