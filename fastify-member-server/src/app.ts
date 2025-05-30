@@ -9,7 +9,7 @@ import fastifySwagger from '@fastify/swagger';
 import fastifySwaggerUi, { FastifySwaggerUiOptions } from '@fastify/swagger-ui';
 
 function validateConfig(): void {
-  const requiredEnvVars = ['JWT_SECRET', 'REDIS_URL'];
+  const requiredEnvVars = ['DATABASE_URL'];
 
   for (const envVar of requiredEnvVars) {
     if (!process.env[envVar]) {

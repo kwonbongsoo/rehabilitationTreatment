@@ -4,10 +4,20 @@ dotenv.config();
 import Koa from 'koa';
 import cors from '@koa/cors'
 import bodyParser from 'koa-bodyparser';
-import { validateConfig } from './utils/config';
 import { requestLogger } from './middlewares/logger';
 import { authRouter } from './routes/authRoutes';
 import { errorHandlerMiddleware } from './middlewares/errorMiddleware';
+
+function validateConfig(): void {
+    const requiredEnvVars = ['JWT_SECRET', 'REDIS_URL'];
+
+    for (const envVar of requiredEnvVars) {
+        if (!process.env[envVar]) {
+            throw new Error(`Missing required environment variable: ${envVar}`);
+        }
+    }
+}
+
 
 /**
  * Koa 애플리케이션 생성 및 설정
