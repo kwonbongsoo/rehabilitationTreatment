@@ -41,7 +41,7 @@ export class AuthController {
      */
     public guestToken = async (ctx: Context): Promise<void> => {
         try {
-            const token = this.authService.createGuestToken();
+            const { token } = await this.authService.createGuestToken();
             sendSuccessResponse(ctx, { token });
         } catch (err: unknown) {
             sendErrorResponse(ctx, err, 500, 'Failed to generate guest token');

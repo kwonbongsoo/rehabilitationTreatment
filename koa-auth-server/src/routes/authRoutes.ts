@@ -3,7 +3,7 @@ import { AuthController } from '../controllers/authController';
 import { AuthMiddleware } from '../middlewares/authMiddleware';
 
 // 인스턴스 생성
-const router = new Router({ prefix: '/auth' });
+const router = new Router();
 const authController = new AuthController();
 const authMiddleware = new AuthMiddleware();
 

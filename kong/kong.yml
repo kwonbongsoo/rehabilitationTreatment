@@ -7,14 +7,16 @@ services:
     routes:
       - name: member-api
         paths:
-          - /member
+          - /api/member
+        strip_path: true  # 접두어 제거
 
   - name: koa-auth-server
     url: http://koa-auth-server:4000
     routes:
       - name: auth-api
         paths:
-          - /auth
+          - /api/auth
+        strip_path: true  # 접두어 제거
 
   - name: ecommerce-app
     url: http://ecommerce-app:3000

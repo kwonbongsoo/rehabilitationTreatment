@@ -56,14 +56,18 @@ export class AuthService {
     /**
      * 게스트 토큰 발급
      */
-    public createGuestToken(): string {
+    public async createGuestToken(): Promise<{ token: string }> {
         const guestPayload: TokenPayload = {
             id: 'guest-' + Date.now(),
             name: 'Guest User',
             role: 'guest'
         };
 
-        return this.tokenService.generateToken(guestPayload);
+        const token = this.tokenService.generateToken(guestPayload);
+        const expiresIn = this.config.getJwtExpiresIn();
+        await this.sessionService.storeSession(token, guestPayload, expiresIn);
+
+        return { token };
     }
 
     /**
