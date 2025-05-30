@@ -17,10 +17,3 @@ services:
         paths:
           - /api/auth
         strip_path: true  # 접두어 제거
-
-  - name: ecommerce-app
-    url: http://ecommerce-app:3000
-    routes:
-      - name: ecommerce-api
-        paths:
-          - /shop

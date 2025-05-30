@@ -73,7 +73,7 @@ http {
     }
 
     # 프론트엔드 서비스 (Next.js)
-    location / {
+    location /shop {
       proxy_pass ${FRONTEND_URL};
       proxy_set_header Host $host;
       proxy_set_header X-Real-IP $remote_addr;
