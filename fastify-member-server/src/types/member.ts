@@ -6,6 +6,7 @@ export interface MemberInput {
 }
 
 export interface MemberOutput {
+    uid: string; // UUID 형식의 ID
     id: string;
     email: string;
     name: string;

@@ -7,92 +7,115 @@ http {
   proxy_connect_timeout ${PROXY_CONNECT_TIMEOUT}s;
   proxy_send_timeout ${PROXY_SEND_TIMEOUT}s;
   proxy_read_timeout ${PROXY_READ_TIMEOUT}s;
-  # URL 기반 인증 검사 맵 설정
-  map $request_uri $skip_auth_check {
-    default 0;
+  
+  # 공통 프록시 헤더 설정
+  proxy_set_header Host $host;
+  proxy_set_header X-Real-IP $remote_addr;
+  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  proxy_set_header X-Forwarded-Proto $scheme;
 
-    # 인증 검사가 필요 없는 경로들
-    ~^/auth/login 1;
-    ~^/auth/guest-token 1;
-    ~^/auth/public 1;
-    ~^/auth/health 1;
-    ~^/member/health 1;
-
-    # 추가 정적 리소스도 제외 가능
-    ~^/static/ 1;
-    ~^/favicon\.ico 1;
-  }
-
+  # Kong API Gateway 서버 그룹
   upstream kong_upstream {
     server kong:8000;
-    # 필요하면 더 추가
   }
 
   server {
     listen 80;
     server_name localhost;
 
-    # 인증 관련 경로 - 인증 체크 우회
-    location ~ ^/api/auth/ {
-        # 인증 관련 요청은 auth_request 검사 없이 처리
-        proxy_pass http://kong:8000;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
+    #############################
+    # 1. API 관련 경로 처리
+    #############################
+
+    # 1.1 인증 우회 API 경로 (auth 관련, health 체크, docs)
+    location ~ ^/api/(auth/|member/health$|member/docs$) {
+        proxy_pass http://kong_upstream;
     }
 
-    # API 요청 - 인증 체크 필요
+    # 1.2 인증 필요한 API 경로
     location /api/ {
       auth_request /auth_check;
       auth_request_set $auth_status $upstream_status;
-      
-      # 인증 성공 시 Kong API Gateway로 전달
-      proxy_pass http://kong:8000;
-      proxy_set_header Host $host;
-      proxy_set_header X-Real-IP $remote_addr;
-      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-      proxy_set_header X-Forwarded-Proto $scheme;
-      
-      # 인증 헤더 처리
       auth_request_set $auth_user $upstream_http_x_auth_user;
+
+      proxy_pass http://kong_upstream;
       proxy_set_header X-Auth-User $auth_user;
     }
 
-    # 인증 체크용 내부 요청
+    # 1.3 인증 검사용 내부 요청
     location = /auth_check {
       internal;
-      proxy_pass ${AUTH_SERVICE_URL}/auth/verify;
+      proxy_pass http://kong_upstream/api/auth/verify;
       proxy_pass_request_body off;
       proxy_set_header Content-Length "";
       proxy_set_header X-Original-URI $request_uri;
       proxy_set_header X-Original-Method $request_method;
-      proxy_set_header Host $host;
-      proxy_set_header X-Real-IP $remote_addr;
       proxy_connect_timeout ${AUTH_TIMEOUT}s;
     }
 
-    # 프론트엔드 서비스 (Next.js)
-    # shop 경로 정확히 매칭 (후행 슬래시 없는 경우)
+    #############################
+    # 2. 직접 서비스 접근 경로
+    #############################
+
+    # 2.1 멤버 서비스 직접 접근 (docs)
+    location ~ ^/member/docs {
+      rewrite ^/member/docs(/.*)?$ /docs$1 break;
+
+      proxy_pass ${MEMBER_SERVICE_URL};
+
+      # CORS 헤더 추가
+      add_header 'Access-Control-Allow-Origin' '*';
+      add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
+      add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range';
+    }
+
+    #############################
+    # 3. 프론트엔드 서비스 경로
+    #############################
+
+    # 3.0 정적 리소스 직접 접근 (인증 우회)
+    location ~ ^/(public|static|favicon.ico) {
+      # 프론트엔드 서비스로 직접 전달
+      proxy_pass ${FRONTEND_URL}$request_uri;
+
+      # 캐시 설정 (정적 리소스 최적화)
+      expires 30d;
+      add_header Cache-Control "public, max-age=2592000";
+
+      # 로깅 최소화 (선택사항)
+      access_log off;
+    }
+
+    # 3.1 Shop 프론트엔드 - 후행 슬래시 리다이렉트
     location = /shop {
       return 301 /shop/;
     }
 
-    # shop 경로와 하위 경로 매칭
+    # 3.2 Shop 프론트엔드와 하위 경로
     location /shop/ {
-      # 경로 리라이트
+      # 경로 리라이트 (/shop/xyz -> /xyz)
       rewrite ^/shop/?(.*)$ /$1 break;
 
       proxy_pass ${FRONTEND_URL};
-      proxy_set_header Host $host;
-      proxy_set_header X-Real-IP $remote_addr;
-      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-      proxy_set_header X-Forwarded-Proto $scheme;
 
-      # 웹소켓 지원
+      # 웹소켓 지원 (Next.js HMR)
       proxy_http_version 1.1;
       proxy_set_header Upgrade $http_upgrade;
       proxy_set_header Connection "upgrade";
+    }
+
+    #############################
+    # 4. 기본 처리 (옵션)
+    #############################
+
+    # 4.1 루트 경로 (필요 시 활성화)
+    location = / {
+      return 302 /shop/;
+    }
+
+    # 4.2 404 처리 (필요 시 활성화)
+    location / {
+      return 404;
     }
   }
 }

@@ -6,7 +6,7 @@ import { PrismaClient } from '@prisma/client';
 import fastifyCors from '@fastify/cors';
 import memberRoutes from './routes/memberRoutes';
 import fastifySwagger from '@fastify/swagger';
-import fastifySwaggerUi, { FastifySwaggerUiOptions } from '@fastify/swagger-ui';
+import fastifySwaggerUi from '@fastify/swagger-ui';
 
 function validateConfig(): void {
   const requiredEnvVars = ['DATABASE_URL'];
@@ -49,19 +49,10 @@ export async function buildApp(): Promise<FastifyInstance> {
         title: 'Member API',
         description: 'Member service API documentation',
         version: '1.0.0'
-      }
+      },
+      // basePath: '/api/member'
     }
   });
-
-  // 타입을 명시적으로 지정
-  const swaggerUiOptions: FastifySwaggerUiOptions = {
-    routePrefix: '/docs',
-    uiConfig: {
-      docExpansion: 'full',
-      deepLinking: false
-    },
-  };
-
 
   await app.register(fastifySwaggerUi, {
     routePrefix: '/docs',

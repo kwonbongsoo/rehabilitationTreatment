@@ -33,6 +33,7 @@ export class MemberService {
                 password: hashedPassword,
             },
             select: {
+                uid: true,
                 id: true,
                 email: true,
                 name: true,
@@ -48,6 +49,7 @@ export class MemberService {
         const member = await this.prisma.member.findUnique({
             where: { id },
             select: {
+                uid: true,
                 id: true,
                 email: true,
                 name: true,
@@ -67,6 +69,7 @@ export class MemberService {
         const member = await this.prisma.member.findUnique({
             where: { email },
             select: {
+                uid: true,
                 id: true,
                 email: true,
                 name: true,
@@ -111,6 +114,7 @@ export class MemberService {
             where: { id },
             data: updateData,
             select: {
+                uid: true,
                 id: true,
                 email: true,
                 name: true,
