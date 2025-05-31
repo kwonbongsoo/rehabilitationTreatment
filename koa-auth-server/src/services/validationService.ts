@@ -6,13 +6,13 @@ export class ValidationService {
      * 로그인 자격 증명 유효성 검사
      */
     public validateCredentials(credentials: LoginBody): void {
-        const { username, password } = credentials;
+        const { id, password } = credentials;
         const errors: Record<string, string> = {};
 
-        if (!username) {
-            errors.username = 'Username is required';
-        } else if (username.length < 3) {
-            errors.username = 'Username must be at least 3 characters';
+        if (!id) {
+            errors.id = 'Id is required';
+        } else if (id.length < 3) {
+            errors.id = 'Id must be at least 3 characters';
         }
 
         if (!password) {

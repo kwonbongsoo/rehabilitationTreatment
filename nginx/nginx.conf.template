@@ -28,7 +28,7 @@ http {
     #############################
 
     # 1.1 인증 우회 API 경로 (auth 관련, health 체크, docs)
-    location ~ ^/api/(auth/|member/health$|member/docs$) {
+    location ~ ^/api/(auth/|members/health$|members/docs$) {
         proxy_pass http://kong_upstream;
     }
 
@@ -58,8 +58,8 @@ http {
     #############################
 
     # 2.1 멤버 서비스 직접 접근 (docs)
-    location ~ ^/member/docs {
-      rewrite ^/member/docs(/.*)?$ /docs$1 break;
+    location ~ ^/members/docs {
+      rewrite ^/members/docs(/.*)?$ /docs$1 break;
 
       proxy_pass ${MEMBER_SERVICE_URL};
 

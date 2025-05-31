@@ -1,31 +1,53 @@
 import jwt from 'jsonwebtoken';
-import { TokenPayload } from '../interfaces/auth';
+import { BaseTokenPayload, TokenPayload, TokenPayloadI, UserToken, UserTokenPayload } from '../interfaces/auth';
 import { Config } from '../config/config';
 import { AuthenticationError, BusinessError } from '../middlewares/errorMiddleware';
+import { MemberBase } from '../interfaces/member';
 
 export class TokenService {
-    private config: Config;
+    constructor(private readonly config: Config) { }
 
-    constructor(config?: Config) {
-        this.config = config || new Config();
+    /**
+     * 유저 토큰 생성
+     */
+    public generateUserToken(userInfo: UserToken): TokenPayloadI {
+        const tokenTiming = this.config.getTokenTimingConfig();
+
+        const payload: UserTokenPayload = {
+            id: userInfo.id,
+            name: userInfo.name,
+            email: userInfo.email,
+            role: 'user',
+            exp: tokenTiming.expiresAt,
+            iat: tokenTiming.issuedAt,
+        };
+
+        const token = jwt.sign(payload, this.config.getJwtSecret());
+
+        return {
+            token,
+            payload
+        };
     }
 
     /**
-     * JWT 토큰 생성
+     * 게스트 토큰 생성
      */
-    public generateToken(payload: TokenPayload): string {
-        try {
-            const secret = this.config.getJwtSecret();
-            const expiresIn = this.config.getJwtExpiresIn();
+    public generateGuestToken(): TokenPayloadI {
+        const tokenTiming = this.config.getTokenTimingConfig();
 
-            return jwt.sign(payload, secret, { expiresIn });
-        } catch (error) {
-            throw new BusinessError(
-                'Failed to generate token',
-                500,
-                'TOKEN_GENERATION_ERROR'
-            );
-        }
+        const payload: BaseTokenPayload = {
+            role: 'guest',
+            exp: tokenTiming.expiresAt,
+            iat: tokenTiming.issuedAt,
+        };
+
+        const token = jwt.sign(payload, this.config.getJwtSecret());
+
+        return {
+            token,
+            payload
+        };
     }
 
     /**
@@ -80,9 +102,7 @@ export class TokenService {
     private isTokenPayload(obj: any): obj is TokenPayload {
         return (
             obj &&
-            typeof obj.id === 'string' &&
-            typeof obj.role === 'string' &&
-            typeof obj.name === 'string'
+            typeof obj.role === 'string'
         );
     }
 }

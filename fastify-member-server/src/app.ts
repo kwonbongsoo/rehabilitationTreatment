@@ -2,11 +2,15 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import fastify, { FastifyInstance } from 'fastify';
-import { PrismaClient } from '@prisma/client';
 import fastifyCors from '@fastify/cors';
-import memberRoutes from './routes/memberRoutes';
 import fastifySwagger from '@fastify/swagger';
 import fastifySwaggerUi from '@fastify/swagger-ui';
+import diContainer from './plugins/diContainer';
+import memberRoutes from './routes/memberRoutes';
+import { PrismaClient } from '@prisma/client';
+import { MemberService } from './services/memberService';
+import { MemberController } from './controllers/memberController';
+import './types/fastify';  // 타입 확장 임포트
 
 function validateConfig(): void {
   const requiredEnvVars = ['DATABASE_URL'];
@@ -18,7 +22,7 @@ function validateConfig(): void {
   }
 }
 
-// 앱 생성 코드...
+// 앱 생성 코드
 export async function buildApp(): Promise<FastifyInstance> {
   validateConfig();
 
@@ -26,16 +30,13 @@ export async function buildApp(): Promise<FastifyInstance> {
     logger: true
   });
 
-  // DB 클라이언트 초기화
+  // 의존성 설정 - 명시적이고 직관적
   const prisma = new PrismaClient();
+  const memberService = new MemberService(prisma);
+  const memberController = new MemberController(memberService);
 
-  // 앱 종료 시 DB 연결 해제
-  app.addHook('onClose', async () => {
-    await prisma.$disconnect();
-  });
-
-  // 플러그인으로 prisma 사용 가능하게 등록
-  app.decorate('prisma', prisma);
+  // 의존성 주입 컨테이너 등록
+  await app.register(diContainer);
 
   // CORS 설정
   await app.register(fastifyCors, {
@@ -50,25 +51,26 @@ export async function buildApp(): Promise<FastifyInstance> {
         description: 'Member service API documentation',
         version: '1.0.0'
       },
-      // basePath: '/api/member'
+      basePath: '/api/members'
     }
   });
 
+  // Swagger UI 설정
   await app.register(fastifySwaggerUi, {
     routePrefix: '/docs',
     uiConfig: {
-      docExpansion: 'full',
-      deepLinking: false
+      docExpansion: 'list',
+      deepLinking: true
     },
   });
 
+  // 라우트 등록
+  await app.register(memberRoutes(memberController), { prefix: '/api/members' });
+
   // 헬스체크 엔드포인트
   app.get('/health', async () => {
-    return { status: 'ok' };
+    return { status: 'ok', timestamp: new Date() };
   });
-
-  // 라우트 등록
-  app.register(memberRoutes);
 
   return app;
 }

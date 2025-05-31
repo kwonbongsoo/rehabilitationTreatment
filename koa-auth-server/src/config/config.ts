@@ -29,6 +29,24 @@ export class Config {
     }
 
     /**
+     * JWT 토큰 발급 시간 정보를 계산하여 반환
+     * @returns 토큰 발급 관련 시간 정보 객체
+     */
+    public getTokenTimingConfig(): {
+        issuedAt: number;     // 발급 시간 (현재 시간)
+        expiresAt: number;    // 만료 시간 (현재 시간 + 만료 기간)
+    } {
+        const now = Math.floor(Date.now() / 1000); // 현재 시간(초)
+        const expiresIn = this.getJwtExpiresIn();  // 만료 기간(초)
+        // expiresIn * 1000 // 쿠키 maxAge는 밀리초 단위
+
+        return {
+            issuedAt: now,
+            expiresAt: now + expiresIn
+        };
+    }
+
+    /**
      * 개발 환경인지 여부를 반환
      * @returns 개발 환경 여부
      */
@@ -119,13 +137,5 @@ export class Config {
         };
 
         return config;
-    }
-
-
-    getMemberServiceConfig() {
-        return {
-            url: process.env.MEMBER_SERVICE_URL || 'http://localhost',
-            timeout: Number(process.env.MEMBER_SERVICE_TIMEOUT) || 5000
-        };
     }
 }

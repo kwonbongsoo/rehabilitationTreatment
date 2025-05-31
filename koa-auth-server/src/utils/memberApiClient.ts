@@ -1,5 +1,6 @@
 import got, { HTTPError, Got, RequestError, TimeoutError } from 'got';
-import { TokenPayload } from '../interfaces/auth';
+import { UserInfo } from '../interfaces/auth';
+import { MemberResponse } from '../interfaces/member';
 import {
     ApiError,
     ApiTimeoutError,
@@ -67,22 +68,25 @@ export class MemberApiClient {
      * 사용자 자격 증명을 검증합니다.
      * @throws {ApiError} API 요청 실패 시
      */
-    public async verifyCredentials(id: string, password: string): Promise<TokenPayload> {
+    public async verifyCredentials(id: string, password: string): Promise<UserInfo> {
         try {
-            const response = await this.api.post('member/verify', {
+            const response = await this.api.post('api/members/verify', {
                 json: { id, password }
             });
 
-            if (!this.isTokenPayload(response.body)) {
+            if (!this.isMemberResponse(response.body)) {
                 throw new ApiResponseFormatError(
                     '서버 응답 형식이 올바르지 않습니다',
                     this.SERVICE_NAME
                 );
             }
 
-            return response.body;
+            return {
+                id: response.body.member.id,
+                email: response.body.member.email,
+                name: response.body.member.name,
+            };
         } catch (error) {
-            // 고급 에러 처리 (got의 에러를 비즈니스 에러로 변환)
             throw this.handleApiError(error, 'verifyCredentials');
         }
     }
@@ -198,15 +202,17 @@ export class MemberApiClient {
     }
 
     /**
-     * 객체가 TokenPayload 형식인지 확인하는 타입 가드
+     * 객체가 MemberPayload 형식인지 확인하는 타입 가드
      */
-    private isTokenPayload(obj: unknown): obj is TokenPayload {
+    private isMemberResponse(obj: unknown): obj is MemberResponse {
         return (
             obj !== null &&
             typeof obj === 'object' &&
-            'id' in obj && typeof obj.id === 'string' &&
-            'role' in obj && typeof obj.role === 'string' &&
-            'name' in obj && typeof obj.name === 'string'
+            'success' in obj && obj.success === true &&
+            'member' in obj && typeof obj.member === 'object' && obj.member !== null &&
+            'id' in obj.member && typeof obj.member.id === 'string' &&
+            'email' in obj.member && typeof obj.member.email === 'string' &&
+            'name' in obj.member && typeof obj.member.name === 'string'
         );
     }
 }

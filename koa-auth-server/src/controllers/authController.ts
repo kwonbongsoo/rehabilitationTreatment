@@ -1,18 +1,15 @@
 import { Context } from 'koa';
 import { AuthService } from '../services/authService';
-import { Config } from '../config/config';
 import { extractCredentials, extractBearerToken } from '../utils/requestHelpers';
 import { sendSuccessResponse, sendErrorResponse } from '../utils/responseHelpers';
 import { AuthenticationError, ValidationError } from '../middlewares/errorMiddleware';
 
 export class AuthController {
     private authService: AuthService;
-    private config: Config;
 
-    constructor(authService?: AuthService, config?: Config) {
+    constructor(authService?: AuthService) {
         // 의존성 주입 패턴 적용
         this.authService = authService || new AuthService();
-        this.config = config || new Config();
     }
 
     /**
@@ -22,8 +19,8 @@ export class AuthController {
         try {
             const credentials = extractCredentials(ctx);
 
-            const { token } = await this.authService.login(credentials);
-            sendSuccessResponse(ctx, { token });
+            const tokenPayload = await this.authService.login(credentials);
+            sendSuccessResponse(ctx, tokenPayload);
         } catch (err: unknown) {
             // 에러 타입에 따른 다양한 응답 처리
             if (err instanceof ValidationError) {
@@ -41,8 +38,8 @@ export class AuthController {
      */
     public guestToken = async (ctx: Context): Promise<void> => {
         try {
-            const { token } = await this.authService.createGuestToken();
-            sendSuccessResponse(ctx, { token });
+            const tokenPayload = await this.authService.createGuestToken();
+            sendSuccessResponse(ctx, tokenPayload);
         } catch (err: unknown) {
             sendErrorResponse(ctx, err, 500, 'Failed to generate guest token');
         }
@@ -90,13 +87,11 @@ export class AuthController {
     public verify = async (ctx: Context): Promise<void> => {
         try {
             const token = extractBearerToken(ctx.headers.authorization);
-
             if (!token) {
                 sendErrorResponse(ctx, new Error('Authorization header missing'), 401);
                 return;
             }
 
-            // secret 인자 제거
             const { status, message } = await this.authService.verifyTokenWithStatus(token);
 
             ctx.status = status;

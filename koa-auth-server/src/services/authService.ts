@@ -1,6 +1,6 @@
 import { Config } from '../config/config';
 import { MemberApiClient } from '../utils/memberApiClient';
-import { LoginBody, TokenPayload } from '../interfaces/auth';
+import { BaseTokenPayload, LoginBody, TokenPayload, TokenResponseDataI } from '../interfaces/auth';
 import { TokenService } from './tokenService';
 import { SessionService } from './sessionService';
 import { ValidationService } from './validationService';
@@ -24,56 +24,69 @@ export class AuthService {
         validationService?: ValidationService
     ) {
         this.config = config || new Config();
-        this.memberApiClient = memberApiClient || new MemberApiClient(this.config);
+        this.memberApiClient = memberApiClient || new MemberApiClient()
         this.tokenService = tokenService || new TokenService(this.config);
-        this.sessionService = sessionService || new SessionService();
+        this.sessionService = sessionService || new SessionService(this.config)
         this.validationService = validationService || new ValidationService();
     }
 
     /**
      * 사용자 로그인 처리
      */
-    public async login(credentials: LoginBody): Promise<{ token: string }> {
+    public async login(credentials: LoginBody): Promise<TokenResponseDataI> {
         // 입력 유효성 검증
         this.validationService.validateCredentials(credentials);
 
         // 멤버 API에서 사용자 검증
         const user = await this.memberApiClient.verifyCredentials(
-            credentials.username,
+            credentials.id,
             credentials.password
         );
 
-        // 토큰 생성
-        const token = this.tokenService.generateToken(user);
+        // 유저 토큰 생성
+        const tokenResponse = this.tokenService.generateUserToken({ id: user.id, name: user.name, email: user.email });
 
         // Redis에 세션 저장
-        const expiresIn = this.config.getJwtExpiresIn();
-        await this.sessionService.storeSession(token, user, expiresIn);
+        await this.sessionService.storeSession(
+            tokenResponse.token,
+            tokenResponse.payload,
+            tokenResponse.payload.exp
+        );
 
-        return { token };
+        return {
+            data: {
+                token: tokenResponse.token,
+                role: tokenResponse.payload.role,
+                exp: tokenResponse.payload.exp,
+                iat: tokenResponse.payload.iat,
+                id: user.id,
+                email: user.email,
+                name: user.name
+            }
+        }
     }
 
     /**
      * 게스트 토큰 발급
      */
-    public async createGuestToken(): Promise<{ token: string }> {
-        const guestPayload: TokenPayload = {
-            id: 'guest-' + Date.now(),
-            name: 'Guest User',
-            role: 'guest'
-        };
+    public async createGuestToken(): Promise<TokenResponseDataI> {
+        const tokenRes = this.tokenService.generateGuestToken();
+        await this.sessionService.storeSession(tokenRes.token, tokenRes.payload, tokenRes.payload.exp);
 
-        const token = this.tokenService.generateToken(guestPayload);
-        const expiresIn = this.config.getJwtExpiresIn();
-        await this.sessionService.storeSession(token, guestPayload, expiresIn);
-
-        return { token };
+        return {
+            data: {
+                token: tokenRes.token,
+                role: tokenRes.payload.role,
+                exp: tokenRes.payload.exp,
+                iat: tokenRes.payload.iat
+            }
+        }
     }
 
     /**
      * 토큰으로 사용자 정보 조회
      */
-    public async getUserInfoByToken(token: string): Promise<TokenPayload> {
+    public async getUserInfoByToken(token: string): Promise<TokenResponseDataI> {
         // 토큰 검증
         this.tokenService.verifyToken(token);
 
@@ -84,7 +97,12 @@ export class AuthService {
             throw new AuthenticationError('Session not found or expired');
         }
 
-        return sessionData;
+        return {
+            data: {
+                token: token,
+                ...sessionData
+            }
+        }
     }
 
     /**

@@ -1,13 +1,17 @@
 import dotenv from 'dotenv';
 dotenv.config();
-
 import Koa from 'koa';
-import cors from '@koa/cors'
 import bodyParser from 'koa-bodyparser';
-import { requestLogger } from './middlewares/logger';
-import { authRouter } from './routes/authRoutes';
+import cors from '@koa/cors';
+import { createAuthRouter } from './routes/authRoutes';
 import { errorHandlerMiddleware } from './middlewares/errorMiddleware';
+import { requestLogger } from './middlewares/logger';
+import { AuthController } from './controllers/authController';
+import { AuthService } from './services/authService';
 
+/**
+ * 환경 변수 검증
+ */
 function validateConfig(): void {
     const requiredEnvVars = ['JWT_SECRET', 'REDIS_URL'];
 
@@ -17,7 +21,6 @@ function validateConfig(): void {
         }
     }
 }
-
 
 /**
  * Koa 애플리케이션 생성 및 설정
@@ -41,9 +44,19 @@ export function createApp(): Koa {
         allowHeaders: ['Authorization', 'Content-Type']
     }));
 
-    // 라우터 등록
-    app.use(authRouter.routes());
-    app.use(authRouter.allowedMethods());
+    try {
+
+        // 컨트롤러 생성
+        const authController = new AuthController(new AuthService());
+
+        // 라우터 생성 및 등록 (라우팅 로직만 포함)
+        const authRouter = createAuthRouter(authController);
+        app.use(authRouter.routes());
+        app.use(authRouter.allowedMethods());
+    } catch (error) {
+        console.error('라우터 설정 실패:', error);
+        throw new Error('라우터를 설정할 수 없습니다');
+    }
 
     // 404 핸들러
     app.use(async (ctx) => {
