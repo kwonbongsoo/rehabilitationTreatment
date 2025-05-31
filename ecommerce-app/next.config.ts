@@ -7,7 +7,8 @@ const nextConfig: NextConfig = {
         remotePatterns: [
             {
                 protocol: 'https',
-                hostname: 'https://image.mustit.co.kr/',
+                hostname: 'image.mustit.co.kr',
+                pathname: '/lib/**',
             }
         ],
     },

@@ -22,7 +22,7 @@ const UserActions: React.FC<UserActionsProps> = ({ cartItemCount = 3 }) => {
             </Link>
 
             {/* 사용자 계정 */}
-            <Link href={user ? "/account" : "/login"} className={styles.iconButton} aria-label="내 계정">
+            <Link href={user ? "/account" : "/auth/login"} className={styles.iconButton} aria-label="내 계정">
                 <FiUser size={20} />
                 {user && <span className={styles.userIndicator}></span>}
             </Link>
