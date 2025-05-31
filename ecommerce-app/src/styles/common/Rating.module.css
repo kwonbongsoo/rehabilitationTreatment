@@ -1,0 +1,36 @@
+.rating {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.stars {
+    display: flex;
+}
+
+.star,
+.halfStar,
+.emptyStar {
+    font-size: var(--font-size-sm);
+}
+
+.star {
+    color: #fbbf24;
+}
+
+.halfStar {
+    position: relative;
+    color: #fbbf24;
+    display: inline-block;
+    overflow: hidden;
+    width: 0.5em;
+}
+
+.emptyStar {
+    color: #d1d5db;
+}
+
+.reviewCount {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+}

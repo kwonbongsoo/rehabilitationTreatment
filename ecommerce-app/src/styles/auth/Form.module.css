@@ -1,0 +1,106 @@
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
+.inputGroup {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.label {
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--color-text);
+}
+
+.input {
+    padding: var(--spacing-md);
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    font-size: var(--font-size-md);
+    transition: all var(--transition-fast);
+    width: 100%;
+}
+
+.input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+}
+
+.input::placeholder {
+    color: var(--color-text-muted);
+}
+
+.checkbox {
+    margin-right: var(--spacing-sm);
+    width: 16px;
+    height: 16px;
+    accent-color: var(--color-primary);
+}
+
+.checkboxContainer {
+    display: flex;
+    align-items: center;
+    margin-top: var(--spacing-sm);
+}
+
+.checkboxLabel {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-light);
+}
+
+.button {
+    padding: var(--spacing-md);
+    font-size: var(--font-size-md);
+    font-weight: 600;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color var(--transition-fast);
+    width: 100%;
+    margin-top: var(--spacing-sm);
+}
+
+.buttonPrimary {
+    background-color: var(--color-primary);
+    color: white;
+}
+
+.buttonPrimary:hover:not(:disabled) {
+    background-color: var(--color-primary-dark);
+}
+
+.buttonSecondary {
+    background-color: white;
+    color: var(--color-primary);
+    border: 1px solid var(--color-primary);
+}
+
+.buttonSecondary:hover:not(:disabled) {
+    background-color: rgba(99, 102, 241, 0.05);
+}
+
+.button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.inputError {
+    color: var(--color-error);
+    font-size: var(--font-size-xs);
+    margin-top: var(--spacing-xs);
+}
+
+.terms {
+    display: flex;
+    align-items: flex-start;
+    margin-top: var(--spacing-sm);
+}
+
+.terms .checkbox {
+    margin-top: 0.25rem;
+}
