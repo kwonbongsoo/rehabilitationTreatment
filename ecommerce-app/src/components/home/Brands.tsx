@@ -1,14 +1,37 @@
+import React from 'react';
+import Image from 'next/image';
 import SectionTitle from '@/components/common/SectionTitle';
 import styles from '@/styles/home/Brands.module.css';
 
-export default function Brands() {
+interface BrandsProps {
+    title?: string;
+    logos: {
+        id: number;
+        name: string;
+        image?: string;
+    }[];
+}
+
+export default function Brands({ title, logos }: BrandsProps) {
     return (
         <section className={styles.brandsSection}>
-            <SectionTitle title="제휴 브랜드" />
+            {title && <SectionTitle title={title} />}
             <div className={styles.brandLogos}>
-                {Array(6).fill(0).map((_, index) => (
-                    <div key={index} className={styles.brandLogo}>
-                        <div className={styles.brandLogoPlaceholder}>브랜드 {index + 1}</div>
+                {logos.map(logo => (
+                    <div key={logo.id} className={styles.brandLogo}>
+                        {logo.image ? (
+                            <div className={styles.brandImageContainer}>
+                                <Image
+                                    src={logo.image}
+                                    alt={logo.name}
+                                    width={120}
+                                    height={80}
+                                    className={styles.brandImage}
+                                />
+                            </div>
+                        ) : (
+                            <div className={styles.brandLogoPlaceholder}>{logo.name}</div>
+                        )}
                     </div>
                 ))}
             </div>

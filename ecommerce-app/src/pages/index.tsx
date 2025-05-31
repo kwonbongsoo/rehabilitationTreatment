@@ -1,36 +1,56 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { NextPage } from 'next';
 import { useCurrentUser } from '../hooks/queries/useAuth';
-import { ErrorMessage } from '../components/errors/ErrorMessage';
 import { useErrorHandler } from '../hooks/useErrorHandler';
+import { mockHomePageData } from '../mocks/homePageData';
 import Head from 'next/head';
-import Banner from '@/components/home/Banner';
-import Categories from '@/components/home/Categories';
-import FeaturedProducts from '@/components/home/FeaturedProducts';
-import NewArrivals from '@/components/home/NewArrivals';
-import Promotion from '@/components/home/Promotion';
-import Reviews from '@/components/home/Reviews';
-import Brands from '@/components/home/Brands';
+import UIComponentRenderer from '@/components/home/UIComponentRenderer';
 import styles from '@/styles/common/Layout.module.css';
+import { UIComponent, HomePageResponse } from '@/types/home';
 
-const MyApp: NextPage = () => {
+const HomePage: NextPage = () => {
     // 커스텀 에러 핸들러 훅 사용
     const { handleError } = useErrorHandler();
+
+    // 목 데이터 직접 사용하기 (API 호출 없이)
+    const [homeData, setHomeData] = useState<HomePageResponse | null>(null);
+    const [isHomeDataLoading, setIsHomeDataLoading] = useState(true);
+    const [homeDataError, setHomeDataError] = useState<Error | null>(null);
+
+    // 목 데이터 로딩 시뮬레이션
+    useEffect(() => {
+        const loadMockData = async () => {
+            try {
+                await new Promise(resolve => setTimeout(resolve, 300));
+                setHomeData(mockHomePageData);
+                setIsHomeDataLoading(false);
+            } catch (error) {
+                console.error("Error loading mock data:", error);
+                setHomeDataError(error as Error);
+                setIsHomeDataLoading(false);
+            }
+        };
+
+        loadMockData();
+    }, []);
 
     // 사용자 정보 쿼리
     const {
         data: user,
-        isLoading,
-        error,
-        refetch
+        isLoading: isUserLoading,
+        error: userError
     } = useCurrentUser();
 
-    // 에러가 발생하면 에러 핸들러에 전달
+    // 에러 처리
     useEffect(() => {
-        if (error) {
-            handleError(error as any, 'toast');
+        if (userError) {
+            handleError(userError as any, 'toast');
         }
-    }, [error, handleError]);
+
+        if (homeDataError) {
+            handleError(homeDataError, 'toast');
+        }
+    }, [userError, homeDataError, handleError]);
 
     return (
         <div className="home-page">
@@ -40,16 +60,20 @@ const MyApp: NextPage = () => {
             </Head>
 
             <main className={styles.main}>
-                <Banner />
-                <Categories />
-                <FeaturedProducts />
-                <NewArrivals />
-                <Promotion />
-                <Reviews />
-                <Brands />
+                {isHomeDataLoading ? (
+                    <div>로딩 중...</div>
+                ) : homeDataError ? (
+                    <div>데이터를 불러오는 데 문제가 발생했습니다.</div>
+                ) : homeData?.components ? (
+                    homeData.components.map((component: UIComponent) => (
+                        <UIComponentRenderer key={component.id} component={component} />
+                    ))
+                ) : (
+                    <div>표시할 데이터가 없습니다.</div>
+                )}
             </main>
         </div>
     );
 };
 
-export default MyApp;
+export default HomePage;

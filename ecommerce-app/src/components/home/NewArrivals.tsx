@@ -3,26 +3,35 @@ import Image from 'next/image';
 import SectionTitle from '@/components/common/SectionTitle';
 import styles from '@/styles/home/NewArrivals.module.css';
 
-// 더미 데이터
-const newArrivals = [
-    { id: 101, name: '플로랄 드레스', price: 79000, image: 'https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg' },
-    { id: 102, name: '슬림핏 청바지', price: 69000, image: 'https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg' },
-    { id: 103, name: '니트 스웨터', price: 59000, image: 'https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg' },
-    { id: 104, name: '캐주얼 슬립온', price: 49000, image: 'https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg' },
-];
+interface NewArrivalsProps {
+    title?: string;
+    products: {
+        id: number;
+        name: string;
+        price: number;
+        image: string;
+    }[];
+}
 
-export default function NewArrivals() {
+export default function NewArrivals({ title, products }: NewArrivalsProps) {
+    if (!products || products.length === 0) {
+        return null;
+    }
+
     return (
         <section className={styles.newArrivalsSection}>
-            <SectionTitle title="신상품" />
+            {title && <SectionTitle title={title} />}
             <div className={styles.newArrivalsGrid}>
-                {newArrivals.map(product => (
+                {products.map(product => (
                     <Link href={`/products/${product.id}`} key={product.id} className={styles.newArrivalCard}>
                         <div className={styles.newArrivalImageContainer}>
-                            <img
+                            <Image
                                 src={product.image}
                                 alt={product.name}
+                                fill // width/height 대신 fill 사용
+                                sizes="(max-width: 768px) 100vw, 300px" // 반응형 이미지 크기
                                 className={styles.newArrivalImage}
+                                quality={80}
                             />
                         </div>
                         <div className={styles.newArrivalInfo}>

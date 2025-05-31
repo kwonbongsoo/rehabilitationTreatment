@@ -21,35 +21,20 @@
     box-shadow: var(--shadow-md);
 }
 
+/* 이미지 컨테이너 */
 .productImageContainer {
     position: relative;
     width: 100%;
     height: 200px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-    background-color: #f0f0f0;
+    background-color: #f9f9f9;
 }
 
+/* Next.js Image 스타일 */
 .productImage {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    max-height: 200px;
-    padding: var(--spacing-xs);
+    object-fit: contain !important;
 }
 
-.productImagePlaceholder {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--color-text-light);
-    font-size: var(--font-size-sm);
-}
-
+/* 할인 배지 */
 .discountBadge {
     position: absolute;
     top: var(--spacing-sm);
@@ -60,6 +45,7 @@
     border-radius: 4px;
     font-size: var(--font-size-xs);
     font-weight: bold;
+    z-index: 10;
 }
 
 .productInfo {
@@ -103,6 +89,7 @@
     border: none;
     font-weight: 600;
     transition: background-color var(--transition-fast);
+    cursor: pointer;
 }
 
 .addToCartButton:hover {
@@ -123,6 +110,7 @@
     border-radius: 6px;
     font-weight: 600;
     transition: all var(--transition-fast);
+    text-decoration: none;
 }
 
 .viewAllButton:hover {
@@ -130,18 +118,19 @@
     color: white;
 }
 
+/* 반응형 디자인 유지 */
 @media (max-width: 768px) {
     .productGrid {
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    }
-
-    .productImage {
-        object-fit: contain;
     }
 }
 
 @media (max-width: 480px) {
     .productGrid {
         grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+
+    .productImageContainer {
+        height: 150px;
     }
 }
