@@ -4,8 +4,12 @@ const nextConfig: NextConfig = {
     output: 'standalone',
     reactStrictMode: true,
     images: {
-        domains: ['image.mustit.co.kr'], // 외부 이미지 도메인 허용
-        formats: ['image/webp'], // WebP 형식 지원
+        remotePatterns: [
+            {
+                protocol: 'https',
+                hostname: 'https://image.mustit.co.kr/',
+            }
+        ],
     },
 }
 

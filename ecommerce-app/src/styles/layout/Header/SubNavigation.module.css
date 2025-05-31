@@ -1,0 +1,50 @@
+.subNav {
+    background-color: #f9f9f9;
+    transition: all 0.3s ease;
+    max-height: 40px;
+    overflow: hidden;
+}
+
+.subNav.hidden {
+    max-height: 0;
+}
+
+.container {
+    width: 92%;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.subNav ul {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    justify-content: center;
+    gap: 24px;
+}
+
+.subNav a {
+    display: block;
+    padding: 10px 0;
+    font-size: 14px;
+    text-decoration: none;
+    color: var(--color-text-muted);
+    transition: color 0.2s ease;
+}
+
+.subNav a:hover {
+    color: var(--color-primary);
+}
+
+@media (max-width: 991px) {
+    .subNav {
+        overflow-x: auto;
+    }
+
+    .subNav ul {
+        padding: 0 16px;
+        white-space: nowrap;
+        justify-content: flex-start;
+    }
+}

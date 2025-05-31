@@ -1,0 +1,23 @@
+.paymentMethods {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.paymentMethods span {
+    color: var(--color-text-muted);
+}
+
+.paymentIcons {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.paymentIcon {
+    display: flex;
+    align-items: center;
+    background-color: white;
+    padding: 3px;
+    border-radius: 4px;
+}

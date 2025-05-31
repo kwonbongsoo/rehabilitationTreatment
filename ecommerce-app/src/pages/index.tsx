@@ -7,6 +7,7 @@ import Head from 'next/head';
 import UIComponentRenderer from '@/components/home/UIComponentRenderer';
 import styles from '@/styles/common/Layout.module.css';
 import { UIComponent, HomePageResponse } from '@/types/home';
+import LoadingIndicator from '@/components/common/LoadingIndicator';
 
 const HomePage: NextPage = () => {
     // 커스텀 에러 핸들러 훅 사용
@@ -61,15 +62,17 @@ const HomePage: NextPage = () => {
 
             <main className={styles.main}>
                 {isHomeDataLoading ? (
-                    <div>로딩 중...</div>
-                ) : homeDataError ? (
-                    <div>데이터를 불러오는 데 문제가 발생했습니다.</div>
+                    <LoadingIndicator
+                        message="상품 정보를 불러오는 중입니다..."
+                        size="large"
+                        fullScreen
+                    />
                 ) : homeData?.components ? (
                     homeData.components.map((component: UIComponent) => (
                         <UIComponentRenderer key={component.id} component={component} />
                     ))
                 ) : (
-                    <div>표시할 데이터가 없습니다.</div>
+                    <div>데이터를 불러오는 데 문제가 발생했습니다.</div>
                 )}
             </main>
         </div>

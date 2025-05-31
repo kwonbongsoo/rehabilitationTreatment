@@ -1,0 +1,26 @@
+.logo {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--color-text);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+}
+
+.logoImageWrapper {
+    position: relative;
+    width: 120px;
+    height: 40px;
+}
+
+.logoText {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-secondary, #4f46e5));
+    -webkit-background-clip: text;
+    color: transparent;
+}
+
+@media (max-width: 600px) {
+    .logo {
+        font-size: 22px;
+    }
+}
