@@ -3,6 +3,11 @@
     overflow: hidden;
 }
 
+.categoriesWrapper {
+    display: flex;
+    justify-content: center;
+}
+
 .categories {
     display: flex;
     flex-wrap: nowrap;
@@ -11,6 +16,7 @@
     padding: var(--spacing-md) 0;
     scrollbar-width: none;
     -ms-overflow-style: none;
+    justify-content: center;
 }
 
 .categories::-webkit-scrollbar {

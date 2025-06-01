@@ -73,49 +73,41 @@ http {
     # 3. 프론트엔드 서비스 경로
     #############################
 
+
+    # 3.0 Next.js 정적 파일 프록시 (루트 경로)
+    location /_next/ {
+      proxy_pass ${FRONTEND_URL}/_next/;
+      expires 10m;
+      add_header Cache-Control "public, max-age=600";
+      access_log off;
+    }
+
     # 3.0 정적 리소스 직접 접근 (인증 우회)
     location ~ ^/(public|static|favicon.ico) {
       # 프론트엔드 서비스로 직접 전달
       proxy_pass ${FRONTEND_URL}$request_uri;
 
       # 캐시 설정 (정적 리소스 최적화)
-      expires 30d;
-      add_header Cache-Control "public, max-age=2592000";
+      expires 10m;
+      add_header Cache-Control "public, max-age=600";
 
       # 로깅 최소화 (선택사항)
       access_log off;
     }
 
-    # 3.1 Shop 프론트엔드 - 후행 슬래시 리다이렉트
-    location = /shop {
-      return 301 /shop/;
-    }
+    # 3.1 프론트엔드와 하위 경로
+    location / {
 
-    # 3.2 Shop 프론트엔드와 하위 경로
-    location /shop/ {
-      # 경로 리라이트 (/shop/xyz -> /xyz)
-      rewrite ^/shop/?(.*)$ /$1 break;
+      proxy_pass ${FRONTEND_URL}/;
 
-      proxy_pass ${FRONTEND_URL};
+      # 캐시 설정 (정적 리소스 최적화)
+      expires 10m;
+      add_header Cache-Control "public, max-age=600";
 
       # 웹소켓 지원 (Next.js HMR)
       proxy_http_version 1.1;
       proxy_set_header Upgrade $http_upgrade;
       proxy_set_header Connection "upgrade";
-    }
-
-    #############################
-    # 4. 기본 처리 (옵션)
-    #############################
-
-    # 4.1 루트 경로 (필요 시 활성화)
-    location = / {
-      return 302 /shop/;
-    }
-
-    # 4.2 404 처리 (필요 시 활성화)
-    location / {
-      return 404;
     }
   }
 }
