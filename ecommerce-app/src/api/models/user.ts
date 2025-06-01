@@ -4,31 +4,8 @@
 export interface User {
     id: string;
     email: string;
-    firstName: string;
-    lastName: string;
-    fullName: string; // firstName + lastName 조합
-    phoneNumber?: string;
-    profileImageUrl?: string;
     role: 'customer' | 'admin' | 'guest';
-    emailVerified: boolean;
-    createdAt: string;
-    updatedAt: string;
-    lastLoginAt?: string;
-    preferences: UserPreferences;
-    addresses: Address[];
-    defaultAddressId?: string;
-    defaultPaymentMethodId?: string;
-    wishlist: string[]; // 위시리스트에 있는 상품 ID 목록
-    orders: {
-        count: number;
-        recentOrderId?: string;
-    };
-    meta: {
-        accountAge: number; // 일수
-        totalSpent?: number;
-        loyaltyPoints?: number;
-        loyaltyTier?: 'standard' | 'silver' | 'gold' | 'platinum';
-    };
+    name: string;
 }
 
 /**

@@ -2,7 +2,6 @@ import React from 'react';
 import Link from 'next/link';
 import { FiHeart, FiUser, FiShoppingCart } from 'react-icons/fi';
 import styles from '@/styles/layout/Header/UserActions.module.css';
-import { useCurrentUser } from '@/hooks/queries/useAuth';
 import SearchBar from './SearchBar';
 
 interface UserActionsProps {
@@ -10,8 +9,6 @@ interface UserActionsProps {
 }
 
 const UserActions: React.FC<UserActionsProps> = ({ cartItemCount = 3 }) => {
-    const { data: user } = useCurrentUser();
-
     return (
         <div className={styles.userActions}>
             <SearchBar />
@@ -22,9 +19,9 @@ const UserActions: React.FC<UserActionsProps> = ({ cartItemCount = 3 }) => {
             </Link>
 
             {/* 사용자 계정 */}
-            <Link href={user ? "/account" : "/auth/login"} className={styles.iconButton} aria-label="내 계정">
+            <Link href={false ? "/account" : "/auth/login"} className={styles.iconButton} aria-label="내 계정">
                 <FiUser size={20} />
-                {user && <span className={styles.userIndicator}></span>}
+                {false && <span className={styles.userIndicator}></span>}
             </Link>
 
             {/* 장바구니 */}

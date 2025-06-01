@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { fetchProductById } from '../../utils/api';
 import { Product } from '../../types';
 
 const ProductPage = () => {
@@ -14,7 +13,14 @@ const ProductPage = () => {
         if (id) {
             const getProduct = async () => {
                 try {
-                    const data = await fetchProductById(id as string);
+                    const data = {
+                        id: '1',
+                        name: 'Sample Product',
+                        description: 'This is a sample product description.',
+                        price: 29.99,
+                        imageUrl: '/images/sample-product.jpg',
+                        category: 'electronics',
+                    };
                     setProduct(data);
                 } catch (err) {
                     setError('Failed to fetch product');

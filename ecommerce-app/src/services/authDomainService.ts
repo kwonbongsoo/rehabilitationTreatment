@@ -83,23 +83,6 @@ export class AuthDomainService {
         // 절대 경로는 허용하지 않음
         return false;
     }
-
-    /**
-     * 로그인 성공 후 처리할 작업들
-     */
-    getPostLoginActions(user: UserResponse): string[] {
-        const actions: string[] = [];
-
-        if (!user.emailVerified) {
-            actions.push('이메일 인증이 필요합니다.');
-        }
-
-        if (user.role === 'customer' && !user.defaultAddressId) {
-            actions.push('배송 주소를 등록하시면 더 편리하게 이용할 수 있습니다.');
-        }
-
-        return actions;
-    }
 }
 
 // 싱글톤 인스턴스 export

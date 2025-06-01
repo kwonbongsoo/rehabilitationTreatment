@@ -19,13 +19,12 @@ enum HttpMethod {
 }
 
 export class ApiClient {
-    private client: AxiosInstance;
-
-    constructor(config?: AxiosRequestConfig & { setupInterceptors?: boolean }) {
+    private client: AxiosInstance; constructor(config?: AxiosRequestConfig & { setupInterceptors?: boolean }) {
         // 기본값과 병합
         const finalConfig = {
             baseURL: API_BASE_URL,
             timeout: API_TIMEOUT,
+            withCredentials: true, // 쿠키 자동 포함
             headers: {
                 'Content-Type': 'application/json',
                 ...(config?.headers || {})

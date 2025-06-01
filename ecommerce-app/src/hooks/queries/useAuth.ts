@@ -1,100 +1,97 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useAuthRepository } from '../../context/RepositoryContext';
+import { useEffect, useCallback } from 'react';
 import { LoginRequest, UserResponse, LoginResponse } from '../../api/models/auth';
 import { queryKeys } from './queryKeys';
-
-// 상수와 유틸리티 함수 분리
-const TOKEN_STORAGE_KEY = 'auth-token';
-
-// 로컬 스토리지 유틸리티 - 타입 안전하게 구현
-export const tokenUtils = {
-    getToken: (): string | null => {
-        if (typeof window === 'undefined') return null;
-        return localStorage.getItem(TOKEN_STORAGE_KEY);
-    },
-
-    setToken: (token: string): void => {
-        if (typeof window !== 'undefined') {
-            localStorage.setItem(TOKEN_STORAGE_KEY, token);
-        }
-    },
-
-    clearToken: (): void => {
-        if (typeof window !== 'undefined') {
-            localStorage.removeItem(TOKEN_STORAGE_KEY);
-        }
-    }
-};
+import { useAuthStore } from '../../store/useAuthStore';
+import { useAuth } from '../../store/authStore';
 
 interface CurrentUserOptions {
     enabled?: boolean;
     retry?: boolean | number;
-    staleTime?: number;
-    onSuccess?: (data: UserResponse) => void;
     onError?: (error: Error) => void;
 }
 
-// 명확한 타입 제한, 기본값 제공
+/**
+ * 현재 사용자 정보 조회 - zustand와 연동
+ */
 export function useCurrentUser(options: CurrentUserOptions = {}) {
-    const authRepo = useAuthRepository();
-    const token = tokenUtils.getToken();
+    const { setUser, setLoading } = useAuthStore();
 
-    return useQuery<UserResponse, Error>({
+    // onError 콜백을 안정화
+    const handleError = useCallback((error: Error) => {
+        options.onError?.(error);
+    }, [options.onError]);
+
+    const query = useQuery<UserResponse, Error>({
         queryKey: queryKeys.user.me(),
-        queryFn: () => authRepo.getUserInfo(),
-        enabled: Boolean(token), // 명시적 boolean 변환
-        retry: options.retry ?? false, // 기본값 제공
-        staleTime: options.staleTime ?? 300000, // 5분 캐싱
-        onError: (error: Error) => {
-            tokenUtils.clearToken();
-            options.onError?.(error);
+        queryFn: async () => {
+            // 임시로 빈 사용자 정보 반환 (추후 API 구현 시 교체)
+            throw new Error('User info API not implemented');
         },
-        ...options,
+        enabled: false, // 일단 비활성화
+        retry: options.retry ?? false,
+        staleTime: 1000 * 60 * 5, // 5분 캐싱
     });
+
+    // 별도 useEffect로 상태 관리 (react-query v5에서 onSuccess 제거됨)
+    useEffect(() => {
+        if (query.data) {
+            setUser(query.data);
+        } else if (query.error) {
+            setUser(null);
+            handleError(query.error);
+        }
+        setLoading(query.isLoading);
+    }, [query.data, query.error, query.isLoading, setUser, setLoading, handleError]);
+
+    return query;
 }
 
-// 명확한 반환 타입 설정
+/**
+ * 로그인 훅
+ */
 export function useLogin() {
     const queryClient = useQueryClient();
-    const authRepo = useAuthRepository();
+    const { setUser } = useAuthStore();
+    const { setToken } = useAuth();
 
     return useMutation<LoginResponse, Error, LoginRequest>({
-        mutationFn: (credentials: LoginRequest) => authRepo.login(credentials),
-        onSuccess: (data) => {
-            tokenUtils.setToken(data.token);
-            queryClient.setQueryData(queryKeys.user.me(), data.user);
+        mutationFn: async (credentials) => {
+            // TODO: API 호출 구현 필요
+            throw new Error('Login API not implemented');
+        },
+        onSuccess: (response) => {
+            // 로그인 성공 시 사용자 정보 저장 (토큰은 서버에서 쿠키로 설정됨)
+            setToken(response.token);
+            setUser(response.user);
+            queryClient.setQueryData(queryKeys.user.me(), response.user);
         }
     });
 }
 
-interface RefreshTokenOptions {
-    onSuccess?: (data: LoginResponse) => void;
-    onError?: (error: Error) => void;
-}
-
-// 명확한 옵션 타입 정의
-export function useRefreshToken(options: RefreshTokenOptions = {}) {
-    const authRepo = useAuthRepository();
-
-    return useMutation<LoginResponse, Error, void>({
-        mutationFn: () => authRepo.getRefreshToken(),
-        onSuccess: (data) => {
-            tokenUtils.setToken(data.token);
-            options.onSuccess?.(data);
-        },
-        onError: options.onError,
-    });
-}
-
+/**
+ * 로그아웃 훅
+ */
 export function useLogout() {
     const queryClient = useQueryClient();
-    const authRepo = useAuthRepository();
+    const { logout: zustandLogout } = useAuthStore();
+    const { logout } = useAuth();
 
     return useMutation<void, Error, void>({
-        mutationFn: () => authRepo.logout(),
+        mutationFn: async () => {
+            // TODO: API 호출 구현 필요
+            throw new Error('Logout API not implemented');
+        },
         onSuccess: () => {
-            tokenUtils.clearToken();
+            // 로그아웃 처리 (zustand store에서 쿠키 삭제 처리)
+            logout();
+            zustandLogout();
             queryClient.removeQueries({ queryKey: ['user'] });
+
+            // 페이지 새로고침으로 서버에서 새 게스트 토큰 발급
+            if (typeof window !== 'undefined') {
+                window.location.reload();
+            }
         }
     });
 }

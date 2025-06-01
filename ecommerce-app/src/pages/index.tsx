@@ -45,11 +45,11 @@ const HomePage: NextPage = () => {
     // 에러 처리
     useEffect(() => {
         if (userError) {
-            handleError(userError as any, 'toast');
+            handleError(userError as any, { type: 'toast', context: 'User authentication' });
         }
 
         if (homeDataError) {
-            handleError(homeDataError, 'toast');
+            handleError(homeDataError, { type: 'toast', context: 'Home data loading' });
         }
     }, [userError, homeDataError, handleError]);
 

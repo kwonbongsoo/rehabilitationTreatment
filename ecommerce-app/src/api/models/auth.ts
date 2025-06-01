@@ -59,17 +59,7 @@ export interface UserResponse {
     id: string;
     email: string;
     name: string;
-    lastName: string;
-    fullName: string; // firstName + lastName
-    phoneNumber?: string;
-    profileImageUrl?: string;
-    role: 'customer' | 'admin' | 'guest';
-    emailVerified: boolean;
-    createdAt: string;
-    updatedAt: string;
-    lastLoginAt?: string;
-    addressCount?: number; // 저장된 주소 수
-    defaultAddressId?: string;
+    role: 'user' | 'admin' | 'guest';
 }
 
 /**
