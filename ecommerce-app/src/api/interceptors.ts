@@ -14,8 +14,7 @@ export const idempotencyUtils = {
 
         // 회원가입, 결제, 주문 등 멱등성이 중요한 엔드포인트
         const criticalEndpoints = [
-            '/auth/register',
-            '/auth/login'
+            '/api/members'
         ];
 
         return (
