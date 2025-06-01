@@ -15,6 +15,7 @@ Docker, Prisma, PostgreSQL, Koa, Next.js, Kong API Gateway, Nginx 등 다양한 
 - 회원 가입, 로그인, 정보 수정, 삭제
 - 인증 서버(koa-auth-server) 연동
 - 이커머스 프론트엔드(ecommerce-app) 연동
+- **Kong API Gateway 멱등성 플러그인으로 중복 요청 방지**
 - Docker Compose로 전체 서비스 손쉽게 실행
 - **API Gateway(Kong) 및 Nginx 리버스 프록시 연동**
 - 사용자 정의 네트워크(app-network)로 서비스 간 통신 격리
@@ -106,17 +107,24 @@ Docker, Prisma, PostgreSQL, Koa, Next.js, Kong API Gateway, Nginx 등 다양한 
 3. **Member 서비스 → PostgreSQL**: 데이터베이스 작업 수행
 4. **Member 서비스 → API Gateway → Nginx → 클라이언트**: 응답 반환
 
-### 4. 중복 요청 방지 (멱등성) 처리 예정
-1. **클라이언트**: POST/PUT 요청 시 고유한 `X-Idempotency-Key` 헤더 생성
-2. **중복 요청 감지 시**: 409 Conflict 응답 반환
-3. **신규 요청 시**: 멱등키 저장 후 정상 처리
- - 어느 영역에서 멱등성 체크할지 고민중.
+### 4. 중복 요청 방지 (멱등성) 처리 ✅
+1. **클라이언트**: POST/PUT/PATCH 요청 시 고유한 `X-Idempotency-Key` 헤더 포함
+2. **Kong API Gateway**: 사용자 정의 멱등성 플러그인으로 요청 처리
+   - Redis를 통한 응답 캐싱 (TTL: 60초)
+   - 동일한 멱등키로 중복 요청 시 캐시된 응답 반환
+3. **신규 요청 시**: 멱등키와 응답을 Redis에 저장 후 정상 처리
+4. **적용 범위**: `/api/members` 경로의 POST, PUT, PATCH 메서드
+
+<!-- 다른 서비스들과 Redis 인스턴스를 공유할 때
+db: 0  Kong 멱등성 캐시 (현재 적용됨)
+db: 1  인증 서비스 세션 -->
 
 ### 주요 특징
 
 - **Nginx의 중앙 인증**: 모든 요청은 Nginx의 `auth_request` 모듈을 통해 인증됨
 - **효율적인 인증 체크**: 실제 처리 전 빠르게 인증 상태 확인
 - **Kong API Gateway**: API 관리, 라우팅 및 정책 적용 담당
+- **멱등성 보장**: Kong 레벨에서 Redis 기반 멱등성 플러그인 적용
 - **토큰 관리**: Redis를 통한 빠른 토큰 유효성 검증
 - **마이크로서비스 설계**: 각 서비스가 자체 책임 영역 담당
 

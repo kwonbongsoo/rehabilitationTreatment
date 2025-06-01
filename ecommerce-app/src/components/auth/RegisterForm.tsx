@@ -13,9 +13,11 @@ interface RegisterFormData {
 
 interface RegisterFormProps {
     onSubmit: (data: RegisterFormData) => Promise<boolean>;
+    isLoading?: boolean;     // 외부에서 전달받는 로딩 상태
+    isSubmitting?: boolean;  // 멱등성 관련 제출 상태
 }
 
-export default function RegisterForm({ onSubmit }: RegisterFormProps) {
+export default function RegisterForm({ onSubmit, isLoading: externalLoading, isSubmitting }: RegisterFormProps) {
     const [formData, setFormData] = useState<RegisterFormData>({
         id: '',
         password: '',
@@ -23,17 +25,21 @@ export default function RegisterForm({ onSubmit }: RegisterFormProps) {
         name: '',
         email: '',
     });
-    const [isLoading, setIsLoading] = useState(false);
+    const [internalLoading, setInternalLoading] = useState(false);
+
+    // 외부 로딩 상태가 있으면 우선 사용, 없으면 내부 상태 사용
+    const isFormLoading = externalLoading ?? internalLoading;
+
+    // 버튼 비활성화 조건: 로딩 중이거나 제출 중인 경우
+    const isButtonDisabled = isFormLoading || isSubmitting;
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
-    };
-
-    const handleSubmit = async (e: FormEvent) => {
+    }; const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
 
-        setIsLoading(true);
+        setInternalLoading(true);
         try {
             const success = await onSubmit(formData);
             if (success) {
@@ -47,7 +53,7 @@ export default function RegisterForm({ onSubmit }: RegisterFormProps) {
                 });
             }
         } finally {
-            setIsLoading(false);
+            setInternalLoading(false);
         }
     };
 
@@ -120,11 +126,10 @@ export default function RegisterForm({ onSubmit }: RegisterFormProps) {
                 <label htmlFor="agree-terms" className={styles.checkboxLabel}>
                     이용약관 및 개인정보 처리방침에 동의합니다.
                 </label>
-            </div>
-
-            <AuthButton
+            </div>            <AuthButton
                 type="submit"
-                isLoading={isLoading}
+                isLoading={isFormLoading}
+                disabled={isButtonDisabled}
                 loadingText="처리 중..."
             >
                 회원가입

@@ -1,0 +1,33 @@
+_format_version: "3.0"
+_transform: true
+
+services:
+  - name: fastify-member-server
+    url: http://fastify-member-server:5000
+    routes:
+      - name: member-api
+        paths:
+          - /api/members
+        strip_path: false  # 접두어 제거
+        plugins:
+          - name: idempotency
+            config:
+              redis_host: "${REDIS_URL}"
+              redis_port: ${REDIS_PORT}
+              redis_password: "${REDIS_PASSWORD}"
+              redis_database: ${REDIS_DB}
+              ttl: ${IDEMPOTENCY_TTL}
+              header_name: "X-Idempotency-Key"
+              paths:
+                - "/api/members"
+              methods:
+                - "POST"
+                - "PUT"
+                - "PATCH"
+  - name: koa-auth-server
+    url: http://koa-auth-server:4000
+    routes:
+      - name: auth-api
+        paths:
+          - /api/auth
+        strip_path: false  # 접두어 제거

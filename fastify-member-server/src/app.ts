@@ -10,6 +10,9 @@ import memberRoutes from './routes/memberRoutes';
 import { PrismaClient } from '@prisma/client';
 import { MemberService } from './services/memberService';
 import { MemberController } from './controllers/memberController';
+// Kong에서 멱등성 처리하므로 Fastify 레벨에서는 주석 처리
+// import { IdempotencyMiddleware } from './middlewares/idempotencyMiddleware';
+// import { redisClient } from './utils/redisClient';
 import './types/fastify';  // 타입 확장 임포트
 
 function validateConfig(): void {
@@ -63,6 +66,28 @@ export async function buildApp(): Promise<FastifyInstance> {
       deepLinking: true
     },
   });
+
+
+
+  // Kong에서 멱등성 처리하므로 Fastify 레벨 멱등성 미들웨어 주석 처리
+  // 멱등성 미들웨어를 전역 스코프에서 직접 등록 (스코프 문제 해결)
+  // const idempotencyMiddleware = new IdempotencyMiddleware({
+  //   redis: redisClient,
+  //   ttl: 60,
+  //   keyPrefix: 'member-idempotency:'
+  // });
+
+  // 전역 훅으로 직접 등록
+  // app.addHook('onRequest', async (request, reply) => {
+  //   await idempotencyMiddleware.onRequest(request, reply);
+  // });
+
+  // onSend 훅으로 응답 캐싱 (비동기 처리)
+  // app.addHook('onSend', async (request, reply, payload) => {
+  //   return await idempotencyMiddleware.onSend(request, reply, payload);
+  // });
+
+
 
   // 라우트 등록
   await app.register(memberRoutes(memberController), { prefix: '/api/members' });

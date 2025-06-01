@@ -27,8 +27,8 @@ http {
     # 1. API 관련 경로 처리
     #############################
 
-    # 1.1 인증 우회 API 경로 (auth 관련, health 체크, docs)
-    location ~ ^/api/(auth/|members/health$|members/docs$) {
+    # 1.1 인증 우회 API 경로 (auth 관련, 회원가입, health 체크, docs)
+    location ~ ^/api/(auth/|members(/health$|/docs$|$)) {
         proxy_pass http://kong_upstream;
     }
 

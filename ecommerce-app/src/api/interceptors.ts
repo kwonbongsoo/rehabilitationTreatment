@@ -4,6 +4,39 @@ import { getApiConfig } from './config';
 import { createAuthRepository } from './repository/authRepository';
 import { createBasicApiClient } from './client';
 
+// 멱등성 키 관리 유틸리티
+export const idempotencyUtils = {
+    /**
+     * 요청에 멱등성 키가 필요한지 확인
+     */
+    needsIdempotencyKey: (method: string, url: string): boolean => {
+        const idempotentMethods = ['POST', 'PUT', 'PATCH'];
+
+        // 회원가입, 결제, 주문 등 멱등성이 중요한 엔드포인트
+        const criticalEndpoints = [
+            '/auth/register',
+            '/auth/login'
+        ];
+
+        return (
+            idempotentMethods.includes(method.toUpperCase()) &&
+            criticalEndpoints.some((endpoint) => url.includes(endpoint))
+        );
+    },
+
+    /**
+     * 멱등성 키 헤더 추가
+     */
+    addIdempotencyHeader: (
+        config: InternalAxiosRequestConfig,
+        key: string
+    ): InternalAxiosRequestConfig => {
+        config.headers = config.headers || {};
+        config.headers['X-Idempotency-Key'] = key;
+        return config;
+    },
+};
+
 // 목적별 함수 분리
 const createRefreshClient = () => {
     return createBasicApiClient();
@@ -64,6 +97,20 @@ export const setupInterceptors = (client: AxiosInstance): void => {
             const token = tokenUtils.getToken();
             if (token && !config.headers.Authorization) {
                 config.headers.Authorization = `Bearer ${token}`;
+            }
+
+            // 멱등성 키 자동 추가 (커스텀 헤더가 없는 경우)
+            if (config.method && config.url &&
+                idempotencyUtils.needsIdempotencyKey(config.method, config.url) &&
+                !config.headers['X-Idempotency-Key']) {
+
+                // 요청 데이터에서 멱등성 키 확인 (임시 해결책)
+                const requestData = config.data as any;
+                if (requestData && requestData._idempotencyKey) {
+                    idempotencyUtils.addIdempotencyHeader(config, requestData._idempotencyKey);
+                    // 실제 요청 데이터에서 멱등성 키 제거
+                    delete requestData._idempotencyKey;
+                }
             }
 
             return config;

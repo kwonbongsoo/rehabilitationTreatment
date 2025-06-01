@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import Link from 'next/link';
 import AuthLayout from '@/components/auth/AuthLayout';
 import RegisterForm from '@/components/auth/RegisterForm';
@@ -7,7 +6,14 @@ import { useRegisterForm } from '@/hooks/useRegisterForm';
 import styles from '@/styles/auth/AuthLayout.module.css';
 
 export default function Register() {
-    const { handleRegister, isLoading, error, clearError } = useRegisterForm();
+    const {
+        handleRegister,
+        isLoading,
+        isSubmitting,
+        error,
+        clearError,
+        requestStatus
+    } = useRegisterForm();
 
     const onSubmit = async (formData: {
         id: string;
@@ -33,7 +39,11 @@ export default function Register() {
             description="쇼핑몰 회원가입 페이지"
             errorMessage={error}
         >
-            <RegisterForm onSubmit={onSubmit} />
+            <RegisterForm
+                onSubmit={onSubmit}
+                isLoading={isLoading}
+                isSubmitting={isSubmitting}
+            />
 
             <Divider text="또는" />
 
@@ -43,6 +53,22 @@ export default function Register() {
                     로그인
                 </Link>
             </div>
+
+            {/* 개발 환경에서만 멱등성 정보 표시 */}
+            {process.env.NODE_ENV === 'development' && requestStatus && (
+                <div style={{
+                    marginTop: '20px',
+                    padding: '10px',
+                    background: '#f0f0f0',
+                    fontSize: '12px',
+                    borderRadius: '4px'
+                }}>
+                    <strong>멱등성 정보 (개발용)</strong><br />
+                    세션 키: {requestStatus.sessionKey}<br />
+                    현재 키: {requestStatus.idempotencyKey}<br />
+                    진행 중: {requestStatus.isInProgress ? 'Yes' : 'No'}
+                </div>
+            )}
         </AuthLayout>
     );
 }
