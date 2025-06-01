@@ -1,39 +1,50 @@
 import { useState, FormEvent } from 'react';
 import FormInput from './FormInput';
 import AuthButton from './AuthButton';
+import { LoginRequest } from '@/api/models/auth';
 import styles from '@/styles/auth/LoginForm.module.css';
 
 interface LoginFormProps {
-    onSubmit: (id: string, password: string) => void;
+    onSubmit: (credentials: LoginRequest) => Promise<void>;
+    isLoading?: boolean;
+    error?: string;
 }
 
-export default function LoginForm({ onSubmit }: LoginFormProps) {
+export default function LoginForm({ onSubmit, isLoading: externalLoading = false }: LoginFormProps) {
     const [id, setId] = useState('');
     const [password, setPassword] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
+    const [rememberMe, setRememberMe] = useState(false);
+    const [internalLoading, setInternalLoading] = useState(false);
+
+    const isLoading = externalLoading || internalLoading;
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
 
-        setIsLoading(true);
-        try {
-            await onSubmit(id, password);
-        } finally {
-            setIsLoading(false);
+        if (!id.trim() || !password.trim()) {
+            return;
         }
-    };
 
-    return (
-        <form onSubmit={handleSubmit} className={styles.form}>
-            <FormInput
-                id="login-id"
-                label="아이디"
-                type="text"
-                value={id}
-                onChange={(e) => setId(e.target.value)}
-                placeholder="아이디를 입력하세요"
-                required
-            />
+        setInternalLoading(true);
+        try {
+            await onSubmit({
+                id: id.trim(),
+                password,
+                rememberMe
+            });
+        } finally {
+            setInternalLoading(false);
+        }
+    }; return (
+        <form onSubmit={handleSubmit} className={styles.form}>            <FormInput
+            id="login-id"
+            label="아이디"
+            type="text"
+            value={id}
+            onChange={(e) => setId(e.target.value)}
+            placeholder="아이디를 입력하세요"
+            required
+        />
 
             <FormInput
                 id="login-password"
@@ -50,16 +61,17 @@ export default function LoginForm({ onSubmit }: LoginFormProps) {
                     type="checkbox"
                     id="remember"
                     className={styles.checkbox}
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
                 />
                 <label htmlFor="remember" className={styles.checkboxLabel}>
                     로그인 상태 유지
                 </label>
-            </div>
-
-            <AuthButton
+            </div>            <AuthButton
                 type="submit"
                 isLoading={isLoading}
                 loadingText="로그인 중..."
+                disabled={!id.trim() || !password.trim() || isLoading}
             >
                 로그인
             </AuthButton>

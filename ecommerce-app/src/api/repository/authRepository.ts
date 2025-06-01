@@ -11,13 +11,6 @@ export const createAuthRepository = (apiClient: ApiClient) => ({
     },
 
     /**
-     * 사용자 회원가입
-     */
-    signup: async (userData: SignupRequest): Promise<UserResponse> => {
-        return apiClient.post<UserResponse>('/auth/signup', userData);
-    },
-
-    /**
      * 게스트 토큰 발급
      */
     guestLogin: async (): Promise<LoginResponse> => {

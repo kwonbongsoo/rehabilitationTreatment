@@ -2,7 +2,7 @@
  * 로그인 요청 모델
  */
 export interface LoginRequest {
-    email: string;
+    id: string;
     password: string;
     rememberMe?: boolean;
 }
@@ -19,6 +19,26 @@ export interface LoginResponse {
 
 /**
  * 회원가입 요청 모델
+ */
+export interface RegisterRequest {
+    id: string;
+    password: string;
+    confirmPassword: string;
+    name: string;
+    email: string;
+}
+
+/**
+ * 회원가입 응답 모델
+ */
+export interface RegisterResponse {
+    user: UserResponse;
+    message?: string;
+}
+
+/**
+ * 기존 호환성을 위한 SignupRequest (deprecated)
+ * @deprecated Use RegisterRequest instead
  */
 export interface SignupRequest {
     email: string;
@@ -38,7 +58,7 @@ export interface SignupRequest {
 export interface UserResponse {
     id: string;
     email: string;
-    firstName: string;
+    name: string;
     lastName: string;
     fullName: string; // firstName + lastName
     phoneNumber?: string;

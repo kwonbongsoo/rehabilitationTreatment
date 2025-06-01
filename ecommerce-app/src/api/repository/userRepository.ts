@@ -1,7 +1,20 @@
 import { ApiClient } from '../client';
 import { User, UserUpdateRequest, Address } from '../models/user';
+import { RegisterRequest } from '../models/auth';
 
 export const createUserRepository = (apiClient: ApiClient) => ({
+    /**
+     * 회원가입 (member 서버 사용)
+     */
+    register: async (userData: RegisterRequest): Promise<User> => {
+        const response = await apiClient.post<{ success: boolean; member: User; message?: string }>('/members', {
+            id: userData.id,
+            password: userData.password,
+            name: userData.name,
+            email: userData.email
+        });
+        return response.member;
+    },
     /**
      * 현재 사용자 정보 조회
      */

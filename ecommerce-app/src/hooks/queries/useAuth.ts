@@ -1,10 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthRepository } from '../../context/RepositoryContext';
 import { LoginRequest, UserResponse, LoginResponse } from '../../api/models/auth';
+import { queryKeys } from './queryKeys';
 
 // 상수와 유틸리티 함수 분리
 const TOKEN_STORAGE_KEY = 'auth-token';
-const AUTH_QUERY_KEY = ['user', 'me'] as const;
 
 // 로컬 스토리지 유틸리티 - 타입 안전하게 구현
 export const tokenUtils = {
@@ -40,7 +40,7 @@ export function useCurrentUser(options: CurrentUserOptions = {}) {
     const token = tokenUtils.getToken();
 
     return useQuery<UserResponse, Error>({
-        queryKey: AUTH_QUERY_KEY,
+        queryKey: queryKeys.user.me(),
         queryFn: () => authRepo.getUserInfo(),
         enabled: Boolean(token), // 명시적 boolean 변환
         retry: options.retry ?? false, // 기본값 제공
@@ -62,7 +62,7 @@ export function useLogin() {
         mutationFn: (credentials: LoginRequest) => authRepo.login(credentials),
         onSuccess: (data) => {
             tokenUtils.setToken(data.token);
-            queryClient.setQueryData(AUTH_QUERY_KEY, data.user);
+            queryClient.setQueryData(queryKeys.user.me(), data.user);
         }
     });
 }

@@ -1,29 +1,34 @@
-import { useState } from 'react';
+import { useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import AuthLayout from '@/components/auth/AuthLayout';
 import LoginForm from '@/components/auth/LoginForm';
 import Divider from '@/components/auth/Divider';
+import { useLoginForm } from '@/hooks/useLoginForm';
+import { useCurrentUser } from '@/hooks/queries/useAuth';
 import styles from '@/styles/auth/AuthLayout.module.css';
 
 export default function Login() {
-    const [error, setError] = useState('');
+    const router = useRouter();
+    const { data: user } = useCurrentUser({ enabled: false });
+    const { handleLogin, isLoading, error } = useLoginForm();
 
-    const handleLogin = async (id: string, password: string) => {
-        // 실제 로그인 로직은 여기에 구현하지 않음
-        console.log('로그인 시도:', id, password);
-        // 예시 에러 처리
-        if (!id || !password) {
-            setError('아이디와 비밀번호를 모두 입력해주세요.');
+    // 이미 로그인된 사용자는 홈으로 리다이렉트
+    useEffect(() => {
+        if (user && user.role !== 'guest') {
+            router.replace('/');
         }
-    };
-
-    return (
+    }, [user, router]); return (
         <AuthLayout
             title="로그인"
             description="쇼핑몰 로그인 페이지"
             errorMessage={error}
         >
-            <LoginForm onSubmit={handleLogin} />
+            <LoginForm
+                onSubmit={handleLogin}
+                isLoading={isLoading}
+                error={error}
+            />
 
             <div className={styles.linkContainer}>
                 <Link href="/auth/forgot-password" className={styles.link}>
