@@ -13,12 +13,11 @@ interface SubNavigationProps {
 }
 
 const SubNavigation: React.FC<SubNavigationProps> = ({
-    visible,
-    items = [
+    visible, items = [
         { href: "/new-arrivals", label: "신상품" },
         { href: "/best-sellers", label: "베스트셀러" },
         { href: "/collections/summer", label: "여름 컬렉션" },
-        { href: "/sustainable", label: "지속가능한 패션" }
+        { href: "/sustainability", label: "지속가능한 패션" }
     ]
 }) => {
     return (

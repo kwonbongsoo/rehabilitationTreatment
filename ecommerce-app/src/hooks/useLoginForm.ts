@@ -17,7 +17,7 @@
  */
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/router';
-import { useLogin, useCurrentUser } from './queries/useAuth';
+import { useLogin } from './queries/useAuth';
 import { LoginRequest } from '@/api/models/auth';
 import { toast } from 'react-toastify';
 import { authDomainService } from '@/services/authDomainService';
@@ -129,7 +129,6 @@ export function useLoginForm(): UseLoginFormReturn {
     const [errorState, setErrorState] = useState<ErrorState>(INITIAL_ERROR_STATE);
     const router = useRouter();
     const loginMutation = useLogin();
-    const { data: user } = useCurrentUser({ enabled: false });
 
     // 의존성 주입을 통한 협력 객체 생성
     const stateManager = new LoginStateManager(setErrorState);
@@ -137,9 +136,7 @@ export function useLoginForm(): UseLoginFormReturn {
 
     const clearError = useCallback(() => {
         stateManager.clearError();
-    }, [stateManager]);
-
-    const handleLogin = useCallback(async (credentials: LoginRequest): Promise<void> => {
+    }, [stateManager]); const handleLogin = useCallback(async (credentials: LoginRequest): Promise<void> => {
         try {
             stateManager.clearError();
 
@@ -149,15 +146,21 @@ export function useLoginForm(): UseLoginFormReturn {
             // 로그인 요청 실행
             await loginMutation.mutateAsync(credentials);
 
-            // 성공 처리
-            LoginErrorHandler.showSuccessToast();
+            // React Error #185 방지를 위해 성공 처리를 다음 틱에서 실행
+            setTimeout(() => {
+                LoginErrorHandler.showSuccessToast();
+            }, 0);
+
+            // 리다이렉트는 바로 실행 (사용자 경험을 위해)
             await redirectHandler.redirectAfterLogin();
 
         } catch (error) {
-            // 에러 처리
-            const errorMessage = LoginErrorHandler.extractErrorMessage(error);
-            stateManager.setError(errorMessage);
-            LoginErrorHandler.showErrorToast(errorMessage);
+            // React Error #185 방지를 위해 에러 처리를 다음 틱에서 실행
+            setTimeout(() => {
+                const errorMessage = LoginErrorHandler.extractErrorMessage(error);
+                stateManager.setError(errorMessage);
+                LoginErrorHandler.showErrorToast(errorMessage);
+            }, 0);
 
             // 상위 컴포넌트에서 추가 처리가 필요한 경우를 위해 재던짐
             throw error;

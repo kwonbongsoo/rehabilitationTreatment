@@ -43,9 +43,7 @@ export default function Register() {
                 onSubmit={onSubmit}
                 isLoading={isLoading}
                 isSubmitting={isSubmitting}
-            />
-
-            <Divider text="또는" />
+            />            <Divider text="또는" />
 
             <div className={styles.linkContainer}>
                 <p>이미 계정이 있으신가요?</p>
@@ -65,10 +63,11 @@ export default function Register() {
                 }}>
                     <strong>멱등성 정보 (개발용)</strong><br />
                     세션 키: {requestStatus.sessionKey}<br />
-                    현재 키: {requestStatus.idempotencyKey}<br />
+                    멱등성 키: {requestStatus.idempotencyKey}<br />
                     진행 중: {requestStatus.isInProgress ? 'Yes' : 'No'}
                 </div>
             )}
         </AuthLayout>
     );
 }
+

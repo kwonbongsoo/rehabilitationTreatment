@@ -1,0 +1,142 @@
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    text-align: center;
+    color: #333;
+}
+
+.saleNotice {
+    background: linear-gradient(135deg, #ff6b6b, #ffa500);
+    color: white;
+    text-align: center;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+}
+
+.saleNotice p {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.newNotice {
+    background: linear-gradient(135deg, #4ecdc4, #44a08d);
+    color: white;
+    text-align: center;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+}
+
+.newNotice p {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.productsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
+}
+
+.productCard {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+}
+
+.productCard:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    text-decoration: none;
+    color: inherit;
+}
+
+.productImage {
+    width: 100%;
+    height: 250px;
+    overflow: hidden;
+    background-color: #f5f5f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.productImage img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.newBadge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: #4ecdc4;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+
+.saleBadge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: #e74c3c;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+
+.productInfo {
+    padding: 1.5rem;
+}
+
+.productName {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    color: #333;
+    line-height: 1.4;
+}
+
+.priceSection {
+    margin-bottom: 0.5rem;
+}
+
+.productPrice {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #e74c3c;
+    margin: 0;
+}
+
+.originalPrice {
+    font-size: 1rem;
+    color: #999;
+    text-decoration: line-through;
+    margin: 0.25rem 0 0 0;
+}
+
+.productRating {
+    font-size: 0.9rem;
+    color: #666;
+}

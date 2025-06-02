@@ -1,7 +1,5 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
+import { createContext, useContext, ReactNode, useState, useCallback, useMemo } from 'react';
 import { UserResponse } from '../api/models/auth';
-import { useCurrentUser } from '../hooks/queries/useAuth';
 import { cookieService } from '../services/cookieService';
 
 // 명확한 타입 정의
@@ -12,6 +10,7 @@ interface AuthContextValue {
   user: UserResponse | null;
   isLoading: boolean;
   setToken: (token: string) => void;
+  setUser: (user: UserResponse | null) => void;
   logout: () => Promise<void>;
 }
 
@@ -21,68 +20,52 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-// 유틸리티 함수 분리 - 컴포넌트 외부로 이동
-const isUserGuest = (user: UserResponse | null): boolean => {
-  return Boolean(user?.role === 'guest');
-};
-
-// 인증 상태 확인 - 명확한 함수로 분리
-const checkAuthenticated = (token: string | null, user: UserResponse | null): boolean => {
-  return Boolean(token && user);
-};
-
 export function AuthProvider({ children }: AuthProviderProps) {
-  const queryClient = useQueryClient();
-  const [token, setTokenState] = useState<string | null>(cookieService.getToken());
+  // 안전한 상태 관리 - React Error #185 방지
+  const [user, setUserState] = useState<UserResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // 사용자 정보 쿼리 - 401 에러 시 페이지 새로고침
-  const {
-    data: user,
-    isLoading
-  } = useCurrentUser({
-    enabled: Boolean(token),
-    retry: false,
-    onError: () => {
-      // Nginx에서 401 에러 시 페이지 새로고침으로 새 게스트 토큰 발급
-      if (typeof window !== 'undefined') {
-        window.location.reload();
-      }
+  // 토큰 상태는 쿠키에서 읽기 (SSR 안전)
+  const [token, setTokenState] = useState<string | null>(() => {
+    if (typeof window !== 'undefined') {
+      return cookieService.getToken();
     }
+    return null;
   });
 
-  // 파생 상태 - 간결하고 명확한 계산
-  const isAuthenticated = checkAuthenticated(token, user as UserResponse | null);
-  const isGuest = isUserGuest(user as UserResponse | null);
-
-  // 토큰 설정 - SSR에서만 사용 (쿠키는 이미 설정됨)
-  function handleSetToken(newToken: string): void {
+  // 안전한 토큰 설정 함수
+  const setToken = useCallback((newToken: string) => {
     setTokenState(newToken);
-  }
+  }, []);
 
-  // 로그아웃 - 명확한 함수명 사용
-  async function handleLogout(): Promise<void> {
-    await cookieService.clearToken();
+  // 안전한 사용자 설정 함수
+  const setUser = useCallback((newUser: UserResponse | null) => {
+    setUserState(newUser);
+  }, []);
+
+  // 로그아웃 함수
+  const logout = useCallback(async () => {
+    setUserState(null);
     setTokenState(null);
-    queryClient.removeQueries({ queryKey: ['user'] });
-  }
+    // 쿠키 삭제는 서버에서 처리됨
+  }, []);
 
-  // useEffect의 목적을 주석으로 명확히
-  useEffect(() => {
-    // 토큰이 있을 때만 사용자 정보 다시 가져오기
-    if (token) {
-      queryClient.invalidateQueries({ queryKey: ['user', 'me'] });
-    }
-  }, [token, queryClient]);
-  // Context value 객체 미리 생성 - 불필요한 렌더링 방지
-  const contextValue: AuthContextValue = {
-    token,
-    user: user as UserResponse | null,
-    isAuthenticated,
-    isGuest,
-    isLoading,
-    setToken: handleSetToken,
-    logout: handleLogout
-  };
+  // 계산된 값들을 useMemo로 최적화
+  const contextValue = useMemo((): AuthContextValue => {
+    const isAuthenticated = Boolean(user && token);
+    const isGuest = !isAuthenticated || user?.role === 'guest';
+
+    return {
+      token,
+      user,
+      isAuthenticated,
+      isGuest,
+      isLoading,
+      setToken,
+      setUser,
+      logout
+    };
+  }, [token, user, isLoading, setToken, setUser, logout]);
 
   return (
     <AuthContext.Provider value={contextValue}>

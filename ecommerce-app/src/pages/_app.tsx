@@ -4,7 +4,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { ToastContainer } from 'react-toastify';
 import Layout from '@/components/layout/Layout';
 import { ApiProvider } from '@/context/RepositoryContext';
-import { createAppInitializationService } from '@/services/appInitializationService';
+import { AuthProvider } from '@/store/authStore';
 import { createUIConfigurationService } from '@/services/uiConfigurationService';
 import '@/styles/globals.css';
 import 'react-toastify/dist/ReactToastify.css';
@@ -23,15 +23,16 @@ const uiConfig = uiConfigService.createConfiguration();
  */
 function MyApp({ Component, pageProps }: AppProps) {
   const { queryClient, toastConfig, devtoolsConfig } = uiConfig;
-
   return (
     <QueryClientProvider client={queryClient}>
-      <ApiProvider>
-        <Layout>
-          <Component {...pageProps} />
-        </Layout>
-        <ToastContainer {...toastConfig} />
-      </ApiProvider>
+      <AuthProvider>
+        <ApiProvider>
+          <Layout>
+            <Component {...pageProps} />
+            <ToastContainer {...toastConfig} />
+          </Layout>
+        </ApiProvider>
+      </AuthProvider>
       {devtoolsConfig.enabled && (
         <ReactQueryDevtools initialIsOpen={devtoolsConfig.initialIsOpen} />
       )}
@@ -39,30 +40,8 @@ function MyApp({ Component, pageProps }: AppProps) {
   );
 }
 
-/**
- * 앱 초기화 처리
- * 
- * 클린 아키텍처 원칙 적용:
- * - 단일 책임 원칙: 앱 초기화만 담당
- * - 의존성 역전 원칙: 초기화 서비스 인터페이스 의존
- * - 에러 처리: 실패해도 앱 실행 지속
- */
-MyApp.getInitialProps = async (appContext: AppContext) => {
-  const initializationService = createAppInitializationService();
-
-  try {
-    const result = await initializationService.initialize(appContext);
-
-    if (!result.success) {
-      // 초기화 실패는 로그만 남기고 앱 실행 계속
-      console.warn(`⚠️ App initialization completed with warnings. Request ID: ${result.requestId}`);
-    }
-  } catch (error) {
-    // 예상치 못한 에러도 앱 실행을 중단하지 않음
-    console.error('🚨 Unexpected error during app initialization:', error);
-  }
-
-  return { pageProps: {} };
-};
+// 게스트 토큰 발급은 미들웨어에서 처리하므로 getInitialProps 제거
+// 이를 통해 SSG 최적화와 성능 향상을 달성
 
 export default MyApp;
+

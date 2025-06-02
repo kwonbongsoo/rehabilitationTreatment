@@ -72,6 +72,21 @@ export interface ChangePasswordRequest {
 }
 
 /**
+ * 비밀번호 찾기 요청 모델
+ */
+export interface ForgotPasswordRequest {
+    email: string;
+}
+
+/**
+ * 비밀번호 찾기 응답 모델
+ */
+export interface ForgotPasswordResponse {
+    message: string;
+    success: boolean;
+}
+
+/**
  * 비밀번호 재설정 요청 모델
  */
 export interface ResetPasswordRequest {
