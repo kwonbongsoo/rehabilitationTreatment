@@ -1,7 +1,7 @@
 import { useState, FormEvent } from 'react';
-import FormInput from './FormInput';
-import AuthButton from './AuthButton';
-import styles from '@/styles/auth/RegisterForm.module.css';
+import FormInput from '../auth/FormInput';
+import AuthButton from '../auth/AuthButton';
+import styles from '@/styles/member/RegisterForm.module.css';
 
 interface RegisterFormData {
     id: string;
@@ -36,7 +36,9 @@ export default function RegisterForm({ onSubmit, isLoading: externalLoading, isS
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
-    }; const handleSubmit = async (e: FormEvent) => {
+    };
+
+    const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
 
         setInternalLoading(true);
@@ -126,7 +128,9 @@ export default function RegisterForm({ onSubmit, isLoading: externalLoading, isS
                 <label htmlFor="agree-terms" className={styles.checkboxLabel}>
                     이용약관 및 개인정보 처리방침에 동의합니다.
                 </label>
-            </div>            <AuthButton
+            </div>
+
+            <AuthButton
                 type="submit"
                 isLoading={isFormLoading}
                 disabled={isButtonDisabled}

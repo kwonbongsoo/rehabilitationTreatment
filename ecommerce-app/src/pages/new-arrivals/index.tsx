@@ -37,7 +37,7 @@ const NewArrivalsPage: React.FC = () => {
                 <div className={styles.productGrid}>
                     <div className={styles.productCard}>
                         <div className={styles.productImage}>
-                            <img src="/images/product1.jpg" alt="신상품 1" />
+                            <img src="https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg" alt="신상품 1" />
                             <div className={styles.newBadge}>NEW</div>
                         </div>
                         <div className={styles.productInfo}>
@@ -53,7 +53,7 @@ const NewArrivalsPage: React.FC = () => {
 
                     <div className={styles.productCard}>
                         <div className={styles.productImage}>
-                            <img src="/images/product2.jpg" alt="신상품 2" />
+                            <img src="https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg" alt="신상품 2" />
                             <div className={styles.newBadge}>NEW</div>
                         </div>
                         <div className={styles.productInfo}>
@@ -69,7 +69,7 @@ const NewArrivalsPage: React.FC = () => {
 
                     <div className={styles.productCard}>
                         <div className={styles.productImage}>
-                            <img src="/images/product3.jpg" alt="신상품 3" />
+                            <img src="https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg" alt="신상품 3" />
                             <div className={styles.newBadge}>NEW</div>
                         </div>
                         <div className={styles.productInfo}>
@@ -84,7 +84,7 @@ const NewArrivalsPage: React.FC = () => {
 
                     <div className={styles.productCard}>
                         <div className={styles.productImage}>
-                            <img src="/images/product4.jpg" alt="신상품 4" />
+                            <img src="https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg" alt="신상품 4" />
                             <div className={styles.newBadge}>NEW</div>
                         </div>
                         <div className={styles.productInfo}>
@@ -100,7 +100,7 @@ const NewArrivalsPage: React.FC = () => {
 
                     <div className={styles.productCard}>
                         <div className={styles.productImage}>
-                            <img src="/images/product5.jpg" alt="신상품 5" />
+                            <img src="https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg" alt="신상품 5" />
                             <div className={styles.newBadge}>NEW</div>
                         </div>
                         <div className={styles.productInfo}>
@@ -116,7 +116,7 @@ const NewArrivalsPage: React.FC = () => {
 
                     <div className={styles.productCard}>
                         <div className={styles.productImage}>
-                            <img src="/images/product6.jpg" alt="신상품 6" />
+                            <img src="https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg" alt="신상품 6" />
                             <div className={styles.newBadge}>NEW</div>
                         </div>
                         <div className={styles.productInfo}>

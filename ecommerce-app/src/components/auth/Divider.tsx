@@ -1,4 +1,4 @@
-import styles from '@/styles/auth/AuthLayout.module.css';
+import styles from '@/styles/shared/UserFormLayout.module.css';
 
 interface DividerProps {
     text: string;

@@ -52,10 +52,12 @@ The server will be running on `http://localhost:3000`.
 
 ## API Endpoints
 
-- `POST /auth/register`: Register a new user.
 - `POST /auth/login`: Log in an existing user.
+- `POST /auth/logout`: Log in an existing user.
+- `POST /auth/guest-token`: Log in an existing user.
+- `GET /auth/verify`: Log in an existing user.
 
-## Contributing
+## Contribut-ing
 
 Contributions are welcome! Please open an issue or submit a pull request for any improvements or features.
 

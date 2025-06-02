@@ -1,6 +1,6 @@
 import { useState, FormEvent } from 'react';
-import FormInput from './FormInput';
-import AuthButton from './AuthButton';
+import FormInput from '../auth/FormInput';
+import AuthButton from '../auth/AuthButton';
 import { ForgotPasswordRequest } from '@/api/models/auth';
 import styles from '@/styles/auth/Form.module.css';
 

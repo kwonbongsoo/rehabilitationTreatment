@@ -93,7 +93,7 @@ Docker, Prisma, PostgreSQL, Koa, Next.js, Kong API Gateway, Nginx 등 다양한 
    - 인증 실패: 오류 응답을 클라이언트에 반환 (요청 처리 중단)
 
 ### 2. 인증 우회 흐름 (로그인/회원가입)
-1. **클라이언트 → Nginx**: 인증 관련 요청 (`/auth/login`, `/auth/register` 등)
+1. **클라이언트 → Nginx**: 인증 관련 요청 (`/auth/login`, `/member/register` 등)
 2. **Nginx**: 해당 경로는 `auth_request` 검사 없이 바로 처리
 3. **Nginx → API Gateway → Auth 서비스**: 인증 처리 요청 전달
 4. **Auth 서비스 → Member 서비스**: 사용자 자격 증명 검증

@@ -1,11 +1,10 @@
 import Link from 'next/link';
-import AuthLayout from '@/components/auth/AuthLayout';
-import RegisterForm from '@/components/auth/RegisterForm';
-import Divider from '@/components/auth/Divider';
+import RegisterForm from '../member/RegisterForm';
+import Divider from '../auth/Divider';
 import { useRegisterForm } from '@/hooks/useRegisterForm';
-import styles from '@/styles/auth/AuthLayout.module.css';
+import styles from '@/styles/shared/UserFormLayout.module.css';
 
-export default function Register() {
+export default function RegisterPageContent() {
     const {
         handleRegister,
         isLoading,
@@ -34,16 +33,14 @@ export default function Register() {
     };
 
     return (
-        <AuthLayout
-            title="회원가입"
-            description="쇼핑몰 회원가입 페이지"
-            errorMessage={error}
-        >
+        <>
             <RegisterForm
                 onSubmit={onSubmit}
                 isLoading={isLoading}
                 isSubmitting={isSubmitting}
-            />            <Divider text="또는" />
+            />
+
+            <Divider text="또는" />
 
             <div className={styles.linkContainer}>
                 <p>이미 계정이 있으신가요?</p>
@@ -67,7 +64,6 @@ export default function Register() {
                     진행 중: {requestStatus.isInProgress ? 'Yes' : 'No'}
                 </div>
             )}
-        </AuthLayout>
+        </>
     );
 }
-

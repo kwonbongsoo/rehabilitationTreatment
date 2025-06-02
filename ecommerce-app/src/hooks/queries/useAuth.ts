@@ -1,6 +1,6 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useEffect, useCallback } from 'react';
-import { LoginRequest, UserResponse, LoginResponse } from '../../api/models/auth';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAuthRepository } from '../../context/RepositoryContext';
+import { LoginRequest, LoginResponse } from '../../api/models/auth';
 import { queryKeys } from './queryKeys';
 import { useAuth } from '../../store/authStore';
 
@@ -15,44 +15,13 @@ interface CurrentUserOptions {
  */
 export function useLogin() {
     const queryClient = useQueryClient();
+    const authRepo = useAuthRepository();
     const { setToken, setUser } = useAuth();
 
     return useMutation<LoginResponse, Error, LoginRequest>({
         mutationFn: async (credentials) => {
-            const response = await fetch('/api/auth/login', {
-                method: 'POST',
-                credentials: 'include', // 쿠키 포함
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(credentials)
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.message || `HTTP ${response.status}: Login failed`);
-            }
-
-            const data = await response.json();
-
-            // Auth 서비스 응답 구조에 맞게 파싱
-            if (data.success && data.data) {
-                const tokenData = data.data;
-                return {
-                    token: tokenData.token,
-                    expiresIn: tokenData.expiresIn,
-                    user: {
-                        id: tokenData.id,
-                        email: tokenData.email,
-                        name: tokenData.name,
-                        role: 'user' as const
-                    }
-                } as LoginResponse;
-            } else {
-                throw new Error('Invalid response format from auth service');
-            }
-        },
-        onSuccess: (response) => {
+            return authRepo.login(credentials);
+        }, onSuccess: (response) => {
             // React Error #185 방지를 위해 다음 틱에서 상태 업데이트
             setTimeout(() => {
                 // 로그인 성공 시 AuthProvider 상태 업데이트
@@ -71,30 +40,14 @@ export function useLogin() {
  */
 export function useLogout() {
     const queryClient = useQueryClient();
+    const authRepo = useAuthRepository();
     const { logout } = useAuth();
 
     return useMutation<void, Error, void>({
         mutationFn: async () => {
-            const response = await fetch('/api/auth/logout', {
-                method: 'POST',
-                credentials: 'include', // 쿠키 포함
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.message || `HTTP ${response.status}: Logout failed`);
-            }
-
-            // 성공 응답 확인 (필요시)
-            const data = await response.json();
-            if (!data.success) {
-                throw new Error('Logout failed on server');
-            }
+            return authRepo.logout();
         }, onSuccess: () => {
-            // React Error #185 방지를 위해 다음 틱에서 상태 업데이트
+            // 쿠키지우는 코드 작성
             setTimeout(() => {
                 // AuthProvider 상태 초기화
                 logout();

@@ -26,13 +26,13 @@ const CollectionPage: React.FC<CollectionPageProps> = ({ collection }) => {
             id: 1,
             name: `${getCollectionTitle(collection)} 상품 1`,
             price: 69900,
-            image: '/images/product-placeholder.jpg',
+            image: 'https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg',
         },
         {
             id: 2,
             name: `${getCollectionTitle(collection)} 상품 2`,
             price: 89900,
-            image: '/images/product-placeholder.jpg',
+            image: 'https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg',
         },
     ]; return (
         <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem' }}>

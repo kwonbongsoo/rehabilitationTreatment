@@ -11,18 +11,16 @@ interface LayoutProps {
 // Footer를 숨길 페이지 경로들을 상수로 관리
 const PAGES_WITHOUT_FOOTER = [
     '/auth/login',
-    '/auth/register',
-    // '/auth/forgot-password',
+    '/auth/forgot-password',
+    '/member/register',
+    '/member/forgot-password',
     // '/auth/reset-password'
 ] as const;
 
 // Footer 표시 여부를 결정하는 순수 함수
 const shouldShowFooter = (pathname: string): boolean => {
-    // auth 관련 페이지에서는 Footer를 숨김
-    if (pathname.startsWith('/auth/')) {
-        return false;
-    }
-    return true;
+    // 특정 페이지에서는 Footer를 숨김
+    return !PAGES_WITHOUT_FOOTER.includes(pathname as any);
 };
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {

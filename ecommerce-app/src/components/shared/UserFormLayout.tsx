@@ -1,22 +1,23 @@
 import React, { ReactNode } from 'react';
 import Head from 'next/head';
-import styles from '@/styles/auth/AuthLayout.module.css';
+import { AuthProvider } from '@/store/authStore';
+import styles from '@/styles/shared/UserFormLayout.module.css';
 
-interface AuthLayoutProps {
+interface UserFormLayoutProps {
     children: ReactNode;
     title: string;
     description?: string;
     errorMessage?: string;
 }
 
-export default function AuthLayout({
+export default function UserFormLayout({
     children,
     title,
     description = '쇼핑몰 인증',
     errorMessage
-}: AuthLayoutProps) {
+}: UserFormLayoutProps) {
     return (
-        <>
+        <AuthProvider>
             <Head>
                 <title>{`${title} | 쇼핑몰`}</title>
                 <meta name="description" content={description} />
@@ -34,6 +35,6 @@ export default function AuthLayout({
                     {children}
                 </div>
             </div>
-        </>
+        </AuthProvider>
     );
 }
