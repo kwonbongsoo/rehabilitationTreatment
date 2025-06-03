@@ -21,9 +21,8 @@ export default function LoginPageContent() {
     useEffect(() => {
         if (!isClient) return;
 
-        const token = cookieService.getToken();
-        // 게스트가 아닌 유효한 토큰이 있으면 메인으로 리다이렉트
-        if (token) {
+        // 로그인 유저면 리다이렉트
+        if (false) {
             // 실제 운용에서는 API로 토큰 검증이 필요하지만 현재는 토큰 존재만 확인
             // TODO: 추후 토큰 디코딩으로 role 확인 구현
             router.replace('/');

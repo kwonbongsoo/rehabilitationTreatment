@@ -8,9 +8,9 @@ export const queryKeys = {
     // 사용자 관련 쿼리
     user: {
         all: ['user'] as const,
-        me: () => [...queryKeys.user.all, 'me'] as const,
-        profile: (id: string) => [...queryKeys.user.all, 'profile', id] as const,
-        addresses: () => [...queryKeys.user.all, 'addresses'] as const,
+        role: () => [...queryKeys.user.all, 'role'] as const,
+        id: () => [...queryKeys.user.all, 'id'] as const,
+        name: () => [...queryKeys.user.all, 'name'] as const,
     },
 
     // 인증 관련 쿼리 (user와 분리)

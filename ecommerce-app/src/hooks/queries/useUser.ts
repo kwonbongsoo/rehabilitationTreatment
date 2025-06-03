@@ -17,7 +17,7 @@ export function useRegister() {
         },
         onSuccess: (user) => {
             // 회원가입 성공 후 사용자 정보 캐시
-            queryClient.setQueryData(queryKeys.user.me(), user);
+            queryClient.setQueryData(queryKeys.user.id(), user);
         }
     });
 }

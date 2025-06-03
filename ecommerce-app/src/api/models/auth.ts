@@ -4,18 +4,37 @@
 export interface LoginRequest {
     id: string;
     password: string;
-    rememberMe?: boolean;
 }
+
+export type UserRole = 'guest' | 'user' | 'admin';
 
 /**
  * 로그인 응답 모델
  */
 export interface LoginResponse {
-    token: string;
-    refreshToken?: string;
-    expiresIn: number;
-    user: UserResponse;
+    data: {
+        token: string;
+        role: UserRole;
+        exp: number;
+        iat: number;
+        id?: string;
+        email?: string;
+        name?: string;
+    }
 }
+
+export interface SessionInfoResponse {
+    data: {
+        token: string;
+        role: UserRole;
+        exp: number;
+        iat: number;
+        id?: string;
+        email?: string;
+        name?: string;
+    }
+}
+
 
 /**
  * 회원가입 요청 모델
@@ -56,10 +75,18 @@ export interface SignupRequest {
  * 사용자 응답 모델 (민감한 정보 제외)
  */
 export interface UserResponse {
-    id: string;
-    email: string;
-    name: string;
-    role: 'user' | 'admin' | 'guest';
+    role: UserRole;
+    id?: string;
+    email?: string;
+    name?: string;
+}
+
+
+export interface SessionResponse {
+    role: UserRole;
+    id?: string;
+    email?: string;
+    name?: string;
 }
 
 /**

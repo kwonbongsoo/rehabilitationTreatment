@@ -75,11 +75,32 @@ export class AuthController {
             }
 
             const userInfo = await this.authService.getUserInfoByToken(token);
-            sendSuccessResponse(ctx, { user: userInfo });
+            sendSuccessResponse(ctx, userInfo);
         } catch (err: unknown) {
             sendErrorResponse(ctx, err, 500, 'Failed to retrieve user info');
         }
     };
+
+
+    /**
+     * 토큰 기반 사용자 정보 조회
+     */
+    public sessionInfo = async (ctx: Context): Promise<void> => {
+        try {
+            const token = extractBearerToken(ctx.headers.authorization);
+
+            if (!token) {
+                sendErrorResponse(ctx, new Error('Authorization header missing'), 401);
+                return;
+            }
+
+            const userInfo = await this.authService.getSessionInfoByToken(token);
+            sendSuccessResponse(ctx, userInfo);
+        } catch (err: unknown) {
+            sendErrorResponse(ctx, err, 500, 'Failed to retrieve session info');
+        }
+    };
+
 
     /**
      * 토큰 유효성 검증

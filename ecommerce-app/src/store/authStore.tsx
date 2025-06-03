@@ -9,7 +9,6 @@ interface AuthContextValue {
   isGuest: boolean;
   user: UserResponse | null;
   isLoading: boolean;
-  setToken: (token: string) => void;
   setUser: (user: UserResponse | null) => void;
   logout: () => Promise<void>;
 }
@@ -26,17 +25,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [isLoading, setIsLoading] = useState(false);
 
   // 토큰 상태는 쿠키에서 읽기 (SSR 안전)
-  const [token, setTokenState] = useState<string | null>(() => {
+  const [token] = useState<string | null>(() => {
     if (typeof window !== 'undefined') {
       return cookieService.getToken();
     }
     return null;
   });
 
-  // 안전한 토큰 설정 함수
-  const setToken = useCallback((newToken: string) => {
-    setTokenState(newToken);
-  }, []);
 
   // 안전한 사용자 설정 함수
   const setUser = useCallback((newUser: UserResponse | null) => {
@@ -46,7 +41,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // 로그아웃 함수
   const logout = useCallback(async () => {
     setUserState(null);
-    setTokenState(null);
     // 쿠키 삭제는 서버에서 처리됨
   }, []);
 
@@ -61,11 +55,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
       isAuthenticated,
       isGuest,
       isLoading,
-      setToken,
       setUser,
       logout
     };
-  }, [token, user, isLoading, setToken, setUser, logout]);
+  }, [token, user, isLoading, setUser, logout]);
 
   return (
     <AuthContext.Provider value={contextValue}>

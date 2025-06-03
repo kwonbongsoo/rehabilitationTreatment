@@ -24,6 +24,9 @@ export function createAuthRouter(controller: AuthController): Router {
 
     router.get('/verify', authMiddleware.requireToken, authController.verify);
 
+
+    router.get('/session-info', authMiddleware.requireToken, authController.sessionInfo);
+
     /**
      * 로그인 사용자 필요 엔드포인트 
      */

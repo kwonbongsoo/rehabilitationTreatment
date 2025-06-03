@@ -13,7 +13,6 @@ interface LoginFormProps {
 export default function LoginForm({ onSubmit, isLoading: externalLoading = false }: LoginFormProps) {
     const [id, setId] = useState('');
     const [password, setPassword] = useState('');
-    const [rememberMe, setRememberMe] = useState(false);
     const [internalLoading, setInternalLoading] = useState(false);
 
     const isLoading = externalLoading || internalLoading;
@@ -30,7 +29,6 @@ export default function LoginForm({ onSubmit, isLoading: externalLoading = false
             await onSubmit({
                 id: id.trim(),
                 password,
-                rememberMe
             });
         } finally {
             setInternalLoading(false);
@@ -56,18 +54,7 @@ export default function LoginForm({ onSubmit, isLoading: externalLoading = false
                 required
             />
 
-            <div className={styles.rememberMe}>
-                <input
-                    type="checkbox"
-                    id="remember"
-                    className={styles.checkbox}
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
-                />
-                <label htmlFor="remember" className={styles.checkboxLabel}>
-                    로그인 상태 유지
-                </label>
-            </div>            <AuthButton
+            <AuthButton
                 type="submit"
                 isLoading={isLoading}
                 loadingText="로그인 중..."

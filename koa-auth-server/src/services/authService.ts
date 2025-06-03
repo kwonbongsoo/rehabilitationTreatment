@@ -105,6 +105,14 @@ export class AuthService {
         }
     }
 
+
+    /**
+     * 토큰으로 세션 정보 조회
+     */
+    public async getSessionInfoByToken(token: string): Promise<TokenResponseDataI> {
+        return this.getUserInfoByToken(token);
+    }
+
     /**
      * 토큰 유효성 및 상태 확인
      */

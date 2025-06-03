@@ -4,7 +4,6 @@ import { useRouter } from 'next/router';
 import ForgotPasswordForm from './ForgotPasswordForm';
 import Divider from '../auth/Divider';
 import { useForgotPasswordForm } from '@/hooks/useForgotPasswordForm';
-import { cookieService } from '@/services/cookieService';
 import styles from '@/styles/shared/UserFormLayout.module.css';
 
 export default function ForgotPasswordPageContent() {
@@ -21,11 +20,13 @@ export default function ForgotPasswordPageContent() {
     useEffect(() => {
         if (!isClient) return;
 
-        const token = cookieService.getToken();
+        // 로그인체크크
         // 이미 로그인된 유저는 메인으로 리다이렉트
-        if (token) {
+        // if (token) {
+        if (false) {
             router.replace('/');
         }
+        // }
     }, [isClient, router]);
 
     return (

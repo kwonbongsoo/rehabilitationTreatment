@@ -10,7 +10,7 @@
  * const cookies = createTokenCookies(tokenResult);
  * res.setHeader('Set-Cookie', cookies);
  * 
- * // 클라이언트에서 토큰 조회
+ * // 서버에서 토큰 조회
  * const token = cookieService.getToken();
  * ```
  */
@@ -136,6 +136,7 @@ const parseServerCookies = (cookieHeader: string): Record<string, string> => {
  */
 const findClientCookie = (cookieName: string): string | null => {
     const cookies = document.cookie.split(';');
+    console.log('현재 쿠키:', cookies);
     const targetCookie = cookies.find(cookie =>
         cookie.trim().startsWith(`${cookieName}=`)
     );
@@ -194,14 +195,14 @@ export const cookieService = {
     },
 
     /**
-     * 클라이언트사이드에서 토큰 조회
+     * 서버에서 토큰 조회
      * 
      * @description 브라우저 환경에서 document.cookie로부터 토큰 추출
      * @returns 추출된 액세스 토큰 또는 null
      * 
      * @example
      * ```typescript
-     * // 클라이언트에서 사용
+     * // 서버에서 사용
      * const token = cookieService.getToken();
      * if (token) {
      *   // 인증된 요청 수행
@@ -209,12 +210,12 @@ export const cookieService = {
      * ```
      */
     getToken(): string | null {
-        if (isServerSide()) {
-            return null;
-        }
-
         try {
-            return findClientCookie(COOKIE_NAMES.ACCESS_TOKEN);
+            if (isServerSide()) {
+                return findClientCookie(COOKIE_NAMES.ACCESS_TOKEN);
+            } else {
+                return null;
+            }
         } catch (error) {
             handleApiError(error, '클라이언트사이드 쿠키 조회 에러');
             return null;

@@ -39,14 +39,6 @@ const SKIP_ROUTES = [
 function getTokenFromCookies(request: NextRequest): string | null {
     return request.cookies.get('access_token')?.value || null;
 }
-
-/**
- * 사용자 역할 확인
- */
-function getUserRole(request: NextRequest): string | null {
-    return request.cookies.get('access_type')?.value || null;
-}
-
 /**
  * 게스트 토큰 발급 API 호출
  */
@@ -130,7 +122,6 @@ export async function middleware(request: NextRequest) {
     }
 
     const token = getTokenFromCookies(request);
-    const userRole = getUserRole(request);
 
     // 보호된 라우트 확인
     const isProtectedRoute = PROTECTED_ROUTES.some(route =>
