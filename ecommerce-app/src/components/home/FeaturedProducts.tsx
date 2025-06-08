@@ -1,20 +1,22 @@
+import React from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
-import SectionTitle from '@/components/common/SectionTitle';
+import styles from './FeaturedProducts.module.css';
+import OptimizedImage from '@/components/common/OptimizedImage';
 import Rating from '@/components/common/Rating';
-import styles from '@/styles/home/Products.module.css';
+
+interface Product {
+    id: number;
+    name: string;
+    price: number;
+    discount: number;
+    image: string;
+    rating: number;
+    reviewCount: number;
+}
 
 interface FeaturedProductsProps {
-    title?: string;
-    products: {
-        id: number;
-        name: string;
-        price: number;
-        discount: number;
-        image: string;
-        rating: number;
-        reviewCount: number;
-    }[];
+    title: string;
+    products: Product[];
 }
 
 export default function FeaturedProducts({
@@ -26,26 +28,20 @@ export default function FeaturedProducts({
     }
 
     return (
-        <section className={styles.productsSection}>
-            {title && <SectionTitle title={title} />}
+        <section className={styles.section}>
+            <h2 className={styles.title}>{title}</h2>
             <div className={styles.productGrid}>
                 {products.map((product) => (
                     <div key={product.id} className={styles.productCard}>
-                        <Link href={`/products/${product.id}`}>
-                            <div className={styles.productImageContainer}>
-                                <Image
+                        <Link href={`/product/${product.id}`} className={styles.productLink}>
+                            <div className={styles.productImage}>
+                                <OptimizedImage
                                     src={product.image}
                                     alt={product.name}
-                                    fill
-                                    sizes="(max-width: 768px) 100vw, 250px"
-                                    className={styles.productImage}
-                                    quality={80}
+                                    width={500}
+                                    height={500}
+                                    className={styles.image}
                                 />
-                                {product.discount > 0 && (
-                                    <div className={styles.discountBadge}>
-                                        -{product.discount}%
-                                    </div>
-                                )}
                             </div>
                             <div className={styles.productInfo}>
                                 <h3 className={styles.productName}>{product.name}</h3>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Head from 'next/head';
 import styles from './BestSellers.module.css';
+import OptimizedImage from '@/components/common/OptimizedImage';
 
 interface Product {
     id: number;
@@ -177,7 +178,7 @@ const BestSellers: React.FC = () => {
 
             <div className={styles.header}>
                 <h1>베스트셀러</h1>
-                <p>가장 많이 판매되는 인기 상품들을 만나보세요</p>
+                <p>가장 인기 있는 상품들을 만나보세요</p>
             </div>
 
             <div className={styles.filters}>
@@ -214,30 +215,22 @@ const BestSellers: React.FC = () => {
             </div>
 
             <div className={styles.productGrid}>
-                {getFilteredAndSortedProducts().map((product, index) => (
+                {getFilteredAndSortedProducts().map((product) => (
                     <div key={product.id} className={styles.productCard}>
-                        {product.badge && (
-                            <div className={styles.rankBadge}>
-                                {product.badge}
-                            </div>
-                        )}
-
-                        <div className={styles.imageContainer}>
-                            <img
+                        <div className={styles.productImage}>
+                            <OptimizedImage
                                 src={product.image}
                                 alt={product.name}
-                                className={styles.productImage}
+                                width={500}
+                                height={500}
+                                className={styles.image}
                             />
-                            {product.originalPrice && (
-                                <div className={styles.discountBadge}>
-                                    {Math.round((1 - product.price / product.originalPrice) * 100)}% OFF
-                                </div>
+                            {product.badge && (
+                                <span className={styles.badge}>{product.badge}</span>
                             )}
                         </div>
-
                         <div className={styles.productInfo}>
                             <h3 className={styles.productName}>{product.name}</h3>
-
                             <div className={styles.priceContainer}>
                                 {product.originalPrice && (
                                     <span className={styles.originalPrice}>
@@ -248,7 +241,6 @@ const BestSellers: React.FC = () => {
                                     {formatPrice(product.price)}
                                 </span>
                             </div>
-
                             <div className={styles.rating}>
                                 <div className={styles.stars}>
                                     {renderStars(product.rating)}
@@ -257,13 +249,11 @@ const BestSellers: React.FC = () => {
                                     {product.rating} ({product.reviews}개 리뷰)
                                 </span>
                             </div>
-
                             <div className={styles.salesInfo}>
                                 <span className={styles.salesCount}>
                                     🔥 {product.sales}개 판매
                                 </span>
                             </div>
-
                             <button className={styles.addToCartButton}>
                                 장바구니 담기
                             </button>

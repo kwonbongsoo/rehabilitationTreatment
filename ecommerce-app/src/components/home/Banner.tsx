@@ -1,15 +1,18 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import OptimizedImage from '@/components/common/OptimizedImage';
 import styles from '@/styles/home/Banner.module.css';
 
+interface Slide {
+    id: number;
+    src: string;
+    alt: string;
+    link: string;
+}
+
 interface BannerProps {
-    slides: {
-        id: number;
-        src: string;
-        alt: string;
-        link: string;
-    }[];
+    slides: Slide[];
 }
 
 export default function Banner({ slides }: BannerProps) {
@@ -36,11 +39,11 @@ export default function Banner({ slides }: BannerProps) {
                         className={`${styles.slide} ${index === currentSlide ? styles.activeSlide : ''}`}
                     >
                         <div className={styles.imageContainer}>
-                            <Image
+                            <OptimizedImage
                                 src={slide.src}
                                 alt={slide.alt}
-                                fill
-                                sizes="100vw"
+                                width={1920}
+                                height={600}
                                 priority={index === 0} // 첫 번째 슬라이드만 우선순위
                                 className={styles.sliderImage}
                             />

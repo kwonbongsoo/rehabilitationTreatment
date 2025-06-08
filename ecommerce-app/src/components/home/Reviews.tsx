@@ -2,6 +2,7 @@ import React from 'react';
 import Image from 'next/image';
 import SectionTitle from '@/components/common/SectionTitle';
 import Rating from '@/components/common/Rating';
+import OptimizedImage from '@/components/common/OptimizedImage';
 import styles from '@/styles/home/Reviews.module.css';
 
 interface ReviewsProps {
@@ -31,7 +32,7 @@ export default function Reviews({ title, reviews }: ReviewsProps) {
                         <div className={styles.reviewHeader}>
                             {review.avatar ? (
                                 <div className={styles.reviewerAvatarContainer}>
-                                    <Image
+                                    <OptimizedImage
                                         src={review.avatar}
                                         alt={`${review.name} 프로필 이미지`}
                                         width={40}

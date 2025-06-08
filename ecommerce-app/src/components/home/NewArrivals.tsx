@@ -1,6 +1,8 @@
+import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import SectionTitle from '@/components/common/SectionTitle';
+import OptimizedImage from '@/components/common/OptimizedImage';
 import styles from '@/styles/home/NewArrivals.module.css';
 
 interface NewArrivalsProps {
@@ -25,11 +27,11 @@ export default function NewArrivals({ title, products }: NewArrivalsProps) {
                 {products.map(product => (
                     <Link href={`/products/${product.id}`} key={product.id} className={styles.newArrivalCard}>
                         <div className={styles.newArrivalImageContainer}>
-                            <Image
+                            <OptimizedImage
                                 src={product.image}
                                 alt={product.name}
-                                fill // width/height 대신 fill 사용
-                                sizes="(max-width: 768px) 100vw, 300px" // 반응형 이미지 크기
+                                width={500}
+                                height={500}
                                 className={styles.newArrivalImage}
                                 quality={80}
                             />

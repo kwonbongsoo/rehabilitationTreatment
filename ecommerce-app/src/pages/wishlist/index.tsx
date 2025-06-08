@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { FiHeart, FiShoppingCart, FiTrash2 } from 'react-icons/fi';
 import styles from './Wishlist.module.css';
+import OptimizedImage from '@/components/common/OptimizedImage';
 
 const WishlistPage: React.FC = () => {
     const [wishlistItems, setWishlistItems] = useState([
@@ -35,16 +36,19 @@ const WishlistPage: React.FC = () => {
     const moveToCart = (id: number) => {
         // Mock function - in real app, this would add to cart
         removeFromWishlist(id);
-    }; return (
-        <div className={styles.container}>            <div className={styles.header}>
-            <h1 className={styles.title}>
-                <FiHeart className={styles.heartIcon} />
-                나의 위시리스트
-            </h1>
-            <p className={styles.subtitle}>
-                마음에 든 상품들을 저장해두고 나중에 구매하세요
-            </p>
-        </div>
+    };
+
+    return (
+        <div className={styles.container}>
+            <div className={styles.header}>
+                <h1 className={styles.title}>
+                    <FiHeart className={styles.heartIcon} />
+                    나의 위시리스트
+                </h1>
+                <p className={styles.subtitle}>
+                    마음에 든 상품들을 저장해두고 나중에 구매하세요
+                </p>
+            </div>
 
             {wishlistItems.length === 0 ? (
                 <div className={styles.emptyState}>
@@ -58,18 +62,16 @@ const WishlistPage: React.FC = () => {
             ) : (
                 <div className={styles.wishlistGrid}>
                     {wishlistItems.map((item) => (
-                        <div key={item.id} className={styles.wishlistCard}>
-                            <Link href={`/product/${item.id}`} className={styles.productLink}>
-                                <div className={styles.productImage}>
-                                    <img src={item.image} alt={item.name} />
-                                    {!item.inStock && (
-                                        <div className={styles.outOfStockOverlay}>
-                                            <span>품절</span>
-                                        </div>
-                                    )}
-                                </div>
-                            </Link>
-
+                        <div key={item.id} className={styles.wishlistItem}>
+                            <div className={styles.productImage}>
+                                <OptimizedImage
+                                    src={item.image}
+                                    alt={item.name}
+                                    width={500}
+                                    height={500}
+                                    className={styles.image}
+                                />
+                            </div>
                             <div className={styles.productInfo}>
                                 <h3 className={styles.productName}>{item.name}</h3>
                                 <p className={styles.productPrice}>

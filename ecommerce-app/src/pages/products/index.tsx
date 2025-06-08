@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import styles from './Products.module.css';
+import OptimizedImage from '@/components/common/OptimizedImage';
 
 const ProductsPage: React.FC = () => {
     // Mock products data
@@ -82,11 +83,17 @@ const ProductsPage: React.FC = () => {
                 </select>
             </div>
 
-            <div className={styles.productsGrid}>
+            <div className={styles.productGrid}>
                 {mockProducts.map((product) => (
                     <Link href={`/product/${product.id}`} key={product.id} className={styles.productCard}>
                         <div className={styles.productImage}>
-                            <img src={product.image} alt={product.name} />
+                            <OptimizedImage
+                                src={product.image}
+                                alt={product.name}
+                                width={500}
+                                height={500}
+                                className={styles.image}
+                            />
                         </div>
                         <div className={styles.productInfo}>
                             <span className={styles.productCategory}>{product.category}</span>

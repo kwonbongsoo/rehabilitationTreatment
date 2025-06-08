@@ -1,5 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
+import OptimizedImage from '@/components/common/OptimizedImage';
 import styles from '@/styles/layout/Footer/PaymentMethods.module.css';
 
 interface PaymentMethodsProps {
@@ -20,7 +21,7 @@ const PaymentMethods: React.FC<PaymentMethodsProps> = ({ label = "안전한 결�
             <div className={styles.paymentIcons}>
                 {paymentOptions.map((option, index) => (
                     <span key={index} className={styles.paymentIcon}>
-                        <Image
+                        <OptimizedImage
                             src={option.src}
                             alt={option.alt}
                             width={32}

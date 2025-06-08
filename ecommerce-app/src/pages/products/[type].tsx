@@ -2,6 +2,7 @@ import React from 'react';
 import { GetServerSideProps } from 'next';
 import Link from 'next/link';
 import styles from './ProductType.module.css';
+import OptimizedImage from '@/components/common/OptimizedImage';
 
 interface ProductTypePageProps {
     productType: string;
@@ -53,7 +54,9 @@ const ProductTypePage: React.FC<ProductTypePageProps> = ({ productType }) => {
             isNew: productType === 'new',
             onSale: productType === 'sale',
         },
-    ]; return (
+    ];
+
+    return (
         <div className={styles.container}>
             <h1 className={styles.title}>{getTypeTitle(productType)}</h1>
 
@@ -73,7 +76,13 @@ const ProductTypePage: React.FC<ProductTypePageProps> = ({ productType }) => {
                 {mockProducts.map((product) => (
                     <Link href={`/product/${product.id}`} key={product.id} className={styles.productCard}>
                         <div className={styles.productImage}>
-                            <img src={product.image} alt={product.name} />
+                            <OptimizedImage
+                                src={product.image}
+                                alt={product.name}
+                                width={500}
+                                height={500}
+                                className={styles.image}
+                            />
                             {product.isNew && <span className={styles.newBadge}>NEW</span>}
                             {product.onSale && <span className={styles.saleBadge}>SALE</span>}
                         </div>
@@ -92,7 +101,8 @@ const ProductTypePage: React.FC<ProductTypePageProps> = ({ productType }) => {
                             <div className={styles.productRating}>
                                 ⭐ {product.rating}
                             </div>
-                        </div>                        </Link>
+                        </div>
+                    </Link>
                 ))}
             </div>
         </div>

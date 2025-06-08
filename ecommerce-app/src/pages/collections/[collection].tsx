@@ -1,4 +1,7 @@
 import React from 'react';
+import Link from 'next/link';
+import styles from './Collection.module.css';
+import OptimizedImage from '@/components/common/OptimizedImage';
 import { GetServerSideProps } from 'next';
 
 interface CollectionPageProps {
@@ -34,45 +37,31 @@ const CollectionPage: React.FC<CollectionPageProps> = ({ collection }) => {
             price: 89900,
             image: 'https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg',
         },
-    ]; return (
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem' }}>
-            <h1>{getCollectionTitle(collection)}</h1>
-            <p style={{ textAlign: 'center', color: '#666', marginBottom: '3rem' }}>
-                시즌의 특별한 매력을 담은 컬렉션
-            </p>
+    ];
 
-            <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-                gap: '2rem'
-            }}>
+    return (
+        <div className={styles.container}>
+            <h1 className={styles.title}>{getCollectionTitle(collection)}</h1>
+            <div className={styles.productGrid}>
                 {mockProducts.map((product) => (
-                    <div key={product.id} style={{
-                        border: '1px solid #e0e0e0',
-                        borderRadius: '8px',
-                        overflow: 'hidden'
-                    }}>
-                        <div style={{
-                            width: '100%',
-                            height: '250px',
-                            backgroundColor: '#f5f5f5',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center'
-                        }}>
-                            <img src={product.image} alt={product.name} style={{
-                                width: '100%',
-                                height: '100%',
-                                objectFit: 'cover'
-                            }} />
+                    <Link href={`/product/${product.id}`} key={product.id} className={styles.productCard}>
+                        <div className={styles.productImage}>
+                            <OptimizedImage
+                                src={product.image}
+                                alt={product.name}
+                                width={500}
+                                height={500}
+                                className={styles.image}
+                            />
                         </div>
-                        <div style={{ padding: '1.5rem' }}>
-                            <h3 style={{ marginBottom: '0.5rem' }}>{product.name}</h3>
-                            <p style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#e74c3c' }}>
+                        <div className={styles.productInfo}>
+                            <h3 className={styles.productName}>{product.name}</h3>
+                            <p className={styles.productPrice}>
                                 {product.price.toLocaleString()}원
                             </p>
                         </div>
-                    </div>))}
+                    </Link>
+                ))}
             </div>
         </div>
     );

@@ -1,5 +1,7 @@
 import React from 'react';
+import Link from 'next/link';
 import styles from './NewArrivals.module.css';
+import OptimizedImage from '@/components/common/OptimizedImage';
 
 const NewArrivalsPage: React.FC = () => {
     return (
@@ -35,100 +37,33 @@ const NewArrivalsPage: React.FC = () => {
                 </div>
 
                 <div className={styles.productGrid}>
-                    <div className={styles.productCard}>
-                        <div className={styles.productImage}>
-                            <img src="https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg" alt="신상품 1" />
-                            <div className={styles.newBadge}>NEW</div>
-                        </div>
-                        <div className={styles.productInfo}>
-                            <h3>모던 블레이저</h3>
-                            <p className={styles.price}>129,000원</p>
-                            <div className={styles.colors}>
-                                <span className={styles.colorOption} style={{ backgroundColor: '#000' }}></span>
-                                <span className={styles.colorOption} style={{ backgroundColor: '#navy' }}></span>
-                                <span className={styles.colorOption} style={{ backgroundColor: '#beige' }}></span>
+                    {[1, 2, 3, 4, 5, 6].map((item) => (
+                        <div key={item} className={styles.productCard}>
+                            <div className={styles.productImage}>
+                                <OptimizedImage
+                                    src="https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg"
+                                    alt={`신상품 ${item}`}
+                                    width={500}
+                                    height={500}
+                                    className={styles.image}
+                                />
+                                <div className={styles.newBadge}>NEW</div>
+                            </div>
+                            <div className={styles.productInfo}>
+                                <h3>{getProductName(item)}</h3>
+                                <p className={styles.price}>{getProductPrice(item).toLocaleString()}원</p>
+                                <div className={styles.colors}>
+                                    {getProductColors(item).map((color, index) => (
+                                        <span
+                                            key={index}
+                                            className={styles.colorOption}
+                                            style={{ backgroundColor: color }}
+                                        />
+                                    ))}
+                                </div>
                             </div>
                         </div>
-                    </div>
-
-                    <div className={styles.productCard}>
-                        <div className={styles.productImage}>
-                            <img src="https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg" alt="신상품 2" />
-                            <div className={styles.newBadge}>NEW</div>
-                        </div>
-                        <div className={styles.productInfo}>
-                            <h3>실크 블라우스</h3>
-                            <p className={styles.price}>89,000원</p>
-                            <div className={styles.colors}>
-                                <span className={styles.colorOption} style={{ backgroundColor: '#white' }}></span>
-                                <span className={styles.colorOption} style={{ backgroundColor: '#pink' }}></span>
-                                <span className={styles.colorOption} style={{ backgroundColor: '#mint' }}></span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className={styles.productCard}>
-                        <div className={styles.productImage}>
-                            <img src="https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg" alt="신상품 3" />
-                            <div className={styles.newBadge}>NEW</div>
-                        </div>
-                        <div className={styles.productInfo}>
-                            <h3>미니멀 원피스</h3>
-                            <p className={styles.price}>156,000원</p>
-                            <div className={styles.colors}>
-                                <span className={styles.colorOption} style={{ backgroundColor: '#black' }}></span>
-                                <span className={styles.colorOption} style={{ backgroundColor: '#grey' }}></span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className={styles.productCard}>
-                        <div className={styles.productImage}>
-                            <img src="https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg" alt="신상품 4" />
-                            <div className={styles.newBadge}>NEW</div>
-                        </div>
-                        <div className={styles.productInfo}>
-                            <h3>레더 백</h3>
-                            <p className={styles.price}>198,000원</p>
-                            <div className={styles.colors}>
-                                <span className={styles.colorOption} style={{ backgroundColor: '#brown' }}></span>
-                                <span className={styles.colorOption} style={{ backgroundColor: '#black' }}></span>
-                                <span className={styles.colorOption} style={{ backgroundColor: '#red' }}></span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className={styles.productCard}>
-                        <div className={styles.productImage}>
-                            <img src="https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg" alt="신상품 5" />
-                            <div className={styles.newBadge}>NEW</div>
-                        </div>
-                        <div className={styles.productInfo}>
-                            <h3>와이드 팬츠</h3>
-                            <p className={styles.price}>79,000원</p>
-                            <div className={styles.colors}>
-                                <span className={styles.colorOption} style={{ backgroundColor: '#khaki' }}></span>
-                                <span className={styles.colorOption} style={{ backgroundColor: '#navy' }}></span>
-                                <span className={styles.colorOption} style={{ backgroundColor: '#charcoal' }}></span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className={styles.productCard}>
-                        <div className={styles.productImage}>
-                            <img src="https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg" alt="신상품 6" />
-                            <div className={styles.newBadge}>NEW</div>
-                        </div>
-                        <div className={styles.productInfo}>
-                            <h3>니트 카디건</h3>
-                            <p className={styles.price}>112,000원</p>
-                            <div className={styles.colors}>
-                                <span className={styles.colorOption} style={{ backgroundColor: '#cream' }}></span>
-                                <span className={styles.colorOption} style={{ backgroundColor: '#lavender' }}></span>
-                                <span className={styles.colorOption} style={{ backgroundColor: '#sage' }}></span>
-                            </div>
-                        </div>
-                    </div>
+                    ))}
                 </div>
 
                 <div className={styles.loadMore}>
@@ -137,6 +72,38 @@ const NewArrivalsPage: React.FC = () => {
             </div>
         </>
     );
+};
+
+// 상품 이름 반환 함수
+const getProductName = (item: number): string => {
+    const names = [
+        '모던 블레이저',
+        '실크 블라우스',
+        '미니멀 원피스',
+        '레더 백',
+        '와이드 팬츠',
+        '니트 카디건'
+    ];
+    return names[item - 1] || '';
+};
+
+// 상품 가격 반환 함수
+const getProductPrice = (item: number): number => {
+    const prices = [129000, 89000, 156000, 198000, 79000, 112000];
+    return prices[item - 1] || 0;
+};
+
+// 상품 색상 반환 함수
+const getProductColors = (item: number): string[] => {
+    const colors = [
+        ['#000', '#navy', '#beige'],
+        ['#white', '#pink', '#mint'],
+        ['#black', '#grey'],
+        ['#brown', '#black', '#red'],
+        ['#khaki', '#navy', '#charcoal'],
+        ['#cream', '#lavender', '#sage']
+    ];
+    return colors[item - 1] || [];
 };
 
 export default NewArrivalsPage;
