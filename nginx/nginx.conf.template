@@ -63,13 +63,13 @@ http {
       proxy_set_header Accept $http_accept;
       proxy_set_header User-Agent $http_user_agent;
     }
-
-    # 3.1 Next.js 정적 파일 프록시 (루트 경로) - 전체 경로 캡처
-    location ~ ^/(_next/.*)$ {
+    # 3.1 Next.js 정적 파일 프록시 - 어떤 경로에서든 _next 처리
+    location ~ /(_next/.*)$ {
       proxy_pass ${FRONTEND_URL}/$1;
       expires 10m;
       add_header Cache-Control "public, max-age=600, immutable";
       add_header X-Cache-Status $upstream_cache_status;
+      access_log off;
     }
 
     # 3.2 .well-known 경로 처리
