@@ -1,0 +1,218 @@
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--spacing-xl);
+}
+
+.title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: var(--spacing-xl);
+    text-align: center;
+    color: var(--color-text);
+    text-transform: capitalize;
+    position: relative;
+}
+
+.title::after {
+    content: "";
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 4px;
+    background: linear-gradient(90deg, var(--color-primary), #8b5cf6);
+    border-radius: 2px;
+}
+
+.productGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--spacing-xl);
+    margin-top: var(--spacing-xxl);
+}
+
+.productCard {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    border-radius: 12px;
+    overflow: hidden;
+    background-color: white;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--color-border-light);
+    transition: all var(--transition-normal);
+    cursor: pointer;
+}
+
+.productCard:hover {
+    text-decoration: none;
+    color: inherit;
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-lg);
+}
+
+.productImage {
+    position: relative;
+    width: 100%;
+    height: 280px;
+    background-color: #f9f9f9;
+    overflow: hidden;
+}
+
+.image {
+    object-fit: cover !important;
+    transition: transform var(--transition-normal);
+}
+
+.productCard:hover .image {
+    transform: scale(1.08);
+}
+
+.productInfo {
+    padding: var(--spacing-lg);
+    text-align: center;
+}
+
+.productName {
+    font-size: var(--font-size-lg);
+    margin-bottom: var(--spacing-md);
+    color: var(--color-text);
+    font-weight: 600;
+    line-height: 1.4;
+    height: 2.8em;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.productPrice {
+    font-size: var(--font-size-xl);
+    font-weight: 700;
+    color: var(--color-primary);
+    margin: 0;
+}
+
+/* 컬렉션별 특별 스타일링 */
+.container[data-collection="summer"] .title {
+    color: #f39c12;
+}
+
+.container[data-collection="summer"] .title::after {
+    background: linear-gradient(90deg, #f39c12, #e67e22);
+}
+
+.container[data-collection="winter"] .title {
+    color: #3498db;
+}
+
+.container[data-collection="winter"] .title::after {
+    background: linear-gradient(90deg, #3498db, #2980b9);
+}
+
+.container[data-collection="spring"] .title {
+    color: #27ae60;
+}
+
+.container[data-collection="spring"] .title::after {
+    background: linear-gradient(90deg, #27ae60, #2ecc71);
+}
+
+.container[data-collection="fall"] .title {
+    color: #d35400;
+}
+
+.container[data-collection="fall"] .title::after {
+    background: linear-gradient(90deg, #d35400, #e67e22);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .container {
+        padding: var(--spacing-lg);
+    }
+
+    .title {
+        font-size: 2rem;
+        margin-bottom: var(--spacing-lg);
+    }
+
+    .productGrid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: var(--spacing-lg);
+        margin-top: var(--spacing-xl);
+    }
+
+    .productImage {
+        height: 220px;
+    }
+
+    .productInfo {
+        padding: var(--spacing-md);
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: var(--spacing-md);
+    }
+
+    .title {
+        font-size: 1.5rem;
+        margin-bottom: var(--spacing-md);
+    }
+
+    .productGrid {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+        margin-top: var(--spacing-lg);
+    }
+
+    .productImage {
+        height: 200px;
+    }
+
+    .productName {
+        font-size: var(--font-size-md);
+    }
+
+    .productPrice {
+        font-size: var(--font-size-lg);
+    }
+}
+
+/* 로딩 애니메이션 */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.productCard {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.productCard:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.productCard:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.productCard:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.productCard:nth-child(4) {
+    animation-delay: 0.4s;
+}

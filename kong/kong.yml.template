@@ -8,7 +8,7 @@ services:
       - name: member-api
         paths:
           - /api/members
-        strip_path: false  # 접두어 제거
+        strip_path: true
         plugins:
           - name: idempotency
             config:
@@ -24,10 +24,19 @@ services:
                 - "POST"
                 - "PUT"
                 - "PATCH"
+
   - name: koa-auth-server
     url: http://koa-auth-server:4000
     routes:
       - name: auth-api
         paths:
           - /api/auth
-        strip_path: false  # 접두어 제거
+        strip_path: false
+
+  - name: ecommerce-app
+    url: http://ecommerce-app:3000
+    routes:
+      - name: ecommerce-api
+        paths:
+          - /api/ecommerce
+        strip_path: false
