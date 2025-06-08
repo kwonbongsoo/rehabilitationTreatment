@@ -1,5 +1,4 @@
 import React from 'react';
-import Image from 'next/image';
 import OptimizedImage from '@/components/common/OptimizedImage';
 import styles from '@/styles/layout/Footer/PaymentMethods.module.css';
 

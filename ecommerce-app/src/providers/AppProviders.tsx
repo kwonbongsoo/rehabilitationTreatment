@@ -21,7 +21,7 @@ const uiConfig = uiConfigService.createConfiguration();
  * AuthProvider 내부에서 실행되어야 하는 초기화 로직
  */
 function AuthInitializer({ children }: { children: ReactNode }) {
-    useAuthInitializer(); // 전역 auth 초기화
+    // useAuthInitializer(); // 전역 auth 초기화
     return <>{children}</>;
 }
 

@@ -43,6 +43,8 @@ services:
     container_name: ecommerce-app
     env_file:
       - ./ecommerce-app/.env
+    # ports:
+    #   - "3000:3000" # 임시 테스트용
     depends_on:
       - db
     restart: unless-stopped

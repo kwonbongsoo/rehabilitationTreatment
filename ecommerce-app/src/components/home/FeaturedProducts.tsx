@@ -33,7 +33,7 @@ export default function FeaturedProducts({
             <div className={styles.productGrid}>
                 {products.map((product) => (
                     <div key={product.id} className={styles.productCard}>
-                        <Link href={`/product/${product.id}`} className={styles.productLink}>
+                        <Link href={`/product/${product.id}`} className={styles.productLink} prefetch={false}>
                             <div className={styles.productImage}>
                                 <OptimizedImage
                                     src={product.image}

@@ -15,7 +15,7 @@ export default function Promotion({ title, description, link, buttonText }: Prom
                 <div className={styles.promoContent}>
                     <h2 className={styles.promoTitle}>{title}</h2>
                     <p className={styles.promoText}>{description}</p>
-                    <Link href={link} className={styles.promoButton}>
+                    <Link href={link} className={styles.promoButton} prefetch={false}>
                         {buttonText}
                     </Link>
                 </div>

@@ -6,7 +6,7 @@ interface OptimizedImageProps extends Omit<ImageProps, 'src'> {
     fallbackSrc?: string;
 }
 
-export default function OptimizedImage({ src, fallbackSrc = '/public/images/placeholder.webp', ...props }: OptimizedImageProps) {
+export default function OptimizedImage({ src, fallbackSrc = '/images/placeholder.webp', ...props }: OptimizedImageProps) {
     const [imgSrc, setImgSrc] = useState(src);
 
     return (

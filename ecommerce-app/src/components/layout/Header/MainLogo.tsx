@@ -1,6 +1,5 @@
 import React from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import OptimizedImage from '@/components/common/OptimizedImage';
 import styles from '@/styles/layout/Header/MainLogo.module.css';
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import Image from 'next/image';
+import OptimizedImage from '@/components/common/OptimizedImage';
 import SectionTitle from '@/components/common/SectionTitle';
 import styles from '@/styles/home/Brands.module.css';
 
@@ -21,7 +21,7 @@ export default function Brands({ title, logos }: BrandsProps) {
                     <div key={logo.id} className={styles.brandLogo}>
                         {logo.image ? (
                             <div className={styles.brandImageContainer}>
-                                <Image
+                                <OptimizedImage
                                     src={logo.image}
                                     alt={logo.name}
                                     width={120}

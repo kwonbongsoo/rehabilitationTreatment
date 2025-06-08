@@ -39,7 +39,7 @@ export const useAuthInitializer = () => {
         } catch (error) {
             console.error('Auth initialization failed:', error);
             // 초기화 실패 시 상태 리셋
-            await cookieService.clearToken();
+            // await cookieService.clearToken();
             setUser(null);
         }
     }, [isLoading, sessionInfoMutation, setUser]);

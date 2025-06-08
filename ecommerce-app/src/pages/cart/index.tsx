@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
-import Image from 'next/image';
 import OptimizedImage from '@/components/common/OptimizedImage';
 import { FiShoppingCart, FiArrowRight, FiTrash2, FiPlus, FiMinus } from 'react-icons/fi';
 import styles from './Cart.module.css';

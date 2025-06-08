@@ -1,5 +1,4 @@
 import React from 'react';
-import Image from 'next/image';
 import SectionTitle from '@/components/common/SectionTitle';
 import Rating from '@/components/common/Rating';
 import OptimizedImage from '@/components/common/OptimizedImage';
