@@ -58,7 +58,7 @@ const PressPage: React.FC = () => {
                 <section style={{ marginBottom: '2rem' }}>
                     <h2>수상 내역</h2>
                     <ul>
-                        <li><strong>2024년:</strong> 대한민국 e-커머스 대상 '올해의 패션 쇼핑몰' 수상</li>
+                        <li><strong>2024년:</strong> 대한민국 e-커머스 대상 &lsquo;올해의 패션 쇼핑몰&rsquo; 수상</li>
                         <li><strong>2023년:</strong> 지속가능경영 우수기업 인증</li>
                         <li><strong>2023년:</strong> 소비자가 뽑은 최고의 온라인 쇼핑몰 1위</li>
                         <li><strong>2022년:</strong> 벤처기업 혁신상 수상</li>

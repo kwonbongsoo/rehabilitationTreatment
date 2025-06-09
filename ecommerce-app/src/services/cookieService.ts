@@ -136,7 +136,7 @@ const parseServerCookies = (cookieHeader: string): Record<string, string> => {
  */
 const findClientCookie = (cookieName: string): string | null => {
     const cookies = document.cookie.split(';');
-    console.log('현재 쿠키:', cookies);
+    console.warn('현재 쿠키:', cookies);
     const targetCookie = cookies.find(cookie =>
         cookie.trim().startsWith(`${cookieName}=`)
     );

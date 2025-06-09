@@ -1,5 +1,13 @@
 import { PrismaClient } from '@prisma/client';
-import { MemberInput, MemberOutput, MemberNotFoundError, DuplicateValueError, AuthenticationError, Constants, ValidationError } from '../types/member';
+import {
+  MemberInput,
+  MemberOutput,
+  MemberNotFoundError,
+  DuplicateValueError,
+  AuthenticationError,
+  Constants,
+  ValidationError,
+} from '../types/member';
 import { IMemberService } from '../interfaces/memberService';
 import bcrypt from 'bcryptjs';
 
@@ -26,7 +34,7 @@ export class MemberService implements IMemberService {
     minLength: number,
     fieldName: string,
     errors: Record<string, string>,
-    required = false
+    required = false,
   ): void {
     if (value === undefined) {
       if (required) {
@@ -45,8 +53,20 @@ export class MemberService implements IMemberService {
     const validationErrors: Record<string, string> = {};
 
     this.validateField(data.id, Constants.VALIDATION.MIN_ID_LENGTH, 'ID', validationErrors, true);
-    this.validateField(data.name, Constants.VALIDATION.MIN_NAME_LENGTH, 'Name', validationErrors, true);
-    this.validateField(data.password, Constants.VALIDATION.MIN_PASSWORD_LENGTH, 'Password', validationErrors, true);
+    this.validateField(
+      data.name,
+      Constants.VALIDATION.MIN_NAME_LENGTH,
+      'Name',
+      validationErrors,
+      true,
+    );
+    this.validateField(
+      data.password,
+      Constants.VALIDATION.MIN_PASSWORD_LENGTH,
+      'Password',
+      validationErrors,
+      true,
+    );
 
     if (!data.email) {
       validationErrors.email = 'Email is required';
@@ -64,7 +84,12 @@ export class MemberService implements IMemberService {
 
     this.validateField(data.id, Constants.VALIDATION.MIN_ID_LENGTH, 'ID', validationErrors);
     this.validateField(data.name, Constants.VALIDATION.MIN_NAME_LENGTH, 'Name', validationErrors);
-    this.validateField(data.password, Constants.VALIDATION.MIN_PASSWORD_LENGTH, 'Password', validationErrors);
+    this.validateField(
+      data.password,
+      Constants.VALIDATION.MIN_PASSWORD_LENGTH,
+      'Password',
+      validationErrors,
+    );
 
     if (data.email !== undefined && !this.isValidEmail(data.email)) {
       validationErrors.email = 'Invalid email format';
@@ -78,7 +103,13 @@ export class MemberService implements IMemberService {
   private validatePasswordChange(newPassword: string): void {
     const validationErrors: Record<string, string> = {};
 
-    this.validateField(newPassword, Constants.VALIDATION.MIN_PASSWORD_LENGTH, 'New password', validationErrors, true);
+    this.validateField(
+      newPassword,
+      Constants.VALIDATION.MIN_PASSWORD_LENGTH,
+      'New password',
+      validationErrors,
+      true,
+    );
 
     if (Object.keys(validationErrors).length > 0) {
       throw new ValidationError('Validation failed', validationErrors);
@@ -101,7 +132,7 @@ export class MemberService implements IMemberService {
       // 2. 이메일과 ID 중복 확인 (단일 쿼리로 최적화)
       const [existingEmail, existingId] = await Promise.all([
         tx.member.findUnique({ where: { email: data.email } }),
-        tx.member.findUnique({ where: { id: data.id } })
+        tx.member.findUnique({ where: { id: data.id } }),
       ]);
 
       // 3. 중복 검증
@@ -120,15 +151,15 @@ export class MemberService implements IMemberService {
       return await tx.member.create({
         data: {
           ...data,
-          password: hashedPassword
-        }
+          password: hashedPassword,
+        },
       });
     });
   }
 
   async findById(id: string): Promise<MemberOutput> {
     const member = await this.prisma.member.findUnique({
-      where: { id }
+      where: { id },
     });
 
     if (!member) {
@@ -140,7 +171,7 @@ export class MemberService implements IMemberService {
 
   async findByLoginId(loginId: string): Promise<MemberOutput> {
     const member = await this.prisma.member.findUnique({
-      where: { id: loginId }
+      where: { id: loginId },
     });
 
     if (!member) {
@@ -152,7 +183,7 @@ export class MemberService implements IMemberService {
 
   async findByEmail(email: string): Promise<MemberOutput> {
     const member = await this.prisma.member.findUnique({
-      where: { email }
+      where: { email },
     });
 
     if (!member) {
@@ -178,7 +209,7 @@ export class MemberService implements IMemberService {
     return await this.prisma.$transaction(async (tx) => {
       // 2. 멤버 존재 확인
       const existingMember = await tx.member.findUnique({
-        where: { id }
+        where: { id },
       });
 
       if (!existingMember) {
@@ -190,27 +221,31 @@ export class MemberService implements IMemberService {
 
       if (updateData.email) {
         duplicateChecks.push(
-          tx.member.findFirst({
-            where: {
-              email: updateData.email,
-              NOT: { id }
-            }
-          }).then(result => {
-            if (result) throw new DuplicateValueError('Email');
-          })
+          tx.member
+            .findFirst({
+              where: {
+                email: updateData.email,
+                NOT: { id },
+              },
+            })
+            .then((result) => {
+              if (result) throw new DuplicateValueError('Email');
+            }),
         );
       }
 
       if (updateData.id) {
         duplicateChecks.push(
-          tx.member.findFirst({
-            where: {
-              id: updateData.id,
-              NOT: { id }
-            }
-          }).then(result => {
-            if (result) throw new DuplicateValueError('ID');
-          })
+          tx.member
+            .findFirst({
+              where: {
+                id: updateData.id,
+                NOT: { id },
+              },
+            })
+            .then((result) => {
+              if (result) throw new DuplicateValueError('ID');
+            }),
         );
       }
 
@@ -228,7 +263,7 @@ export class MemberService implements IMemberService {
       // 5. 멤버 정보 업데이트
       return await tx.member.update({
         where: { id },
-        data: dataToUpdate
+        data: dataToUpdate,
       });
     });
   }
@@ -238,7 +273,7 @@ export class MemberService implements IMemberService {
     await this.prisma.$transaction(async (tx) => {
       // 멤버 존재 확인
       const existingMember = await tx.member.findUnique({
-        where: { id }
+        where: { id },
       });
 
       if (!existingMember) {
@@ -247,7 +282,7 @@ export class MemberService implements IMemberService {
 
       // 멤버 삭제
       await tx.member.delete({
-        where: { id }
+        where: { id },
       });
     });
 
@@ -281,7 +316,11 @@ export class MemberService implements IMemberService {
     }
   }
 
-  async changePassword(id: string, currentPassword: string, newPassword: string): Promise<MemberOutput> {
+  async changePassword(
+    id: string,
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<MemberOutput> {
     // 1. 새 비밀번호 검증
     this.validatePasswordChange(newPassword);
 
@@ -289,7 +328,7 @@ export class MemberService implements IMemberService {
     return await this.prisma.$transaction(async (tx) => {
       // 2. 멤버 조회
       const member = await tx.member.findUnique({
-        where: { id }
+        where: { id },
       });
 
       if (!member) {
@@ -308,12 +347,44 @@ export class MemberService implements IMemberService {
 
       return await tx.member.update({
         where: { id },
-        data: { password: hashedPassword }
+        data: { password: hashedPassword },
       });
     });
   }
 
   async countAll(): Promise<number> {
     return await this.prisma.member.count();
+  }
+
+  static async createMember(data: MemberInput): Promise<MemberOutput> {
+    // TODO: Implement member creation logic
+    throw new ValidationError('Not implemented', {
+      field: 'service',
+      reason: 'Method not implemented',
+    });
+  }
+
+  static async getMember(id: string): Promise<MemberOutput> {
+    // TODO: Implement member retrieval logic
+    throw new ValidationError('Not implemented', {
+      field: 'service',
+      reason: 'Method not implemented',
+    });
+  }
+
+  static async updateMember(id: string, data: MemberInput): Promise<MemberOutput> {
+    // TODO: Implement member update logic
+    throw new ValidationError('Not implemented', {
+      field: 'service',
+      reason: 'Method not implemented',
+    });
+  }
+
+  static async deleteMember(id: string): Promise<void> {
+    // TODO: Implement member deletion logic
+    throw new ValidationError('Not implemented', {
+      field: 'service',
+      reason: 'Method not implemented',
+    });
   }
 }

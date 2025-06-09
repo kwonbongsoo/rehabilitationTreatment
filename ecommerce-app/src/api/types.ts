@@ -1,3 +1,15 @@
+// Re-export standardized error classes from @ecommerce/common
+export {
+    BaseError,
+    AuthenticationError,
+    ValidationError,
+    NotFoundError,
+    DuplicateResourceError,
+} from '@ecommerce/common';
+
+export type { ErrorCode, ErrorResponse } from '@ecommerce/common';
+
+// Legacy ApiError class for backward compatibility
 export class ApiError extends Error {
     public status: number;
     public data?: any;

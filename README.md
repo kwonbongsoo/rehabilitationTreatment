@@ -93,7 +93,7 @@ Docker, Prisma, PostgreSQL, Koa, Next.js 등 다양한 기술 스택을 활용�
 - 클라이언트는 Next.js API Routes를 통해 비즈니스 API 요청(`/api/members` 등)을 보냅니다.
 - Next.js가 쿠키에서 토큰을 추출해 Bearer 토큰으로 변환
 - Kong API Gateway로 요청 전달 (Authorization 헤더 포함)
-- Kong이 JWT 플러그인으로 토큰 검증 (guest/user 모두 같은 시크릿, 4시간 만료)
+- Kong이 JWT 플러그인으로 토큰 검증
 - 멱등성 플러그인으로 POST/PUT/PATCH 중복 요청 방지 (`X-Idempotency-Key`)
 - 검증 통과 시 적절한 마이크로서비스로 라우팅
 - 서비스 → DB → Kong → Next.js → 클라이언트로 응답 반환
@@ -102,14 +102,45 @@ Docker, Prisma, PostgreSQL, Koa, Next.js 등 다양한 기술 스택을 활용�
 
 ## Kong API Gateway 주요 기능 (최신)
 
-- **JWT 인증**: guest/user 토큰 모두 같은 시크릿, kid 값으로 구분, 4시간 만료
+### 🔐 JWT 토큰 유효성 검증 시스템
+Kong은 모든 비즈니스 API 요청에 대해 강력한 JWT 토큰 검증을 수행합니다:
+
+#### **1. 다중 토큰 타입 지원**
+- **Guest 토큰**: `kid: "guest"` - 비회원 사용자용, 제한된 권한
+- **User 토큰**: `kid: "user"` - 로그인 회원용, 전체 권한
+- **공통 시크릿**: 동일한 JWT 시크릿으로 보안성 및 관리 효율성 확보
+
+#### **2. 토큰 검증 프로세스**
+```
+Authorization: Bearer <JWT_TOKEN>
+↓
+Kong JWT Plugin → 시크릿 검증 → Auth API token verify 이용용
+↓
+검증 성공: 백엔드로 전달
+검증 실패: 403 Forbidden, 401 Unauthorized 응답
+```
+
+<!-- #### ** 자동 헤더 주입**
+토큰 검증 성공 시 Kong이 자동으로 추가하는 헤더:
+- `X-User-ID`: 사용자 식별자
+- `X-User-Name`: 사용자명
+- `X-Consumer-Type`: guest/user 구분
+- `X-JWT-Payload`: 디코딩된 JWT 페이로드 -->
+
+#### **3. 보안 정책**
+- **토큰 만료**: 4시간 (14400초) 자동 만료
+- **알고리즘**: HS256 (HMAC SHA-256)
+- **클럭 스큐**: ±30초 허용
+- **무효 토큰**: 즉시 401 에러 반환
+
+### 🔄 기타 핵심 기능
 - **멱등성 플러그인**: POST/PUT/PATCH 중복 요청 방지, Redis 캐싱, TTL 설정
 - **API 라우팅**: URL 패턴에 따라 서비스로 전달
-- **Rate Limiting**: API 호출량 제한
+- **Rate Limiting**: API 호출량 제한 (사용자별/IP별)
 - **로깅/모니터링**: 모든 API 요청에 대한 로그 및 지표 수집
-- **캐싱**: 응답 데이터 캐싱
+- **캐싱**: 응답 데이터 캐싱으로 성능 최적화
 - **보안**: IP 화이트리스트, CORS, SSL 종료 등
-- **플러그인 확장성**: 다양한 플러그인으로 기능 확장 가능
+- **플러그인 확장성**: 커스텀 플러그인으로 기능 확장 가능
 
 ---
 
@@ -124,13 +155,30 @@ Docker, Prisma, PostgreSQL, Koa, Next.js 등 다양한 기술 스택을 활용�
 ---
 
 ## 환경 변수 예시 (.env)
-```
-JWT_SECRET=공통_시크릿값
+```bash
+# JWT 인증 설정
+JWT_SECRET=your-super-secret-jwt-key-256-bits
+JWT_EXPIRES_IN=14400  # 4시간 (초 단위)
+JWT_ALGORITHM=HS256   # HMAC SHA-256
+
+# Redis 설정 (토큰 캐시 및 멱등성)
 REDIS_URL=redis
 REDIS_PORT=6379
-REDIS_PASSWORD=비밀번호_선택
+REDIS_PASSWORD=your-redis-password  # 선택사항
 REDIS_DB=0
-IDEMPOTENCY_TTL=60
+REDIS_TTL=3600       # 캐시 TTL (1시간)
+
+# 멱등성 플러그인 설정
+IDEMPOTENCY_TTL=60   # 중복 요청 방지 TTL (초)
+IDEMPOTENCY_REDIS_DB=1  # 멱등성 전용 Redis DB
+
+# Kong 설정
+KONG_DATABASE=off    # DB-less 모드
+KONG_DECLARATIVE_CONFIG=/kong/kong.yml
+KONG_PROXY_ACCESS_LOG=/dev/stdout
+KONG_ADMIN_ACCESS_LOG=/dev/stdout
+KONG_PROXY_ERROR_LOG=/dev/stderr
+KONG_ADMIN_ERROR_LOG=/dev/stderr
 ```
 
 ---

@@ -1,6 +1,13 @@
 import axios, { AxiosInstance, AxiosError, AxiosRequestConfig } from 'axios';
 import { API_BASE_URL, API_TIMEOUT } from './config';
-import { ApiError } from './types';
+import {
+    ApiError,
+    AuthenticationError,
+    ValidationError,
+    NotFoundError,
+    DuplicateResourceError,
+    BaseError
+} from './types';
 
 // API 응답 타입 정의
 interface ApiResponse<T> {
@@ -19,12 +26,13 @@ enum HttpMethod {
 }
 
 export class ApiClient {
-    private client: AxiosInstance; constructor(config?: AxiosRequestConfig & { setupInterceptors?: boolean }) {
+    private client: AxiosInstance;
+
+    constructor(config?: AxiosRequestConfig & { setupInterceptors?: boolean }) {
         // 기본값과 병합
         const finalConfig = {
             baseURL: API_BASE_URL,
             timeout: API_TIMEOUT,
-            withCredentials: true, // 쿠키 자동 포함
             headers: {
                 'Content-Type': 'application/json',
                 ...(config?.headers || {})
@@ -97,9 +105,7 @@ export class ApiClient {
 
     public async patch<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> {
         return this.request<T>(HttpMethod.PATCH, url, data, config);
-    }
-
-    // 에러 처리 개선 - 명확한 에러 타입
+    }    // 에러 처리 개선 - 표준화된 에러 타입 사용
     private handleError(error: unknown): never {
         if (axios.isAxiosError(error)) {
             const axiosError = error as AxiosError;
@@ -109,7 +115,18 @@ export class ApiClient {
                 const data = axiosError.response.data as any;
                 const message = data?.message || '서버에서 오류가 발생했습니다';
 
-                throw new ApiError(message, status, data);
+                // HTTP 상태 코드에 따른 표준화된 에러 생성
+                switch (status) {
+                    case 400:
+                        throw new ValidationError(message, data?.errors || {});
+                    case 401:
+                        throw new AuthenticationError(message);
+                    case 404:
+                        throw new NotFoundError(message); case 409:
+                        throw new DuplicateResourceError(message);
+                    default:
+                        throw new ApiError(message, status, data);
+                }
             }
 
             if (axiosError.request) {

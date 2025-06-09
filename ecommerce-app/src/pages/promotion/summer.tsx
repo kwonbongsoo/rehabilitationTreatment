@@ -66,12 +66,11 @@ export default function SummerPromotion({
 
                 {/* 카운트다운 타이머 */}
                 <div className={styles.timerSection}>
-                    <div className={styles.container}>
-                        <CountdownTimer
-                            endDate={saleEndDate}
-                            title="여름 세일 마감까지"
-                            onExpire={() => console.log('Sale expired!')}
-                        />
+                    <div className={styles.container}>                        <CountdownTimer
+                        endDate={saleEndDate}
+                        title="여름 세일 마감까지"
+                        onExpire={() => console.warn('Sale expired!')}
+                    />
                     </div>
                 </div>
 

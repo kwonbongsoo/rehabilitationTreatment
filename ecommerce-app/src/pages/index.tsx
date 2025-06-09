@@ -17,7 +17,7 @@ const HomePage: NextPage = () => {
     const [isHomeDataLoading, setIsHomeDataLoading] = useState(true);
     const [homeDataError, setHomeDataError] = useState<Error | null>(null);
 
-    // 목 데이터 로딩 시뮬레이션
+    // 목 데이터 로딩 시뮬레이션    // 목 데이터 로딩 시뮬레이션
     useEffect(() => {
         const loadMockData = async () => {
             try {
@@ -32,12 +32,14 @@ const HomePage: NextPage = () => {
         };
 
         loadMockData();
-    }, []);    // 홈 데이터 에러 처리
+    }, []);
+
+    // 홈 데이터 에러 처리
     useEffect(() => {
         if (homeDataError) {
             // React Error #185 방지를 위해 다음 틱에서 실행
             setTimeout(() => {
-                handleError(homeDataError, { type: 'toast', context: 'Home data loading' });
+                handleError(homeDataError);
             }, 0);
         }
     }, [homeDataError, handleError]);

@@ -29,14 +29,14 @@ AUTH_SERVER_URL_ESC=$(echo "$AUTH_SERVER_URL" | sed 's/[\/&]/\\&/g')
 # Kong 설정 파일 생성
 echo "Generating Kong configuration file..."
 sed -e "s/\${REDIS_URL}/${REDIS_URL_ESC}/g; \
-       s/\${REDIS_PORT}/${REDIS_PORT}/g; \
+     s/\${REDIS_PORT}/${REDIS_PORT}/g; \
        s/\${REDIS_PASSWORD}/${REDIS_PASSWORD_ESC}/g; \
-       s/\${REDIS_DB}/${REDIS_DB}/g; \
-       s/\${IDEMPOTENCY_TTL}/${IDEMPOTENCY_TTL}/g; \
+     s/\${REDIS_DB}/${REDIS_DB}/g; \
+     s/\${IDEMPOTENCY_TTL}/${IDEMPOTENCY_TTL}/g; \
        s/\${JWT_SECRET}/${JWT_SECRET}/g; \
        s/\${MEMBER_SERVER_URL}/${MEMBER_SERVER_URL_ESC}/g; \
        s/\${AUTH_SERVER_URL}/${AUTH_SERVER_URL_ESC}/g" \
-       /tmp/kong.yml.template > /tmp/kong.yml
+     /tmp/kong.yml.template > /tmp/kong.yml
 
 echo "Kong configuration file generated successfully"
 echo "Configuration content:"

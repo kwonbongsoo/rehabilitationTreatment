@@ -51,12 +51,10 @@ class ApiLogger implements ILogger {
 
     constructor() {
         this.isLoggingEnabled = getApiConfig().logApiCalls;
-    }
-
-    logRequest(config: InternalAxiosRequestConfig): void {
+    } logRequest(config: InternalAxiosRequestConfig): void {
         if (!this.isLoggingEnabled) return;
 
-        console.log(
+        console.warn(
             `🚀 API Request: ${config.method?.toUpperCase()} ${config.url}`,
             this.sanitizeConfig(config)
         );
@@ -65,7 +63,7 @@ class ApiLogger implements ILogger {
     logResponse(response: AxiosResponse): void {
         if (!this.isLoggingEnabled) return;
 
-        console.log(
+        console.warn(
             `✅ API Response: ${response.config.method?.toUpperCase()} ${response.config.url}`,
             response.data
         );

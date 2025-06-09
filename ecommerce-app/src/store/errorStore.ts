@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { ApiError } from '../api/types';
+import { ApiError, BaseError } from '../api/types';
 
 interface ToastError {
     id: string;
@@ -9,9 +9,9 @@ interface ToastError {
 }
 
 interface ErrorState {
-    globalError: Error | ApiError | null;
+    globalError: Error | ApiError | BaseError | null;
     toastErrors: ToastError[];
-    setGlobalError: (error: Error | ApiError | null) => void;
+    setGlobalError: (error: Error | ApiError | BaseError | null) => void;
     clearGlobalError: () => void;
     addToastError: (message: string, type?: 'error' | 'warning' | 'info') => void;
     removeToastError: (id: string) => void;

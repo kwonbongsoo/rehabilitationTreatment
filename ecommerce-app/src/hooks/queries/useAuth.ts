@@ -72,7 +72,7 @@ export function useSessionInfo() {
         }, onSuccess: (response) => {
             // 쿠키지우는 코드 작성
             setTimeout(() => {
-                console.log(response.data);
+                console.warn(response.data);
                 const { token, exp, iat, ...filteredUserResponse } = response.data;
                 if (filteredUserResponse.role === 'user') {
                     setUser(filteredUserResponse);
