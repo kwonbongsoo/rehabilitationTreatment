@@ -1,5 +1,5 @@
 import { LoginBody, UserRole } from '../interfaces/auth';
-import { ValidationError, BusinessError } from '../middlewares/errorMiddleware';
+import { ValidationError, BaseError, ErrorCode } from '../middlewares/errorMiddleware';
 
 export class ValidationService {
     /**
@@ -19,22 +19,26 @@ export class ValidationService {
             errors.password = 'Password is required';
         } else if (password.length < 6) {
             errors.password = 'Password must be at least 6 characters';
-        }
-
-        if (Object.keys(errors).length > 0) {
-            throw new ValidationError('Validation failed', errors);
+        } if (Object.keys(errors).length > 0) {
+            // ValidationError는 single field validation을 위한 것이므로, 
+            // 여러 필드 오류가 있을 때는 첫 번째 필드의 오류를 사용
+            const firstField = Object.keys(errors)[0];
+            throw new ValidationError('Validation failed', {
+                field: firstField,
+                reason: errors[firstField]
+            });
         }
     }
 
     /**
      * 사용자 역할 검증
-     */
-    public validateRole(role: UserRole, allowedRoles: UserRole[]): void {
+     */    public validateRole(role: UserRole, allowedRoles: UserRole[]): void {
         if (!allowedRoles.includes(role)) {
-            throw new BusinessError(
+            throw new BaseError(
+                ErrorCode.INTERNAL_ERROR,
                 `Role ${role} is not allowed for this operation`,
-                403,
-                'FORBIDDEN_ROLE'
+                undefined,
+                403
             );
         }
     }

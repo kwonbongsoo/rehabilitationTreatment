@@ -13,6 +13,12 @@ export class AuthenticationError extends BaseError {
   }
 }
 
+export class ForbiddenError extends BaseError {
+  constructor(message: string = 'Access forbidden') {
+    super(ErrorCode.INTERNAL_ERROR, message, undefined, 403);
+  }
+}
+
 export class NotFoundError extends BaseError {
   constructor(message: string = 'Resource not found') {
     super(ErrorCode.RESOURCE_NOT_FOUND, message, undefined, 404);

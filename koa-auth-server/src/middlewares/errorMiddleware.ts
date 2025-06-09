@@ -10,6 +10,21 @@ import {
   DuplicateResourceError,
 } from '@ecommerce/common';
 
+// Re-export error classes for backward compatibility
+export {
+  BaseError,
+  AuthenticationError,
+  ForbiddenError,
+  ValidationError,
+  NotFoundError,
+  DuplicateResourceError,
+  ErrorCode,
+} from '@ecommerce/common';
+
+export type {
+  ErrorResponse,
+} from '@ecommerce/common';
+
 /**
  * 글로벌 에러 핸들러 미들웨어
  * 모든 예외를 중앙에서 처리하여 일관된 오류 응답 제공
@@ -132,12 +147,6 @@ function getErrorMessage(err: unknown): string {
 
 // === 로컬에서만 필요한 추가 에러 클래스들 ===
 // 기본 에러 클래스들은 @ecommerce/common 패키지에서 가져옵니다
-
-export class ForbiddenError extends BaseError {
-  constructor(message: string = 'Access denied') {
-    super(ErrorCode.INVALID_CREDENTIALS, message, undefined, 403);
-  }
-}
 
 export class ConflictError extends BaseError {
   constructor(message: string = 'Resource conflict') {

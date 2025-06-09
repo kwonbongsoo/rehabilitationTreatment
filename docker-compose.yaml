@@ -14,8 +14,8 @@ services:
 
   fastify-member-server:
     build:
-      context: ./fastify-member-server
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./fastify-member-server/Dockerfile
       args:
         - RUN npm install --omit=dev && npm run build
     container_name: fastify-member-server
@@ -28,7 +28,9 @@ services:
       - app-network
 
   koa-auth-server:
-    build: ./koa-auth-server
+    build:
+      context: .
+      dockerfile: ./koa-auth-server/Dockerfile
     container_name: koa-auth-server
     env_file:
       - ./koa-auth-server/.env
@@ -39,7 +41,9 @@ services:
       - app-network
 
   ecommerce-app:
-    build: ./ecommerce-app
+    build:
+      context: .
+      dockerfile: ./ecommerce-app/Dockerfile
     container_name: ecommerce-app
     env_file:
       - ./ecommerce-app/.env

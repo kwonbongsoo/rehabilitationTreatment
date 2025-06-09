@@ -27,10 +27,14 @@ export function validateCredentials(credentials: LoginBody): void {
         errors.password = 'Password is required';
     } else if (password.length < 6) {
         errors.password = 'Password must be at least 6 characters';
-    }
-
-    if (Object.keys(errors).length > 0) {
-        throw new ValidationError('Validation failed', errors);
+    } if (Object.keys(errors).length > 0) {
+        // ValidationError는 single field validation을 위한 것이므로,
+        // 여러 필드 오류가 있을 때는 첫 번째 필드의 오류를 사용
+        const firstField = Object.keys(errors)[0];
+        throw new ValidationError('Validation failed', {
+            field: firstField,
+            reason: errors[firstField]
+        });
     }
 }
 

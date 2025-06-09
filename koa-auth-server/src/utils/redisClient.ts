@@ -1,9 +1,10 @@
 import Redis from 'ioredis';
 import { Config } from '../config/config';
 import {
+    BaseError,
+    ErrorCode,
     ApiTimeoutError,
-    ApiUnavailableError,
-    BusinessError
+    ApiUnavailableError
 } from '../middlewares/errorMiddleware';
 
 export class RedisClient {
@@ -32,10 +33,14 @@ export class RedisClient {
             this.client.on('connect', () => {
                 console.log('Redis 서버에 연결됨');
             });
-
         } catch (error) {
             console.error('Redis 초기화 실패:', error);
-            throw new ApiUnavailableError('Redis 서버를 사용할 수 없음', 'redis-service');
+            throw new BaseError(
+                ErrorCode.SERVICE_UNAVAILABLE,
+                'Redis 서버를 사용할 수 없음',
+                undefined,
+                503
+            );
         }
     }
 
@@ -91,21 +96,19 @@ export class RedisClient {
 
             if (error.message.includes('connection') || error.message.includes('ECONNREFUSED')) {
                 throw new ApiUnavailableError('Redis 서버 연결 불가', 'redis-service');
-            }
-
-            // 그 외 Redis 에러
-            throw new BusinessError(
+            }            // 그 외 Redis 에러
+            throw new BaseError(
+                ErrorCode.INTERNAL_ERROR,
                 `Redis ${operation} 작업 실패: ${error.message}`,
-                500,
-                'REDIS_ERROR'
+                undefined,
+                500
             );
-        }
-
-        // 알 수 없는 에러
-        throw new BusinessError(
+        }        // 알 수 없는 에러
+        throw new BaseError(
+            ErrorCode.INTERNAL_ERROR,
             `Redis ${operation} 작업 중 알 수 없는 오류 발생`,
-            500,
-            'UNKNOWN_REDIS_ERROR'
+            undefined,
+            500
         );
     }
 }

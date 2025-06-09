@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { BaseTokenPayload, TokenPayload, TokenPayloadI, UserToken, UserTokenPayload } from '../interfaces/auth';
 import { Config } from '../config/config';
-import { AuthenticationError, BusinessError } from '../middlewares/errorMiddleware';
+import { AuthenticationError, BaseError, ErrorCode } from '../middlewares/errorMiddleware';
 import { MemberBase } from '../interfaces/member';
 
 export class TokenService {
@@ -92,7 +92,8 @@ export class TokenService {
             if (error instanceof AuthenticationError) {
                 return { status: 401, message: error.message };
             }
-            return { status: 500, message: 'Internal server error' };
+            const errorMessage = error instanceof Error ? error.message : 'Internal server error';
+            return { status: 500, message: errorMessage };
         }
     }
 

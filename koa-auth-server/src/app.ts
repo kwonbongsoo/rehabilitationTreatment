@@ -4,7 +4,7 @@ import Koa from 'koa';
 import bodyParser from 'koa-bodyparser';
 import cors from '@koa/cors';
 import { createAuthRouter } from './routes/authRoutes';
-import { errorHandlerMiddleware } from './middlewares/errorMiddleware';
+import { errorMiddleware } from './middlewares/errorMiddleware';
 import { requestLogger } from './middlewares/logger';
 import { AuthController } from './controllers/authController';
 import { AuthService } from './services/authService';
@@ -32,7 +32,7 @@ export function createApp(): Koa {
     validateConfig();
 
     // 글로벌 에러 핸들러
-    app.use(errorHandlerMiddleware);
+    app.use(errorMiddleware);
     // 요청 로거 미들웨어
     app.use(requestLogger);
 

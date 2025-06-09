@@ -33,9 +33,7 @@ export class AuthMiddleware {
             ctx.state.token = extractBearerToken(ctx.headers.authorization);
 
             // 쿠키에서 access_type 확인
-            const accessType = ctx.cookies.get('access_type');
-
-            // 게스트 거부
+            const accessType = ctx.cookies.get('access_type');            // 게스트 거부
             if (!accessType || accessType === 'guest') {
                 throw new ForbiddenError('This endpoint requires a logged-in user');
             }
@@ -70,14 +68,10 @@ export class AuthMiddleware {
             ctx.state.token = extractBearerToken(authHeader);
 
             // 쿠키에서 access_type 확인
-            const accessType = ctx.cookies.get('access_type');
-
-            // 관리자만 허용
+            const accessType = ctx.cookies.get('access_type');            // 관리자만 허용
             if (!accessType || accessType !== 'admin') {
                 throw new ForbiddenError('Admin privileges required');
-            }
-
-            await next();
+            } await next();
         } catch (error) {
             if (error instanceof ForbiddenError) {
                 throw error;
@@ -104,9 +98,7 @@ export class AuthMiddleware {
                 ctx.state.token = extractBearerToken(authHeader);
 
                 // 쿠키에서 access_type 확인
-                const accessType = ctx.cookies.get('access_type');
-
-                // 역할 확인
+                const accessType = ctx.cookies.get('access_type');                // 역할 확인
                 if (!accessType || !roles.includes(accessType)) {
                     throw new ForbiddenError(`Required role: ${roles.join(' or ')}`);
                 }

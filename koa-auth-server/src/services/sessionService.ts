@@ -1,6 +1,6 @@
 import { RedisClient, redis } from '../utils/redisClient';
 import { TokenPayload } from '../interfaces/auth';
-import { BusinessError } from '../middlewares/errorMiddleware';
+import { BaseError, ErrorCode } from '../middlewares/errorMiddleware';
 import { Config } from '../config/config';
 
 export class SessionService {
@@ -28,10 +28,11 @@ export class SessionService {
             await this.redisClient.set(sessionKey, sessionData, ttlSeconds);
             return data;
         } catch (error) {
-            throw new BusinessError(
+            throw new BaseError(
+                ErrorCode.INTERNAL_ERROR,
                 'Failed to store user session',
-                500,
-                'SESSION_STORAGE_ERROR'
+                undefined,
+                500
             );
         }
     }
@@ -50,10 +51,11 @@ export class SessionService {
 
             return JSON.parse(sessionData) as TokenPayload;
         } catch (error) {
-            throw new BusinessError(
+            throw new BaseError(
+                ErrorCode.INTERNAL_ERROR,
                 'Failed to retrieve user session',
-                500,
-                'SESSION_RETRIEVAL_ERROR'
+                undefined,
+                500
             );
         }
     }
@@ -66,10 +68,11 @@ export class SessionService {
             const sessionKey = `token:${token}`;
             await this.redisClient.del(sessionKey);
         } catch (error) {
-            throw new BusinessError(
+            throw new BaseError(
+                ErrorCode.INTERNAL_ERROR,
                 'Failed to remove user session',
-                500,
-                'SESSION_DELETION_ERROR'
+                undefined,
+                500
             );
         }
     }
