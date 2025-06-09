@@ -56,16 +56,6 @@ services:
     container_name: kong
     env_file:
       - ./kong/.env
-    environment:
-      KONG_DATABASE: off
-      KONG_DECLARATIVE_CONFIG: /tmp/kong.yml
-      KONG_PLUGINS: idempotency
-      KONG_PROXY_ACCESS_LOG: /dev/stdout
-      KONG_ADMIN_ACCESS_LOG: /dev/stdout
-      KONG_PROXY_ERROR_LOG: /dev/stderr
-      KONG_ADMIN_ERROR_LOG: /dev/stderr
-      KONG_ADMIN_LISTEN: 0.0.0.0:8001, 0.0.0.0:8444 ssl
-      KONG_LUA_PACKAGE_PATH: "/usr/local/share/lua/5.1/kong/plugins/?.lua;/usr/local/share/lua/5.1/?.lua;;"
     volumes:
       - ./kong/kong.yml.template:/tmp/kong.yml.template:ro
       - ./kong/init-kong.sh:/tmp/init-kong-source.sh:ro

@@ -3,12 +3,12 @@ _transform: true
 
 services:
   - name: fastify-member-server
-    url: http://fastify-member-server:5000
+    url: "${MEMBER_SERVER_URL}"
     routes:
       - name: member-api
         paths:
           - /api/members
-        strip_path: true
+        strip_path: false
         plugins:
           - name: idempotency
             config:
@@ -24,6 +24,14 @@ services:
                 - "POST"
                 - "PUT"
                 - "PATCH"
+          - name: token-validator
+            config:
+              # skip_paths:
+              #   - /api/members/public  # 공개 API 예외
+              auth_server_url: "${AUTH_SERVER_URL}"
+              token_header: "Authorization"
+              token_prefix: "Bearer "
+        
 
   - name: koa-auth-server
     url: http://koa-auth-server:4000
@@ -31,12 +39,4 @@ services:
       - name: auth-api
         paths:
           - /api/auth
-        strip_path: false
-
-  - name: ecommerce-app
-    url: http://ecommerce-app:3000
-    routes:
-      - name: ecommerce-api
-        paths:
-          - /api/ecommerce
         strip_path: false
