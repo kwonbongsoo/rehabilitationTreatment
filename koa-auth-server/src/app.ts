@@ -6,66 +6,62 @@ import cors from '@koa/cors';
 import { createAuthRouter } from './routes/authRoutes';
 import { errorMiddleware } from './middlewares/errorMiddleware';
 import { requestLogger } from './middlewares/logger';
-import { AuthController } from './controllers/authController';
-import { AuthService } from './services/authService';
 
 /**
  * 환경 변수 검증
  */
 function validateConfig(): void {
-    const requiredEnvVars = ['JWT_SECRET', 'REDIS_URL'];
+  const requiredEnvVars = ['JWT_SECRET', 'REDIS_URL'];
 
-    for (const envVar of requiredEnvVars) {
-        if (!process.env[envVar]) {
-            throw new Error(`Missing required environment variable: ${envVar}`);
-        }
+  for (const envVar of requiredEnvVars) {
+    if (!process.env[envVar]) {
+      throw new Error(`Missing required environment variable: ${envVar}`);
     }
+  }
 }
 
 /**
  * Koa 애플리케이션 생성 및 설정
  */
 export function createApp(): Koa {
-    const app = new Koa();
+  const app = new Koa();
 
-    // 환경변수 검증
-    validateConfig();
+  // 환경변수 검증
+  validateConfig();
 
-    // 글로벌 에러 핸들러
-    app.use(errorMiddleware);
-    // 요청 로거 미들웨어
-    app.use(requestLogger);
+  // 글로벌 에러 핸들러
+  app.use(errorMiddleware);
+  // 요청 로거 미들웨어
+  app.use(requestLogger);
 
-    // 기본 미들웨어
-    app.use(bodyParser());
-    app.use(cors({
-        credentials: true,
-        allowMethods: ['GET', 'POST', 'PUT', 'DELETE'],
-        allowHeaders: ['Authorization', 'Content-Type']
-    }));
+  // 기본 미들웨어
+  app.use(bodyParser());
+  app.use(
+    cors({
+      credentials: true,
+      allowMethods: ['GET', 'POST', 'PUT', 'DELETE'],
+      allowHeaders: ['Authorization', 'Content-Type'],
+    }),
+  );
 
-    try {
+  try {
+    // 라우터 생성 및 등록 (라우팅 로직만 포함)
+    const authRouter = createAuthRouter();
+    app.use(authRouter.routes());
+    app.use(authRouter.allowedMethods());
+  } catch (error) {
+    console.error('라우터 설정 실패:', error);
+    throw new Error('라우터를 설정할 수 없습니다');
+  }
 
-        // 컨트롤러 생성
-        const authController = new AuthController(new AuthService());
+  // 404 핸들러
+  app.use(async (ctx) => {
+    ctx.status = 404;
+    ctx.body = {
+      success: false,
+      message: 'Endpoint not found',
+    };
+  });
 
-        // 라우터 생성 및 등록 (라우팅 로직만 포함)
-        const authRouter = createAuthRouter(authController);
-        app.use(authRouter.routes());
-        app.use(authRouter.allowedMethods());
-    } catch (error) {
-        console.error('라우터 설정 실패:', error);
-        throw new Error('라우터를 설정할 수 없습니다');
-    }
-
-    // 404 핸들러
-    app.use(async (ctx) => {
-        ctx.status = 404;
-        ctx.body = {
-            success: false,
-            message: 'Endpoint not found'
-        };
-    });
-
-    return app;
+  return app;
 }

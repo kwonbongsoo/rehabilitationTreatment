@@ -7,6 +7,7 @@ import {
   AuthenticationError,
   ValidationError,
   NotFoundError,
+  ForbiddenError,
   DuplicateResourceError,
 } from '@ecommerce/common';
 
@@ -21,9 +22,7 @@ export {
   ErrorCode,
 } from '@ecommerce/common';
 
-export type {
-  ErrorResponse,
-} from '@ecommerce/common';
+export type { ErrorResponse } from '@ecommerce/common';
 
 /**
  * 글로벌 에러 핸들러 미들웨어
@@ -41,6 +40,15 @@ export const errorMiddleware = async (ctx: Context, next: Next): Promise<void> =
           code: 'UNAUTHORIZED',
           message: error.message,
           details: null,
+        },
+      };
+    } else if (error instanceof ForbiddenError) {
+      ctx.status = 403;
+      ctx.body = {
+        error: {
+          code: 'FORBIDDEN_ERROR',
+          message: error.message,
+          details: error.details ?? null,
         },
       };
     } else if (error instanceof ValidationError) {
@@ -187,5 +195,23 @@ export class ApiRateLimitError extends ApiError {
 export class ApiResponseFormatError extends ApiError {
   constructor(message: string = 'Invalid API response format', service: string = 'unknown') {
     super(message, 502, service);
+  }
+}
+
+export class ApiForbiddenError extends ApiError {
+  constructor(message: string = 'Forbidden', service: string = 'unknown') {
+    super(message, 403, service);
+  }
+}
+
+export class ApiNotFoundError extends ApiError {
+  constructor(message: string = 'Not found', service: string = 'unknown') {
+    super(message, 404, service);
+  }
+}
+
+export class ApiAuthenticationError extends ApiError {
+  constructor(message: string = 'Authentication failed', service: string = 'unknown') {
+    super(message, 401, service);
   }
 }
