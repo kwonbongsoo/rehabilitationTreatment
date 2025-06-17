@@ -8,7 +8,6 @@ import {
   ApiResponseFormatError,
   ApiRateLimitError,
   ApiForbiddenError,
-  NotFoundError,
   ApiNotFoundError,
   ApiAuthenticationError,
 } from '../middlewares/errorMiddleware';
