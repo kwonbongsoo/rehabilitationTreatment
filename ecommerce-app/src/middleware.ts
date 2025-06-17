@@ -61,7 +61,11 @@ async function issueGuestToken(): Promise<{ token: string; role: string; maxAge:
       headers: {
         'Content-Type': 'application/json',
         'User-Agent': 'NextJS-Middleware',
-        Authorization: `Basic ${btoa(authBasicKey)}`,
+        Authorization: `Basic ${
+          typeof btoa === 'function'
+            ? btoa(authBasicKey)
+            : Buffer.from(authBasicKey, 'utf-8').toString('base64')
+        }`,
       },
     });
     if (!response.ok) {
