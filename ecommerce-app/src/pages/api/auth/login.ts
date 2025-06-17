@@ -9,7 +9,7 @@ export default createProxyHandler({
   logPrefix: '🔐',
   validateRequest: (req) => {
     const { id, password } = req.body || {};
-    if (!id || !password) {
+    if (typeof id !== 'string' || typeof password !== 'string' || !id || !password) {
       return {
         isValid: false,
         error: 'ID and password are required',

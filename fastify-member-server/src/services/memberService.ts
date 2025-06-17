@@ -12,7 +12,7 @@ import { IMemberService } from '../interfaces/memberService';
 import bcrypt from 'bcryptjs';
 
 export class MemberService implements IMemberService {
-  constructor(private readonly prisma: PrismaClient) { }
+  constructor(private readonly prisma: PrismaClient) {}
 
   // ===== 유틸리티 함수 (코드 상단으로 이동) =====
   private async hashPassword(password: string): Promise<string> {
@@ -117,7 +117,7 @@ export class MemberService implements IMemberService {
   }
 
   private validateCredentials(id: string, password: string): void {
-    if (!id || !password) {
+    if (typeof id !== 'string' || typeof password !== 'string' || !id || !password) {
       throw new ValidationError('Both ID and password are required');
     }
   }

@@ -6,6 +6,7 @@ import {
   ProxyError,
   BackendConnectionError,
   ProxyValidationError,
+  ProxyMethodNotAllowedError,
   GatewayError,
   isProxyError,
   createProxyErrorFromAxios,
@@ -28,16 +29,24 @@ export interface ProxyOptions {
 
 /**
  * URL 경로에서 파라미터를 교체하는 함수
- * 예: "/api/members/{{id}}" + { id: "123" } -> "/api/members/123"
+ * 지원 형태:
+ * - Express.js 스타일: "/api/members/:id" + { id: "123" } -> "/api/members/123"
+ * - 현재 형태: "/api/members/{{id}}" + { id: "123" } -> "/api/members/123"
  */
 function replacePathParameters(path: string, params: Record<string, any>): string {
   let result = path;
 
-  // {{param}} 형태의 파라미터를 실제 값으로 교체
   Object.entries(params).forEach(([key, value]) => {
-    const placeholder = `{{${key}}}`;
-    if (result.includes(placeholder)) {
-      result = result.replace(placeholder, String(value));
+    // Express.js 스타일 :param 형태 교체
+    const expressStylePlaceholder = `:${key}`;
+    if (result.includes(expressStylePlaceholder)) {
+      result = result.replace(new RegExp(`:${key}\\b`, 'g'), String(value));
+    }
+
+    // 기존 {{param}} 형태 교체 (하위 호환성)
+    const curlyBracePlaceholder = `{{${key}}}`;
+    if (result.includes(curlyBracePlaceholder)) {
+      result = result.replace(new RegExp(`\\{\\{${key}\\}\\}`, 'g'), String(value));
     }
   });
 
@@ -48,12 +57,11 @@ function replacePathParameters(path: string, params: Record<string, any>): strin
  * HTTP 메서드 검증
  */
 function validateHttpMethod(requestMethod: string | undefined, allowedMethod: string): void {
-  if (requestMethod !== allowedMethod) {
-    throw new ProxyValidationError(
-      `Method ${requestMethod || 'UNKNOWN'} not allowed. Only ${allowedMethod} is supported`,
-      'http_method',
-      'method_not_allowed',
-    );
+  const normalizedRequestMethod = (requestMethod || 'UNKNOWN').toUpperCase();
+  const normalizedAllowedMethod = allowedMethod.toUpperCase();
+
+  if (normalizedRequestMethod !== normalizedAllowedMethod) {
+    throw new ProxyMethodNotAllowedError([allowedMethod], requestMethod || 'UNKNOWN');
   }
 }
 
@@ -76,7 +84,7 @@ function buildRequestHeaders(req: NextApiRequest, options: ProxyOptions): Record
   const headers: Record<string, string> = {};
 
   // Content-Type 설정
-  if (['POST', 'PUT', 'PATCH'].includes(options.method)) {
+  if (['POST', 'PUT', 'PATCH'].includes(options.method.toUpperCase())) {
     headers['Content-Type'] = 'application/json';
   }
 
@@ -126,21 +134,29 @@ function buildAxiosConfig(
     validateStatus: () => true, // 모든 상태 코드 허용
   };
 
-  if (options.method === 'GET') {
+  if (options.method.toUpperCase() === 'GET') {
     // GET 요청 - 쿼리 파라미터 처리
     const queryParams = { ...req.query };
 
-    // 경로 파라미터 제거
-    if (options.targetPath.includes('{{')) {
-      const pathParamMatches = options.targetPath.match(/\{\{(\w+)\}\}/g);
-      pathParamMatches?.forEach((match) => {
+    // 경로 파라미터 제거 (Express.js 스타일과 현재 형태 모두 지원)
+    if (options.targetPath.includes(':') || options.targetPath.includes('{{')) {
+      // Express.js 스타일 :param 파라미터 제거
+      const expressMatches = options.targetPath.match(/:(\w+)/g);
+      expressMatches?.forEach((match) => {
+        const paramName = match.substring(1); // ':' 제거
+        delete queryParams[paramName];
+      });
+
+      // 기존 {{param}} 형태 파라미터 제거
+      const curlyMatches = options.targetPath.match(/\{\{(\w+)\}\}/g);
+      curlyMatches?.forEach((match) => {
         const paramName = match.replace(/[{}]/g, '');
         delete queryParams[paramName];
       });
     }
 
     config.params = queryParams;
-  } else if (['POST', 'PUT', 'PATCH'].includes(options.method)) {
+  } else if (['POST', 'PUT', 'PATCH'].includes(options.method.toUpperCase())) {
     // POST/PUT/PATCH 요청 - 바디 데이터 처리
     let requestData = req.body;
     if (options.transformRequest) {
@@ -156,6 +172,14 @@ function buildAxiosConfig(
  * 에러 응답 전송
  */
 function sendErrorResponse(res: NextApiResponse, error: BaseError): void {
+  // 405 에러인 경우 Allow 헤더 설정
+  if (error.statusCode === 405 && error instanceof ProxyMethodNotAllowedError) {
+    const allowedMethods = error.details?.context?.allowedMethods as string[];
+    if (allowedMethods && allowedMethods.length > 0) {
+      res.setHeader('Allow', allowedMethods.join(', '));
+    }
+  }
+
   const errorResponse = error.toResponse();
   res.status(error.statusCode).json(errorResponse);
 }
@@ -240,15 +264,14 @@ export function createMultiMethodProxyHandler(
 ) {
   return async (req: NextApiRequest, res: NextApiResponse) => {
     const method = req.method as string;
-    const options = methodOptions[method];
+    const normalizedMethod = method.toUpperCase();
+
+    // 대소문자 구분 없이 메서드 옵션 찾기
+    const options = methodOptions[method] || methodOptions[normalizedMethod];
 
     if (!options) {
       const allowedMethods = Object.keys(methodOptions);
-      const error = new ProxyValidationError(
-        `Method ${method} not allowed. Allowed methods: ${allowedMethods.join(', ')}`,
-        'http_method',
-        'method_not_allowed',
-      );
+      const error = new ProxyMethodNotAllowedError(allowedMethods, method);
       return sendErrorResponse(res, error);
     }
 

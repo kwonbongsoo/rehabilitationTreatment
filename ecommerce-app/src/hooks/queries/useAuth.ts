@@ -25,7 +25,8 @@ export function useLogin() {
     onSuccess: (response) => {
       // React Error #185 방지를 위해 다음 틱에서 상태 업데이트
       setTimeout(() => {
-        const { exp, iat, ...filteredUserResponse } = response.data;
+        const { role, id, email, name } = response.data;
+        const filteredUserResponse = { role, id, email, name };
 
         // 로그인 성공 시 AuthProvider 상태 업데이트
         setUser(filteredUserResponse);

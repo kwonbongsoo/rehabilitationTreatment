@@ -542,10 +542,8 @@ test('인증 토큰이 자동으로 추가되는지 확인', async () => {
 
 ```bash
 # Kong Gateway 설정
-KONG_GATEWAY_URL=http://localhost:8000
+KONG_GATEWAY_URL=http://kong:8000
 
-# 개발 모드 설정
-NEXT_PUBLIC_USE_MOCKS=false
 ```
 
 #### **운영환경 (.env.production)**
@@ -555,7 +553,6 @@ NEXT_PUBLIC_USE_MOCKS=false
 KONG_GATEWAY_URL=http://kong:8000
 
 # 운영 모드 설정
-NEXT_PUBLIC_USE_MOCKS=false
 NODE_ENV=production
 ```
 

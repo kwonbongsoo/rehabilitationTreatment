@@ -20,21 +20,21 @@ export class IndividualProxyTester {
   /**
    * 로그인 API 테스트 (개별 프록시)
    */
-  async testLoginAPI(credentials: { email: string; password: string }): Promise<ProxyTestResult> {
+  async testLoginAPI(credentials: { id: string; password: string }): Promise<ProxyTestResult> {
     const startTime = Date.now();
 
     try {
       console.log('🔐 Testing Login API via individual proxy...');
 
-      const response = await this.apiClient.post('/auth/login', credentials);
+      const response = await this.apiClient.getAxiosInstance().post('/auth/login', credentials);
       const duration = Date.now() - startTime;
 
       return {
         success: true,
         method: 'POST',
         url: '/auth/login',
-        status: 200,
-        data: response,
+        status: response.status,
+        data: response.data,
         duration,
         proxyType: 'individual',
       };
@@ -63,15 +63,15 @@ export class IndividualProxyTester {
     try {
       console.log('ℹ️ Testing Session Info API via individual proxy...');
 
-      const response = await this.apiClient.get('/auth/session-info');
+      const response = await this.apiClient.getAxiosInstance().get('/auth/session-info');
       const duration = Date.now() - startTime;
 
       return {
         success: true,
         method: 'GET',
         url: '/auth/session-info',
-        status: 200,
-        data: response,
+        status: response.status,
+        data: response.data,
         duration,
         proxyType: 'individual',
       };
@@ -100,15 +100,15 @@ export class IndividualProxyTester {
     try {
       console.log('👥 Testing Members List API via individual proxy...');
 
-      const response = await this.apiClient.get('/members');
+      const response = await this.apiClient.getAxiosInstance().get('/members');
       const duration = Date.now() - startTime;
 
       return {
         success: true,
         method: 'GET',
         url: '/members',
-        status: 200,
-        data: response,
+        status: response.status,
+        data: response.data,
         duration,
         proxyType: 'individual',
       };
@@ -142,15 +142,15 @@ export class IndividualProxyTester {
     try {
       console.log('➕ Testing Member Create API via individual proxy...');
 
-      const response = await this.apiClient.post('/members', memberData);
+      const response = await this.apiClient.getAxiosInstance().post('/members', memberData);
       const duration = Date.now() - startTime;
 
       return {
         success: true,
         method: 'POST',
         url: '/members',
-        status: 201,
-        data: response,
+        status: response.status,
+        data: response.data,
         duration,
         proxyType: 'individual',
       };
@@ -182,15 +182,15 @@ export class IndividualProxyTester {
     try {
       console.log('🔐 Testing Member Verify API via individual proxy...');
 
-      const response = await this.apiClient.post('/members/verify', credentials);
+      const response = await this.apiClient.getAxiosInstance().post('/members/verify', credentials);
       const duration = Date.now() - startTime;
 
       return {
         success: true,
         method: 'POST',
         url: '/members/verify',
-        status: 200,
-        data: response,
+        status: response.status,
+        data: response.data,
         duration,
         proxyType: 'individual',
       };
@@ -219,15 +219,15 @@ export class IndividualProxyTester {
     try {
       console.log(`👤 Testing Member By ID API via individual proxy for ID: ${memberId}...`);
 
-      const response = await this.apiClient.get(`/members/${memberId}`);
+      const response = await this.apiClient.getAxiosInstance().get(`/members/${memberId}`);
       const duration = Date.now() - startTime;
 
       return {
         success: true,
         method: 'GET',
         url: `/members/${memberId}`,
-        status: 200,
-        data: response,
+        status: response.status,
+        data: response.data,
         duration,
         proxyType: 'individual',
       };
@@ -289,7 +289,7 @@ export class IndividualProxyTester {
 
     // 1. 로그인 테스트
     const loginResult = await this.testLoginAPI({
-      email: 'test@example.com',
+      id: 'test@example.com',
       password: 'password123',
     });
     results.push(loginResult);
@@ -408,7 +408,13 @@ export async function testProxyAPI(endpoint: string, options: RequestInit = {}) 
       },
     });
 
-    const data = await response.json();
+    let data: unknown = null;
+    const text = await response.text();
+    try {
+      data = text ? JSON.parse(text) : null;
+    } catch {
+      data = text;
+    }
 
     console.log(`📊 Response Status: ${response.status}`);
     console.log('📋 Response Data:', data);

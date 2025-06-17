@@ -113,8 +113,8 @@ Kong은 모든 비즈니스 API 요청에 대해 강력한 JWT 토큰 검증을 
 
 #### **1. 다중 토큰 타입 지원**
 
-- **Guest 토큰**: `kid: "guest"` - 비회원 사용자용, 제한된 권한
-- **User 토큰**: `kid: "user"` - 로그인 회원용, 전체 권한
+- **Guest 토큰**: `kid: "guest-key"` - 비회원 사용자용, 제한된 권한
+- **User 토큰**: `kid: "user-key"` - 로그인 회원용, 전체 권한
 - **공통 시크릿**: 동일한 JWT 시크릿으로 보안성 및 관리 효율성 확보
 
 #### **2. 토큰 검증 프로세스**
@@ -122,7 +122,7 @@ Kong은 모든 비즈니스 API 요청에 대해 강력한 JWT 토큰 검증을 
 ```
 Authorization: Bearer <JWT_TOKEN>
 ↓
-Kong JWT Plugin → 시크릿 검증 → Auth API token verify 이용용
+Kong JWT Plugin → 시크릿 검증 → token-validator 플러그인 활용
 ↓
 검증 성공: 백엔드로 전달
 검증 실패: 403 Forbidden, 401 Unauthorized 응답

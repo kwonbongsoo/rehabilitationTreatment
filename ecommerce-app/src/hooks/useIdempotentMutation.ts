@@ -1,4 +1,4 @@
-import { useRef, useCallback, useState } from 'react';
+import { useRef, useCallback, useState, useMemo } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 // 도메인 타입 정의
@@ -144,7 +144,7 @@ class MutationExecutor<TData, TVariables> {
  * - 조합 패턴: 여러 서비스를 조합하여 복잡한 로직 구성
  */
 export function useIdempotentMutation<TData, TVariables>() {
-  const keyGenerator = new IdempotencyKeyGenerator();
+  const keyGenerator = useMemo(() => new IdempotencyKeyGenerator(), []);
 
   // 세션별 고정 멱등성 키 (컴포넌트 마운트 시 한 번만 생성)
   const [sessionIdempotencyKey] = useState(() => keyGenerator.generateSessionKey());
@@ -152,14 +152,17 @@ export function useIdempotentMutation<TData, TVariables>() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const requestIdRef = useRef<string | null>(null);
 
-  // 상태 관리자 생성
-  const stateManager = new SubmissionStateManager(setIsSubmitting, requestIdRef, isSubmitting);
+  // 상태 관리자 생성 - useMemo로 메모이제이션
+  const stateManager = useMemo(
+    () => new SubmissionStateManager(setIsSubmitting, requestIdRef, isSubmitting),
+    [isSubmitting],
+  );
 
-  // 뮤테이션 실행기 생성
-  const mutationExecutor = new MutationExecutor<TData, TVariables>(
-    keyGenerator,
-    stateManager,
-    sessionIdempotencyKey,
+  // 뮤테이션 실행기 생성 - useMemo로 메모이제이션
+  const mutationExecutor = useMemo(
+    () =>
+      new MutationExecutor<TData, TVariables>(keyGenerator, stateManager, sessionIdempotencyKey),
+    [keyGenerator, stateManager, sessionIdempotencyKey],
   );
 
   /**

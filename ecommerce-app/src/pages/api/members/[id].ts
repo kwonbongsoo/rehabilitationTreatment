@@ -3,7 +3,7 @@ import { createMultiMethodProxyHandler } from '../../../utils/proxyUtils';
 // 개별 멤버 조회, 수정, 삭제 API 프록시 핸들러
 export default createMultiMethodProxyHandler({
   GET: {
-    targetPath: '/api/members/{{id}}',
+    targetPath: '/api/members/:id',
     includeAuth: true,
     logPrefix: '👤',
     transformRequest: (body) => body,
@@ -20,7 +20,7 @@ export default createMultiMethodProxyHandler({
     },
   },
   PUT: {
-    targetPath: '/api/members/{{id}}',
+    targetPath: '/api/members/:id',
     includeAuth: true,
     includeIdempotency: true,
     logPrefix: '✏️',
@@ -36,7 +36,7 @@ export default createMultiMethodProxyHandler({
     },
   },
   DELETE: {
-    targetPath: '/api/members/{{id}}',
+    targetPath: '/api/members/:id',
     includeAuth: true,
     logPrefix: '🗑️',
     validateRequest: (req) => {

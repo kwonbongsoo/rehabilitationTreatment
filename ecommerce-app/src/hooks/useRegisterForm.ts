@@ -180,8 +180,11 @@ export function useRegisterForm(): UseRegisterFormReturn {
     async (registerRequest: RegisterRequest): Promise<any> => {
       return await idempotentMutation.executeMutation(
         async (data: RegisterRequest, idempotencyKey: string) => {
-          // 깔끔하게 별도 파라미터로 전달
-          return await registerMutation.mutateAsync({ ...data, _idempotencyKey: idempotencyKey });
+          // 멱등성 키는 헤더로만 전송 - 요청 본문에서 제거
+          return await registerMutation.mutateAsync({
+            userData: data,
+            idempotencyKey,
+          });
         },
         registerRequest,
         {
