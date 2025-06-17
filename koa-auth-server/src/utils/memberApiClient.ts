@@ -7,6 +7,10 @@ import {
   ApiUnavailableError,
   ApiResponseFormatError,
   ApiRateLimitError,
+  ApiForbiddenError,
+  NotFoundError,
+  ApiNotFoundError,
+  ApiAuthenticationError,
 } from '../middlewares/errorMiddleware';
 import { Config } from '../config/config';
 
@@ -78,18 +82,16 @@ export class MemberApiClient {
    */
   public async verifyCredentials(id: string, password: string): Promise<UserInfo> {
     try {
-      const response = await this.api.post('api/members/verify', {
+      const {
+        body: { member },
+      } = await this.api.post<MemberResponse>('api/members/verify', {
         json: { id, password },
       });
 
-      if (!this.isMemberResponse(response.body)) {
-        throw new ApiResponseFormatError('서버 응답 형식이 올바르지 않습니다', this.SERVICE_NAME);
-      }
-
       return {
-        id: response.body.member.id,
-        email: response.body.member.email,
-        name: response.body.member.name,
+        id: member.id,
+        email: member.email,
+        name: member.name,
       };
     } catch (error) {
       throw this.handleApiError(error, 'verifyCredentials');
@@ -117,14 +119,14 @@ export class MemberApiClient {
           return new ApiRateLimitError(`요청 한도를 초과했습니다: ${message}`, this.SERVICE_NAME);
 
         case 401:
-          return new ApiError(
+          return new ApiAuthenticationError(
             '아이디 또는 비밀번호가 올바르지 않습니다',
-            statusCode,
             this.SERVICE_NAME,
           );
-
+        case 403:
+          return new ApiForbiddenError('권한이 없습니다', this.SERVICE_NAME);
         case 404:
-          return new ApiError('등록되지 않은 계정입니다', statusCode, this.SERVICE_NAME);
+          return new ApiNotFoundError('등록되지 않은 계정입니다', this.SERVICE_NAME);
 
         // 서버 오류
         case 500:

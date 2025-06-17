@@ -197,3 +197,21 @@ export class ApiResponseFormatError extends ApiError {
     super(message, 502, service);
   }
 }
+
+export class ApiForbiddenError extends ApiError {
+  constructor(message: string = 'Forbidden', service: string = 'unknown') {
+    super(message, 403, service);
+  }
+}
+
+export class ApiNotFoundError extends ApiError {
+  constructor(message: string = 'Not found', service: string = 'unknown') {
+    super(message, 404, service);
+  }
+}
+
+export class ApiAuthenticationError extends ApiError {
+  constructor(message: string = 'Authentication failed', service: string = 'unknown') {
+    super(message, 401, service);
+  }
+}

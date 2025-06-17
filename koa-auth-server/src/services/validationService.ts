@@ -3,6 +3,7 @@ import { ValidationError, BaseError, ErrorCode } from '../middlewares/errorMiddl
 
 export class ValidationService {
   private static instance: ValidationService;
+  private constructor() {}
 
   public static getInstance(): ValidationService {
     if (!ValidationService.instance) {

@@ -8,15 +8,16 @@ export class AuthController {
   private authService: AuthService;
   private static instance: AuthController;
 
+  private constructor(authService?: AuthService) {
+    // 의존성 주입 패턴 적용
+    this.authService = authService || AuthService.getInstance();
+  }
+
   public static getInstance(): AuthController {
     if (!AuthController.instance) {
-      AuthController.instance = new AuthController();
+      AuthController.instance = new AuthController(AuthService.getInstance());
     }
     return AuthController.instance;
-  }
-  constructor(authService?: AuthService) {
-    // 의존성 주입 패턴 적용
-    this.authService = authService || new AuthService();
   }
 
   /**

@@ -56,11 +56,8 @@ export class AuthService {
     });
 
     // Redis에 세션 저장
-    await this.sessionService.storeSession(
-      tokenResponse.token,
-      tokenResponse.payload,
-      tokenResponse.payload.exp,
-    );
+    const ttl = tokenResponse.payload.exp - Math.floor(Date.now() / 1000);
+    await this.sessionService.storeSession(tokenResponse.token, tokenResponse.payload, ttl);
 
     return {
       data: {
@@ -79,15 +76,16 @@ export class AuthService {
    * 게스트 토큰 발급
    */
   public async createGuestToken(): Promise<TokenResponseDataI> {
-    const tokenRes = this.tokenService.generateGuestToken();
-    await this.sessionService.storeSession(tokenRes.token, tokenRes.payload, tokenRes.payload.exp);
+    const tokenResponse = this.tokenService.generateGuestToken();
+    const ttl = tokenResponse.payload.exp - Math.floor(Date.now() / 1000);
+    await this.sessionService.storeSession(tokenResponse.token, tokenResponse.payload, ttl);
 
     return {
       data: {
-        token: tokenRes.token,
-        role: tokenRes.payload.role,
-        exp: tokenRes.payload.exp,
-        iat: tokenRes.payload.iat,
+        token: tokenResponse.token,
+        role: tokenResponse.payload.role,
+        exp: tokenResponse.payload.exp,
+        iat: tokenResponse.payload.iat,
       },
     };
   }
