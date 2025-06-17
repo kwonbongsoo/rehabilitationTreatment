@@ -71,7 +71,7 @@ export class Config {
    * @returns 타임아웃 값(ms)
    */
   public getMemberServiceTimeout(): number {
-    return parseInt(process.env.MEMBER_SERVICE_TIMEOUT || '', 10);
+    return Number.parseInt(process.env.MEMBER_SERVICE_TIMEOUT ?? '3000', 10);
   }
 
   /**
@@ -79,7 +79,7 @@ export class Config {
    * @returns 포트 번호
    */
   public getPort(): number {
-    return parseInt(process.env.PORT || '', 10);
+    return Number.parseInt(process.env.PORT ?? '3000', 10);
   }
 
   /**
@@ -87,7 +87,11 @@ export class Config {
    * @returns Redis URL
    */
   public getRedisUrl(): string {
-    return process.env.REDIS_URL || '';
+    const host = process.env.REDIS_HOST ?? '127.0.0.1';
+    if (!host) {
+      throw new Error('REDIS_HOST 환경 변수가 설정되지 않았습니다');
+    }
+    return host;
   }
 
   /**
