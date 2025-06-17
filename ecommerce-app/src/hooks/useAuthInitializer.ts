@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useState } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@/store/authStore';
 import { cookieService } from '@/services/cookieService';
 import { useSessionInfo } from '@/hooks/queries/useAuth';
@@ -10,21 +10,23 @@ import { useSessionInfo } from '@/hooks/queries/useAuth';
  * 1. 앱 시작 시 토큰 검증
  * 2. session-info API 호출하여 사용자/게스트 정보 로드
  * 3. AuthStore 상태 업데이트
- * 4. 상태 변경 시 컴포넌트 반응
+ * 4. 중복 실행 방지
  */
 export const useAuthInitializer = () => {
-  const { setUser, isLoading } = useAuth();
+  const { setUser } = useAuth();
   const sessionInfoMutation = useSessionInfo();
-  const [isInitialized, setIsInitialized] = useState(false);
+  const isInitialized = useRef(false);
 
   /**
    * 인증 초기화 로직
    */
   const initializeAuth = useCallback(async () => {
-    // 이미 초기화되었거나 로딩 중이면 실행하지 않음
-    if (isInitialized || isLoading) {
+    // 이미 초기화되었으면 실행하지 않음
+    if (isInitialized.current) {
       return;
     }
+
+    isInitialized.current = true;
 
     try {
       // 클라이언트에서만 실행
@@ -32,57 +34,27 @@ export const useAuthInitializer = () => {
         return;
       }
 
-      const sessionInfo = await sessionInfoMutation.mutateAsync();
-
-      // AuthStore 상태 업데이트 - 이제 컴포넌트가 반응함
-      if (sessionInfo?.data) {
-        const { exp, iat, ...userInfo } = sessionInfo.data;
-        if (userInfo.role === 'user') {
-          setUser(userInfo);
-        } else {
-          setUser(null);
-        }
-      } else {
-        setUser(null);
-      }
-
-      setIsInitialized(true);
+      await sessionInfoMutation.mutateAsync();
     } catch (error) {
       console.error('Auth initialization failed:', error);
       // 초기화 실패 시 상태 리셋
       setUser(null);
-      setIsInitialized(false);
+      // 초기화 실패 시 재시도 가능하도록 플래그 리셋
+      isInitialized.current = false;
     }
-  }, [isInitialized, isLoading, sessionInfoMutation, setUser]);
+  }, [sessionInfoMutation, setUser]);
 
-  // 컴포넌트 마운트 시 실행
+  // 컴포넌트 마운트 시 한 번만 실행
   useEffect(() => {
-    if (!isInitialized && !isLoading) {
-      initializeAuth();
-    }
-  }, [initializeAuth, isInitialized, isLoading]);
+    initializeAuth();
+  }, [initializeAuth]);
 
-  // 페이지 포커스 시 토큰 재검증 (선택적)
-  useEffect(() => {
-    const handleFocus = () => {
-      const token = cookieService.getToken();
-      if (token && isInitialized) {
-        // 이미 초기화된 상태에서만 재검증
-        setIsInitialized(false); // 재초기화를 위해 상태 리셋
-      }
-    };
-
-    // 페이지 포커스 이벤트 리스너 등록
-    window.addEventListener('focus', handleFocus);
-
-    return () => {
-      window.removeEventListener('focus', handleFocus);
-    };
-  }, [isInitialized]);
+  // 페이지 포커스 시 토큰 재검증 제거 (무한 호출 방지)
+  // 필요시 별도 훅으로 분리하여 선택적으로 사용
 
   return {
     initializeAuth,
-    isInitialized,
-    isLoading: sessionInfoMutation.isPending || isLoading,
+    isInitialized: isInitialized.current,
+    isLoading: sessionInfoMutation.isPending,
   };
 };
