@@ -48,7 +48,7 @@ export const errorMiddleware = async (ctx: Context, next: Next): Promise<void> =
         error: {
           code: 'FORBIDDEN_ERROR',
           message: error.message,
-          details: error.details,
+          details: error.details ?? null,
         },
       };
     } else if (error instanceof ValidationError) {

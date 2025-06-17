@@ -9,12 +9,20 @@ import { extractBearerToken } from '../utils/requestHelpers';
  * - 서비스 호출 없이 독립적으로 작동
  */
 export class AuthMiddleware {
+  private static instance: AuthMiddleware;
+
+  public static getInstance(): AuthMiddleware {
+    if (!AuthMiddleware.instance) {
+      AuthMiddleware.instance = new AuthMiddleware();
+    }
+    return AuthMiddleware.instance;
+  }
   /**
    * Basic 키 검증 미들웨어
    */
   public async verifyBasicAuth(ctx: Context, next: Next) {
     try {
-      const authHeader = ctx.req.headers.authorization;
+      const authHeader = ctx.headers.authorization;
 
       // 헤더에 Authorization이 없거나 형식이 잘못된 경우
       if (!authHeader || !authHeader.startsWith('Basic ')) {
@@ -51,14 +59,8 @@ export class AuthMiddleware {
    * 토큰 존재 확인 미들웨어 - 토큰이 있어야 함 (검증은 컨트롤러에서)
    */
   public requireToken = async (ctx: Context, next: Next): Promise<void> => {
-    try {
-      // 헬퍼 함수 사용
-      ctx.state.token = extractBearerToken(ctx.headers.authorization);
-      await next();
-    } catch (error) {
-      // 에러는 그대로 전달 (이미 적절한 에러 타입)
-      throw error;
-    }
+    ctx.state.token = extractBearerToken(ctx.headers.authorization);
+    await next();
   };
 
   /**

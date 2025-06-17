@@ -7,8 +7,8 @@ export function createAuthRouter(controller: AuthController): Router {
   const router = new Router({
     prefix: '/api/auth',
   });
-  const authController = new AuthController();
-  const authMiddleware = new AuthMiddleware();
+  const authController = AuthController.getInstance();
+  const authMiddleware = AuthMiddleware.getInstance();
 
   /**
    * 공개 엔드포인트 (인증 불필요)
