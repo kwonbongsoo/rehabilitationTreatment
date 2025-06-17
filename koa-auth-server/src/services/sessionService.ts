@@ -1,13 +1,12 @@
 import { RedisClient, redis } from '../utils/redisClient';
 import { TokenPayload } from '../interfaces/auth';
 import { BaseError, ErrorCode } from '../middlewares/errorMiddleware';
-import { Config } from '../config/config';
 
 export class SessionService {
   private redisClient: RedisClient;
   private static instance: SessionService;
 
-  constructor(config: Config) {
+  constructor() {
     try {
       // config에서 Redis 설정을 가져오거나 기본 클라이언트 사용
       this.redisClient = redis;
@@ -16,9 +15,9 @@ export class SessionService {
     }
   }
 
-  public static getInstance(config: Config): SessionService {
+  public static getInstance(): SessionService {
     if (!SessionService.instance) {
-      SessionService.instance = new SessionService(config);
+      SessionService.instance = new SessionService();
     }
     return SessionService.instance;
   }

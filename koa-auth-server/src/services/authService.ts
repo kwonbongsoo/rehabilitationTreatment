@@ -27,13 +27,13 @@ export class AuthService {
     this.config = config || new Config();
     this.memberApiClient = memberApiClient || MemberApiClient.getInstance(this.config);
     this.tokenService = tokenService || TokenService.getInstance(this.config);
-    this.sessionService = sessionService || SessionService.getInstance(this.config);
+    this.sessionService = sessionService || SessionService.getInstance();
     this.validationService = validationService || ValidationService.getInstance();
   }
 
   public static getInstance(): AuthService {
     if (!AuthService.instance) {
-      AuthService.instance = new AuthService();
+      AuthService.instance = new AuthService(new Config());
     }
     return AuthService.instance;
   }

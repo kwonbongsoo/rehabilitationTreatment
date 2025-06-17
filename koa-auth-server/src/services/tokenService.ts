@@ -8,7 +8,6 @@ import {
 } from '../interfaces/auth';
 import { Config } from '../config/config';
 import { AuthenticationError, BaseError, ErrorCode } from '../middlewares/errorMiddleware';
-import { MemberBase } from '../interfaces/member';
 
 export class TokenService {
   constructor(private readonly config: Config) {}
@@ -17,7 +16,7 @@ export class TokenService {
 
   public static getInstance(config: Config): TokenService {
     if (!TokenService.instance) {
-      TokenService.instance = new TokenService(config);
+      TokenService.instance = new TokenService(config ?? new Config());
     }
 
     return TokenService.instance;

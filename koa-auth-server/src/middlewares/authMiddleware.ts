@@ -37,7 +37,10 @@ export class AuthMiddleware {
         .trim();
 
       // 환경 변수에 저장된 키와 비교
-      if (key !== process.env.AUTH_BASIC_KEY?.trim()) {
+      const expected = process.env.AUTH_BASIC_KEY?.trim();
+      if (!expected) {
+        throw new AuthenticationError('Server misconfiguration: AUTH_BASIC_KEY not set');
+      } else if (key !== expected) {
         throw new ForbiddenError('Forbidden: Invalid API key');
       }
 
@@ -158,7 +161,7 @@ export class AuthMiddleware {
 }
 
 // 미들웨어 인스턴스 생성 (싱글톤)
-export const authMiddleware = new AuthMiddleware();
+export const authMiddleware = AuthMiddleware.getInstance();
 
 // 함수 형태로 내보내기 (사용 편의성)
 export const requireToken = authMiddleware.requireToken;
