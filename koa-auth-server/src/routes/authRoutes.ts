@@ -2,7 +2,14 @@ import Router from 'koa-router';
 import { AuthController } from '../controllers/authController';
 import { AuthMiddleware } from '../middlewares/authMiddleware';
 
-// 인스턴스 생성
+/**
+ * Creates and configures a Koa router with authentication-related endpoints under the `/api/auth` prefix.
+ *
+ * The router includes public endpoints for login and guest token issuance (protected by basic authentication), token verification, session information, user profile and info retrieval, logout, and a health check endpoint.
+ *
+ * @param controller - The authentication controller instance used to handle route logic.
+ * @returns A configured Koa router instance with authentication routes.
+ */
 export function createAuthRouter(controller: AuthController): Router {
   const router = new Router({
     prefix: '/api/auth',

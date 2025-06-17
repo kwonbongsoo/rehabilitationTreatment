@@ -29,13 +29,22 @@ const SKIP_ROUTES = [
 ];
 
 /**
- * 쿠키에서 토큰 추출
+ * Retrieves the access token from the request cookies.
+ *
+ * @returns The access token string if present, otherwise `null`.
  */
 function getTokenFromCookies(request: NextRequest): string | null {
   return request.cookies.get('access_token')?.value || null;
 }
 /**
- * 게스트 토큰 발급 API 호출
+ * Requests and returns a guest authentication token from the external auth service.
+ *
+ * Reads configuration from environment variables and sends a POST request to the guest-token endpoint with Basic authentication.
+ * If successful, returns an object containing the token, role, and remaining max age in seconds; otherwise, returns null.
+ *
+ * @returns An object with the guest token, role, and maxAge in seconds, or null if issuance fails.
+ *
+ * @remark Returns null if required environment variables are missing, the API request fails, or the response is invalid.
  */
 async function issueGuestToken(): Promise<{ token: string; role: string; maxAge: number } | null> {
   try {
@@ -96,7 +105,13 @@ async function issueGuestToken(): Promise<{ token: string; role: string; maxAge:
 }
 
 /**
- * 토큰 쿠키 설정
+ * Sets HTTP-only cookies for the access token and user role on the response.
+ *
+ * @param response - The outgoing response to which cookies will be attached.
+ * @param tokenData - An object containing the token string, user role, and cookie max age in seconds.
+ *
+ * @remark
+ * Cookies are set as secure only in production environments.
  */
 function setTokenCookies(
   response: NextResponse,
@@ -117,7 +132,9 @@ function setTokenCookies(
 }
 
 /**
- * 미들웨어 메인 함수 - 스마트 토큰 관리
+ * Middleware for conditional token management and guest token issuance.
+ *
+ * For protected routes, issues a guest token and sets authentication cookies if no token is present. Skips token checks for specified static and API routes. Allows all requests to proceed without blocking or redirecting.
  */
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
