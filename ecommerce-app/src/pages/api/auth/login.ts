@@ -1,4 +1,5 @@
 import { createProxyHandler } from '../../../utils/proxyUtils';
+import type { ProxyLoginResponse, LoginResponse } from '../../../api/models/auth';
 
 // 로그인 API 프록시 핸들러
 export default createProxyHandler({
@@ -15,5 +16,24 @@ export default createProxyHandler({
       };
     }
     return { isValid: true };
+  },
+  transformResponse: (data: ProxyLoginResponse): LoginResponse => {
+    // 토큰 관련 데이터 제거
+    if (data && typeof data === 'object') {
+      const { access_token, ...cleanData } = data as any;
+
+      if (cleanData.data && typeof cleanData.data === 'object') {
+        const { token, ...cleanNestedData } = cleanData.data;
+        cleanData.data = cleanNestedData;
+      }
+
+      if (cleanData.user && typeof cleanData.user === 'object') {
+        const { access_token: userAccessToken, ...cleanUserData } = cleanData.user;
+        cleanData.user = cleanUserData;
+      }
+
+      return cleanData as LoginResponse;
+    }
+    return data as LoginResponse;
   },
 });

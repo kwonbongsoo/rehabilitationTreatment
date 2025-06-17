@@ -119,7 +119,7 @@ class AuthService implements IAuthService {
  */
 class IdempotencyService implements IIdempotencyService {
   private readonly idempotentMethods: HttpMethod[] = ['POST', 'PUT', 'PATCH'];
-  private readonly criticalEndpoints: string[] = ['/api/members', '/api/orders', '/api/payments'];
+  private readonly criticalEndpoints: string[] = ['/members'];
 
   needsIdempotencyKey(method: string, url: string): boolean {
     return this.isIdempotentMethod(method) && this.isCriticalEndpoint(url);
@@ -135,13 +135,12 @@ class IdempotencyService implements IIdempotencyService {
   }
 
   extractIdempotencyKey(requestData: any): string | null {
-    return requestData?._idempotencyKey || null;
+    // Repository에서 직접 헤더로 전달하므로 더 이상 필요 없음
+    return null;
   }
 
   cleanupRequestData(requestData: any): void {
-    if (requestData && '_idempotencyKey' in requestData) {
-      delete requestData._idempotencyKey;
-    }
+    // Repository에서 직접 헤더로 전달하므로 더 이상 필요 없음
   }
 
   private isIdempotentMethod(method: string): boolean {

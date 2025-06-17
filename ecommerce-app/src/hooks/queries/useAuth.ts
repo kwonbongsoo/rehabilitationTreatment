@@ -25,7 +25,7 @@ export function useLogin() {
     onSuccess: (response) => {
       // React Error #185 방지를 위해 다음 틱에서 상태 업데이트
       setTimeout(() => {
-        const { token, exp, iat, ...filteredUserResponse } = response.data;
+        const { exp, iat, ...filteredUserResponse } = response.data;
 
         // 로그인 성공 시 AuthProvider 상태 업데이트
         setUser(filteredUserResponse);
@@ -74,7 +74,7 @@ export function useSessionInfo() {
     onSuccess: (response) => {
       // 쿠키지우는 코드 작성
       setTimeout(() => {
-        const { token, exp, iat, ...filteredUserResponse } = response.data;
+        const { exp, iat, ...filteredUserResponse } = response.data;
         if (filteredUserResponse.role === 'user') {
           setUser(filteredUserResponse);
           queryClient.setQueryData(queryKeys.user.id(), filteredUserResponse);

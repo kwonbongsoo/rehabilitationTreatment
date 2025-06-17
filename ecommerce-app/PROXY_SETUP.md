@@ -57,34 +57,17 @@ graph TD
 ### 인증 API 프록시
 
 ```typescript
-/pages/aip /
-  auth /
-  login.ts / // POST /api/auth/login
-  pages /
-  api /
-  auth /
-  logout.ts / // POST /api/auth/logout
-  pages /
-  api /
-  auth /
-  session -
-  info.ts; // GET /api/auth/session-info
+// /pages/api/auth/login.ts         // POST /api/auth/login
+// /pages/api/auth/logout.ts        // POST /api/auth/logout
+// /pages/api/auth/session-info.ts  // GET /api/auth/session-info
 ```
 
 ### 멤버 API 프록시
 
 ```typescript
-/pages/aip /
-  members /
-  index.ts / // GET, POST /api/members
-  pages /
-  api /
-  members /
-  [id].ts / // GET, PUT, DELETE /api/members/:id
-  pages /
-  api /
-  members /
-  verify.ts; // POST /api/members/verify
+// /pages/api/members/index.ts   // GET, POST /api/members
+// /pages/api/members/[id].ts    // GET, PUT, DELETE /api/members/:id
+// /pages/api/members/verify.ts  // POST /api/members/verify
 ```
 
 ## 🔧 **구현 세부사항**

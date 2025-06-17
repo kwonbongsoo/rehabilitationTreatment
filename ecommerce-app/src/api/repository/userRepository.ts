@@ -7,18 +7,19 @@ export const createUserRepository = (apiClient: ApiClient) => ({
    * 회원가입 (member 서버 사용) - 멱등성 키 지원
    */
   register: async (userData: RegisterRequest, idempotencyKey?: string): Promise<User> => {
-    const requestData = {
-      id: userData.id,
-      password: userData.password,
-      name: userData.name,
-      email: userData.email,
-      // 멱등성 키를 임시로 요청 데이터에 포함 (인터셉터에서 헤더로 이동)
-      ...(idempotencyKey && { _idempotencyKey: idempotencyKey }),
+    const requestConfig = {
+      headers: idempotencyKey ? { 'X-Idempotency-Key': idempotencyKey } : undefined,
     };
 
     const response = await apiClient.post<{ success: boolean; member: User; message?: string }>(
       '/members',
-      requestData,
+      {
+        id: userData.id,
+        password: userData.password,
+        name: userData.name,
+        email: userData.email,
+      },
+      requestConfig,
     );
     return response.member;
   },

@@ -87,7 +87,7 @@ export class Config {
    * @returns Redis URL
    */
   public getRedisUrl(): string {
-    const host = process.env.REDIS_URL ?? '127.0.0.1';
+    const host = process.env.REDIS_URL;
     if (!host) {
       throw new Error('REDIS_URL 환경 변수가 설정되지 않았습니다');
     }
