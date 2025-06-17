@@ -56,7 +56,8 @@ export class AuthService {
     });
 
     // Redis에 세션 저장
-    const ttl = tokenResponse.payload.exp - Math.floor(Date.now() / 1000);
+    const now = Math.floor(Date.now() / 1000);
+    const ttl = Math.max(0, tokenResponse.payload.exp - now);
     await this.sessionService.storeSession(tokenResponse.token, tokenResponse.payload, ttl);
 
     return {
