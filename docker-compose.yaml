@@ -47,8 +47,8 @@ services:
     container_name: ecommerce-app
     env_file:
       - ./ecommerce-app/.env
-    # ports:
-    #   - "3000:3000" # 임시 테스트용
+    ports:
+      - '3000:3000'
     depends_on:
       - db
     restart: unless-stopped
@@ -73,31 +73,8 @@ services:
     networks:
       - app-network
     ports:
-      - "8000:8000"
-      - "8001:8001"
-
-  nginx:
-    image: nginx:1.25
-    container_name: nginx
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx/nginx.conf.template:/etc/nginx/nginx.conf.template:ro
-      - ./nginx/init-nginx.sh:/tmp/init-nginx-source.sh:ro
-    env_file:
-      - ./nginx/.env
-    command: >
-      /bin/sh -c "
-        cp /tmp/init-nginx-source.sh /tmp/init-nginx.sh &&
-        chmod +x /tmp/init-nginx.sh &&
-        /tmp/init-nginx.sh &&
-        nginx -g 'daemon off;'"
-    depends_on:
-      - kong
-    restart: unless-stopped
-    networks:
-      - app-network
+      - '8000:8000'
+      - '8001:8001'
 
 networks:
   app-network:
