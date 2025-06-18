@@ -47,7 +47,6 @@ export const useAuthStore = create<AuthState>()(
             user,
             isAuthenticated,
             isGuest,
-            lastLoginTime: user ? new Date().toISOString() : null,
           };
         });
       },

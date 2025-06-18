@@ -1,7 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
 import ProductGrid from '@/components/common/ProductGrid';
-import { formatPrice } from '@/utils/formatters';
 import styles from './PromotionGrid.module.css';
 
 interface Product {

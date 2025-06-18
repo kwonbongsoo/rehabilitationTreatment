@@ -82,6 +82,7 @@ export default function ProductGrid({
               {COMMON_CATEGORIES.map((category) => (
                 <button
                   key={category.value}
+                  aria-pressed={selectedCategory === category.value}
                   className={`${styles.categoryButton} ${
                     selectedCategory === category.value ? styles.active : ''
                   }`}

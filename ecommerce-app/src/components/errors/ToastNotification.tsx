@@ -11,14 +11,12 @@ export const ToastNotification: React.FC<ToastNotificationProps> = ({
   const { toastErrors, removeToastError } = useToastError();
 
   useEffect(() => {
-    // 자동으로 토스트 메시지 제거
-    toastErrors.forEach((toast) => {
-      const timer = setTimeout(() => {
-        removeToastError(toast.id);
-      }, autoHideDuration);
-
-      return () => clearTimeout(timer);
-    });
+    const timers = toastErrors.map((toast) =>
+      setTimeout(() => removeToastError(toast.id), autoHideDuration),
+    );
+    return () => {
+      timers.forEach(clearTimeout);
+    };
   }, [toastErrors, removeToastError, autoHideDuration]);
 
   if (toastErrors.length === 0) return null;

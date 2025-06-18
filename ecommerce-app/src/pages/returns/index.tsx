@@ -49,6 +49,7 @@ const Returns: React.FC = () => {
       // 에러 처리 및 알림
       const standardError = ErrorHandler.handleFormError(error, '반품 신청');
       NotificationManager.showWarning(standardError.message);
+      throw error;
     }
   });
 

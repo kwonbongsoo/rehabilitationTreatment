@@ -115,7 +115,6 @@ export function useSessionInfo(options: SessionInfoOptions = {}) {
       const { exp, iat, ...filteredUserResponse } = query.data.data;
       if (filteredUserResponse.role === 'user') {
         setUser(filteredUserResponse);
-        queryClient.invalidateQueries({ queryKey: queryKeys.user.session() });
       }
     }
   }, [query.data, setUser, queryClient]);

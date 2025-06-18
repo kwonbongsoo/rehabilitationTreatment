@@ -226,25 +226,97 @@ export function ToggleButton({
 }
 
 /**
- * 링크 스타일 버튼 컴포넌트
+ * 링크 버튼 컴포넌트
  */
-export interface LinkButtonProps extends ButtonProps {
+export interface LinkButtonProps {
   href: string;
   target?: string;
   rel?: string;
+  variant?: ButtonVariant;
+  size?: ButtonSize;
+  isLoading?: boolean;
+  loadingText?: string;
+  icon?: ReactNode;
+  iconPosition?: 'left' | 'right';
+  fullWidth?: boolean;
+  rounded?: boolean;
+  gradient?: boolean;
+  disabled?: boolean;
+  className?: string;
+  children: ReactNode;
+  onClick?: (event: React.MouseEvent<HTMLAnchorElement>) => void;
 }
 
 export function LinkButton({
   href,
   target,
   rel,
+  variant = 'primary',
+  size = 'medium',
+  isLoading = false,
+  loadingText = '로딩 중...',
+  icon,
+  iconPosition = 'left',
+  fullWidth = false,
+  rounded = false,
+  gradient = false,
+  disabled,
   className = '',
   children,
-  ...props
+  onClick,
 }: LinkButtonProps) {
+  const linkClasses = [
+    styles.button,
+    styles.linkButton,
+    styles[variant],
+    styles[size],
+    fullWidth && styles.fullWidth,
+    rounded && styles.rounded,
+    gradient && styles.gradient,
+    isLoading && styles.loading,
+    disabled && styles.disabled,
+    className,
+  ]
+    .filter(Boolean)
+    .join(' ');
+
+  const renderContent = () => {
+    if (isLoading) {
+      return (
+        <>
+          <span className={styles.spinner} />
+          {loadingText}
+        </>
+      );
+    }
+
+    return (
+      <>
+        {icon && iconPosition === 'left' && <span className={styles.iconLeft}>{icon}</span>}
+        <span className={styles.content}>{children}</span>
+        {icon && iconPosition === 'right' && <span className={styles.iconRight}>{icon}</span>}
+      </>
+    );
+  };
+
+  if (disabled || isLoading) {
+    return (
+      <span className={linkClasses} aria-disabled="true">
+        {renderContent()}
+      </span>
+    );
+  }
+
   return (
-    <a href={href} target={target} rel={rel} className={`${styles.linkButton} ${className}`}>
-      <Button {...props}>{children}</Button>
+    <a
+      href={href}
+      target={target}
+      rel={rel}
+      className={linkClasses}
+      onClick={onClick}
+      role="button"
+    >
+      {renderContent()}
     </a>
   );
 }

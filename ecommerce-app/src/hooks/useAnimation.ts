@@ -172,9 +172,15 @@ export function useCountUp(
  */
 export function useScrollAnimation(threshold: number = 0.1) {
   const [isVisible, setIsVisible] = useState(false);
-  const elementRef = useRef<HTMLElement>(null);
+  const elementRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
+    if (typeof IntersectionObserver === 'undefined') {
+      // SSR 환경 – simply mark as visible to avoid hydration mismatch
+      setIsVisible(true);
+      return;
+    }
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         setIsVisible(entry.isIntersecting);
@@ -295,24 +301,29 @@ export function useShakeAnimation(intensity: number = 10, duration: number = 500
   const [isShaking, setIsShaking] = useState(false);
   const [offset, setOffset] = useState(0);
 
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   const shake = useCallback(() => {
     setIsShaking(true);
 
-    const interval = setInterval(() => {
+    intervalRef.current = setInterval(() => {
       setOffset((Math.random() - 0.5) * intensity);
     }, 50);
-
-    const timeout = setTimeout(() => {
+    timeoutRef.current = setTimeout(() => {
       setIsShaking(false);
       setOffset(0);
-      clearInterval(interval);
+      if (intervalRef.current) clearInterval(intervalRef.current);
     }, duration);
-
-    return () => {
-      clearInterval(interval);
-      clearTimeout(timeout);
-    };
   }, [intensity, duration]);
+
+  useEffect(
+    () => () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    },
+    [],
+  );
 
   const stop = useCallback(() => {
     setIsShaking(false);

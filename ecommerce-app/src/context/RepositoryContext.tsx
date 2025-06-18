@@ -1,5 +1,5 @@
 // Repository Context 간단화 - token props 제거
-import { createContext, useContext, ReactNode } from 'react';
+import { createContext, useContext, ReactNode, useMemo } from 'react';
 import { createApiClient, ApiClient } from '../api/client';
 import { createAuthRepository } from '../api/repository/authRepository';
 import { createUserRepository } from '../api/repository/userRepository';
@@ -18,14 +18,13 @@ interface ApiProviderProps {
 }
 
 export function ApiProvider({ children }: ApiProviderProps) {
-  // API 클라이언트 생성 (토큰은 쿠키에서 자동으로 처리)
-  const apiClient: ApiClient = createApiClient();
-
-  // 레포지토리 생성
-  const repositories: Repositories = {
-    auth: createAuthRepository(apiClient),
-    user: createUserRepository(apiClient),
-  };
+  const repositories = useMemo(() => {
+    const apiClient: ApiClient = createApiClient();
+    return {
+      auth: createAuthRepository(apiClient),
+      user: createUserRepository(apiClient),
+    } satisfies Repositories;
+  }, []);
 
   return <RepositoryContext.Provider value={repositories}>{children}</RepositoryContext.Provider>;
 }

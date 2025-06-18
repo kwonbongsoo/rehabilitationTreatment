@@ -26,7 +26,8 @@ export default function ForgotPasswordForm({
   const form = useFormState<ForgotPasswordFormData>({
     initialData: { email: '' },
     validate: (data) => {
-      const emailValidation = EmailValidator.validate(data.email);
+      const email = data.email.trim();
+      const emailValidation = EmailValidator.validate(email);
       return emailValidation.isValid ? [] : emailValidation.errors;
     },
     preventDuplicateSubmit: true,

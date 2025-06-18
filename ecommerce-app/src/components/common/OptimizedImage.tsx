@@ -16,7 +16,9 @@ export default function OptimizedImage({
   return (
     <Image
       src={imgSrc}
-      onError={() => setImgSrc(fallbackSrc)}
+      onError={() => {
+        if (imgSrc !== fallbackSrc) setImgSrc(fallbackSrc);
+      }}
       placeholder="blur"
       blurDataURL="/images/placeholder.webp"
       quality={75}

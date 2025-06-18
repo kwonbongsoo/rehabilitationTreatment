@@ -151,10 +151,10 @@ export function useApiRequest<T>(requestFn: () => Promise<T>, options: ApiReques
         }
 
         // 재시도 로직
-        if (attempt < retries) {
-          await new Promise((resolve) => setTimeout(resolve, retryDelay));
-          return attemptRequest(attempt + 1);
-        }
+        // if (attempt < retries) {
+        //   await new Promise((resolve) => setTimeout(resolve, retryDelay));
+        //   return attemptRequest(attempt + 1);
+        // }
 
         throw error;
       }

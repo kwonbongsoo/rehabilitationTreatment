@@ -20,6 +20,7 @@ export const formatPrice = (price: number, includeWon: boolean = true): string =
  * @returns 할인율 (정수)
  */
 export const calculateDiscountRate = (originalPrice: number, salePrice: number): number => {
+  if (!originalPrice) return 0;
   return Math.round(((originalPrice - salePrice) / originalPrice) * 100);
 };
 
@@ -73,7 +74,7 @@ export const formatRatingStars = (rating: number): string => {
  * @returns 지정된 키들이 제거된 새로운 객체
  */
 export function omitDeep<T extends Record<string, any>>(obj: T, keysToOmit: string[]): T {
-  if (!obj || typeof obj !== 'object' || Array.isArray(obj)) {
+  if (!obj || typeof obj !== 'object') {
     return obj;
   }
 
