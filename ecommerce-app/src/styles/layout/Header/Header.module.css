@@ -9,18 +9,55 @@
     box-shadow 0.3s ease;
 }
 
-.scrolled {
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+/* CSS Scroll-driven Animations 지원 브라우저용 */
+@supports (animation-timeline: scroll()) {
+  .header {
+    /* 초기값을 CSS 변수로 설정 */
+    --header-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    --header-padding: 18px;
+
+    /* 스크롤 기반 애니메이션 설정 */
+    animation: header-scroll-animation linear both;
+    animation-timeline: scroll(root);
+    animation-range: 0px 50px;
+
+    /* CSS 변수를 사용한 동적 스타일 */
+    box-shadow: var(--header-shadow);
+  }
+
+  .header .mainHeader {
+    padding: var(--header-padding) 0;
+    border-bottom: 1px solid #f0f0f0;
+    transition: padding 0.3s ease;
+  }
+
+  @keyframes header-scroll-animation {
+    0% {
+      --header-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      --header-padding: 18px;
+    }
+    100% {
+      --header-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+      --header-padding: 12px;
+    }
+  }
+}
+
+/* 폴백: CSS Scroll-driven Animations 미지원 브라우저용 */
+@supports not (animation-timeline: scroll()) {
+  .scrolled {
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+  }
+
+  .scrolled .mainHeader {
+    padding: 12px 0;
+  }
 }
 
 .mainHeader {
   padding: 18px 0;
   border-bottom: 1px solid #f0f0f0;
   transition: padding 0.3s ease;
-}
-
-.scrolled .mainHeader {
-  padding: 12px 0;
 }
 
 .container {

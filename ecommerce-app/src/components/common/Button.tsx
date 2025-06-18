@@ -225,10 +225,10 @@ export function ToggleButton({
   );
 }
 
-/**
- * 링크 버튼 컴포넌트
- */
-export interface LinkButtonProps {
+import { AnchorHTMLAttributes } from 'react';
+
+export interface LinkButtonProps
+  extends Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'className' | 'href' | 'children'> {
   href: string;
   target?: string;
   rel?: string;
@@ -250,7 +250,7 @@ export interface LinkButtonProps {
 export function LinkButton({
   href,
   target,
-  rel,
+  rel = target === '_blank' ? 'noopener noreferrer' : undefined,
   variant = 'primary',
   size = 'medium',
   isLoading = false,

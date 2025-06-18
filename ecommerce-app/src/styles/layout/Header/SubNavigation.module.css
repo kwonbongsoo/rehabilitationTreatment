@@ -1,50 +1,82 @@
 .subNav {
-    background-color: #f9f9f9;
-    transition: all 0.3s ease;
-    max-height: 40px;
-    overflow: hidden;
+  background-color: #f9f9f9;
+  transition: all 0.3s ease;
+  max-height: 40px;
+  overflow: hidden;
 }
 
-.subNav.hidden {
+/* CSS Scroll-driven Animations 지원 브라우저용 */
+@supports (animation-timeline: scroll()) {
+  .subNav {
+    /* 초기값을 CSS 변수로 설정 */
+    --sub-nav-max-height: 40px;
+    --sub-nav-opacity: 1;
+
+    /* 스크롤 기반 애니메이션 설정 */
+    animation: sub-nav-scroll-animation linear both;
+    animation-timeline: scroll(root);
+    animation-range: 0px 50px;
+
+    /* CSS 변수를 사용한 동적 스타일 */
+    max-height: var(--sub-nav-max-height);
+    opacity: var(--sub-nav-opacity);
+  }
+
+  @keyframes sub-nav-scroll-animation {
+    0% {
+      --sub-nav-max-height: 40px;
+      --sub-nav-opacity: 1;
+    }
+    100% {
+      --sub-nav-max-height: 0px;
+      --sub-nav-opacity: 0;
+    }
+  }
+}
+
+/* 폴백: CSS Scroll-driven Animations 미지원 브라우저용 */
+@supports not (animation-timeline: scroll()) {
+  .subNav.hidden {
     max-height: 0;
+  }
 }
 
 .container {
-    width: 92%;
-    max-width: 1400px;
-    margin: 0 auto;
+  width: 92%;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 .subNav ul {
-    display: flex;
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    justify-content: center;
-    gap: 24px;
+  display: flex;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  justify-content: center;
+  gap: 24px;
 }
 
 .subNav a {
-    display: block;
-    padding: 10px 0;
-    font-size: 14px;
-    text-decoration: none;
-    color: var(--color-text-muted);
-    transition: color 0.2s ease;
+  display: block;
+  padding: 10px 0;
+  font-size: 14px;
+  text-decoration: none;
+  color: var(--color-text-muted);
+  transition: color 0.2s ease;
 }
 
 .subNav a:hover {
-    color: var(--color-primary);
+  color: var(--color-primary);
 }
 
 @media (max-width: 991px) {
-    .subNav {
-        overflow-x: auto;
-    }
+  .subNav {
+    overflow-x: auto;
+  }
 
-    .subNav ul {
-        padding: 0 16px;
-        white-space: nowrap;
-        justify-content: flex-start;
-    }
+  .subNav ul {
+    padding: 0 16px;
+    white-space: nowrap;
+    justify-content: flex-start;
+  }
 }

@@ -8,19 +8,8 @@ import UserActions from './UserActions';
 import SubNavigation from './SubNavigation';
 
 const Header: React.FC = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
-
-  // 스크롤 이벤트 감지
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   // 외부 클릭 시 메뉴 닫기
   useEffect(() => {
@@ -45,7 +34,7 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header ref={headerRef} className={`${styles.header} ${isScrolled ? styles.scrolled : ''}`}>
+    <header ref={headerRef} className={styles.header}>
       <PromoBar />
 
       <div className={styles.mainHeader}>
@@ -65,7 +54,7 @@ const Header: React.FC = () => {
         </div>
       </div>
 
-      <SubNavigation visible={!isScrolled} />
+      <SubNavigation />
 
       {/* 모바일 메뉴 오버레이 */}
       {isMenuOpen && <div className={styles.overlay} onClick={closeMenu} />}
