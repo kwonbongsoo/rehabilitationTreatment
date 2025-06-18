@@ -24,6 +24,8 @@
 .copyright {
   color: #ccc;
   text-align: center;
+  font-size: 12px;
+  line-height: 1.4;
 }
 
 .legalLinks {
@@ -52,5 +54,20 @@
 
   .copyright {
     font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .footerBottom {
+    height: 100px;
+  }
+
+  .bottomContent {
+    height: 100px;
+    padding: 0 10px;
+  }
+
+  .copyright {
+    font-size: 10px;
   }
 }

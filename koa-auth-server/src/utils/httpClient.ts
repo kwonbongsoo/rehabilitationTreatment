@@ -141,6 +141,8 @@ export class HttpClient {
 
       // HTTP 상태 코드별 처리
       switch (statusCode) {
+        case 408:
+          return new ApiRateLimitError(`요청 시간을 초과했습니다: ${message}`, this.serviceName);
         case 429:
           return new ApiRateLimitError(`요청 한도를 초과했습니다: ${message}`, this.serviceName);
 

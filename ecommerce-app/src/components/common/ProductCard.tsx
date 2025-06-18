@@ -1,4 +1,3 @@
-import React from 'react';
 import Link from 'next/link';
 import OptimizedImage from './OptimizedImage';
 import Rating from './Rating';

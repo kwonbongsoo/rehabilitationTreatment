@@ -1,4 +1,3 @@
-import React from 'react';
 import Head from 'next/head';
 import ProductGrid from '@/components/common/ProductGrid';
 import styles from './BestSellers.module.css';

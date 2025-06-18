@@ -1,59 +1,49 @@
 // Repository Context 간단화 - token props 제거
-import React, { createContext, useContext, useMemo, ReactNode } from 'react';
+import { createContext, useContext, ReactNode } from 'react';
 import { createApiClient, ApiClient } from '../api/client';
 import { createAuthRepository } from '../api/repository/authRepository';
 import { createUserRepository } from '../api/repository/userRepository';
 
 // 각 레포지토리 타입 정의
 export interface Repositories {
-    auth: ReturnType<typeof createAuthRepository>;
-    user: ReturnType<typeof createUserRepository>;
+  auth: ReturnType<typeof createAuthRepository>;
+  user: ReturnType<typeof createUserRepository>;
 }
 
 // 컨텍스트 생성
 const RepositoryContext = createContext<Repositories | null>(null);
 
 interface ApiProviderProps {
-    children: ReactNode;
+  children: ReactNode;
 }
 
 export function ApiProvider({ children }: ApiProviderProps) {
-    // API 클라이언트 생성 (토큰은 쿠키에서 자동으로 처리)
-    const apiClient = useMemo<ApiClient>(() => {
-        // 기본 API 클라이언트 생성 (토큰은 쿠키로 자동 전송)
-        return createApiClient();
-    }, []);
+  // API 클라이언트 생성 (토큰은 쿠키에서 자동으로 처리)
+  const apiClient: ApiClient = createApiClient();
 
-    // 레포지토리 생성
-    const repositories = useMemo<Repositories>(
-        () => ({
-            auth: createAuthRepository(apiClient),
-            user: createUserRepository(apiClient),
-        }),
-        [apiClient]
-    );
+  // 레포지토리 생성
+  const repositories: Repositories = {
+    auth: createAuthRepository(apiClient),
+    user: createUserRepository(apiClient),
+  };
 
-    return (
-        <RepositoryContext.Provider value={repositories}>
-            {children}
-        </RepositoryContext.Provider>
-    );
+  return <RepositoryContext.Provider value={repositories}>{children}</RepositoryContext.Provider>;
 }
 
 export function useRepositories(): Repositories {
-    const context = useContext(RepositoryContext);
+  const context = useContext(RepositoryContext);
 
-    if (!context) {
-        throw new Error('useRepositories must be used within an ApiProvider');
-    }
+  if (!context) {
+    throw new Error('useRepositories must be used within an ApiProvider');
+  }
 
-    return context;
+  return context;
 }
 
 export function useAuthRepository() {
-    return useRepositories().auth;
+  return useRepositories().auth;
 }
 
 export function useUserRepository() {
-    return useRepositories().user;
+  return useRepositories().user;
 }

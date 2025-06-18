@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import Link from 'next/link';
 import { FiHeart, FiUser, FiShoppingCart } from 'react-icons/fi';
 import styles from '@/styles/layout/Header/UserActions.module.css';
@@ -11,12 +11,7 @@ interface UserActionsProps {
 
 const UserActions: React.FC<UserActionsProps> = ({ cartItemCount = 3 }) => {
   const { isAuthenticated, isGuest } = useAuth();
-  const [isClient, setIsClient] = useState(false);
-
-  // 클라이언트 사이드 확인 (hydration 문제 해결)
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
+  const isClient = typeof window !== 'undefined';
 
   // 사용자 상태에 따른 아이콘 렌더링 로직 (깜빡임 최소화)
   const renderUserIcon = () => {

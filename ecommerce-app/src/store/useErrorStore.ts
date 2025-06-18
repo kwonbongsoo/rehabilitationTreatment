@@ -47,7 +47,7 @@ export const useErrorStore = create<ErrorState>()(
       clearGlobalError: () => set({ globalError: null }),
 
       addToastError: (message, type = 'error') => {
-        const id = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        const id = `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
 
         set((state) => ({
           toastErrors: [

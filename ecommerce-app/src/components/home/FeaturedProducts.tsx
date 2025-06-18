@@ -1,4 +1,3 @@
-import React from 'react';
 import Link from 'next/link';
 import ProductGrid from '@/components/common/ProductGrid';
 import { calculateDiscountedPrice } from '@/utils/formatters';

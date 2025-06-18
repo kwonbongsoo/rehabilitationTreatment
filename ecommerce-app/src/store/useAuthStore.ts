@@ -17,7 +17,6 @@ interface AuthState {
   setUser: (user: UserResponse | null) => void;
   logout: () => Promise<void>;
   clearSession: () => void; // 세션 완전 초기화
-  updateSession: (data: { lastLoginTime?: string; sessionExpiry?: string }) => void;
 
   // 계산된 값들 (getter 함수)
   getUserRole: () => UserRole;
@@ -68,14 +67,6 @@ export const useAuthStore = create<AuthState>()(
         console.log('🧹 세션 강제 초기화 완료');
       },
 
-      // 세션 정보 업데이트
-      updateSession: (data) => {
-        set((state) => ({
-          ...state,
-          ...data,
-        }));
-      },
-
       // 계산된 값들 (getter 함수)
       getUserRole: () => {
         const { user } = get();
@@ -95,17 +86,8 @@ export const useAuthStore = create<AuthState>()(
 
 // React Context 패턴과 호환되는 훅 (기존 코드 호환성)
 export const useAuth = () => {
-  const {
-    user,
-    isAuthenticated,
-    isGuest,
-    setUser,
-    logout,
-    clearSession,
-    updateSession,
-    getUserRole,
-    isAdmin,
-  } = useAuthStore();
+  const { user, isAuthenticated, isGuest, setUser, logout, clearSession, getUserRole, isAdmin } =
+    useAuthStore();
 
   return {
     // 상태
@@ -117,7 +99,6 @@ export const useAuth = () => {
     setUser,
     logout,
     clearSession,
-    updateSession,
 
     // 헬퍼
     getUserRole,

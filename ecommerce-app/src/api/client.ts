@@ -34,12 +34,11 @@ export class ApiClient {
       baseURL: API_BASE_URL,
       timeout: API_TIMEOUT,
       withCredentials: true,
+      ...config,
       headers: {
         'Content-Type': 'application/json',
         ...(config?.headers || {}),
       },
-      // 재시도 없음 - axios 기본 동작 사용 (재시도 하지 않음)
-      ...config,
     };
 
     this.client = axios.create(finalConfig);

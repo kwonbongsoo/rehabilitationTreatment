@@ -29,10 +29,10 @@ function AuthInitializer({ children }: { children: React.ReactNode }) {
         });
 
         if (response.ok) {
-          const data = await response.json();
-          if (data.success && data.data) {
-            setUser(data.data);
-          }
+          const { success, data } = await response.json();
+          setUser(success ? data : null);
+        } else {
+          setUser(null);
         }
       } catch (error) {
         console.warn('⚠️ 인증 상태 초기화 실패:', error);

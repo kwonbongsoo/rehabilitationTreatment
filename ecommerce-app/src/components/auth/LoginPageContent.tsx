@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import LoginForm from './LoginForm';
@@ -8,13 +8,8 @@ import styles from '@/styles/shared/UserFormLayout.module.css';
 
 export default function LoginPageContent() {
   const router = useRouter();
-  const [isClient, setIsClient] = useState(false);
   const { handleLogin, isLoading } = useLoginForm();
-
-  // 클라이언트 사이드 확인
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
+  const isClient = typeof window !== 'undefined';
 
   // 클라이언트에서만 토큰 체크 및 리다이렉트
   useEffect(() => {

@@ -1,4 +1,3 @@
-import React from 'react';
 import { FiMail, FiPhone, FiMapPin, FiClock } from 'react-icons/fi';
 import { useFormState } from '@/hooks/useFormState';
 import { ErrorHandler } from '@/utils/errorHandling';

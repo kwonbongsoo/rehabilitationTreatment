@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import styles from '@/styles/layout/Header/Header.module.css';
 import { FiMenu, FiX } from 'react-icons/fi';
 import PromoBar from './PromoBar';

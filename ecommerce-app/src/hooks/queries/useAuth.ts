@@ -42,7 +42,7 @@ export function useLogin() {
 
       // 상태 업데이트 (동기적으로 처리)
       setUser(filteredUserResponse);
-      queryClient.invalidateQueries({ queryKey: queryKeys.user.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.user.session() });
     },
     [setUser, queryClient],
   );

@@ -8,7 +8,7 @@
  * - 접근성 지원
  */
 
-import React, { ButtonHTMLAttributes, ReactNode } from 'react';
+import { ButtonHTMLAttributes, ReactNode } from 'react';
 import styles from './Button.module.css';
 
 /**

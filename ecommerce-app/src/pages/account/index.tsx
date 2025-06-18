@@ -11,12 +11,7 @@ export default function Account() {
   const router = useRouter();
   const { user, isAuthenticated, logout } = useAuth();
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
-  const [isClient, setIsClient] = useState(false);
-
-  // 클라이언트 사이드에서만 실행
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
+  const isClient = typeof window !== 'undefined';
 
   // 인증되지 않은 사용자 리다이렉트
   useEffect(() => {

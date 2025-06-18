@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Head from 'next/head';
 import { useFormState } from '@/hooks/useFormState';
 import { ErrorHandler } from '@/utils/errorHandling';

@@ -9,7 +9,7 @@
  * - 드로어 (사이드 패널)
  */
 
-import React, { ReactNode, useEffect, useCallback } from 'react';
+import { ReactNode, useEffect, useCallback, useState } from 'react';
 import { createPortal } from 'react-dom';
 import styles from './Modal.module.css';
 
@@ -296,7 +296,7 @@ export function BottomSheet({
  * 모달 훅
  */
 export function useModal(initialState: boolean = false) {
-  const [isOpen, setIsOpen] = React.useState(initialState);
+  const [isOpen, setIsOpen] = useState(initialState);
 
   const openModal = useCallback(() => {
     setIsOpen(true);
@@ -323,7 +323,7 @@ export function useModal(initialState: boolean = false) {
  * 확인 다이얼로그 훅
  */
 export function useConfirmDialog() {
-  const [dialogState, setDialogState] = React.useState<{
+  const [dialogState, setDialogState] = useState<{
     isOpen: boolean;
     title: string;
     message: string;

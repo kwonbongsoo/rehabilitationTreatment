@@ -1,9 +1,11 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { ErrorMessage } from './ErrorMessage';
 
+type FallbackRender = (error: Error | null, reset: () => void) => ReactNode;
+
 interface Props {
   children: ReactNode;
-  fallback?: ReactNode;
+  fallback?: ReactNode | FallbackRender;
 }
 
 interface State {
@@ -17,7 +19,7 @@ class ErrorBoundary extends Component<Props, State> {
     error: null,
   };
 
-  public static getDerivedStateFromError(error: Error): State {
+  public static getDerivedStateFromError(error: Error): Partial<State> {
     return { hasError: true, error };
   }
 
@@ -34,8 +36,12 @@ class ErrorBoundary extends Component<Props, State> {
 
   public render() {
     if (this.state.hasError) {
-      if (this.props.fallback) {
-        return this.props.fallback;
+      const { fallback } = this.props;
+      if (typeof fallback === 'function') {
+        return fallback(this.state.error, this.resetError);
+      }
+      if (fallback) {
+        return fallback;
       }
 
       return (

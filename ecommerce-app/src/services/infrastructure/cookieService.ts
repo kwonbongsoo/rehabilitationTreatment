@@ -6,7 +6,7 @@
  */
 import type { NextApiResponse } from 'next';
 import type { NextResponse } from 'next/server';
-import type { UserRole } from '@/api/models/auth';
+import type { ProxyLoginResponse, UserRole } from '@/api/models/auth';
 
 /**
  * 토큰 결과 인터페이스
@@ -263,7 +263,7 @@ export class CookieService {
   /**
    * 로그인 응답 데이터에서 토큰을 추출하여 쿠키 설정
    */
-  setLoginCookies(res: NextApiResponse, loginResponseData: any): CookieSetResult {
+  setLoginCookies(res: NextApiResponse, loginResponseData: ProxyLoginResponse): CookieSetResult {
     const tokenData = loginResponseData?.data;
 
     if (!tokenData) {
@@ -353,7 +353,10 @@ export function setAuthCookies(res: NextApiResponse, tokenData: TokenData): Cook
   return cookieService.setAuthCookies(res, tokenData);
 }
 
-export function setLoginCookies(res: NextApiResponse, loginResponseData: any): CookieSetResult {
+export function setLoginCookies(
+  res: NextApiResponse,
+  loginResponseData: ProxyLoginResponse,
+): CookieSetResult {
   return cookieService.setLoginCookies(res, loginResponseData);
 }
 
