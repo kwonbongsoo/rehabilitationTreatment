@@ -114,11 +114,8 @@ export class CookieService {
     }
 
     if (maxAge <= 0) {
-      console.warn('⚠️ 토큰이 이미 만료되었거나 만료 임박:', {
-        maxAge,
-        fallbackHours: 4,
-      });
-      maxAge = 60 * 60 * 4; // 기본 4시간으로 설정
+      console.error('❌ 토큰이 이미 만료되었습니다:', { maxAge });
+      return undefined; // Let the caller handle expired tokens
     }
 
     return maxAge;
@@ -222,22 +219,6 @@ export class CookieService {
    */
   hasToken(): boolean {
     return Boolean(this.getToken());
-  }
-
-  /**
-   * 토큰 쿠키 제거
-   */
-  async clearToken(): Promise<boolean> {
-    try {
-      const response = await fetch('/api/auth/logout', {
-        method: 'POST',
-        credentials: 'include',
-      });
-      return response.ok;
-    } catch (error) {
-      console.error('❌ 토큰 제거 실패:', error);
-      return false;
-    }
   }
 
   /**

@@ -1,35 +1,44 @@
 .footer {
-    background-color: #f9f9f9;
-    color: var(--color-text);
-    font-size: 14px;
+  background-color: #f9f9f9;
+  color: var(--color-text);
+  font-size: 14px;
+  /* CLS 최적화: 간소화된 푸터 높이 */
+  height: 140px;
+  overflow: hidden;
+  contain: layout style;
+  will-change: auto;
 }
 
 .container {
-    width: 92%;
-    max-width: 1400px;
-    margin: 0 auto;
+  width: 92%;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
-.footerTop {
-    padding: 60px 0 40px;
-    border-top: 1px solid #e5e5e5;
+.footerContent {
+  padding: 40px 0 20px;
+  text-align: center;
+  height: 80px;
 }
 
-.footerLinks {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 40px;
-    justify-content: space-between;
-    margin-top: 40px;
+@media (max-width: 768px) {
+  .footer {
+    height: 160px;
+  }
+
+  .footerContent {
+    padding: 30px 0 20px;
+    height: 100px;
+  }
 }
 
-@media (max-width: 991px) {
-    .footerTop {
-        padding: 40px 0 20px;
-    }
+@media (max-width: 480px) {
+  .footer {
+    height: 180px;
+  }
 
-    .footerLinks {
-        flex-wrap: wrap;
-        gap: 30px;
-    }
+  .footerContent {
+    padding: 25px 0 15px;
+    height: 120px;
+  }
 }

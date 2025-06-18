@@ -27,17 +27,33 @@ const SKIP_ROUTES = [
 ];
 
 /**
- * Next.js 미들웨어 - 토큰 관리 및 인증 처리
- *
- * Edge Runtime에서 실행되어 빠른 성능 제공
- * 조건부 게스트 토큰 발급 및 인증 검증
+ * 인증된 유저가 접근하면 안 되는 페이지들 (로그인/회원가입/비밀번호 찾기)
  */
+const AUTH_RESTRICTED_ROUTES = ['/auth/login', '/member/register', '/member/forgot-password'];
 
 /**
  * 쿠키에서 토큰 추출
  */
 function getTokenFromCookies(request: NextRequest): string | null {
   return request.cookies.get('access_token')?.value || null;
+}
+
+/**
+ * 쿠키에서 유저 역할 추출
+ */
+function getUserRoleFromCookies(request: NextRequest): string | null {
+  return request.cookies.get('access_type')?.value || null;
+}
+
+/**
+ * 토큰이 유효한 인증된 유저인지 확인 (게스트 제외)
+ */
+function isAuthenticatedUser(request: NextRequest): boolean {
+  const token = getTokenFromCookies(request);
+  const role = getUserRoleFromCookies(request);
+
+  // 토큰이 있고, 역할이 'guest'가 아닌 경우만 인증된 유저로 판단
+  return Boolean(token && role && role !== 'guest');
 }
 
 /**
@@ -100,6 +116,14 @@ export async function middleware(request: NextRequest) {
   }
 
   try {
+    // 🚀 인증된 유저가 인증 페이지에 접근하려는 경우 홈으로 리다이렉트
+    if (AUTH_RESTRICTED_ROUTES.includes(pathname)) {
+      if (isAuthenticatedUser(request)) {
+        console.log(`🔄 인증된 유저가 ${pathname}에 접근 시도. 홈으로 리다이렉트.`);
+        return NextResponse.redirect(new URL('/', request.url));
+      }
+    }
+
     const token = getTokenFromCookies(request);
 
     if (!token) {

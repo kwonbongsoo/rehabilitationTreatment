@@ -8,30 +8,34 @@ import { devtools } from 'zustand/middleware';
 import { UserResponse, UserRole } from '../api/models/auth';
 
 interface AuthState {
-  // 상태
+  // 상태 (순수한 인증 상태만)
   user: UserResponse | null;
   isAuthenticated: boolean;
   isGuest: boolean;
-  isLoading: boolean;
 
   // 액션
   setUser: (user: UserResponse | null) => void;
-  setLoading: (loading: boolean) => void;
   logout: () => Promise<void>;
+  clearSession: () => void; // 세션 완전 초기화
+  updateSession: (data: { lastLoginTime?: string; sessionExpiry?: string }) => void;
 
   // 계산된 값들 (getter 함수)
   getUserRole: () => UserRole;
   isAdmin: () => boolean;
 }
 
+// 초기 상태 정의 (재사용을 위해 별도 객체로)
+const initialState = {
+  user: null,
+  isAuthenticated: false,
+  isGuest: true,
+};
+
 export const useAuthStore = create<AuthState>()(
   devtools(
     (set, get) => ({
       // 초기 상태
-      user: null,
-      isAuthenticated: false,
-      isGuest: true,
-      isLoading: false,
+      ...initialState,
 
       // 액션들
       setUser: (user) => {
@@ -44,22 +48,32 @@ export const useAuthStore = create<AuthState>()(
             user,
             isAuthenticated,
             isGuest,
+            lastLoginTime: user ? new Date().toISOString() : null,
           };
         });
       },
 
-      setLoading: (loading) => {
-        set({ isLoading: loading });
+      logout: async () => {
+        // 🔄 완전한 세션 초기화
+        set(() => ({
+          ...initialState,
+        }));
       },
 
-      logout: async () => {
-        set({
-          user: null,
-          isAuthenticated: false,
-          isGuest: true,
-          isLoading: false,
-        });
-        // 쿠키 삭제는 서버에서 처리됨
+      // 세션 완전 초기화 (긴급 상황용)
+      clearSession: () => {
+        set(() => ({
+          ...initialState,
+        }));
+        console.log('🧹 세션 강제 초기화 완료');
+      },
+
+      // 세션 정보 업데이트
+      updateSession: (data) => {
+        set((state) => ({
+          ...state,
+          ...data,
+        }));
       },
 
       // 계산된 값들 (getter 함수)
@@ -81,14 +95,32 @@ export const useAuthStore = create<AuthState>()(
 
 // React Context 패턴과 호환되는 훅 (기존 코드 호환성)
 export const useAuth = () => {
-  const { user, isAuthenticated, isGuest, isLoading, setUser, logout } = useAuthStore();
-
-  return {
+  const {
     user,
     isAuthenticated,
     isGuest,
-    isLoading,
     setUser,
     logout,
+    clearSession,
+    updateSession,
+    getUserRole,
+    isAdmin,
+  } = useAuthStore();
+
+  return {
+    // 상태
+    user,
+    isAuthenticated,
+    isGuest,
+
+    // 액션
+    setUser,
+    logout,
+    clearSession,
+    updateSession,
+
+    // 헬퍼
+    getUserRole,
+    isAdmin,
   };
 };
