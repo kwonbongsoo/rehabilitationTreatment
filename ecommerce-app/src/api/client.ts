@@ -34,11 +34,11 @@ export class ApiClient {
       baseURL: API_BASE_URL,
       timeout: API_TIMEOUT,
       withCredentials: true,
+      ...config,
       headers: {
         'Content-Type': 'application/json',
         ...(config?.headers || {}),
       },
-      ...config,
     };
 
     this.client = axios.create(finalConfig);

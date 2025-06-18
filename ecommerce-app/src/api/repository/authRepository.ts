@@ -6,8 +6,12 @@ export const createAuthRepository = (apiClient: ApiClient) => ({
   /**
    * 사용자 로그인
    */
-  login: async (credentials: LoginRequest): Promise<LoginResponse> => {
-    return apiClient.post<LoginResponse>('/auth/login', credentials);
+  login: async (credentials: LoginRequest, idempotencyKey?: string): Promise<LoginResponse> => {
+    return apiClient.post<LoginResponse>(
+      '/auth/login',
+      credentials,
+      idempotencyKey ? { headers: { 'X-Idempotency-Key': idempotencyKey } } : undefined,
+    );
   },
 
   /**
@@ -18,7 +22,7 @@ export const createAuthRepository = (apiClient: ApiClient) => ({
   },
 
   /**
-   * 세션 정보 조회회
+   * 세션 정보 조회
    */
   sessionInfo: async (): Promise<SessionInfoResponse> => {
     return apiClient.get<SessionInfoResponse>('/auth/session-info');

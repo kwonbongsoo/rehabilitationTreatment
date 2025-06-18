@@ -11,7 +11,7 @@ export const createUserRepository = (apiClient: ApiClient) => ({
       headers: idempotencyKey ? { 'X-Idempotency-Key': idempotencyKey } : undefined,
     };
 
-    const response = await apiClient.post<{ success: boolean; member: User; message?: string }>(
+    const response = await apiClient.post<{ success: boolean; data: User; message?: string }>(
       '/members',
       {
         id: userData.id,
@@ -21,7 +21,7 @@ export const createUserRepository = (apiClient: ApiClient) => ({
       },
       requestConfig,
     );
-    return response.member;
+    return response.data;
   },
   /**
    * 현재 사용자 정보 조회

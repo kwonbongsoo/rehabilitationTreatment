@@ -1,143 +1,144 @@
-import { useState, FormEvent } from 'react';
-import FormInput from '../auth/FormInput';
-import AuthButton from '../auth/AuthButton';
-import styles from '@/styles/member/RegisterForm.module.css';
+import { useState } from 'react';
+import { useFormState } from '@/hooks/useFormState';
+import { validationService } from '@/services';
+import { FormContainer, FormInput, FormCheckbox, FormActions } from '@/components/common/Form';
+import { Button } from '@/components/common/Button';
 
 interface RegisterFormData {
-    id: string;
-    password: string;
-    confirmPassword: string;
-    name: string;
-    email: string;
+  id: string;
+  password: string;
+  confirmPassword: string;
+  name: string;
+  email: string;
 }
 
 interface RegisterFormProps {
-    onSubmit: (data: RegisterFormData) => Promise<boolean>;
-    isLoading?: boolean;     // 외부에서 전달받는 로딩 상태
-    isSubmitting?: boolean;  // 멱등성 관련 제출 상태
+  onSubmit: (data: RegisterFormData) => Promise<boolean>;
+  isLoading?: boolean; // 외부에서 전달받는 로딩 상태
+  isSubmitting?: boolean; // 멱등성 관련 제출 상태
 }
 
-export default function RegisterForm({ onSubmit, isLoading: externalLoading, isSubmitting }: RegisterFormProps) {
-    const [formData, setFormData] = useState<RegisterFormData>({
-        id: '',
-        password: '',
-        confirmPassword: '',
-        name: '',
-        email: '',
-    });
-    const [internalLoading, setInternalLoading] = useState(false);
+export default function RegisterForm({
+  onSubmit,
+  isLoading: externalLoading,
+  isSubmitting,
+}: RegisterFormProps) {
+  const [agreeTerms, setAgreeTerms] = useState(false);
 
-    // 외부 로딩 상태가 있으면 우선 사용, 없으면 내부 상태 사용
-    const isFormLoading = externalLoading ?? internalLoading;
+  const form = useFormState<RegisterFormData>({
+    initialData: {
+      id: '',
+      password: '',
+      confirmPassword: '',
+      name: '',
+      email: '',
+    },
+    validate: (data) => validationService.validateRegisterForm(data).errors,
+    resetOnSuccess: true,
+    preventDuplicateSubmit: true,
+  });
 
-    // 버튼 비활성화 조건: 로딩 중이거나 제출 중인 경우
-    const isButtonDisabled = isFormLoading || isSubmitting;
+  const handleSubmit = form.handleSubmit(async (data) => {
+    if (!agreeTerms) {
+      throw new Error('이용약관에 동의해주세요.');
+    }
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
+    // useRegisterForm에서 모든 성공/에러 처리를 담당하므로 여기서는 단순히 호출만
+    // 에러가 발생해도 폼 상태에 영향을 주지 않도록 에러를 다시 던지지 않음
+    try {
+      const success = await onSubmit(data);
+      if (success) {
+        setAgreeTerms(false); // 약관 동의도 초기화
+      }
+    } catch (error) {
+      // 에러를 다시 던지지 않음 - useRegisterForm에서 토스트로 처리됨
+      // 폼 상태는 그대로 유지
+    }
+  });
 
-    const handleSubmit = async (e: FormEvent) => {
-        e.preventDefault();
+  // 외부 로딩 상태가 있으면 우선 사용, 없으면 내부 상태 사용
+  const isFormLoading = externalLoading ?? form.isSubmitting;
 
-        setInternalLoading(true);
-        try {
-            const success = await onSubmit(formData);
-            if (success) {
-                // 성공 시 폼 초기화
-                setFormData({
-                    id: '',
-                    password: '',
-                    confirmPassword: '',
-                    name: '',
-                    email: '',
-                });
-            }
-        } finally {
-            setInternalLoading(false);
-        }
-    };
+  // 버튼 비활성화 조건: 로딩 중이거나 제출 중이거나 약관 미동의
+  const isButtonDisabled = isFormLoading || isSubmitting || !agreeTerms || !form.canSubmit;
 
-    return (
-        <form onSubmit={handleSubmit} className={styles.form}>
-            <FormInput
-                id="register-id"
-                name="id"
-                label="아이디"
-                type="text"
-                value={formData.id}
-                onChange={handleChange}
-                placeholder="4자 이상 입력하세요"
-                minLength={4}
-                required
-            />
+  return (
+    <FormContainer onSubmit={handleSubmit}>
+      <FormInput
+        id="register-id"
+        label="아이디"
+        type="text"
+        value={form.data.id}
+        onChange={(e) => form.updateField('id', e.target.value)}
+        placeholder="4자 이상 입력하세요"
+        error={form.hasError && form.error.includes('아이디') ? form.error : undefined}
+        required
+      />
 
-            <FormInput
-                id="register-name"
-                name="name"
-                label="이름"
-                type="text"
-                value={formData.name}
-                onChange={handleChange}
-                placeholder="이름을 입력하세요"
-                required
-            />
+      <FormInput
+        id="register-name"
+        label="이름"
+        type="text"
+        value={form.data.name}
+        onChange={(e) => form.updateField('name', e.target.value)}
+        placeholder="이름을 입력하세요"
+        error={form.hasError && form.error.includes('이름') ? form.error : undefined}
+        required
+      />
 
-            <FormInput
-                id="register-email"
-                name="email"
-                label="이메일"
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="example@email.com"
-                required
-            />
+      <FormInput
+        id="register-email"
+        label="이메일"
+        type="email"
+        value={form.data.email}
+        onChange={(e) => form.updateField('email', e.target.value)}
+        placeholder="example@email.com"
+        error={form.hasError && form.error.includes('이메일') ? form.error : undefined}
+        required
+      />
 
-            <FormInput
-                id="register-password"
-                name="password"
-                label="비밀번호"
-                type="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="8자 이상 입력하세요"
-                minLength={8}
-                required
-            />
+      <FormInput
+        id="register-password"
+        label="비밀번호"
+        type="password"
+        value={form.data.password}
+        onChange={(e) => form.updateField('password', e.target.value)}
+        placeholder="8자 이상 입력하세요"
+        error={form.hasError && form.error.includes('비밀번호') ? form.error : undefined}
+        required
+      />
 
-            <FormInput
-                id="register-confirm-password"
-                name="confirmPassword"
-                label="비밀번호 확인"
-                type="password"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                placeholder="비밀번호를 다시 입력하세요"
-                required
-            />
+      <FormInput
+        id="register-confirm-password"
+        label="비밀번호 확인"
+        type="password"
+        value={form.data.confirmPassword}
+        onChange={(e) => form.updateField('confirmPassword', e.target.value)}
+        placeholder="비밀번호를 다시 입력하세요"
+        error={form.hasError && form.error.includes('확인') ? form.error : undefined}
+        required
+      />
 
-            <div className={styles.terms}>
-                <input
-                    type="checkbox"
-                    id="agree-terms"
-                    className={styles.checkbox}
-                    required
-                />
-                <label htmlFor="agree-terms" className={styles.checkboxLabel}>
-                    이용약관 및 개인정보 처리방침에 동의합니다.
-                </label>
-            </div>
+      <FormCheckbox
+        id="agree-terms"
+        label="이용약관 및 개인정보 처리방침에 동의합니다."
+        checked={agreeTerms}
+        onChange={(e) => setAgreeTerms(e.target.checked)}
+        required
+      />
 
-            <AuthButton
-                type="submit"
-                isLoading={isFormLoading}
-                disabled={isButtonDisabled}
-                loadingText="처리 중..."
-            >
-                회원가입
-            </AuthButton>
-        </form>
-    );
+      <FormActions>
+        <Button
+          type="submit"
+          variant="primary"
+          size="large"
+          fullWidth
+          isLoading={isFormLoading}
+          disabled={isButtonDisabled}
+        >
+          {isFormLoading ? '처리 중...' : '회원가입'}
+        </Button>
+      </FormActions>
+    </FormContainer>
+  );
 }

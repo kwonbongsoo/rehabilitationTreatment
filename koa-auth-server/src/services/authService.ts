@@ -41,9 +41,14 @@ export class AuthService {
   /**
    * 사용자 로그인 처리
    */
-  public async login(credentials: LoginBody): Promise<TokenResponseDataI> {
+  public async login(credentials: LoginBody, previousToken?: string): Promise<TokenResponseDataI> {
     // 입력 유효성 검증
     this.validationService.validateCredentials(credentials);
+
+    // 기존 게스트 토큰이 있다면 만료 처리 (세션 고정 공격 방지)
+    if (previousToken) {
+      await this.sessionService.removeSession(previousToken);
+    }
 
     // 멤버 API에서 사용자 검증
     const user = await this.memberApiClient.verifyCredentials(credentials.id, credentials.password);
@@ -62,7 +67,7 @@ export class AuthService {
 
     return {
       data: {
-        token: tokenResponse.token,
+        access_token: tokenResponse.token,
         role: tokenResponse.payload.role,
         exp: tokenResponse.payload.exp,
         iat: tokenResponse.payload.iat,
@@ -83,7 +88,7 @@ export class AuthService {
 
     return {
       data: {
-        token: tokenResponse.token,
+        access_token: tokenResponse.token,
         role: tokenResponse.payload.role,
         exp: tokenResponse.payload.exp,
         iat: tokenResponse.payload.iat,
@@ -107,7 +112,7 @@ export class AuthService {
 
     return {
       data: {
-        token: token,
+        access_token: token,
         ...sessionData,
       },
     };

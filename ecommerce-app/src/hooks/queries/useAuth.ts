@@ -1,12 +1,14 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuthRepository } from '../../context/RepositoryContext';
 import { LoginRequest, LoginResponse, SessionInfoResponse } from '../../api/models/auth';
 import { queryKeys } from './queryKeys';
-import { useAuth } from '../../store/authStore';
+import { useAuth } from '../../store/useAuthStore';
+import { useCallback, useEffect } from 'react';
 
-interface CurrentUserOptions {
+interface SessionInfoOptions {
   enabled?: boolean;
   retry?: boolean | number;
+  staleTime?: number;
   onError?: (error: Error) => void;
 }
 
@@ -18,22 +20,38 @@ export function useLogin() {
   const authRepo = useAuthRepository();
   const { setUser } = useAuth();
 
-  return useMutation<LoginResponse, Error, LoginRequest>({
-    mutationFn: async (credentials) => {
-      return authRepo.login(credentials);
+  // mutationFn을 useCallback으로 메모이제이션
+  const mutationFn = useCallback(
+    async ({
+      credentials,
+      idempotencyKey,
+    }: {
+      credentials: LoginRequest;
+      idempotencyKey?: string;
+    }) => {
+      return authRepo.login(credentials, idempotencyKey);
     },
-    onSuccess: (response) => {
-      // React Error #185 방지를 위해 다음 틱에서 상태 업데이트
-      setTimeout(() => {
-        const { role, id, email, name } = response.data;
-        const filteredUserResponse = { role, id, email, name };
+    [authRepo],
+  );
 
-        // 로그인 성공 시 AuthProvider 상태 업데이트
-        setUser(filteredUserResponse);
+  // 성공 콜백을 useCallback으로 메모이제이션
+  const onSuccessCallback = useCallback(
+    (response: LoginResponse) => {
+      const { role, id, email, name } = response.data;
+      const filteredUserResponse = { role, id, email, name };
 
-        // React Query 캐시 업데이트
-        queryClient.setQueryData(queryKeys.user.id(), filteredUserResponse);
-      }, 0);
+      // 상태 업데이트 (동기적으로 처리)
+      setUser(filteredUserResponse);
+      queryClient.invalidateQueries({ queryKey: queryKeys.user.session() });
+    },
+    [setUser, queryClient],
+  );
+
+  return useMutation<LoginResponse, Error, { credentials: LoginRequest; idempotencyKey?: string }>({
+    mutationFn,
+    onSuccess: onSuccessCallback,
+    onError: (error) => {
+      console.error('Login failed:', error);
     },
   });
 }
@@ -44,43 +62,69 @@ export function useLogin() {
 export function useLogout() {
   const authRepo = useAuthRepository();
   const { logout } = useAuth();
+  const queryClient = useQueryClient();
+
+  // mutationFn을 useCallback으로 메모이제이션
+  const mutationFn = useCallback(async () => {
+    return authRepo.logout();
+  }, [authRepo]);
+
+  // 성공 콜백을 useCallback으로 메모이제이션
+  const onSuccessCallback = useCallback(() => {
+    // AuthProvider 상태 초기화
+    logout();
+
+    // React Query 캐시 초기화
+    queryClient.clear();
+    window.location.reload();
+  }, [logout, queryClient]);
 
   return useMutation<void, Error, void>({
-    mutationFn: async () => {
-      return authRepo.logout();
-    },
-    onSuccess: () => {
-      // 쿠키지우는 코드 작성
-      setTimeout(() => {
-        // AuthProvider 상태 초기화
-        logout();
-        // 페이지 새로고침으로 서버에서 새 게스트 토큰 발급
-        if (typeof window !== 'undefined') {
-          window.location.reload();
-        }
-      }, 0);
+    mutationFn,
+    onSuccess: onSuccessCallback,
+    onError: (error) => {
+      console.error('Logout failed:', error);
     },
   });
 }
 
-export function useSessionInfo() {
-  const queryClient = useQueryClient();
+/**
+ * 세션 정보 조회 훅 - useQuery로 변경 (베스트 프랙티스)
+ */
+export function useSessionInfo(options: SessionInfoOptions = {}) {
   const authRepo = useAuthRepository();
   const { setUser } = useAuth();
+  const queryClient = useQueryClient();
 
-  return useMutation<SessionInfoResponse, Error, void>({
-    mutationFn: async () => {
-      return authRepo.sessionInfo();
-    },
-    onSuccess: (response) => {
-      // 쿠키지우는 코드 작성
-      setTimeout(() => {
-        const { exp, iat, ...filteredUserResponse } = response.data;
-        if (filteredUserResponse.role === 'user') {
-          setUser(filteredUserResponse);
-          queryClient.setQueryData(queryKeys.user.id(), filteredUserResponse);
-        }
-      }, 0);
-    },
+  // 쿼리 함수를 useCallback으로 메모이제이션
+  const queryFn = useCallback(async () => {
+    return authRepo.sessionInfo();
+  }, [authRepo]);
+
+  const query = useQuery<SessionInfoResponse, Error>({
+    queryKey: queryKeys.user.session(),
+    queryFn,
+    enabled: options.enabled ?? true,
+    retry: options.retry ?? false,
+    staleTime: options.staleTime ?? 5 * 60 * 1000, // 5분
   });
+
+  // 성공 시 사이드 이펙트 처리
+  useEffect(() => {
+    if (query.data) {
+      const { exp, iat, ...filteredUserResponse } = query.data.data;
+      if (filteredUserResponse.role === 'user') {
+        setUser(filteredUserResponse);
+      }
+    }
+  }, [query.data, setUser, queryClient]);
+
+  // 에러 처리
+  useEffect(() => {
+    if (query.error && options.onError) {
+      options.onError(query.error);
+    }
+  }, [query.error, options.onError]);
+
+  return query;
 }

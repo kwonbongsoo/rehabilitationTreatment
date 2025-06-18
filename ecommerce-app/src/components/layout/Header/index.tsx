@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import styles from '@/styles/layout/Header/Header.module.css';
 import { FiMenu, FiX } from 'react-icons/fi';
 import PromoBar from './PromoBar';
@@ -8,43 +8,58 @@ import UserActions from './UserActions';
 import SubNavigation from './SubNavigation';
 
 const Header: React.FC = () => {
-    const [isScrolled, setIsScrolled] = useState(false);
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const headerRef = useRef<HTMLElement>(null);
 
-    // 스크롤 이벤트 감지
-    useEffect(() => {
-        const handleScroll = () => {
-            setIsScrolled(window.scrollY > 50);
-        };
+  // 외부 클릭 시 메뉴 닫기
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (headerRef.current && !headerRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    };
 
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
+    if (isMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
 
-    return (
-        <header className={`${styles.header} ${isScrolled ? styles.scrolled : ''}`}>
-            <PromoBar />
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isMenuOpen]);
 
-            <div className={styles.mainHeader}>
-                <div className={styles.container}>
-                    {/* 모바일 메뉴 토글 버튼 */}
-                    <button
-                        className={styles.mobileMenuButton}
-                        onClick={() => setIsMenuOpen(!isMenuOpen)}
-                        aria-label="메뉴"
-                    >
-                        {isMenuOpen ? <FiX size={24} /> : <FiMenu size={24} />}
-                    </button>
+  // 메뉴 닫기 함수
+  const closeMenu = () => {
+    setIsMenuOpen(false);
+  };
 
-                    <MainLogo />
-                    <MainNavigation isOpen={isMenuOpen} />
-                    <UserActions />
-                </div>
-            </div>
+  return (
+    <header ref={headerRef} className={styles.header}>
+      <PromoBar />
 
-            <SubNavigation visible={!isScrolled} />
-        </header>
-    );
+      <div className={styles.mainHeader}>
+        <div className={styles.container}>
+          {/* 모바일 메뉴 토글 버튼 */}
+          <button
+            className={styles.mobileMenuButton}
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-label="메뉴"
+          >
+            {isMenuOpen ? <FiX size={24} /> : <FiMenu size={24} />}
+          </button>
+
+          <MainLogo />
+          <MainNavigation isOpen={isMenuOpen} onClose={closeMenu} />
+          <UserActions />
+        </div>
+      </div>
+
+      <SubNavigation />
+
+      {/* 모바일 메뉴 오버레이 */}
+      {isMenuOpen && <div className={styles.overlay} onClick={closeMenu} />}
+    </header>
+  );
 };
 
 export default Header;

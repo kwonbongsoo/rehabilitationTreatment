@@ -13,7 +13,7 @@ import { MemberController } from './controllers/memberController';
 // Kong에서 멱등성 처리하므로 Fastify 레벨에서는 주석 처리
 // import { IdempotencyMiddleware } from './middlewares/idempotencyMiddleware';
 // import { redisClient } from './utils/redisClient';
-import './types/fastify';  // 타입 확장 임포트
+import './types/fastify'; // 타입 확장 임포트
 
 function validateConfig(): void {
   const requiredEnvVars = ['DATABASE_URL'];
@@ -30,20 +30,20 @@ export async function buildApp(): Promise<FastifyInstance> {
   validateConfig();
 
   const app = fastify({
-    logger: true
+    logger: true,
   });
 
-  // 의존성 설정 - 명시적이고 직관적
+  // 싱글톤 의존성 설정
   const prisma = new PrismaClient();
-  const memberService = new MemberService(prisma);
-  const memberController = new MemberController(memberService);
+  const memberService = MemberService.getInstance(prisma);
+  const memberController = MemberController.getInstance(memberService);
 
   // 의존성 주입 컨테이너 등록
   await app.register(diContainer);
 
   // CORS 설정
   await app.register(fastifyCors, {
-    origin: true
+    origin: true,
   });
 
   // Swagger 스키마 설정
@@ -52,10 +52,10 @@ export async function buildApp(): Promise<FastifyInstance> {
       info: {
         title: 'Member API',
         description: 'Member service API documentation',
-        version: '1.0.0'
+        version: '1.0.0',
       },
-      basePath: '/api/members'
-    }
+      basePath: '/api/members',
+    },
   });
 
   // Swagger UI 설정
@@ -63,11 +63,9 @@ export async function buildApp(): Promise<FastifyInstance> {
     routePrefix: '/docs',
     uiConfig: {
       docExpansion: 'list',
-      deepLinking: true
+      deepLinking: true,
     },
   });
-
-
 
   // Kong에서 멱등성 처리하므로 Fastify 레벨 멱등성 미들웨어 주석 처리
   // 멱등성 미들웨어를 전역 스코프에서 직접 등록 (스코프 문제 해결)
@@ -86,8 +84,6 @@ export async function buildApp(): Promise<FastifyInstance> {
   // app.addHook('onSend', async (request, reply, payload) => {
   //   return await idempotencyMiddleware.onSend(request, reply, payload);
   // });
-
-
 
   // 라우트 등록
   await app.register(memberRoutes(memberController), { prefix: '/api/members' });

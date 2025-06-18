@@ -2,7 +2,7 @@ import { Context } from 'koa';
 import { AuthService } from '../services/authService';
 import { extractCredentials, extractBearerToken } from '../utils/requestHelpers';
 import { sendSuccessResponse, sendErrorResponse } from '../utils/responseHelpers';
-import { AuthenticationError, ValidationError } from '../middlewares/errorMiddleware';
+import { AuthenticationError, ValidationError, BaseError } from '../middlewares/errorMiddleware';
 
 export class AuthController {
   private authService: AuthService;
@@ -27,17 +27,15 @@ export class AuthController {
     try {
       const credentials = extractCredentials(ctx);
 
-      const tokenPayload = await this.authService.login(credentials);
+      // 기존 게스트 토큰 추출 (X-Previous-Token 헤더에서)
+      const previousToken = ctx.headers['x-previous-token'] as string | undefined;
+
+      const tokenPayload = await this.authService.login(credentials, previousToken);
       sendSuccessResponse(ctx, tokenPayload);
     } catch (err: unknown) {
-      // 에러 타입에 따른 다양한 응답 처리
-      if (err instanceof ValidationError) {
-        sendErrorResponse(ctx, err, 400);
-      } else if (err instanceof AuthenticationError) {
-        sendErrorResponse(ctx, err, 401);
-      } else {
-        sendErrorResponse(ctx, err, 500, 'Login failed');
-      }
+      // BaseError(ApiError 포함)는 자체 statusCode를 사용
+      // sendErrorResponse에서 자동으로 처리
+      sendErrorResponse(ctx, err, 500, 'Login failed');
     }
   };
 

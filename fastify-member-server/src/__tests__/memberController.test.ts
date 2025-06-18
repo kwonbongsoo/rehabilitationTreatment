@@ -1,21 +1,26 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
-import { memberController } from '../controllers/memberController';
+import { MemberController } from '../controllers/memberController';
 import { ValidationError, AuthenticationError } from '@ecommerce/common';
-import { MemberParams, MemberBody } from '../types';
+import { MemberParams, MemberBody, MemberInput, MemberOutput } from '../types/member';
+import { IMemberService } from '../interfaces/memberService';
 
-// Mock the MemberService module
-jest.mock('../services/memberService', () => ({
-  MemberService: {
-    createMember: jest.fn(),
-    getMember: jest.fn(),
-    updateMember: jest.fn(),
-    deleteMember: jest.fn(),
-  },
-}));
-
-import { MemberService } from '../services/memberService';
+// Mock MemberService
+const mockMemberService: jest.Mocked<IMemberService> = {
+  create: jest.fn(),
+  findById: jest.fn(),
+  findByLoginId: jest.fn(),
+  findByEmail: jest.fn(),
+  findAll: jest.fn(),
+  findMany: jest.fn(),
+  countAll: jest.fn(),
+  update: jest.fn(),
+  delete: jest.fn(),
+  authenticate: jest.fn(),
+  changePassword: jest.fn(),
+};
 
 describe('멤버 컨트롤러', () => {
+  let memberController: MemberController;
   let mockRequest: Partial<FastifyRequest>;
   let mockReply: Partial<FastifyReply>;
 
@@ -23,10 +28,18 @@ describe('멤버 컨트롤러', () => {
     // 각 테스트 전에 모든 모킹 초기화
     jest.clearAllMocks();
 
+    // 싱글톤 인스턴스 생성
+    memberController = MemberController.getInstance(mockMemberService);
+
     mockRequest = {
       params: { id: 'test-id' },
       query: {},
-      body: { name: 'Test User', email: 'test@example.com' },
+      body: {
+        id: 'test-id',
+        name: 'Test User',
+        email: 'test@example.com',
+        password: 'password123',
+      },
       headers: {},
       log: {
         error: jest.fn(),
@@ -66,56 +79,50 @@ describe('멤버 컨트롤러', () => {
       reason: 'Invalid format',
     });
 
-    // createMember 메서드가 에러를 발생시키도록 모킹
-    (MemberService.createMember as jest.Mock).mockRejectedValueOnce(error);
+    // create 메서드가 에러를 발생시키도록 모킹
+    mockMemberService.create.mockRejectedValueOnce(error);
 
-    try {
-      await memberController.createMember(
-        mockRequest as FastifyRequest<{ Body: MemberBody }>,
-        mockReply as FastifyReply,
-      );
-    } catch (thrownError) {
-      // 컨트롤러가 에러를 다시 던져야 함
-      expect(thrownError).toBe(error);
-    }
+    await memberController.createMember(mockRequest as FastifyRequest, mockReply as FastifyReply);
 
-    expect(MemberService.createMember).toHaveBeenCalledWith(mockRequest.body);
+    expect(mockMemberService.create).toHaveBeenCalledWith(mockRequest.body);
+    expect(mockReply.code).toHaveBeenCalledWith(400);
   });
 
-  it('AuthenticationError를 올바르게 처리해야 함', async () => {
-    const error = new AuthenticationError('Invalid token');
-    (MemberService.getMember as jest.Mock).mockRejectedValueOnce(error);
+  it('멤버 조회가 성공해야 함', async () => {
+    const mockMember: MemberOutput = {
+      uid: 'uid-123',
+      id: 'test-id',
+      name: 'Test User',
+      email: 'test@example.com',
+      password: 'hashedPassword',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
 
-    try {
-      await memberController.getMember(
-        mockRequest as FastifyRequest<{ Params: MemberParams }>,
-        mockReply as FastifyReply,
-      );
-    } catch (thrownError) {
-      // 컨트롤러가 에러를 다시 던져야 함
-      expect(thrownError).toBe(error);
-    }
+    mockMemberService.findById.mockResolvedValueOnce(mockMember);
 
-    expect(MemberService.getMember).toHaveBeenCalledWith((mockRequest.params as MemberParams).id);
+    await memberController.getMember(mockRequest as FastifyRequest, mockReply as FastifyReply);
+
+    expect(mockMemberService.findById).toHaveBeenCalledWith('test-id');
+    expect(mockReply.send).toHaveBeenCalled();
   });
 
-  it('알 수 없는 에러를 올바르게 처리해야 함', async () => {
-    const error = new Error('Unknown error');
-    (MemberService.updateMember as jest.Mock).mockRejectedValueOnce(error);
+  it('멤버 업데이트가 성공해야 함', async () => {
+    const mockMember: MemberOutput = {
+      uid: 'uid-123',
+      id: 'test-id',
+      name: 'Updated User',
+      email: 'updated@example.com',
+      password: 'hashedPassword',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
 
-    try {
-      await memberController.updateMember(
-        mockRequest as FastifyRequest<{ Params: MemberParams; Body: MemberBody }>,
-        mockReply as FastifyReply,
-      );
-    } catch (thrownError) {
-      // 컨트롤러가 에러를 다시 던져야 함
-      expect(thrownError).toBe(error);
-    }
+    mockMemberService.update.mockResolvedValueOnce(mockMember);
 
-    expect(MemberService.updateMember).toHaveBeenCalledWith(
-      (mockRequest.params as MemberParams).id,
-      mockRequest.body
-    );
+    await memberController.updateMember(mockRequest as FastifyRequest, mockReply as FastifyReply);
+
+    expect(mockMemberService.update).toHaveBeenCalledWith('test-id', mockRequest.body);
+    expect(mockReply.send).toHaveBeenCalled();
   });
 });

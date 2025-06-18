@@ -2,8 +2,11 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   output: 'standalone',
-  assetPrefix: '.',
   reactStrictMode: true,
+  poweredByHeader: false,
+  compress: true,
+
+  // 이미지 최적화 설정
   images: {
     remotePatterns: [
       {
@@ -23,7 +26,12 @@ const nextConfig: NextConfig = {
     minimumCacheTTL: 60,
   },
 
-  // 🔒 보안상 모든 환경에서 개별 프록시 함수 사용하므로 rewrites는 선택적
+  // 실험적 기능
+  experimental: {
+    optimizePackageImports: ['@/components', '@/utils'],
+  },
+
+  // API 라우트 프록시 설정
   async rewrites() {
     const kongGatewayUrl = process.env.KONG_GATEWAY_URL || 'http://localhost:8000';
 
@@ -33,6 +41,25 @@ const nextConfig: NextConfig = {
       {
         source: '/api/gateway/:path*',
         destination: `${kongGatewayUrl}/api/:path*`,
+      },
+    ];
+  },
+
+  // 헤더 설정
+  async headers() {
+    return [
+      {
+        source: '/api/:path*',
+        headers: [
+          { key: 'Access-Control-Allow-Credentials', value: 'true' },
+          { key: 'Access-Control-Allow-Origin', value: '*' },
+          { key: 'Access-Control-Allow-Methods', value: 'GET,OPTIONS,PATCH,DELETE,POST,PUT' },
+          {
+            key: 'Access-Control-Allow-Headers',
+            value:
+              'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization',
+          },
+        ],
       },
     ];
   },

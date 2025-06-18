@@ -14,85 +14,48 @@ import {
   isMemberInput,
   hasIdParam,
   ValidationError,
+  AuthenticationError,
+  MemberNotFoundError,
+  DuplicateValueError,
   Constants,
 } from '../types/member';
 import { withErrorHandling } from '../utils/controllerUtils';
 import { BaseError, ErrorCode } from '@ecommerce/common';
-import { MemberService } from '../services/memberService';
-
-export const memberController = {
-  async createMember(request: FastifyRequest<{ Body: MemberBody }>, reply: FastifyReply) {
-    try {
-      const member = await MemberService.createMember(request.body as MemberInput);
-      return reply.code(201).send(member);
-    } catch (error) {
-      throw error;
-    }
-  },
-
-  async getMember(request: FastifyRequest<{ Params: MemberParams }>, reply: FastifyReply) {
-    try {
-      const member = await MemberService.getMember(request.params.id);
-      return reply.send(member);
-    } catch (error) {
-      throw error;
-    }
-  },
-
-  async updateMember(
-    request: FastifyRequest<{ Params: MemberParams; Body: MemberBody }>,
-    reply: FastifyReply,
-  ) {
-    try {
-      const member = await MemberService.updateMember(
-        request.params.id,
-        request.body as MemberInput,
-      );
-      return reply.send(member);
-    } catch (error) {
-      throw error;
-    }
-  },
-
-  async deleteMember(request: FastifyRequest<{ Params: MemberParams }>, reply: FastifyReply) {
-    try {
-      await MemberService.deleteMember(request.params.id);
-      return reply.code(204).send();
-    } catch (error) {
-      throw error;
-    }
-  },
-};
 
 export class MemberController {
-  // 클래스 레벨 상수 정의
-  private static readonly LOG_PREFIXES = {
-    CREATE: 'Creating member:',
-    READ: 'Fetching member:',
-    LIST: 'Listing members:',
-    UPDATE: 'Updating member:',
-    DELETE: 'Deleting member:',
-    AUTH: 'Authenticating:',
-    PASSWORD: 'Password operation:',
-  };
+  private static instance: MemberController;
 
   private readonly errorHandlers: Record<string, (error: Error, reply: FastifyReply) => void>;
 
-  constructor(private readonly memberService: IMemberService) {
+  private constructor(private readonly memberService: IMemberService) {
     this.errorHandlers = {
       ValidationError: (error: Error, reply: FastifyReply) => {
-        const response = (error as BaseError).toResponse();
-        reply.code(400).send(response);
+        const httpError = error as ValidationError;
+        reply.code(httpError.statusCode).send(httpError.toResponse());
       },
       AuthenticationError: (error: Error, reply: FastifyReply) => {
-        const response = (error as BaseError).toResponse();
-        reply.code(401).send(response);
+        const httpError = error as AuthenticationError;
+        reply.code(httpError.statusCode).send(httpError.toResponse());
       },
-      NotFoundError: (error: Error, reply: FastifyReply) => {
-        const response = (error as BaseError).toResponse();
-        reply.code(404).send(response);
+      MemberNotFoundError: (error: Error, reply: FastifyReply) => {
+        const httpError = error as MemberNotFoundError;
+        reply.code(httpError.statusCode).send(httpError.toResponse());
+      },
+      DuplicateValueError: (error: Error, reply: FastifyReply) => {
+        const httpError = error as DuplicateValueError;
+        reply.code(httpError.statusCode).send(httpError.toResponse());
       },
     };
+  }
+
+  public static getInstance(memberService?: IMemberService): MemberController {
+    if (!MemberController.instance) {
+      if (!memberService) {
+        throw new Error('MemberService instance required for first initialization');
+      }
+      MemberController.instance = new MemberController(memberService);
+    }
+    return MemberController.instance;
   }
 
   // 유틸리티 메서드: 표준화된 응답 생성 함수
@@ -108,7 +71,18 @@ export class MemberController {
   private toMemberResponse = (member: MemberOutput): MemberResponse => {
     // Omit 타입을 사용하여 타입 단언 제거
     const { uid, password, ...memberResponse } = member;
-    return memberResponse;
+    // Date 객체를 명시적으로 문자열로 변환
+    return {
+      ...memberResponse,
+      createdAt:
+        memberResponse.createdAt instanceof Date
+          ? memberResponse.createdAt.toISOString()
+          : memberResponse.createdAt,
+      updatedAt:
+        memberResponse.updatedAt instanceof Date
+          ? memberResponse.updatedAt.toISOString()
+          : memberResponse.updatedAt,
+    };
   };
 
   private toMemberResponses = (members: MemberOutput[]): MemberResponse[] => {
@@ -142,11 +116,6 @@ export class MemberController {
       skip: Math.max(0, skip), // 음수값 방지
       take: Math.min(Math.max(1, take), MAX_PAGE_SIZE), // 범위 강제 적용
     };
-  };
-
-  // 로깅 유틸리티
-  private logOperation = (request: FastifyRequest, prefix: string, message: string): void => {
-    request.log.info(`${prefix} ${message}`);
   };
 
   // 통합된 에러 처리 메서드
@@ -188,100 +157,79 @@ export class MemberController {
         return;
       }
 
-      this.logOperation(
-        request,
-        MemberController.LOG_PREFIXES.CREATE,
-        `new member with ID: ${body.id}`,
-      );
       const newMember = await this.memberService.create(body);
 
-      this.logOperation(
-        request,
-        MemberController.LOG_PREFIXES.CREATE,
-        `successful for UID: ${newMember.uid}`,
+      const response = this.createSuccessResponse(
+        this.toMemberResponse(newMember),
+        'Member created successfully',
       );
 
-      reply
-        .code(201)
-        .send(
-          this.createSuccessResponse(
-            this.toMemberResponse(newMember),
-            'Member created successfully',
-          ),
-        );
+      const jsonString = JSON.stringify(response);
+      reply.code(201).header('content-type', 'application/json').send(jsonString);
     },
     this.handleError,
   );
 
-  // 단일 멤버 조회
+  // 멤버 조회
   public getMember = withErrorHandling(
     async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
       const id = this.extractIdParam(request);
-      this.logOperation(request, MemberController.LOG_PREFIXES.READ, `ID: ${id}`);
 
       const member = await this.memberService.findById(id);
+      const response = this.createSuccessResponse(this.toMemberResponse(member));
 
-      reply.send(this.createSuccessResponse(this.toMemberResponse(member)));
+      const jsonString = JSON.stringify(response);
+      reply.code(200).header('content-type', 'application/json').send(jsonString);
     },
     this.handleError,
   );
 
-  // 멤버 목록 조회 - 페이지네이션 개선
+  // 전체 멤버 목록 조회 (페이지네이션 적용)
   public getAllMembers = withErrorHandling(
     async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
       const { skip, take } = this.extractPaginationParams(request);
-      this.logOperation(
-        request,
-        MemberController.LOG_PREFIXES.LIST,
-        `skip: ${skip}, take: ${take}`,
-      );
 
-      // Promise.all을 사용한 병렬 요청
-      const [members, total] = await Promise.all([
-        this.memberService.findAll(skip, take),
+      // Promise.all로 병렬 실행
+      const [members, totalCount] = await Promise.all([
+        this.memberService.findMany({ skip, take }),
         this.memberService.countAll(),
       ]);
 
-      const page = Math.floor(skip / take) + 1;
-      const pageCount = Math.ceil(total / take);
-
       const paginatedResult: PaginatedResult<MemberResponse> = {
-        items: this.toMemberResponses(members),
-        total,
-        page,
-        pageSize: take,
-        pageCount,
+        data: this.toMemberResponses(members),
+        pagination: {
+          skip,
+          take,
+          total: totalCount,
+          hasMore: skip + take < totalCount,
+        },
       };
 
-      reply.send(this.createSuccessResponse(paginatedResult));
+      const response = this.createSuccessResponse(
+        paginatedResult,
+        `Retrieved ${members.length} members`,
+      );
+
+      const jsonString = JSON.stringify(response);
+      reply.code(200).header('content-type', 'application/json').send(jsonString);
     },
     this.handleError,
   );
 
-  // 멤버 정보 업데이트
+  // 멤버 수정
   public updateMember = withErrorHandling(
     async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
       const id = this.extractIdParam(request);
-      // body의 타입 검증 로직 추가
-      const updateData = request.body;
+      const updateData = request.body as Partial<MemberInput>;
 
-      // 부분적 업데이트 데이터 타입 검증
-      if (typeof updateData !== 'object' || updateData === null) {
-        reply
-          .code(400)
-          .send(this.createErrorResponse('Invalid update data format', 'INVALID_INPUT'));
-        return;
-      }
-
-      this.logOperation(request, MemberController.LOG_PREFIXES.UPDATE, `ID: ${id}`);
-      const updatedMember = await this.memberService.update(id, updateData as Partial<MemberInput>);
-
-      reply.send(
-        this.createSuccessResponse(
-          this.toMemberResponse(updatedMember),
-          'Member updated successfully',
-        ),
+      const updatedMember = await this.memberService.update(id, updateData);
+      const response = this.createSuccessResponse(
+        this.toMemberResponse(updatedMember),
+        'Member updated successfully',
       );
+
+      const jsonString = JSON.stringify(response);
+      reply.code(200).header('content-type', 'application/json').send(jsonString);
     },
     this.handleError,
   );
@@ -290,39 +238,39 @@ export class MemberController {
   public deleteMember = withErrorHandling(
     async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
       const id = this.extractIdParam(request);
-      this.logOperation(request, MemberController.LOG_PREFIXES.DELETE, `ID: ${id}`);
 
       await this.memberService.delete(id);
-
       reply.code(204).send();
     },
     this.handleError,
   );
 
-  // 로그인/인증
+  // 멤버 인증
   public authenticateMember = withErrorHandling(
     async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
-      const body = request.body;
+      const { id, password } = request.body as { id: string; password: string };
 
-      // 인증 요청 데이터 검증
-      if (!body || typeof body !== 'object' || !('id' in body) || !('password' in body)) {
-        reply
-          .code(400)
-          .send(this.createErrorResponse('Invalid authentication request', 'INVALID_INPUT'));
-        return;
-      }
+      const memberData = await this.memberService.authenticate(id, password);
 
-      const { id, password } = body as { id: string; password: string };
-
-      this.logOperation(request, MemberController.LOG_PREFIXES.AUTH, `user: ${id}`);
-      const authenticatedMember = await this.memberService.authenticate(id, password);
-
-      const response: AuthResponse = {
-        success: true,
-        member: this.toMemberResponse(authenticatedMember as MemberOutput),
+      // authenticate는 이미 password가 제거된 안전한 데이터를 반환하므로 직접 사용
+      const memberResponse: MemberResponse = {
+        id: memberData.id,
+        email: memberData.email,
+        name: memberData.name,
+        createdAt:
+          memberData.createdAt instanceof Date
+            ? memberData.createdAt.toISOString()
+            : memberData.createdAt,
+        updatedAt:
+          memberData.updatedAt instanceof Date
+            ? memberData.updatedAt.toISOString()
+            : memberData.updatedAt,
       };
 
-      reply.send(response);
+      const response = this.createSuccessResponse(memberResponse, 'Authentication successful');
+
+      const jsonString = JSON.stringify(response);
+      reply.code(200).header('content-type', 'application/json').send(jsonString);
     },
     this.handleError,
   );
@@ -331,34 +279,24 @@ export class MemberController {
   public changePassword = withErrorHandling(
     async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
       const id = this.extractIdParam(request);
-      const body = request.body;
-
-      // 비밀번호 변경 요청 데이터 검증
-      if (
-        !body ||
-        typeof body !== 'object' ||
-        !('currentPassword' in body) ||
-        !('newPassword' in body)
-      ) {
-        reply
-          .code(400)
-          .send(this.createErrorResponse('Invalid password change request', 'INVALID_INPUT'));
-        return;
-      }
-
-      const { currentPassword, newPassword } = body as {
+      const { currentPassword, newPassword } = request.body as {
         currentPassword: string;
         newPassword: string;
       };
 
-      this.logOperation(
-        request,
-        MemberController.LOG_PREFIXES.PASSWORD,
-        `change for member: ${id}`,
+      const updatedMember = await this.memberService.changePassword(
+        id,
+        currentPassword,
+        newPassword,
       );
-      await this.memberService.changePassword(id, currentPassword, newPassword);
 
-      reply.send(this.createSuccessResponse(null, 'Password changed successfully'));
+      const response = this.createSuccessResponse(
+        this.toMemberResponse(updatedMember),
+        'Password changed successfully',
+      );
+
+      const jsonString = JSON.stringify(response);
+      reply.code(200).header('content-type', 'application/json').send(jsonString);
     },
     this.handleError,
   );

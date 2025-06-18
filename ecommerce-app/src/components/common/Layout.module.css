@@ -1,27 +1,484 @@
 .layout {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
 .main {
-    flex-grow: 1;
-    width: 92%;
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 30px 0;
+  flex-grow: 1;
+  width: 92%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 30px 0;
 }
 
 .loaderContainer {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 60vh;
-    width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+  width: 100%;
 }
 
 @media (max-width: 600px) {
-    .main {
-        padding: 20px 0;
-    }
+  .main {
+    padding: 20px 0;
+  }
+}
+
+/* 컨테이너 스타일 */
+.container {
+  width: 100%;
+  margin: 0 auto;
+}
+
+.centered {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.fluid {
+  max-width: none;
+}
+
+/* 최대 너비 */
+.maxWidth-sm {
+  max-width: 640px;
+}
+
+.maxWidth-md {
+  max-width: 768px;
+}
+
+.maxWidth-lg {
+  max-width: 1024px;
+}
+
+.maxWidth-xl {
+  max-width: 1280px;
+}
+
+.maxWidth-full {
+  max-width: none;
+}
+
+/* 패딩 */
+.padding-none {
+  padding: 0;
+}
+
+.padding-sm {
+  padding: 0.5rem;
+}
+
+.padding-md {
+  padding: 1rem;
+}
+
+.padding-lg {
+  padding: 1.5rem;
+}
+
+/* 그리드 스타일 */
+.grid {
+  display: grid;
+}
+
+/* 그리드 간격 */
+.gap-none {
+  gap: 0;
+}
+
+.gap-sm {
+  gap: 0.5rem;
+}
+
+.gap-md {
+  gap: 1rem;
+}
+
+.gap-lg {
+  gap: 1.5rem;
+}
+
+.gap-xl {
+  gap: 2rem;
+}
+
+/* 그리드 정렬 */
+.alignItems-start {
+  align-items: start;
+}
+
+.alignItems-center {
+  align-items: center;
+}
+
+.alignItems-end {
+  align-items: end;
+}
+
+.alignItems-stretch {
+  align-items: stretch;
+}
+
+.justifyItems-start {
+  justify-items: start;
+}
+
+.justifyItems-center {
+  justify-items: center;
+}
+
+.justifyItems-end {
+  justify-items: end;
+}
+
+.justifyItems-stretch {
+  justify-items: stretch;
+}
+
+/* 플렉스 스타일 */
+.flex {
+  display: flex;
+}
+
+.inlineFlex {
+  display: inline-flex;
+}
+
+/* 플렉스 방향 */
+.direction-row {
+  flex-direction: row;
+}
+
+.direction-column {
+  flex-direction: column;
+}
+
+.direction-row-reverse {
+  flex-direction: row-reverse;
+}
+
+.direction-column-reverse {
+  flex-direction: column-reverse;
+}
+
+/* 플렉스 래핑 */
+.wrap-nowrap {
+  flex-wrap: nowrap;
+}
+
+.wrap-wrap {
+  flex-wrap: wrap;
+}
+
+.wrap-wrap-reverse {
+  flex-wrap: wrap-reverse;
+}
+
+/* 플렉스 justify */
+.justify-start {
+  justify-content: flex-start;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.justify-end {
+  justify-content: flex-end;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.justify-around {
+  justify-content: space-around;
+}
+
+.justify-evenly {
+  justify-content: space-evenly;
+}
+
+/* 플렉스 align */
+.align-start {
+  align-items: flex-start;
+}
+
+.align-center {
+  align-items: center;
+}
+
+.align-end {
+  align-items: flex-end;
+}
+
+.align-stretch {
+  align-items: stretch;
+}
+
+.align-baseline {
+  align-items: baseline;
+}
+
+/* 스택 스타일 */
+.stack {
+  /* 기본 스택 스타일 */
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 센터 스타일 */
+.center {
+  display: flex;
+}
+
+.center-both {
+  justify-content: center;
+  align-items: center;
+}
+
+.center-horizontal {
+  justify-content: center;
+}
+
+.center-vertical {
+  align-items: center;
+}
+
+/* 스페이서 스타일 */
+.spacer {
+  flex-shrink: 0;
+}
+
+.spacer-sm {
+  width: 0.5rem;
+  height: 0.5rem;
+}
+
+.spacer-md {
+  width: 1rem;
+  height: 1rem;
+}
+
+.spacer-lg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.spacer-xl {
+  width: 2rem;
+  height: 2rem;
+}
+
+.spacer-horizontal {
+  height: auto;
+}
+
+.spacer-vertical {
+  width: auto;
+}
+
+.spacer-both {
+  /* 양방향 스페이서 */
+}
+
+/* 아스펙트 비율 */
+.aspectRatio {
+  width: 100%;
+  overflow: hidden;
+}
+
+.aspectRatio > * {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 카드 스타일 */
+.card {
+  background: white;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.card-elevated {
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.12),
+    0 1px 2px rgba(0, 0, 0, 0.24);
+}
+
+.card-outlined {
+  border: 1px solid var(--color-border, #e5e7eb);
+}
+
+.card-filled {
+  background: var(--color-background, #f9fafb);
+}
+
+.rounded {
+  border-radius: 8px;
+}
+
+.hoverable:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* 섹션 스타일 */
+.section {
+  width: 100%;
+}
+
+.spacing-none {
+  padding: 0;
+}
+
+.spacing-sm {
+  padding: 1rem 0;
+}
+
+.spacing-md {
+  padding: 2rem 0;
+}
+
+.spacing-lg {
+  padding: 3rem 0;
+}
+
+.spacing-xl {
+  padding: 4rem 0;
+}
+
+.background-none {
+  background: transparent;
+}
+
+.background-muted {
+  background: var(--color-background, #f9fafb);
+}
+
+.background-accent {
+  background: var(--color-primary, #6366f1);
+  color: white;
+}
+
+.fullWidth {
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  margin-right: calc(-50vw + 50%);
+}
+
+/* 반응형 그리드 */
+@media (max-width: 640px) {
+  .grid[style*='--grid-sm'] {
+    grid-template-columns: repeat(var(--grid-sm), 1fr) !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .grid[style*='--grid-md'] {
+    grid-template-columns: repeat(var(--grid-md), 1fr) !important;
+  }
+}
+
+@media (max-width: 1024px) {
+  .grid[style*='--grid-lg'] {
+    grid-template-columns: repeat(var(--grid-lg), 1fr) !important;
+  }
+}
+
+@media (max-width: 1280px) {
+  .grid[style*='--grid-xl'] {
+    grid-template-columns: repeat(var(--grid-xl), 1fr) !important;
+  }
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .maxWidth-lg,
+  .maxWidth-xl {
+    max-width: 100%;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .gap-lg {
+    gap: 1rem;
+  }
+
+  .gap-xl {
+    gap: 1.5rem;
+  }
+
+  .spacing-lg {
+    padding: 2rem 0;
+  }
+
+  .spacing-xl {
+    padding: 3rem 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .gap-md {
+    gap: 0.75rem;
+  }
+
+  .gap-lg {
+    gap: 1rem;
+  }
+
+  .spacing-md {
+    padding: 1.5rem 0;
+  }
+
+  .spacing-lg {
+    padding: 2rem 0;
+  }
+
+  .direction-row {
+    flex-direction: column;
+  }
+}
+
+/* 다크 모드 지원 */
+@media (prefers-color-scheme: dark) {
+  .card {
+    background: #1f2937;
+    color: #f9fafb;
+  }
+
+  .card-outlined {
+    border-color: #374151;
+  }
+
+  .card-filled {
+    background: #111827;
+  }
+
+  .background-muted {
+    background: #111827;
+  }
+}
+
+/* 접근성 */
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .hoverable {
+    transition: none;
+  }
+}
+
+/* 고대비 모드 */
+@media (prefers-contrast: high) {
+  .card-outlined {
+    border-width: 2px;
+  }
 }
