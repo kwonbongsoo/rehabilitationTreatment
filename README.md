@@ -2,11 +2,12 @@
 
 # Fastify Member Platform
 
-회원 관리 및 인증 기능을 제공하는 Node.js 기반의 Fastify 서버 프로젝트입니다.  
-Docker, Prisma, PostgreSQL, Koa, Next.js 등 다양한 기술 스택을 활용하여  
+회원 관리 및 인증 기능을 제공하는 Node.js 기반의 Fastify 서버 프로젝트입니다.
+Docker, Prisma, PostgreSQL, Koa, Next.js 등 다양한 기술 스택을 활용하여
 모던한 백엔드/풀스택 환경을 구성합니다.
 
 **🔒 보안 정책: Auth API 엔드포인트 보호 & Kong API Gateway 인증/멱등성**
+
 - 인증 서비스는 내부망에서만 접근 가능 (직접 통신)
 - 비즈니스 API는 Kong API Gateway를 통해 JWT 인증 및 멱등성 보장
 - JWT 토큰은 guest/user 모두 같은 시크릿을 사용하며, 만료는 4시간
@@ -30,11 +31,11 @@ Docker, Prisma, PostgreSQL, Koa, Next.js 등 다양한 기술 스택을 활용�
 ## 시스템 아키텍처 (인증/멱등성 최신 구조)
 
 ```
-┌──────────────┐     HTTP 요청     ┌──────────────┐     HTTP 요청     ┌──────────────────────────────────┐
-│              │ ─────────────────►│              │ ─────────────────►│                                  │
-│   클라이언트  │                   │    Nginx     │                   │         Next.js                  │
-│  (브라우저/앱) │ ◄─────────────── │  리버스 프록시 │ ◄─────────────── │    (프론트엔드 + BFF)             │
-└──────────────┘     HTTP 응답     └──────────────┘     HTTP 응답     └────────────┬─────────────────────┘
+┌──────────────┐     HTTP 요청     ┌──────────────────────────────────┐
+│              │ ─────────────────►│                                  │
+│   클라이언트  │                   │         Next.js                  │
+│  (브라우저/앱) │ ◄─────────────── │    (프론트엔드 + BFF)             │
+└──────────────┘     HTTP 응답     └────────────┬─────────────────────┘
                                                                                    │
                                                                                    │ API Routes (/api/*)
                                                                                    │ HttpOnly 쿠키 → Bearer 토큰 변환
@@ -77,9 +78,11 @@ Docker, Prisma, PostgreSQL, Koa, Next.js 등 다양한 기술 스택을 활용�
 ## 인증 및 멱등성 흐름 (최신)
 
 ### 1. 인증 요청 흐름 (직접 통신)
+
 ```
 클라이언트 → Next.js API Routes → Auth 서비스 → Redis → 응답
 ```
+
 - 클라이언트는 Next.js API Routes를 통해 인증 요청(`/api/auth/*`)을 보냅니다.
 - Next.js가 HttpOnly 쿠키에서 토큰을 추출해 Bearer 토큰으로 변환
 - 내부망에서 Koa Auth 서비스로 직접 요청 (Kong을 거치지 않음)
@@ -87,9 +90,11 @@ Docker, Prisma, PostgreSQL, Koa, Next.js 등 다양한 기술 스택을 활용�
 - 인증 결과를 Next.js가 받아 클라이언트에 전달
 
 ### 2. 비즈니스 API 요청 흐름 (Kong 경유)
+
 ```
 클라이언트 → Next.js API Routes → Kong API Gateway → 마이크로서비스 → Database → 응답
 ```
+
 - 클라이언트는 Next.js API Routes를 통해 비즈니스 API 요청(`/api/members` 등)을 보냅니다.
 - Next.js가 쿠키에서 토큰을 추출해 Bearer 토큰으로 변환
 - Kong API Gateway로 요청 전달 (Authorization 헤더 포함)
@@ -103,18 +108,21 @@ Docker, Prisma, PostgreSQL, Koa, Next.js 등 다양한 기술 스택을 활용�
 ## Kong API Gateway 주요 기능 (최신)
 
 ### 🔐 JWT 토큰 유효성 검증 시스템
+
 Kong은 모든 비즈니스 API 요청에 대해 강력한 JWT 토큰 검증을 수행합니다:
 
 #### **1. 다중 토큰 타입 지원**
-- **Guest 토큰**: `kid: "guest"` - 비회원 사용자용, 제한된 권한
-- **User 토큰**: `kid: "user"` - 로그인 회원용, 전체 권한
+
+- **Guest 토큰**: `kid: "guest-key"` - 비회원 사용자용, 제한된 권한
+- **User 토큰**: `kid: "user-key"` - 로그인 회원용, 전체 권한
 - **공통 시크릿**: 동일한 JWT 시크릿으로 보안성 및 관리 효율성 확보
 
 #### **2. 토큰 검증 프로세스**
+
 ```
 Authorization: Bearer <JWT_TOKEN>
 ↓
-Kong JWT Plugin → 시크릿 검증 → Auth API token verify 이용용
+Kong JWT Plugin → 시크릿 검증 → token-validator 플러그인 활용
 ↓
 검증 성공: 백엔드로 전달
 검증 실패: 403 Forbidden, 401 Unauthorized 응답
@@ -128,12 +136,14 @@ Kong JWT Plugin → 시크릿 검증 → Auth API token verify 이용용
 - `X-JWT-Payload`: 디코딩된 JWT 페이로드 -->
 
 #### **3. 보안 정책**
+
 - **토큰 만료**: 4시간 (14400초) 자동 만료
 - **알고리즘**: HS256 (HMAC SHA-256)
 - **클럭 스큐**: ±30초 허용
 - **무효 토큰**: 즉시 401 에러 반환
 
 ### 🔄 기타 핵심 기능
+
 - **멱등성 플러그인**: POST/PUT/PATCH 중복 요청 방지, Redis 캐싱, TTL 설정
 - **API 라우팅**: URL 패턴에 따라 서비스로 전달
 - **Rate Limiting**: API 호출량 제한 (사용자별/IP별)
@@ -144,17 +154,10 @@ Kong JWT Plugin → 시크릿 검증 → Auth API token verify 이용용
 
 ---
 
-## Nginx 리버스 프록시 역할
-
-- **SSL 종료**: HTTPS 요청을 받아 내부 서비스로 HTTP로 전달
-- **정적 파일 서빙**: Next.js 정적 파일(`/_next/`, `/public/`, `/static/`) 직접 서빙
-- **캐싱**: 정적 리소스에 대한 캐시 설정 (10분)
-- **로드 밸런싱**: 여러 인스턴스로 트래픽 분산
-- **보안**: IP 필터링, 요청 제한, 헤더 관리
-
 ---
 
 ## 환경 변수 예시 (.env)
+
 ```bash
 # JWT 인증 설정
 JWT_SECRET=your-super-secret-jwt-key-256-bits
@@ -184,6 +187,7 @@ KONG_ADMIN_ERROR_LOG=/dev/stderr
 ---
 
 ## 참고
+
 - 각 서비스별 상세 설정 및 예시는 `kong/README.md` 참고
 - 인증/멱등성 플러그인 동작 방식, 환경 변수, 예시 등 포함
 
@@ -194,7 +198,7 @@ KONG_ADMIN_ERROR_LOG=/dev/stderr
 - **🔒 BFF 보안 패턴**: Next.js가 모든 API 요청의 중앙 게이트웨이 역할
 - **Auth API 보호**: 인증 서비스는 내부망에서만 접근 가능
 - **Kong API Gateway**: 비즈니스 API는 JWT 인증 및 멱등성 정책으로 보호
-- **Nginx 리버스 프록시**: SSL 종료, 정적 파일 서빙, 캐싱, 로드 밸런싱
+- **개별 프록시 함수**: 각 API별 세밀한 제어와 HttpOnly 쿠키 보안
 
 ---
 
@@ -206,7 +210,6 @@ KONG_ADMIN_ERROR_LOG=/dev/stderr
 ├── koa-auth-server/         # 인증 서비스 (내부망 전용)
 ├── ecommerce-app/           # 프론트엔드 + BFF Proxy
 ├── kong/                    # Kong API Gateway 설정
-├── nginx/                   # Nginx 리버스 프록시 설정
 ├── docker-compose.yml       # 컨테이너 구성
 └── README.md                # 프로젝트 문서
 ```
@@ -216,9 +219,11 @@ KONG_ADMIN_ERROR_LOG=/dev/stderr
 ## 빠른 시작
 
 1. **환경 변수 파일 준비**
+
    - 각 서비스 폴더에 `.env` 파일을 생성하고 환경변수를 설정하세요.
 
 2. **전체 서비스 실행**
+
    ```bash
    # 환경 변수 설정
    # 각 서비스 폴더에 .env 파일 생성 및 설정
@@ -245,7 +250,7 @@ KONG_ADMIN_ERROR_LOG=/dev/stderr
 - **데이터베이스**: PostgreSQL, Redis
 - **API Gateway**: Kong
 - **인프라**: Docker, Docker Compose
-- **보안**: BFF 패턴, HttpOnly 쿠키
+- **보안**: BFF 패턴, HttpOnly 쿠키, 개별 프록시 함수
 
 ---
 
@@ -273,6 +278,7 @@ KONG_ADMIN_ERROR_LOG=/dev/stderr
 ```
 
 ---
+
 ## 라이선스
 
 MIT

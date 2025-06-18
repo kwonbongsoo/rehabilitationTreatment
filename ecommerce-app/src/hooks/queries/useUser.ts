@@ -5,21 +5,21 @@ import { RegisterRequest } from '../../api/models/auth';
 import { queryKeys } from './queryKeys';
 
 /**
- * 회원가입 훅 - 멱등성 키 지원
+ * 회원가입 훅 - 멱등성 키는 헤더로만 전송
  */
 export function useRegister() {
-    const queryClient = useQueryClient();
-    const userRepo = useUserRepository();
+  const queryClient = useQueryClient();
+  const userRepo = useUserRepository();
 
-    return useMutation<User, Error, RegisterRequest & { _idempotencyKey?: string }>({
-        mutationFn: ({ _idempotencyKey, ...userData }: RegisterRequest & { _idempotencyKey?: string }) => {
-            return userRepo.register(userData, _idempotencyKey);
-        },
-        onSuccess: (user) => {
-            // 회원가입 성공 후 사용자 정보 캐시
-            queryClient.setQueryData(queryKeys.user.id(), user);
-        }
-    });
+  return useMutation<User, Error, { userData: RegisterRequest; idempotencyKey: string }>({
+    mutationFn: ({ userData, idempotencyKey }) => {
+      return userRepo.register(userData, idempotencyKey);
+    },
+    onSuccess: (user) => {
+      // 회원가입 성공 후 사용자 정보 캐시
+      queryClient.setQueryData([...queryKeys.user.id(), user.id], user);
+    },
+  });
 }
 
 /**
