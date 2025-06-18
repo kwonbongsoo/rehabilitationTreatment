@@ -81,11 +81,22 @@ export class MemberApiClient {
    */
   public async verifyCredentials(id: string, password: string): Promise<UserInfo> {
     try {
-      const {
-        body: { member },
-      } = await this.api.post<MemberResponse>('api/members/verify', {
+      const response = await this.api.post<MemberResponse>('api/members/verify', {
         json: { id, password },
       });
+
+      const { body } = response;
+
+      // 응답 구조 검증
+      if (!this.isMemberResponse(body)) {
+        console.error(`[MemberAPI] Invalid response format:`, body);
+        throw new ApiResponseFormatError(
+          'Invalid response format from member service',
+          this.SERVICE_NAME,
+        );
+      }
+
+      const member = body.data;
 
       return {
         id: member.id,
@@ -93,6 +104,16 @@ export class MemberApiClient {
         name: member.name,
       };
     } catch (error) {
+      console.error(`[MemberAPI] Error in verifyCredentials:`, error);
+      console.error(`[MemberAPI] Error type:`, error?.constructor?.name);
+      console.error(`[MemberAPI] Error message:`, (error as any)?.message);
+      console.error(`[MemberAPI] Error code:`, (error as any)?.code);
+
+      if (error instanceof HTTPError) {
+        console.error(`[MemberAPI] HTTP Error status:`, error.response.statusCode);
+        console.error(`[MemberAPI] HTTP Error body:`, error.response.body);
+      }
+
       throw this.handleApiError(error, 'verifyCredentials');
     }
   }
@@ -154,8 +175,12 @@ export class MemberApiClient {
       return new ApiError(`API 요청 오류: ${error.message}`, 500, this.SERVICE_NAME);
     }
 
+    // 일반 Error 객체 처리
+    if (error instanceof Error) {
+      return new ApiError(`API 오류: ${error.message}`, 500, this.SERVICE_NAME);
+    }
+
     // 기타 예상치 못한 에러
-    console.error(`[MemberAPI] Unexpected error in ${operation}:`, error);
     return new ApiError('예상치 못한 오류가 발생했습니다', 500, this.SERVICE_NAME);
   }
 
@@ -166,11 +191,39 @@ export class MemberApiClient {
     try {
       // body가 객체인지 확인
       const body = error.response.body;
-      if (typeof body === 'object' && body !== null && 'message' in body) {
-        return body.message as string;
+
+      if (typeof body === 'object' && body !== null) {
+        // 다양한 메시지 필드 시도
+        if ('message' in body && typeof body.message === 'string') {
+          return body.message;
+        }
+
+        if ('error' in body) {
+          const errorObj = body.error;
+          if (typeof errorObj === 'object' && errorObj !== null && 'message' in errorObj) {
+            return (errorObj as any).message;
+          }
+          if (typeof errorObj === 'string') {
+            return errorObj;
+          }
+        }
+
+        // 기타 일반적인 에러 필드들
+        if ('msg' in body && typeof body.msg === 'string') {
+          return body.msg;
+        }
+
+        if ('detail' in body && typeof body.detail === 'string') {
+          return body.detail;
+        }
+      }
+
+      // body가 문자열인 경우
+      if (typeof body === 'string') {
+        return body;
       }
     } catch (e) {
-      // 메시지 추출 중 오류 발생 시 기본 메시지 사용
+      console.error(`[MemberAPI] Error extracting message:`, e);
     }
 
     // 상태 코드별 기본 메시지
@@ -201,15 +254,15 @@ export class MemberApiClient {
       typeof obj === 'object' &&
       'success' in obj &&
       obj.success === true &&
-      'member' in obj &&
-      typeof obj.member === 'object' &&
-      obj.member !== null &&
-      'id' in obj.member &&
-      typeof obj.member.id === 'string' &&
-      'email' in obj.member &&
-      typeof obj.member.email === 'string' &&
-      'name' in obj.member &&
-      typeof obj.member.name === 'string'
+      'data' in obj &&
+      typeof obj.data === 'object' &&
+      obj.data !== null &&
+      'id' in obj.data &&
+      typeof obj.data.id === 'string' &&
+      'email' in obj.data &&
+      typeof obj.data.email === 'string' &&
+      'name' in obj.data &&
+      typeof obj.data.name === 'string'
     );
   }
 }

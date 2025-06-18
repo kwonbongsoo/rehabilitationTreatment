@@ -9,7 +9,7 @@
  */
 import { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 import { getApiConfig } from './config';
-import { cookieService } from '../services/cookieService';
+import { cookieService } from '@/services';
 
 /**
  * HTTP 메서드 타입

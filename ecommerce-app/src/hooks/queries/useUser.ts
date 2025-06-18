@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useCallback } from 'react';
 import { useUserRepository } from '../../context/RepositoryContext';
 import { User, UserUpdateRequest, Address } from '../../api/models/user';
 import { RegisterRequest } from '../../api/models/auth';
@@ -11,14 +12,16 @@ export function useRegister() {
   const queryClient = useQueryClient();
   const userRepo = useUserRepository();
 
-  return useMutation<User, Error, { userData: RegisterRequest; idempotencyKey: string }>({
-    mutationFn: ({ userData, idempotencyKey }) => {
+  // mutationFn을 useCallback으로 메모이제이션
+  const mutationFn = useCallback(
+    ({ userData, idempotencyKey }: { userData: RegisterRequest; idempotencyKey: string }) => {
       return userRepo.register(userData, idempotencyKey);
     },
-    onSuccess: (user) => {
-      // 회원가입 성공 후 사용자 정보 캐시
-      queryClient.setQueryData([...queryKeys.user.id(), user.id], user);
-    },
+    [userRepo.register],
+  );
+
+  return useMutation<User, Error, { userData: RegisterRequest; idempotencyKey: string }>({
+    mutationFn,
   });
 }
 

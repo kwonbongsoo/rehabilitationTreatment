@@ -1,0 +1,490 @@
+/* 모달 오버레이 */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(2px);
+  animation: fadeIn 0.2s ease-out;
+}
+
+/* 기본 모달 */
+.modal {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow: auto;
+  position: relative;
+  animation: slideIn 0.3s ease-out;
+}
+
+/* 모달 닫기 버튼 */
+.closeButton {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #6b7280;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  z-index: 1;
+}
+
+.closeButton:hover {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+/* 다이얼로그 스타일 */
+.dialog {
+  min-width: 400px;
+  max-width: 500px;
+}
+
+.dialogHeader {
+  padding: 1.5rem 1.5rem 1rem 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.dialogIcon {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+.dialogIcon.info {
+  background-color: #dbeafe;
+  color: #2563eb;
+}
+
+.dialogIcon.success {
+  background-color: #dcfce7;
+  color: #16a34a;
+}
+
+.dialogIcon.warning {
+  background-color: #fef3c7;
+  color: #d97706;
+}
+
+.dialogIcon.error {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+.dialogTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.dialogBody {
+  padding: 1rem 1.5rem;
+}
+
+.dialogMessage {
+  color: #6b7280;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.dialogFooter {
+  padding: 1rem 1.5rem 1.5rem 1.5rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.cancelButton {
+  padding: 0.5rem 1rem;
+  border: 1px solid #d1d5db;
+  background: white;
+  color: #374151;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.cancelButton:hover {
+  background-color: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.confirmButton {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.confirmButton.default {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.confirmButton.default:hover {
+  background-color: #2563eb;
+}
+
+.confirmButton.danger {
+  background-color: #dc2626;
+  color: white;
+}
+
+.confirmButton.danger:hover {
+  background-color: #b91c1c;
+}
+
+.confirmButton.warning {
+  background-color: #d97706;
+  color: white;
+}
+
+.confirmButton.warning:hover {
+  background-color: #b45309;
+}
+
+.confirmButton.info {
+  background-color: #2563eb;
+  color: white;
+}
+
+.confirmButton.info:hover {
+  background-color: #1d4ed8;
+}
+
+.confirmButton.success {
+  background-color: #16a34a;
+  color: white;
+}
+
+.confirmButton.success:hover {
+  background-color: #15803d;
+}
+
+.confirmButton.error {
+  background-color: #dc2626;
+  color: white;
+}
+
+.confirmButton.error:hover {
+  background-color: #b91c1c;
+}
+
+/* 드로어 스타일 */
+.drawerOverlay {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+.drawer {
+  position: fixed;
+  background: white;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  animation: slideInDrawer 0.3s ease-out;
+  max-width: none;
+  max-height: none;
+  border-radius: 0;
+}
+
+.drawer-right {
+  top: 0;
+  right: 0;
+  height: 100vh;
+  transform: translateX(100%);
+  animation: slideInRight 0.3s ease-out forwards;
+}
+
+.drawer-left {
+  top: 0;
+  left: 0;
+  height: 100vh;
+  transform: translateX(-100%);
+  animation: slideInLeft 0.3s ease-out forwards;
+}
+
+.drawer-top {
+  top: 0;
+  left: 0;
+  right: 0;
+  transform: translateY(-100%);
+  animation: slideInTop 0.3s ease-out forwards;
+}
+
+.drawer-bottom {
+  bottom: 0;
+  left: 0;
+  right: 0;
+  transform: translateY(100%);
+  animation: slideInBottom 0.3s ease-out forwards;
+}
+
+.drawer-small {
+  width: 300px;
+}
+
+.drawer-medium {
+  width: 400px;
+}
+
+.drawer-large {
+  width: 500px;
+}
+
+.drawerHeader {
+  padding: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.drawerTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.drawerContent {
+  padding: 1.5rem;
+  height: calc(100% - 80px);
+  overflow-y: auto;
+}
+
+/* 바텀 시트 스타일 */
+.bottomSheetOverlay {
+  background-color: rgba(0, 0, 0, 0.3);
+  align-items: flex-end;
+}
+
+.bottomSheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  border-radius: 16px 16px 0 0;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.2);
+  max-height: 90vh;
+  animation: slideInBottom 0.3s ease-out;
+  max-width: none;
+}
+
+.bottomSheetHandle {
+  width: 40px;
+  height: 4px;
+  background-color: #d1d5db;
+  border-radius: 2px;
+  margin: 0.75rem auto 0 auto;
+}
+
+.bottomSheetHeader {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.bottomSheetTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.bottomSheetContent {
+  padding: 1.5rem;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+/* 애니메이션 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInTop {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInBottom {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .modal {
+    margin: 1rem;
+    max-width: calc(100vw - 2rem);
+  }
+
+  .dialog {
+    min-width: auto;
+    width: 100%;
+  }
+
+  .drawer-small,
+  .drawer-medium,
+  .drawer-large {
+    width: 85vw;
+  }
+
+  .drawer-top,
+  .drawer-bottom {
+    height: auto;
+    max-height: 85vh;
+  }
+
+  .dialogFooter {
+    flex-direction: column-reverse;
+  }
+
+  .cancelButton,
+  .confirmButton {
+    width: 100%;
+    padding: 0.75rem;
+  }
+}
+
+/* 다크 모드 지원 */
+@media (prefers-color-scheme: dark) {
+  .modal {
+    background: #1f2937;
+    color: #f9fafb;
+  }
+
+  .dialogHeader {
+    border-bottom-color: #374151;
+  }
+
+  .dialogFooter {
+    border-top-color: #374151;
+  }
+
+  .dialogTitle {
+    color: #f9fafb;
+  }
+
+  .dialogMessage {
+    color: #d1d5db;
+  }
+
+  .cancelButton {
+    background: #374151;
+    border-color: #4b5563;
+    color: #f9fafb;
+  }
+
+  .cancelButton:hover {
+    background-color: #4b5563;
+  }
+
+  .closeButton {
+    color: #9ca3af;
+  }
+
+  .closeButton:hover {
+    background-color: #374151;
+    color: #d1d5db;
+  }
+}
+
+/* 접근성 */
+@media (prefers-reduced-motion: reduce) {
+  .overlay,
+  .modal,
+  .drawer,
+  .bottomSheet {
+    animation: none;
+  }
+}
+
+/* 고대비 모드 */
+@media (prefers-contrast: high) {
+  .overlay {
+    background-color: rgba(0, 0, 0, 0.8);
+  }
+
+  .modal {
+    border: 2px solid;
+  }
+
+  .cancelButton,
+  .confirmButton {
+    border: 2px solid;
+  }
+}

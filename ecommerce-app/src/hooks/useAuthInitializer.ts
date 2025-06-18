@@ -1,6 +1,6 @@
 import { useEffect, useCallback, useRef } from 'react';
-import { useAuth } from '@/store/authStore';
-import { cookieService } from '@/services/cookieService';
+import { useAuth } from '@/store/useAuthStore';
+import { cookieService } from '@/services';
 import { useSessionInfo } from '@/hooks/queries/useAuth';
 
 /**
@@ -42,12 +42,12 @@ export const useAuthInitializer = () => {
       // 초기화 실패 시 재시도 가능하도록 플래그 리셋
       isInitialized.current = false;
     }
-  }, [sessionInfoMutation, setUser]);
+  }, [sessionInfoMutation.mutateAsync, setUser]); // 최적화된 의존성
 
   // 컴포넌트 마운트 시 한 번만 실행
   useEffect(() => {
     initializeAuth();
-  }, [initializeAuth]);
+  }, [initializeAuth]); // initializeAuth가 변경될 때만 실행
 
   // 페이지 포커스 시 토큰 재검증 제거 (무한 호출 방지)
   // 필요시 별도 훅으로 분리하여 선택적으로 사용

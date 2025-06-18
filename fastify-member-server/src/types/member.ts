@@ -31,8 +31,8 @@ export interface MemberResponse {
   id: string;
   email: string;
   name: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string; // JSON 직렬화를 위해 string으로 변경
+  updatedAt: string; // JSON 직렬화를 위해 string으로 변경
 }
 
 // 표준 API 응답 타입 - 성공 응답
@@ -51,10 +51,9 @@ export interface ErrorResponse {
 
 // 인증 관련 응답 타입
 export interface AuthResponse {
-  success: boolean;
-  member?: MemberResponse;
-  message?: string;
-  error?: string;
+  data: MemberResponse;
+  authenticated: boolean;
+  message: string;
 }
 
 // 페이지네이션 관련 타입
@@ -65,11 +64,13 @@ export interface PaginationQuery {
 
 // 페이지네이션 결과 타입
 export interface PaginatedResult<T> {
-  items: T[];
-  total: number;
-  page: number;
-  pageSize: number;
-  pageCount: number;
+  data: T[];
+  pagination: {
+    skip: number;
+    take: number;
+    total: number;
+    hasMore: boolean;
+  };
 }
 
 // 타입 가드 함수들
@@ -89,34 +90,73 @@ export function hasIdParam(params: unknown): params is { id: string } {
 }
 
 // 에러 타입들
-export class MemberNotFoundError extends Error {
+export abstract class BaseHttpError extends Error {
+  public abstract readonly statusCode: number;
+  public abstract readonly errorCode: string;
+
+  constructor(message: string) {
+    super(message);
+  }
+
+  toResponse() {
+    return {
+      success: false,
+      error: this.message,
+      code: this.errorCode,
+      statusCode: this.statusCode,
+    };
+  }
+}
+
+export class MemberNotFoundError extends BaseHttpError {
+  public readonly statusCode = 404;
+  public readonly errorCode = 'MEMBER_NOT_FOUND';
+
   constructor(message = 'Member not found') {
     super(message);
     this.name = 'MemberNotFoundError';
   }
 }
 
-export class DuplicateValueError extends Error {
+export class DuplicateValueError extends BaseHttpError {
+  public readonly statusCode = 409;
+  public readonly errorCode = 'DUPLICATE_VALUE';
+
   constructor(field: string) {
     super(`${field} already in use`);
     this.name = 'DuplicateValueError';
   }
 }
 
-export class AuthenticationError extends Error {
+export class AuthenticationError extends BaseHttpError {
+  public readonly statusCode = 401;
+  public readonly errorCode = 'AUTHENTICATION_FAILED';
+
   constructor(message = 'Authentication failed') {
     super(message);
     this.name = 'AuthenticationError';
   }
 }
 
-export class ValidationError extends Error {
+export class ValidationError extends BaseHttpError {
+  public readonly statusCode = 400;
+  public readonly errorCode = 'VALIDATION_FAILED';
   public readonly fields: Record<string, string>;
 
   constructor(message = 'Validation failed', fields: Record<string, string> = {}) {
     super(message);
     this.name = 'ValidationError';
     this.fields = fields;
+  }
+
+  toResponse() {
+    return {
+      success: false,
+      error: this.message,
+      code: this.errorCode,
+      statusCode: this.statusCode,
+      fields: this.fields,
+    };
   }
 }
 

@@ -5,6 +5,7 @@
  * 조건부 게스트 토큰 발급 및 인증 검증
  */
 import { NextRequest, NextResponse } from 'next/server';
+import { setTokenCookiesEdge } from '@/services';
 
 /**
  * 토큰 확인을 건너뛸 경로들 - API 요청, JSON 파일, 정적 파일 접근
@@ -42,7 +43,11 @@ function getTokenFromCookies(request: NextRequest): string | null {
 /**
  * 게스트 토큰 발급 API 호출
  */
-async function issueGuestToken(): Promise<{ token: string; role: string; maxAge: number } | null> {
+async function issueGuestToken(): Promise<{
+  access_token: string;
+  role: string;
+  maxAge: number;
+} | null> {
   const authServiceUrl = process.env.AUTH_SERVICE_URL;
   const authPrefix = process.env.AUTH_PREFIX;
   const authBasicKey = process.env.AUTH_BASIC_KEY;
@@ -67,7 +72,7 @@ async function issueGuestToken(): Promise<{ token: string; role: string; maxAge:
     }
 
     const data = await response.json();
-    if (!data.success || !data.data?.token) {
+    if (!data.success || !data.data?.access_token) {
       throw new Error('Invalid auth service response');
     }
 
@@ -77,35 +82,13 @@ async function issueGuestToken(): Promise<{ token: string; role: string; maxAge:
     const maxAge = Math.max(0, tokenLifetime - elapsedTime);
 
     return {
-      token: data.data.token,
+      access_token: data.data.access_token,
       role: data.data.role || 'guest',
       maxAge,
     };
   } catch (error) {
     throw new Error('Failed to issue guest token');
   }
-}
-
-/**
- * 토큰 쿠키 설정
- */
-function setTokenCookies(
-  response: NextResponse,
-  tokenData: { token: string; role: string; maxAge: number },
-): void {
-  const isProduction = process.env.NODE_ENV === 'production';
-
-  const cookieOptions = {
-    httpOnly: true,
-    secure: isProduction,
-    sameSite: 'strict' as const,
-    path: '/',
-    maxAge: tokenData.maxAge,
-    domain: 'localhost',
-  };
-
-  response.cookies.set('access_token', tokenData.token, cookieOptions);
-  response.cookies.set('access_type', tokenData.role, cookieOptions);
 }
 
 export async function middleware(request: NextRequest) {
@@ -123,7 +106,7 @@ export async function middleware(request: NextRequest) {
       const tokenData = await issueGuestToken();
       if (tokenData) {
         const response = NextResponse.next();
-        setTokenCookies(response, tokenData);
+        setTokenCookiesEdge(response, tokenData);
         return response;
       }
     }

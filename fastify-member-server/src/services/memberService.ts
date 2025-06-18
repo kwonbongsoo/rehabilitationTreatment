@@ -12,7 +12,18 @@ import { IMemberService } from '../interfaces/memberService';
 import bcrypt from 'bcryptjs';
 
 export class MemberService implements IMemberService {
-  constructor(private readonly prisma: PrismaClient) {}
+  private static instance: MemberService;
+  private constructor(private readonly prisma: PrismaClient) {}
+
+  public static getInstance(prisma?: PrismaClient): MemberService {
+    if (!MemberService.instance) {
+      if (!prisma) {
+        throw new Error('PrismaClient instance required for first initialization');
+      }
+      MemberService.instance = new MemberService(prisma);
+    }
+    return MemberService.instance;
+  }
 
   // ===== 유틸리티 함수 (코드 상단으로 이동) =====
   private async hashPassword(password: string): Promise<string> {
@@ -117,7 +128,12 @@ export class MemberService implements IMemberService {
   }
 
   private validateCredentials(id: string, password: string): void {
-    if (typeof id !== 'string' || typeof password !== 'string' || !id || !password) {
+    if (
+      typeof id !== 'string' ||
+      typeof password !== 'string' ||
+      id.trim().length === 0 ||
+      password.trim().length === 0
+    ) {
       throw new ValidationError('Both ID and password are required');
     }
   }
@@ -193,6 +209,14 @@ export class MemberService implements IMemberService {
     return member;
   }
 
+  async findMany(options: { skip: number; take: number }): Promise<MemberOutput[]> {
+    return await this.prisma.member.findMany({
+      skip: options.skip,
+      take: options.take,
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
   async findAll(skip = 0, take = 10): Promise<MemberOutput[]> {
     return await this.prisma.member.findMany({
       skip,
@@ -202,12 +226,17 @@ export class MemberService implements IMemberService {
   }
 
   async update(id: string, updateData: Partial<MemberInput>): Promise<MemberOutput> {
-    // 1. 비즈니스 규칙 검증
+    // 1. 검증: 새로운 데이터가 있는지 확인
+    if (Object.keys(updateData).length === 0) {
+      throw new ValidationError('No update data provided');
+    }
+
+    // 2. 비즈니스 규칙 검증
     this.validateUpdateMember(updateData);
 
-    // 트랜잭션으로 업데이트 작업 원자성 보장
+    // 트랜잭션으로 데이터 일관성 보장
     return await this.prisma.$transaction(async (tx) => {
-      // 2. 멤버 존재 확인
+      // 3. 기존 멤버 존재 확인
       const existingMember = await tx.member.findUnique({
         where: { id },
       });
@@ -216,104 +245,75 @@ export class MemberService implements IMemberService {
         throw new MemberNotFoundError(`Member with ID ${id} not found`);
       }
 
-      // 3. 이메일과 ID 중복 검사 병렬 처리
-      const duplicateChecks = [];
+      const processedData: any = { ...updateData };
 
-      if (updateData.email) {
-        duplicateChecks.push(
-          tx.member
-            .findFirst({
-              where: {
-                email: updateData.email,
-                NOT: { id },
-              },
-            })
-            .then((result) => {
-              if (result) throw new DuplicateValueError('Email');
-            }),
-        );
+      // 4. 이메일 중복 확인 (이메일이 변경되는 경우에만)
+      if (updateData.email && updateData.email !== existingMember.email) {
+        const emailExists = await tx.member.findUnique({
+          where: { email: updateData.email },
+        });
+
+        if (emailExists) {
+          throw new DuplicateValueError('Email');
+        }
       }
 
-      if (updateData.id) {
-        duplicateChecks.push(
-          tx.member
-            .findFirst({
-              where: {
-                id: updateData.id,
-                NOT: { id },
-              },
-            })
-            .then((result) => {
-              if (result) throw new DuplicateValueError('ID');
-            }),
-        );
+      // 5. ID 중복 확인 (ID가 변경되는 경우에만)
+      if (updateData.id && updateData.id !== existingMember.id) {
+        const idExists = await tx.member.findUnique({
+          where: { id: updateData.id },
+        });
+
+        if (idExists) {
+          throw new DuplicateValueError('ID');
+        }
       }
 
-      // 병렬 처리된 중복 검사 대기
-      if (duplicateChecks.length > 0) {
-        await Promise.all(duplicateChecks);
-      }
-
-      // 4. 비밀번호 업데이트 시 해싱
-      let dataToUpdate = { ...updateData };
+      // 6. 비밀번호 해싱 (비밀번호가 변경되는 경우에만)
       if (updateData.password) {
-        dataToUpdate.password = await this.hashPassword(updateData.password);
+        processedData.password = await this.hashPassword(updateData.password);
       }
 
-      // 5. 멤버 정보 업데이트
+      // 7. 멤버 정보 업데이트
       return await tx.member.update({
         where: { id },
-        data: dataToUpdate,
+        data: processedData,
       });
     });
   }
 
   async delete(id: string): Promise<boolean> {
-    // 트랜잭션으로 검사와 삭제를 원자적으로 처리
-    await this.prisma.$transaction(async (tx) => {
-      // 멤버 존재 확인
-      const existingMember = await tx.member.findUnique({
-        where: { id },
-      });
-
-      if (!existingMember) {
-        throw new MemberNotFoundError(`Member with ID ${id} not found`);
-      }
-
-      // 멤버 삭제
-      await tx.member.delete({
-        where: { id },
-      });
-    });
-
-    return true;
-  }
-
-  async authenticate(id: string, password: string): Promise<Omit<MemberOutput, 'password'>> {
-    // 1. 인증 데이터 유효성 검증
-    this.validateCredentials(id, password);
-
     try {
-      // 2. ID로 멤버 조회
-      const member = await this.findByLoginId(id);
-
-      // 3. 비밀번호 확인
-      const passwordMatch = await this.comparePasswords(password, member.password);
-
-      if (!passwordMatch) {
-        throw new AuthenticationError('Invalid credentials');
-      }
-
-      // 4. 인증 성공 - 비밀번호 제외하고 반환
-      const { password: _, ...memberData } = member;
-      return memberData;
-    } catch (error) {
-      if (error instanceof MemberNotFoundError) {
-        // 로그인 실패 시 일반 인증 오류로 변환 (보안 목적)
-        throw new AuthenticationError('Invalid credentials');
+      await this.prisma.member.delete({
+        where: { id },
+      });
+      return true;
+    } catch (error: any) {
+      if (error.code === 'P2025') {
+        // Prisma error code for "Record to delete does not exist"
+        throw new MemberNotFoundError(`Member with ID ${id} not found`);
       }
       throw error;
     }
+  }
+
+  async authenticate(id: string, password: string): Promise<Omit<MemberOutput, 'password'>> {
+    // 1. 입력 검증
+    this.validateCredentials(id, password);
+
+    // 2. 멤버 찾기 (findByLoginId는 Not Found 시 예외 발생)
+    const member = await this.findByLoginId(id);
+
+    // 3. 비밀번호 검증
+    const isPasswordValid = await this.comparePasswords(password, member.password);
+
+    if (!isPasswordValid) {
+      throw new AuthenticationError('Invalid credentials');
+    }
+
+    // 4. 안전한 멤버 정보 반환 (비밀번호 제외)
+    const { password: _, ...safeUserData } = member;
+    return safeUserData;
   }
 
   async changePassword(
@@ -324,9 +324,9 @@ export class MemberService implements IMemberService {
     // 1. 새 비밀번호 검증
     this.validatePasswordChange(newPassword);
 
-    // 트랜잭션으로 검사와 변경을 원자적으로 처리
+    // 트랜잭션으로 데이터 일관성 보장
     return await this.prisma.$transaction(async (tx) => {
-      // 2. 멤버 조회
+      // 2. 멤버 존재 확인 및 현재 비밀번호 검증
       const member = await tx.member.findUnique({
         where: { id },
       });
@@ -336,55 +336,23 @@ export class MemberService implements IMemberService {
       }
 
       // 3. 현재 비밀번호 확인
-      const passwordMatch = await this.comparePasswords(currentPassword, member.password);
+      const isCurrentPasswordValid = await this.comparePasswords(currentPassword, member.password);
 
-      if (!passwordMatch) {
+      if (!isCurrentPasswordValid) {
         throw new AuthenticationError('Current password is incorrect');
       }
 
       // 4. 새 비밀번호 해싱 및 업데이트
-      const hashedPassword = await this.hashPassword(newPassword);
+      const hashedNewPassword = await this.hashPassword(newPassword);
 
       return await tx.member.update({
         where: { id },
-        data: { password: hashedPassword },
+        data: { password: hashedNewPassword },
       });
     });
   }
 
   async countAll(): Promise<number> {
     return await this.prisma.member.count();
-  }
-
-  static async createMember(data: MemberInput): Promise<MemberOutput> {
-    // TODO: Implement member creation logic
-    throw new ValidationError('Not implemented', {
-      field: 'service',
-      reason: 'Method not implemented',
-    });
-  }
-
-  static async getMember(id: string): Promise<MemberOutput> {
-    // TODO: Implement member retrieval logic
-    throw new ValidationError('Not implemented', {
-      field: 'service',
-      reason: 'Method not implemented',
-    });
-  }
-
-  static async updateMember(id: string, data: MemberInput): Promise<MemberOutput> {
-    // TODO: Implement member update logic
-    throw new ValidationError('Not implemented', {
-      field: 'service',
-      reason: 'Method not implemented',
-    });
-  }
-
-  static async deleteMember(id: string): Promise<void> {
-    // TODO: Implement member deletion logic
-    throw new ValidationError('Not implemented', {
-      field: 'service',
-      reason: 'Method not implemented',
-    });
   }
 }

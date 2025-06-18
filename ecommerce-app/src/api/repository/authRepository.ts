@@ -6,8 +6,10 @@ export const createAuthRepository = (apiClient: ApiClient) => ({
   /**
    * 사용자 로그인
    */
-  login: async (credentials: LoginRequest): Promise<LoginResponse> => {
-    return apiClient.post<LoginResponse>('/auth/login', credentials);
+  login: async (credentials: LoginRequest, idempotencyKey?: string): Promise<LoginResponse> => {
+    return apiClient.post<LoginResponse>('/auth/login', credentials, {
+      headers: idempotencyKey ? { 'X-Idempotency-Key': idempotencyKey } : undefined,
+    });
   },
 
   /**

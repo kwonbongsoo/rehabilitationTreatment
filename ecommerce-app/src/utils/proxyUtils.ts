@@ -11,7 +11,7 @@ import {
   isProxyError,
   createProxyErrorFromAxios,
 } from './proxyErrors';
-import { cookieService } from '../services/cookieService';
+import { cookieService } from '@/services';
 
 /**
  * 프록시 요청 옵션 인터페이스
@@ -20,11 +20,19 @@ export interface ProxyOptions {
   method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
   targetPath: string;
   includeAuth?: boolean;
+  useBasicAuth?: boolean; // Basic 인증 사용 여부
   includeIdempotency?: boolean;
   validateRequest?: (req: NextApiRequest) => { isValid: boolean; error?: string };
   transformRequest?: (body: any) => any;
   transformResponse?: (data: any) => any;
   logPrefix?: string;
+  /**
+   * 응답 처리 후 쿠키 설정 콜백
+   * @param res NextApiResponse 객체
+   * @param originalData 변환 전 원본 응답 데이터
+   * @param transformedData 변환 후 응답 데이터
+   */
+  setCookies?: (res: NextApiResponse, originalData: any, transformedData: any) => void;
 }
 
 /**
@@ -88,19 +96,37 @@ function buildRequestHeaders(req: NextApiRequest, options: ProxyOptions): Record
     headers['Content-Type'] = 'application/json';
   }
 
-  // 인증 헤더 처리 - 우선순위: 요청 헤더 > 쿠키
+  // 인증 헤더 처리
   if (options.includeAuth) {
     let authToken: string | null = null;
 
-    // 1순위: 요청 헤더의 Authorization
-    if (req.headers.authorization) {
-      authToken = req.headers.authorization as string;
+    // Basic 인증 사용 시
+    if (options.useBasicAuth) {
+      const authBasicKey = process.env.AUTH_BASIC_KEY;
+      if (authBasicKey) {
+        authToken = `Basic ${Buffer.from(authBasicKey).toString('base64')}`;
+      } else {
+        console.error('❌ AUTH_BASIC_KEY not found for Basic authentication');
+      }
+
+      // Basic 인증 시에도 기존 게스트 토큰을 별도 헤더로 전송 (로그인 시 게스트 토큰 만료용)
+      const existingToken = extractTokenFromCookies(req);
+      if (existingToken) {
+        headers['X-Previous-Token'] = existingToken;
+      }
     }
-    // 2순위: HttpOnly 쿠키의 access_token
+    // Bearer 토큰 사용 시 - 우선순위: 요청 헤더 > 쿠키
     else {
-      const cookieToken = extractTokenFromCookies(req);
-      if (cookieToken) {
-        authToken = `Bearer ${cookieToken}`;
+      // 1순위: 요청 헤더의 Authorization
+      if (req.headers.authorization) {
+        authToken = req.headers.authorization as string;
+      }
+      // 2순위: HttpOnly 쿠키의 access_token
+      else {
+        const cookieToken = extractTokenFromCookies(req);
+        if (cookieToken) {
+          authToken = `Bearer ${cookieToken}`;
+        }
       }
     }
 
@@ -132,6 +158,7 @@ function buildAxiosConfig(
     headers,
     timeout: 30000,
     validateStatus: () => true, // 모든 상태 코드 허용
+    // 재시도 없음 - axios 기본 동작 사용 (재시도 하지 않음)
   };
 
   if (options.method.toUpperCase() === 'GET') {
@@ -219,12 +246,18 @@ export async function handleProxyRequest(
     const response: AxiosResponse = await axios(axiosConfig);
 
     // 5. 응답 데이터 변환
-    let responseData = response.data;
+    const originalData = response.data;
+    let responseData = originalData;
     if (options.transformResponse) {
-      responseData = options.transformResponse(response.data);
+      responseData = options.transformResponse(originalData);
     }
 
-    // 6. 성공 응답 전달
+    // 6. 쿠키 설정 (로그인 성공 시 등)
+    if (options.setCookies && response.status >= 200 && response.status < 300) {
+      options.setCookies(res, originalData, responseData);
+    }
+
+    // 7. 성공 응답 전달
     res.status(response.status).json(responseData);
   } catch (error: any) {
     // BaseError 타입의 에러인 경우 바로 응답

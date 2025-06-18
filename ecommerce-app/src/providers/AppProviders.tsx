@@ -3,7 +3,6 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { ToastContainer } from 'react-toastify';
 import { ApiProvider } from '@/context/RepositoryContext';
-import { AuthProvider } from '@/store/authStore';
 import { createUIConfigurationService } from '@/services/uiConfigurationService';
 import { useAuthInitializer } from '@/hooks/useAuthInitializer';
 import 'react-toastify/dist/ReactToastify.css';
@@ -18,7 +17,7 @@ const uiConfig = uiConfigService.createConfiguration();
 
 /**
  * Auth 초기화 컴포넌트
- * AuthProvider 내부에서 실행되어야 하는 초기화 로직
+ * Zustand 스토어 초기화 로직 (Provider 불필요)
  */
 function AuthInitializer({ children }: { children: ReactNode }) {
   useAuthInitializer(); // 전역 auth 초기화
@@ -39,12 +38,10 @@ export function AppProviders({ children }: AppProvidersProps) {
   return (
     <QueryClientProvider client={queryClient}>
       <ApiProvider>
-        <AuthProvider>
-          <AuthInitializer>
-            {children}
-            <ToastContainer {...toastConfig} />
-          </AuthInitializer>
-        </AuthProvider>
+        <AuthInitializer>
+          {children}
+          <ToastContainer {...toastConfig} />
+        </AuthInitializer>
       </ApiProvider>
       {devtoolsConfig.enabled && (
         <ReactQueryDevtools initialIsOpen={devtoolsConfig.initialIsOpen} />

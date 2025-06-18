@@ -1,94 +1,88 @@
 .newsletterSection {
-    max-width: 600px;
-    margin: 0 auto;
-    text-align: center;
-    margin-bottom: 30px;
+  max-width: 600px;
+  margin: 0 auto;
+  text-align: center;
+  margin-bottom: 30px;
 }
 
 .newsletterSection h3 {
-    font-size: 1.5rem;
-    margin-bottom: 12px;
-    font-weight: 600;
+  font-size: 1.5rem;
+  margin-bottom: 12px;
+  font-weight: 600;
 }
 
 .newsletterSection p {
-    color: var(--color-text-muted);
-    margin-bottom: 20px;
+  color: var(--color-text-muted);
+  margin-bottom: 20px;
 }
 
 .newsletterForm {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .inputGroup {
-    display: flex;
-    width: 100%;
-    border-radius: 4px;
-    overflow: hidden;
+  display: flex;
+  width: 100%;
+  border-radius: 4px;
+  overflow: hidden;
 }
 
-.inputGroup input {
-    flex-grow: 1;
-    border: 1px solid #e5e5e5;
-    border-right: none;
-    padding: 12px 16px;
-    font-size: 14px;
-    outline: none;
-    border-radius: 4px 0 0 4px;
+/* 입력 필드와 버튼 스타일은 공통 모듈 사용 */
+.emailInput {
+  flex: 1 !important;
+  border-radius: 4px 0 0 4px !important;
+  border-right: none !important;
 }
 
-.inputGroup button {
-    background-color: var(--color-primary);
-    color: white;
-    border: none;
-    padding: 12px 24px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: background-color 0.2s ease;
-    border-radius: 0 4px 4px 0;
+.subscribeButton {
+  border-radius: 0 4px 4px 0 !important;
+  flex-shrink: 0;
 }
 
-.inputGroup button:hover {
-    background-color: var(--color-primary-dark, #3b82f6);
+.errorMessage {
+  color: #ef4444;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  text-align: center;
 }
 
 .checkboxLabel {
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-    font-size: 13px;
-    color: var(--color-text-muted);
-    line-height: 1.5;
-    text-align: left;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+  text-align: left;
 }
 
 .checkboxLabel input {
-    margin-top: 3px;
+  margin-top: 3px;
 }
 
 @media (max-width: 600px) {
-    .newsletterSection {
-        padding: 0 10px;
-    }
+  .newsletterSection {
+    padding: 0 10px;
+  }
 
-    .newsletterSection h3 {
-        font-size: 1.2rem;
-    }
+  .newsletterSection h3 {
+    font-size: 1.2rem;
+  }
 
-    .inputGroup {
-        flex-direction: column;
-    }
+  .inputGroup {
+    flex-direction: column;
+  }
 
-    .inputGroup input {
-        border-right: 1px solid #e5e5e5;
-        border-radius: 4px;
-        margin-bottom: 10px;
-    }
+  .inputGroup input {
+    border-right: 1px solid #e5e5e5;
+    border-radius: 4px;
+    margin-bottom: 10px;
+  }
 
-    .inputGroup button {
-        border-radius: 4px;
-        width: 100%;
-    }
+  .inputGroup button {
+    border-radius: 4px;
+    width: 100%;
+  }
 }
