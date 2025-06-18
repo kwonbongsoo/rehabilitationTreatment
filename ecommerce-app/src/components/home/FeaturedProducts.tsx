@@ -30,7 +30,7 @@ export default function FeaturedProducts({ title, products }: FeaturedProductsPr
     originalPrice: product.discount > 0 ? product.price : undefined,
     price:
       product.discount > 0
-        ? calculateDiscountedPrice(product.price, product.discount)
+        ? calculateDiscountedPrice(product.price, Math.min(Math.max(product.discount, 0), 100))
         : product.price,
   }));
 

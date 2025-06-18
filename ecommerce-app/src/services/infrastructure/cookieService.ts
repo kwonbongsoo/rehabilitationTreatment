@@ -85,9 +85,11 @@ export class CookieService {
   /**
    * 개별 쿠키 문자열 생성
    */
-  private createCookie(name: string, value: string, maxAge?: number): string {
-    const baseOptions = this.createBaseCookieOptions();
-    const options = [`${name}=${value}`, ...baseOptions];
+  private createCookie(name: string, value: string, maxAge?: number, httpOnly = true): string {
+    const baseOptions = httpOnly
+      ? this.createBaseCookieOptions()
+      : this.createBaseCookieOptions().filter((o) => o !== 'HttpOnly');
+    const options = [`${name}=${encodeURIComponent(value)}`, ...baseOptions];
 
     if (maxAge && maxAge > 0) {
       options.push(`Max-Age=${maxAge}`);
@@ -127,8 +129,7 @@ export class CookieService {
   createTokenCookies(tokenResult: TokenResult): string[] {
     const cookies: string[] = [];
     const maxAge = this.calculateMaxAge(tokenResult);
-
-    if (tokenResult.data?.access_token) {
+    if (maxAge !== undefined && tokenResult.data?.access_token) {
       cookies.push(
         this.createCookie(COOKIE_NAMES.ACCESS_TOKEN, tokenResult.data.access_token, maxAge),
       );

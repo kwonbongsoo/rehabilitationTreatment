@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useFormState } from '@/hooks/useFormState';
 import { EmailValidator } from '@/utils/validation';
 import { ErrorHandler } from '@/utils/errorHandling';
-import { NotificationManager, SUCCESS_MESSAGES } from '@/utils/notifications';
+import { NotificationManager } from '@/utils/notifications';
 import { FormContainer, FormInput, FormActions } from '@/components/common/Form';
 import { Button } from '@/components/common/Button';
 import { ForgotPasswordRequest } from '@/hooks/useForgotPasswordForm';
