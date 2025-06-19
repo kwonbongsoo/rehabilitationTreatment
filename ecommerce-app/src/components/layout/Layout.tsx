@@ -1,6 +1,5 @@
 import React from 'react';
 import Header from './Header';
-import { useRouter } from 'next/router';
 import styles from '@/styles/common/Layout.module.css';
 
 interface LayoutProps {

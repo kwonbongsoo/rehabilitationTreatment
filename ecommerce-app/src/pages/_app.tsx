@@ -1,9 +1,8 @@
 import type { AppProps } from 'next/app';
-import { useEffect } from 'react';
 import Layout from '@/components/layout/Layout';
 import { AppProviders } from '@/providers/AppProviders';
 import { registerGlobalTestFunctions } from '@/utils/proxyTester';
-import { useAuth } from '@/store/useAuthStore';
+import { useSessionInfo } from '@/hooks/queries/useAuth';
 import '@/styles/globals.css';
 
 // 개발 환경에서 테스트 함수 등록
@@ -13,34 +12,18 @@ if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
 
 /**
  * 인증 초기화 컴포넌트
- * 앱 전체에서 한 번만 실행되는 인증 상태 초기화
+ * useSessionInfo hook을 사용하여 React Query 기반 인증 상태 관리
  */
 function AuthInitializer({ children }: { children: React.ReactNode }) {
-  const { setUser } = useAuth();
-
-  useEffect(() => {
-    const initializeAuth = async () => {
-      if (typeof window === 'undefined') return; // SSR 환경에서는 실행하지 않음
-
-      try {
-        const response = await fetch('/api/auth/session-info', {
-          method: 'GET',
-          credentials: 'include',
-        });
-
-        if (response.ok) {
-          const { success, data } = await response.json();
-          setUser(success ? data : null);
-        } else {
-          setUser(null);
-        }
-      } catch (error) {
-        console.warn('⚠️ 인증 상태 초기화 실패:', error);
-      }
-    };
-
-    initializeAuth();
-  }, [setUser]);
+  // React Query 기반 세션 정보 조회
+  useSessionInfo({
+    enabled: typeof window !== 'undefined', // 클라이언트에서만 실행
+    retry: false, // 초기화 시에는 재시도하지 않음
+    onError: (error) => {
+      console.warn('⚠️ 인증 상태 초기화 실패:', error);
+      // 에러 발생 시 setUser(null)은 useSessionInfo hook 내부에서 처리됨
+    },
+  });
 
   return <>{children}</>;
 }

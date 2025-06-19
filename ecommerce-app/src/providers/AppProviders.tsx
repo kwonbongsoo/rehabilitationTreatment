@@ -2,7 +2,6 @@ import { ReactNode } from 'react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { ToastContainer } from 'react-toastify';
-import { ApiProvider } from '@/context/RepositoryContext';
 import { createUIConfigurationService } from '@/services/uiConfigurationService';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -21,16 +20,15 @@ const uiConfig = uiConfigService.createConfiguration();
  * - 모든 Provider 초기화 로직을 한곳에 집중
  * - _app.tsx에서 렌더링 로직 분리
  * - 테스트 가능한 구조
+ * - 새로운 APIClient 사용으로 Repository Context 제거
  */
 export function AppProviders({ children }: AppProvidersProps) {
   const { queryClient, toastConfig, devtoolsConfig } = uiConfig;
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ApiProvider>
-        {children}
-        <ToastContainer {...toastConfig} />
-      </ApiProvider>
+      {children}
+      <ToastContainer {...toastConfig} />
       {devtoolsConfig.enabled && (
         <ReactQueryDevtools initialIsOpen={devtoolsConfig.initialIsOpen} />
       )}

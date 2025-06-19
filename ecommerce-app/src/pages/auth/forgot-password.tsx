@@ -1,9 +1,9 @@
-import UserFormLayout from '@/components/shared/UserFormLayout';
-import RegisterPageContent from '@/components/member/RegisterPageContent';
+import UserFormLayout from '@/components/templates/UserFormLayout';
+import ForgotPasswordPageContent from '@/components/member/ForgotPasswordPageContent';
 import { useAuthPageRedirect } from '@/hooks/useAuthRedirect';
 import LoadingIndicator from '@/components/common/LoadingIndicator';
 
-export default function Register() {
+export default function ForgotPassword() {
   const { isRedirecting } = useAuthPageRedirect();
 
   // 리다이렉트 중이면 로딩 표시
@@ -23,8 +23,8 @@ export default function Register() {
   }
 
   return (
-    <UserFormLayout title="회원가입" description="쇼핑몰 회원가입 페이지">
-      <RegisterPageContent />
+    <UserFormLayout title="비밀번호 찾기" description="비밀번호를 재설정하여 다시 로그인하세요">
+      <ForgotPasswordPageContent />
     </UserFormLayout>
   );
 }

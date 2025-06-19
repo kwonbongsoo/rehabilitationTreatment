@@ -9,7 +9,7 @@ import { useLogin } from './queries/useAuth';
 import { LoginRequest } from '@/api/models/auth';
 import { ErrorHandler } from '@/utils/errorHandling';
 import { NotificationManager } from '@/utils/notifications';
-import { authDomainService, validationService } from '@/services';
+import { validationService } from '@/services';
 import { useIdempotentMutation } from './useIdempotentMutation';
 
 /**
@@ -29,6 +29,21 @@ export function useLoginForm(): UseLoginFormReturn {
   const loginMutation = useLogin();
   const { executeMutation, getRequestStatus } = useIdempotentMutation<void, LoginRequest>();
 
+  // 안전한 리다이렉트 URL 생성 함수
+  const getRedirectUrl = useCallback(
+    (query: Record<string, string | string[] | undefined>): string => {
+      const redirectTo = query.redirect as string;
+
+      // 안전한 리다이렉트 URL 확인 (오픈 리다이렉트 방지)
+      if (redirectTo && redirectTo.startsWith('/') && !redirectTo.startsWith('//')) {
+        return redirectTo;
+      }
+
+      return '/'; // 기본 경로
+    },
+    [],
+  );
+
   // 성공/에러 콜백을 useMemo로 메모이제이션
   const callbacks = useMemo(
     () => ({
@@ -36,7 +51,7 @@ export function useLoginForm(): UseLoginFormReturn {
         // 성공 메시지 표시
         NotificationManager.showSuccess('로그인에 성공했습니다!');
         // 리다이렉트 처리
-        const redirectTo = authDomainService.getRedirectUrl(router.query);
+        const redirectTo = getRedirectUrl(router.query);
         router.replace(redirectTo);
       },
       onError: (error: Error) => {
@@ -48,7 +63,7 @@ export function useLoginForm(): UseLoginFormReturn {
         ErrorHandler.handleFormError(error, '로그인');
       },
     }),
-    [], // 의존성 없음 - 한 번만 생성
+    [getRedirectUrl], // getRedirectUrl 의존성 추가
   );
 
   const handleLogin = useCallback(

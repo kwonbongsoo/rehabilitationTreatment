@@ -47,7 +47,6 @@ export default function FeaturedProducts({ title, products }: FeaturedProductsPr
         variant="featured"
         columns={4}
         gap="large"
-        imageHeight={250}
         onAddToCart={handleAddToCart}
         className={styles.featuredGrid}
       />

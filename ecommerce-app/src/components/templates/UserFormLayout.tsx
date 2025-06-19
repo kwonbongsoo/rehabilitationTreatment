@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import { ReactNode } from 'react';
-import styles from '@/styles/shared/UserFormLayout.module.css';
+import styles from '@/styles/templates/UserFormLayout.module.css';
 
 interface UserFormLayoutProps {
   children: ReactNode;

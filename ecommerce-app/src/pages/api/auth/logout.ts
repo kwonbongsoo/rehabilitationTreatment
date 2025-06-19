@@ -1,4 +1,4 @@
-import { createProxyHandler } from '../../../utils/proxyUtils';
+import { createProxyHandler } from '../../../api/proxy';
 
 // 로그아웃 API 프록시 핸들러
 export default createProxyHandler({

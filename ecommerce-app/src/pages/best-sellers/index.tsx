@@ -120,11 +120,9 @@ const BestSellers: React.FC = () => {
 
       <ProductGrid
         products={bestSellerProducts}
-        variant="bestseller"
+        variant="featured"
         gridType="bestseller"
         initialSort="sales"
-        showSalesInfo={true}
-        imageHeight={280}
         onAddToCart={handleAddToCart}
         className={styles.productGridCustom}
       />

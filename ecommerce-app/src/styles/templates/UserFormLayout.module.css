@@ -1,0 +1,127 @@
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: var(--spacing-xl);
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.card {
+  width: 100%;
+  max-width: 450px;
+  padding: var(--spacing-xxl);
+  background-color: var(--color-background);
+  border-radius: 12px;
+  box-shadow: var(--shadow-lg);
+  animation: fadeIn var(--transition-normal) ease-in-out;
+}
+
+.logoContainer {
+  text-align: center;
+  margin-bottom: var(--spacing-xl);
+}
+
+.logo {
+  font-size: var(--font-size-xxl);
+  font-weight: 700;
+  color: var(--color-text);
+  letter-spacing: 2px;
+  margin-bottom: var(--spacing-sm);
+}
+
+.tagline {
+  color: var(--color-text-light);
+  font-size: var(--font-size-sm);
+}
+
+.errorMessage {
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  background-color: var(--color-error-light);
+  border-radius: 6px;
+  color: var(--color-error);
+  font-size: var(--font-size-sm);
+}
+
+.successMessage {
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  background-color: var(--color-success-light);
+  border-radius: 6px;
+  color: var(--color-success);
+  font-size: var(--font-size-sm);
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  margin: var(--spacing-xl) 0;
+  color: var(--color-text-muted);
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.dividerText {
+  padding: 0 var(--spacing-md);
+  font-size: var(--font-size-sm);
+}
+
+.link {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-size: var(--font-size-sm);
+  transition: color var(--transition-fast);
+}
+
+.link:hover {
+  color: var(--color-primary-dark);
+  text-decoration: underline;
+}
+
+.linkContainer {
+  text-align: center;
+  font-size: var(--font-size-sm);
+  margin-top: var(--spacing-md);
+}
+
+.primaryLink {
+  display: block;
+  margin-top: var(--spacing-sm);
+  color: var(--color-primary);
+  font-weight: 600;
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.primaryLink:hover {
+  text-decoration: underline;
+  color: var(--color-primary-dark);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: var(--breakpoint-sm)) {
+  .card {
+    padding: var(--spacing-lg);
+  }
+
+  .logo {
+    font-size: var(--font-size-xl);
+  }
+}

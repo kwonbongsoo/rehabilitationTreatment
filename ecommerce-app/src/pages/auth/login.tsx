@@ -1,4 +1,4 @@
-import UserFormLayout from '@/components/shared/UserFormLayout';
+import UserFormLayout from '@/components/templates/UserFormLayout';
 import LoginPageContent from '@/components/auth/LoginPageContent';
 import { useAuthPageRedirect } from '@/hooks/useAuthRedirect';
 import LoadingIndicator from '@/components/common/LoadingIndicator';

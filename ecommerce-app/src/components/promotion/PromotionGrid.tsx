@@ -59,7 +59,6 @@ export default function PromotionGrid({
           variant="featured"
           columns={columns}
           gap="large"
-          imageHeight={250}
           onAddToCart={handleAddToCart}
           className={styles.promotionGrid}
         />

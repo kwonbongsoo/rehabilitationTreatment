@@ -11,14 +11,14 @@ export default function Account() {
   const router = useRouter();
   const { user, isAuthenticated, logout } = useAuth();
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
-  const isClient = typeof window !== 'undefined';
+  const isClientSide = typeof window !== 'undefined';
 
   // 인증되지 않은 사용자 리다이렉트
   useEffect(() => {
-    if (isClient && !isAuthenticated) {
+    if (isClientSide && !isAuthenticated) {
       router.replace('/auth/login');
     }
-  }, [isClient, isAuthenticated, router]);
+  }, [isClientSide, isAuthenticated, router]);
 
   // 로그아웃 처리
   const handleLogout = async () => {
@@ -33,7 +33,7 @@ export default function Account() {
   };
 
   // 로딩 상태 또는 인증되지 않은 상태에서는 빈 페이지
-  if (!isClient || !isAuthenticated) {
+  if (!isClientSide || !isAuthenticated) {
     return <div>Loading...</div>;
   }
 

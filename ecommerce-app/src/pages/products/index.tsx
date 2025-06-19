@@ -70,7 +70,6 @@ const ProductsPage: React.FC = () => {
       <ProductGrid
         products={mockProducts}
         title="모든 상품"
-        showCategory={true}
         onAddToCart={handleAddToCart}
         className={styles.productsGrid}
       />

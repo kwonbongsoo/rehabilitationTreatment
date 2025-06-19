@@ -13,7 +13,6 @@ export interface ProductCardProps {
     image: string;
     rating?: number;
     reviewCount?: number;
-    reviews?: number;
     sales?: number;
     category?: string;
     badge?: string;
@@ -21,24 +20,46 @@ export interface ProductCardProps {
     isNew?: boolean;
     onSale?: boolean;
   };
-  variant?: 'default' | 'compact' | 'featured' | 'bestseller';
-  showAddToCart?: boolean;
-  showRating?: boolean;
-  showSalesInfo?: boolean;
-  showCategory?: boolean;
-  imageHeight?: number;
+  variant?: 'standard' | 'compact' | 'featured' | 'minimal';
   className?: string;
   onAddToCart?: (productId: number) => void;
 }
 
+// Variant별 설정을 미리 정의
+const VARIANT_CONFIG = {
+  standard: {
+    showAddToCart: true,
+    showRating: true,
+    showSalesInfo: false,
+    showCategory: false,
+    imageHeight: 250,
+  },
+  compact: {
+    showAddToCart: false,
+    showRating: true,
+    showSalesInfo: false,
+    showCategory: false,
+    imageHeight: 200,
+  },
+  featured: {
+    showAddToCart: true,
+    showRating: true,
+    showSalesInfo: true,
+    showCategory: true,
+    imageHeight: 300,
+  },
+  minimal: {
+    showAddToCart: false,
+    showRating: false,
+    showSalesInfo: false,
+    showCategory: false,
+    imageHeight: 180,
+  },
+} as const;
+
 export default function ProductCard({
   product,
-  variant = 'default',
-  showAddToCart = true,
-  showRating = true,
-  showSalesInfo = false,
-  showCategory = false,
-  imageHeight = 250,
+  variant = 'standard',
   className = '',
   onAddToCart,
 }: ProductCardProps) {
@@ -50,7 +71,6 @@ export default function ProductCard({
     image,
     rating,
     reviewCount,
-    reviews,
     sales,
     category,
     badge,
@@ -59,6 +79,7 @@ export default function ProductCard({
     onSale,
   } = product;
 
+  const config = VARIANT_CONFIG[variant];
   const cardClass = `${styles.productCard} ${styles[variant]} ${className}`;
 
   const handleAddToCart = (e: React.MouseEvent) => {
@@ -94,15 +115,12 @@ export default function ProductCard({
   );
 
   const renderRating = () => {
-    if (!showRating || !rating) return null;
-
-    const reviewCountToShow = reviewCount || reviews;
-    return <Rating rating={rating} reviewCount={reviewCountToShow} />;
+    if (!config.showRating || !rating) return null;
+    return <Rating rating={rating} reviewCount={reviewCount} />;
   };
 
   const renderSalesInfo = () => {
-    if (!showSalesInfo || !sales) return null;
-
+    if (!config.showSalesInfo || !sales) return null;
     return (
       <div className={styles.salesInfo}>
         <span className={styles.salesCount}>🔥 {sales}개 판매</span>
@@ -111,15 +129,14 @@ export default function ProductCard({
   };
 
   const renderCategory = () => {
-    if (!showCategory || !category) return null;
-
+    if (!config.showCategory || !category) return null;
     return <span className={styles.productCategory}>{category}</span>;
   };
 
   return (
     <div className={cardClass}>
       <Link href={`/products/${id}`} className={styles.productLink}>
-        <div className={styles.imageContainer} style={{ height: imageHeight }}>
+        <div className={styles.imageContainer} style={{ height: config.imageHeight }}>
           <OptimizedImage
             src={image}
             alt={name}
@@ -139,7 +156,7 @@ export default function ProductCard({
         </div>
       </Link>
 
-      {showAddToCart && (
+      {config.showAddToCart && (
         <button className={styles.addToCartButton} onClick={handleAddToCart}>
           장바구니 담기
         </button>

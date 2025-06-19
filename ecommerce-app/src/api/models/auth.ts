@@ -77,22 +77,6 @@ export interface RegisterResponse {
 }
 
 /**
- * 기존 호환성을 위한 SignupRequest (deprecated)
- * @deprecated Use RegisterRequest instead
- */
-export interface SignupRequest {
-  email: string;
-  password: string;
-  confirmPassword: string;
-  firstName: string;
-  lastName: string;
-  phoneNumber?: string;
-  marketingConsent?: boolean;
-  termsAccepted: boolean;
-  privacyPolicyAccepted: boolean;
-}
-
-/**
  * 사용자 응답 모델 (민감한 정보 제외)
  */
 export interface UserResponse {

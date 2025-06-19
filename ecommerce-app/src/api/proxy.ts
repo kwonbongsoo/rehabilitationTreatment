@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import axios, { AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
-import { KONG_GATEWAY_URL } from '../api/config';
+import { KONG_GATEWAY_URL } from './config';
 import { BaseError } from '@ecommerce/common';
 import {
   ProxyError,
@@ -10,7 +10,7 @@ import {
   GatewayError,
   isProxyError,
   createProxyErrorFromAxios,
-} from './proxyErrors';
+} from '../utils/proxyErrors';
 import { cookieService } from '@/services';
 
 /**

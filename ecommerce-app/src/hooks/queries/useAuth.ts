@@ -1,9 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useAuthRepository } from '../../context/RepositoryContext';
+import { apiService } from '../../api/apiClient';
 import { LoginRequest, LoginResponse, SessionInfoResponse } from '../../api/models/auth';
 import { queryKeys } from './queryKeys';
 import { useAuth } from '../../store/useAuthStore';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 
 interface SessionInfoOptions {
   enabled?: boolean;
@@ -13,11 +13,10 @@ interface SessionInfoOptions {
 }
 
 /**
- * 로그인 훅 - AuthProvider와 안전한 연동
+ * 로그인 훅 - 새로운 APIClient 사용
  */
 export function useLogin() {
   const queryClient = useQueryClient();
-  const authRepo = useAuthRepository();
   const { setUser } = useAuth();
 
   // mutationFn을 useCallback으로 메모이제이션
@@ -29,9 +28,9 @@ export function useLogin() {
       credentials: LoginRequest;
       idempotencyKey?: string;
     }) => {
-      return authRepo.login(credentials, idempotencyKey);
+      return apiService.login(credentials, idempotencyKey);
     },
-    [authRepo],
+    [],
   );
 
   // 성공 콜백을 useCallback으로 메모이제이션
@@ -57,17 +56,16 @@ export function useLogin() {
 }
 
 /**
- * 로그아웃 훅
+ * 로그아웃 훅 - 새로운 APIClient 사용
  */
 export function useLogout() {
-  const authRepo = useAuthRepository();
   const { logout } = useAuth();
   const queryClient = useQueryClient();
 
   // mutationFn을 useCallback으로 메모이제이션
   const mutationFn = useCallback(async () => {
-    return authRepo.logout();
-  }, [authRepo]);
+    return apiService.logout();
+  }, []);
 
   // 성공 콜백을 useCallback으로 메모이제이션
   const onSuccessCallback = useCallback(() => {
@@ -89,25 +87,30 @@ export function useLogout() {
 }
 
 /**
- * 세션 정보 조회 훅 - useQuery로 변경 (베스트 프랙티스)
+ * 세션 정보 조회 훅 - 새로운 APIClient 사용
  */
 export function useSessionInfo(options: SessionInfoOptions = {}) {
-  const authRepo = useAuthRepository();
   const { setUser } = useAuth();
   const queryClient = useQueryClient();
 
   // 쿼리 함수를 useCallback으로 메모이제이션
   const queryFn = useCallback(async () => {
-    return authRepo.sessionInfo();
-  }, [authRepo]);
+    return apiService.getSessionInfo();
+  }, []);
 
-  const query = useQuery<SessionInfoResponse, Error>({
-    queryKey: queryKeys.user.session(),
-    queryFn,
-    enabled: options.enabled ?? true,
-    retry: options.retry ?? false,
-    staleTime: options.staleTime ?? 5 * 60 * 1000, // 5분
-  });
+  // React Query 옵션을 useMemo로 메모이제이션
+  const queryOptions = useMemo(
+    () => ({
+      queryKey: queryKeys.user.session(),
+      queryFn,
+      enabled: options.enabled ?? true,
+      retry: options.retry ?? false,
+      staleTime: options.staleTime ?? 1 * 60 * 1000, // 1분
+    }),
+    [queryFn, options.enabled, options.retry, options.staleTime],
+  );
+
+  const query = useQuery<SessionInfoResponse, Error>(queryOptions);
 
   // 성공 시 사이드 이펙트 처리
   useEffect(() => {

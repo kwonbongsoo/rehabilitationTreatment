@@ -4,16 +4,16 @@ import { useRouter } from 'next/router';
 import LoginForm from './LoginForm';
 import Divider from './Divider';
 import { useLoginForm } from '@/hooks/useLoginForm';
-import styles from '@/styles/shared/UserFormLayout.module.css';
+import styles from '@/styles/templates/UserFormLayout.module.css';
 
 export default function LoginPageContent() {
   const router = useRouter();
   const { handleLogin, isLoading } = useLoginForm();
-  const isClient = typeof window !== 'undefined';
+  const isClientSide = typeof window !== 'undefined';
 
   // 클라이언트에서만 토큰 체크 및 리다이렉트
   useEffect(() => {
-    if (!isClient) return;
+    if (!isClientSide) return;
 
     // 로그인 유저면 리다이렉트
     if (false) {
@@ -21,7 +21,7 @@ export default function LoginPageContent() {
       // TODO: 추후 토큰 디코딩으로 role 확인 구현
       // router.replace('/');
     }
-  }, [isClient, router]);
+  }, [isClientSide, router]);
 
   return (
     <>
