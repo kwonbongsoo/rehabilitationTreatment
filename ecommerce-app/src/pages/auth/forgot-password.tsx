@@ -1,14 +1,12 @@
-import UserFormLayout from '@/components/templates/UserFormLayout';
-import ForgotPasswordPageContent from '@/components/member/ForgotPasswordPageContent';
-import { useAuthPageRedirect } from '@/hooks/useAuthRedirect';
 import LoadingIndicator from '@/components/common/LoadingIndicator';
+import dynamic from 'next/dynamic';
 
-export default function ForgotPassword() {
-  const { isRedirecting } = useAuthPageRedirect();
-
-  // 리다이렉트 중이면 로딩 표시
-  if (isRedirecting) {
-    return (
+// 클라이언트에서만 실행되는 컴포넌트로 동적 임포트
+const ForgotPasswordClient = dynamic(
+  () => import('@/components/member/ForgotPasswordPageContent'),
+  {
+    ssr: false, // 서버 사이드 렌더링 비활성화
+    loading: () => (
       <div
         style={{
           display: 'flex',
@@ -19,12 +17,33 @@ export default function ForgotPassword() {
       >
         <LoadingIndicator />
       </div>
-    );
-  }
+    ),
+  },
+);
 
+const UserFormLayoutClient = dynamic(() => import('@/components/templates/UserFormLayout'), {
+  ssr: false,
+  loading: () => (
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+      }}
+    >
+      <LoadingIndicator />
+    </div>
+  ),
+});
+
+export default function ForgotPassword() {
   return (
-    <UserFormLayout title="비밀번호 찾기" description="비밀번호를 재설정하여 다시 로그인하세요">
-      <ForgotPasswordPageContent />
-    </UserFormLayout>
+    <UserFormLayoutClient
+      title="비밀번호 찾기"
+      description="비밀번호를 재설정하여 다시 로그인하세요"
+    >
+      <ForgotPasswordClient />
+    </UserFormLayoutClient>
   );
 }

@@ -3,13 +3,13 @@
  *
  * useIdempotentMutation을 활용하여 로그인 요청에 멱등성 보장
  */
-import { useCallback, useMemo } from 'react';
-import { useRouter } from 'next/router';
-import { useLogin } from './queries/useAuth';
 import { LoginRequest } from '@/api/models/auth';
+import { validationService } from '@/services';
 import { ErrorHandler } from '@/utils/errorHandling';
 import { NotificationManager } from '@/utils/notifications';
-import { validationService } from '@/services';
+import { useRouter } from 'next/router';
+import { useCallback, useMemo } from 'react';
+import { useLogin } from './queries/useAuth';
 import { useIdempotentMutation } from './useIdempotentMutation';
 
 /**
@@ -63,35 +63,30 @@ export function useLoginForm(): UseLoginFormReturn {
         ErrorHandler.handleFormError(error, '로그인');
       },
     }),
-    [getRedirectUrl], // getRedirectUrl 의존성 추가
+    [getRedirectUrl, router], // getRedirectUrl 의존성 추가
   );
 
   const handleLogin = useCallback(
     async (credentials: LoginRequest): Promise<void> => {
-      try {
-        // 검증 서비스를 통한 입력 검증
-        validationService.validateLoginCredentials(credentials);
+      // 검증 서비스를 통한 입력 검증
+      validationService.validateLoginCredentials(credentials);
 
-        // 멱등성이 보장되는 로그인 요청 실행
-        await executeMutation(
-          async (loginCredentials, idempotencyKey) => {
-            await loginMutation.mutateAsync({
-              credentials: loginCredentials,
-              idempotencyKey,
-            });
-          },
-          credentials,
-          {
-            useSessionKey: true, // 세션별 고정 키 사용
-            ...callbacks,
-          },
-        );
-      } catch (error) {
-        // 추가 에러 처리 (멱등성 관련 에러 등)
-        throw error;
-      }
+      // 멱등성이 보장되는 로그인 요청 실행
+      await executeMutation(
+        async (loginCredentials, idempotencyKey) => {
+          await loginMutation.mutateAsync({
+            credentials: loginCredentials,
+            idempotencyKey,
+          });
+        },
+        credentials,
+        {
+          useSessionKey: true, // 세션별 고정 키 사용
+          ...callbacks,
+        },
+      );
     },
-    [loginMutation.mutateAsync, executeMutation, callbacks], // 최소한의 의존성만
+    [loginMutation, executeMutation, callbacks], // 최소한의 의존성만
   );
 
   const requestStatus = getRequestStatus();

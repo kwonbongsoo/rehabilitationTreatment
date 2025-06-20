@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useToastError } from '../../store/useErrorStore';
 
 interface ToastNotificationProps {

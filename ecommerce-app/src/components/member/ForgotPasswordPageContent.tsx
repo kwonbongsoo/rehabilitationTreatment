@@ -32,7 +32,7 @@ export default function ForgotPasswordPageContent() {
 
       <div className={styles.linkContainer}>
         <p>계정이 없으신가요?</p>
-        <Link href="/member/register" className={styles.link}>
+        <Link href="/auth/register" className={styles.link}>
           회원가입
         </Link>
       </div>

@@ -1,15 +1,21 @@
 .main {
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 var(--spacing-md);
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--spacing-lg) var(--spacing-md);
+  min-height: calc(100vh - var(--header-height, 72px));
+  background-color: var(--color-background);
 }
 
 /* 반응형 스타일 */
 @media (max-width: 768px) {
-    /* 반응형 레이아웃 스타일 */
+  .main {
+    padding: var(--spacing-md) var(--spacing-sm);
+  }
 }
 
 @media (max-width: 480px) {
-    /* 모바일 레이아웃 스타일 */
+  .main {
+    padding: var(--spacing-sm);
+  }
 }

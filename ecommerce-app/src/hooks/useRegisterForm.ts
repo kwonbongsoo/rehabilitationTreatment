@@ -4,12 +4,12 @@
  * 기존의 복잡한 로직을 공통 모듈로 대체하고
  * 회원가입 특화 로직만 유지
  */
-import { useCallback, useMemo } from 'react';
-import { useRouter } from 'next/router';
-import { useRegister } from './queries/useUser';
 import { RegisterRequest } from '@/api/models/auth';
 import { ErrorHandler } from '@/utils/errorHandling';
 import { NotificationManager, SUCCESS_MESSAGES } from '@/utils/notifications';
+import { useRouter } from 'next/router';
+import { useCallback, useMemo } from 'react';
+import { useRegister } from './queries/useUser';
 
 /**
  * 회원가입 폼 데이터
@@ -62,7 +62,7 @@ export function useRegisterForm(): UseRegisterFormReturn {
         ErrorHandler.handleFormError(error, '회원가입');
       },
     }),
-    [router.push], // router.push만 의존성으로
+    [router], // router 전체 객체 의존성
   );
 
   const handleRegister = useCallback(
@@ -91,7 +91,7 @@ export function useRegisterForm(): UseRegisterFormReturn {
         return false;
       }
     },
-    [registerMutation.mutateAsync, handlers], // 최소한의 의존성만
+    [registerMutation, handlers], // registerMutation 전체 객체 의존성
   );
 
   return {

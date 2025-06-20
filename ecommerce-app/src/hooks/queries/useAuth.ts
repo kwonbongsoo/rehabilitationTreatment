@@ -1,14 +1,23 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { apiService } from '../../api/apiClient';
-import { LoginRequest, LoginResponse, SessionInfoResponse } from '../../api/models/auth';
-import { queryKeys } from './queryKeys';
-import { useAuth } from '../../store/useAuthStore';
 import { useCallback, useEffect, useMemo } from 'react';
+import { apiService } from '../../api/apiClient';
+import {
+  LoginRequest,
+  LoginResponse,
+  LogoutResponse,
+  SessionInfoResponse,
+} from '../../api/models/auth';
+import { useAuth } from '../../store/useAuthStore';
+import { ErrorHandler } from '../../utils/errorHandling';
+import { queryKeys } from './queryKeys';
 
 interface SessionInfoOptions {
   enabled?: boolean;
   retry?: boolean | number;
   staleTime?: number;
+  gcTime?: number;
+  refetchOnWindowFocus?: boolean;
+  refetchOnMount?: boolean;
   onError?: (error: Error) => void;
 }
 
@@ -37,7 +46,7 @@ export function useLogin() {
   const onSuccessCallback = useCallback(
     (response: LoginResponse) => {
       const { role, id, email, name } = response.data;
-      const filteredUserResponse = { role, id, email, name };
+      const filteredUserResponse = { role, id: id || '', email: email || '', name: name || '' };
 
       // 상태 업데이트 (동기적으로 처리)
       setUser(filteredUserResponse);
@@ -50,7 +59,7 @@ export function useLogin() {
     mutationFn,
     onSuccess: onSuccessCallback,
     onError: (error) => {
-      console.error('Login failed:', error);
+      ErrorHandler.handleApiError(error, '로그인');
     },
   });
 }
@@ -74,14 +83,13 @@ export function useLogout() {
 
     // React Query 캐시 초기화
     queryClient.clear();
-    window.location.reload();
   }, [logout, queryClient]);
 
-  return useMutation<void, Error, void>({
+  return useMutation<LogoutResponse, Error, void>({
     mutationFn,
     onSuccess: onSuccessCallback,
     onError: (error) => {
-      console.error('Logout failed:', error);
+      ErrorHandler.handleApiError(error, '로그아웃');
     },
   });
 }
@@ -106,8 +114,19 @@ export function useSessionInfo(options: SessionInfoOptions = {}) {
       enabled: options.enabled ?? true,
       retry: options.retry ?? false,
       staleTime: options.staleTime ?? 1 * 60 * 1000, // 1분
+      gcTime: options.gcTime ?? 2 * 60 * 1000, // 2분 (기본값)
+      refetchOnWindowFocus: options.refetchOnWindowFocus ?? true,
+      refetchOnMount: options.refetchOnMount ?? true,
     }),
-    [queryFn, options.enabled, options.retry, options.staleTime],
+    [
+      queryFn,
+      options.enabled,
+      options.retry,
+      options.staleTime,
+      options.gcTime,
+      options.refetchOnWindowFocus,
+      options.refetchOnMount,
+    ],
   );
 
   const query = useQuery<SessionInfoResponse, Error>(queryOptions);
@@ -127,7 +146,7 @@ export function useSessionInfo(options: SessionInfoOptions = {}) {
     if (query.error && options.onError) {
       options.onError(query.error);
     }
-  }, [query.error, options.onError]);
+  }, [query.error, options]);
 
   return query;
 }

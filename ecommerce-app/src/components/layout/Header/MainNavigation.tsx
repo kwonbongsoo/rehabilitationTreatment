@@ -1,8 +1,8 @@
-import React from 'react';
+import styles from '@/styles/layout/Header/MainNavigation.module.css';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import React, { memo, useCallback, useMemo } from 'react';
 import { FiX } from 'react-icons/fi';
-import styles from '@/styles/layout/Header/MainNavigation.module.css';
 
 interface Category {
   href: string;
@@ -16,23 +16,27 @@ interface MainNavigationProps {
   categories?: Category[];
 }
 
-const MainNavigation: React.FC<MainNavigationProps> = ({
-  isOpen,
-  onClose,
-  categories = [
-    { href: '/category/women', label: '여성' },
-    { href: '/category/men', label: '남성' },
-    { href: '/category/kids', label: '키즈' },
-    { href: '/category/accessories', label: '액세서리' },
-    { href: '/category/sale', label: '세일', isSale: true },
-  ],
-}) => {
+// 기본 카테고리 배열을 컴포넌트 외부로 이동하여 참조 동일성 보장
+const DEFAULT_CATEGORIES: Category[] = [
+  { href: '/category/women', label: '여성' },
+  { href: '/category/men', label: '남성' },
+  { href: '/category/kids', label: '키즈' },
+  { href: '/category/accessories', label: '액세서리' },
+  { href: '/category/sale', label: '세일', isSale: true },
+];
+
+const MainNavigation: React.FC<MainNavigationProps> = memo(({ isOpen, onClose, categories }) => {
   const router = useRouter();
 
-  // 카테고리 클릭 시 메뉴 닫기
-  const handleCategoryClick = () => {
+  // 카테고리 배열을 useMemo로 메모이제이션
+  const memoizedCategories = useMemo(() => {
+    return categories || DEFAULT_CATEGORIES;
+  }, [categories]);
+
+  // 카테고리 클릭 시 메뉴 닫기를 useCallback으로 메모이제이션
+  const handleCategoryClick = useCallback(() => {
     onClose();
-  };
+  }, [onClose]);
 
   return (
     <nav className={`${styles.mainNav} ${isOpen ? styles.active : ''}`}>
@@ -45,7 +49,7 @@ const MainNavigation: React.FC<MainNavigationProps> = ({
       </div>
 
       <ul>
-        {categories.map((category, index) => (
+        {memoizedCategories.map((category, index) => (
           <li key={index} className={router.pathname === category.href ? styles.active : ''}>
             <Link
               href={category.href}
@@ -59,6 +63,8 @@ const MainNavigation: React.FC<MainNavigationProps> = ({
       </ul>
     </nav>
   );
-};
+});
+
+MainNavigation.displayName = 'MainNavigation';
 
 export default MainNavigation;

@@ -1,15 +1,16 @@
-import { FiMail, FiPhone, FiMapPin, FiClock } from 'react-icons/fi';
-import { useFormState } from '@/hooks/useFormState';
-import { ErrorHandler } from '@/utils/errorHandling';
-import { NotificationManager, SUCCESS_MESSAGES } from '@/utils/notifications';
+import { Button } from '@/components/common/Button';
 import {
+  FormActions,
   FormContainer,
   FormInput,
   FormSelect,
   FormTextarea,
-  FormActions,
 } from '@/components/common/Form';
-import { Button } from '@/components/common/Button';
+import { useFormState } from '@/hooks/useFormState';
+import { ErrorHandler } from '@/utils/errorHandling';
+import { NotificationManager } from '@/utils/notifications';
+import React from 'react';
+import { FiClock, FiMail, FiMapPin, FiPhone } from 'react-icons/fi';
 import styles from './Contact.module.css';
 
 interface ContactFormData {
@@ -40,15 +41,11 @@ const ContactPage: React.FC = () => {
     resetOnSuccess: true,
   });
 
-  const handleSubmit = form.handleSubmit(async (data) => {
+  const handleSubmit = form.handleSubmit(async (_) => {
     try {
-      // 실제 API 호출 로직이 들어갈 곳
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // 모의 API 호출
-
       NotificationManager.showSuccess(
         '문의가 성공적으로 전송되었습니다. 빠른 시일 내에 답변드리겠습니다.',
       );
-      console.log('Contact form data:', data);
     } catch (error) {
       // 에러 처리 및 알림
       const standardError = ErrorHandler.handleFormError(error, '문의 전송');

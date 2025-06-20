@@ -6,10 +6,16 @@
  * - 간단한 API 호출 패턴 제공
  */
 
+import { cookieService } from '@/services';
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import { ProxyError } from '../utils/proxyErrors';
-import { cookieService } from '@/services';
-import { LoginRequest, LoginResponse, SessionInfoResponse, RegisterRequest } from './models/auth';
+import {
+  LoginRequest,
+  LoginResponse,
+  LogoutResponse,
+  RegisterRequest,
+  SessionInfoResponse,
+} from './models/auth';
 import { User } from './models/user';
 
 /**
@@ -44,8 +50,6 @@ export class ApiClient {
         'Content-Type': 'application/json',
       },
     });
-
-    this.setupInterceptors();
   }
 
   /**
@@ -161,7 +165,7 @@ export class ApiClient {
  * 단일 인터페이스로 모든 API 호출 관리
  */
 export class ApiService {
-  constructor(private apiClient: ApiClient) {}
+  constructor(private readonly apiClient: ApiClient) {}
 
   // ============ 인증 관련 API ============
 
@@ -179,8 +183,8 @@ export class ApiService {
   /**
    * 로그아웃
    */
-  async logout(): Promise<void> {
-    return this.apiClient.post<void>('/auth/logout');
+  async logout(): Promise<LogoutResponse> {
+    return this.apiClient.post<LogoutResponse>('/auth/logout');
   }
 
   /**
@@ -208,7 +212,7 @@ export class ApiService {
         name: userData.name,
         email: userData.email,
       },
-      requestConfig,
+      requestConfig as RequestOptions,
     );
     return response.data;
   }

@@ -1,12 +1,12 @@
-import { useState, useMemo, useCallback } from 'react';
-import ProductCard, { ProductCardProps } from './ProductCard';
 import {
-  filterAndSortProducts,
-  SortOption,
+  BESTSELLER_SORT_OPTIONS,
   COMMON_CATEGORIES,
   COMMON_SORT_OPTIONS,
-  BESTSELLER_SORT_OPTIONS,
+  filterAndSortProducts,
+  SortOption,
 } from '@/utils/productUtils';
+import { useCallback, useMemo, useState } from 'react';
+import ProductCard, { ProductCardProps } from './ProductCard';
 import styles from './ProductGrid.module.css';
 
 interface ProductGridProps {
@@ -128,7 +128,7 @@ export default function ProductGrid({
             key={product.id}
             product={product}
             variant={variant}
-            onAddToCart={onAddToCart}
+            {...(onAddToCart && { onAddToCart })}
           />
         ))}
       </div>

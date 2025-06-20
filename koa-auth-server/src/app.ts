@@ -1,11 +1,11 @@
+import cors from '@koa/cors';
 import dotenv from 'dotenv';
-dotenv.config();
 import Koa from 'koa';
 import bodyParser from 'koa-bodyparser';
-import cors from '@koa/cors';
-import { createAuthRouter } from './routes/authRoutes';
 import { errorMiddleware } from './middlewares/errorMiddleware';
 import { requestLogger } from './middlewares/logger';
+import { createAuthRouter } from './routes/authRoutes';
+dotenv.config();
 
 /**
  * 환경 변수 검증
@@ -31,11 +31,24 @@ export function createApp(): Koa {
 
   // 글로벌 에러 핸들러
   app.use(errorMiddleware);
+
   // 요청 로거 미들웨어
   app.use(requestLogger);
 
-  // 기본 미들웨어
-  app.use(bodyParser());
+  // 기본 미들웨어 - bodyParser 설정 개선
+  app.use(
+    bodyParser({
+      enableTypes: ['json', 'form'],
+      jsonLimit: '1mb',
+      formLimit: '1mb',
+      textLimit: '1mb',
+      // JSON 파싱 실패 시 빈 객체로 처리
+      onerror: (err, ctx) => {
+        ctx.request.body = {};
+      },
+    }),
+  );
+
   app.use(
     cors({
       credentials: true,
@@ -45,12 +58,11 @@ export function createApp(): Koa {
   );
 
   try {
-    // 라우터 생성 및 등록 (라우팅 로직만 포함)
+    // 라우터 생성 및 등록
     const authRouter = createAuthRouter();
     app.use(authRouter.routes());
     app.use(authRouter.allowedMethods());
   } catch (error) {
-    console.error('라우터 설정 실패:', error);
     throw new Error('라우터를 설정할 수 없습니다');
   }
 

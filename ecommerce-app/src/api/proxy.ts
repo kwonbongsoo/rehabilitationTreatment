@@ -1,17 +1,14 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
-import axios, { AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
-import { KONG_GATEWAY_URL } from './config';
-import { BaseError } from '@ecommerce/common';
-import {
-  ProxyError,
-  BackendConnectionError,
-  ProxyValidationError,
-  ProxyMethodNotAllowedError,
-  GatewayError,
-  isProxyError,
-  createProxyErrorFromAxios,
-} from '../utils/proxyErrors';
 import { cookieService } from '@/services';
+import { BaseError } from '@ecommerce/common';
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import type { NextApiRequest, NextApiResponse } from 'next';
+import {
+  createProxyErrorFromAxios,
+  ProxyError,
+  ProxyMethodNotAllowedError,
+  ProxyValidationError,
+} from '../utils/proxyErrors';
+import { KONG_GATEWAY_URL } from './config';
 
 /**
  * 프록시 요청 옵션 인터페이스
@@ -156,8 +153,7 @@ function buildAxiosConfig(
     method: options.method,
     url: `${KONG_GATEWAY_URL}${targetPath}`,
     headers,
-    timeout: 30000,
-    validateStatus: () => true, // 모든 상태 코드 허용
+    timeout: 5000,
     // 재시도 없음 - axios 기본 동작 사용 (재시도 하지 않음)
   };
 

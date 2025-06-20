@@ -7,7 +7,7 @@
  * - 인터랙션 활성화/비활성화
  */
 
-import { useState, useCallback } from 'react';
+import { useCallback, useState } from 'react';
 
 export interface SimpleLoadingState {
   isLoading: boolean;
@@ -86,7 +86,7 @@ export function useSimpleLoading(): UseSimpleLoadingReturn {
     isLoading,
     isSubmitting,
     isInteractionEnabled,
-    loadingText,
+    ...(loadingText && { loadingText }),
 
     // 액션
     setLoading,

@@ -139,3 +139,11 @@ export interface ResetPasswordConfirmRequest {
 export interface VerifyEmailRequest {
   token: string;
 }
+
+/**
+ * 로그아웃 응답 모델
+ */
+export interface LogoutResponse {
+  success: boolean;
+  message: string;
+}

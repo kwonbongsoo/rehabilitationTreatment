@@ -1,8 +1,8 @@
+import { LoginRequest } from '@/api/models/auth';
+import { Button } from '@/components/common/Button';
+import { FormActions, FormContainer, FormInput } from '@/components/common/Form';
 import { useFormState } from '@/hooks/useFormState';
 import { validateLoginForm } from '@/utils/validation';
-import { FormContainer, FormInput, FormActions } from '@/components/common/Form';
-import { Button } from '@/components/common/Button';
-import { LoginRequest } from '@/api/models/auth';
 
 interface LoginFormProps {
   onSubmit: (credentials: LoginRequest) => Promise<void>;
@@ -50,7 +50,7 @@ export default function LoginForm({
         value={form.data.id}
         onChange={(e) => form.updateField('id', e.target.value)}
         placeholder="아이디를 입력하세요"
-        error={form.hasError && form.error.includes('아이디') ? form.error : undefined}
+        {...(form.hasError && form.error.includes('아이디') && { error: form.error })}
         required
       />
 
@@ -61,7 +61,7 @@ export default function LoginForm({
         value={form.data.password}
         onChange={(e) => form.updateField('password', e.target.value)}
         placeholder="비밀번호를 입력하세요"
-        error={form.hasError && form.error.includes('비밀번호') ? form.error : undefined}
+        {...(form.hasError && form.error.includes('비밀번호') && { error: form.error })}
         required
       />
 

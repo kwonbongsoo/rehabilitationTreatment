@@ -1,6 +1,5 @@
-import React from 'react';
-import Link from 'next/link';
 import ProductGrid from '@/components/common/ProductGrid';
+import Link from 'next/link';
 import styles from './PromotionGrid.module.css';
 
 interface Product {
@@ -41,7 +40,6 @@ export default function PromotionGrid({
   }));
 
   const handleAddToCart = (productId: number) => {
-    console.log('장바구니에 상품 추가:', productId);
     // 실제 장바구니 추가 로직 구현
   };
 
@@ -60,7 +58,7 @@ export default function PromotionGrid({
           columns={columns}
           gap="large"
           onAddToCart={handleAddToCart}
-          className={styles.promotionGrid}
+          {...(styles.promotionGrid && { className: styles.promotionGrid })}
         />
 
         {showViewAll && (

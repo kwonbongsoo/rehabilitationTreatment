@@ -1,8 +1,9 @@
-import Link from 'next/link';
-import OptimizedImage from './OptimizedImage';
-import Rating from './Rating';
 import { formatPrice } from '@/utils/formatters';
+import Link from 'next/link';
+import React from 'react';
+import OptimizedImage from './OptimizedImage';
 import styles from './ProductCard.module.css';
+import Rating from './Rating';
 
 export interface ProductCardProps {
   product: {
@@ -116,7 +117,7 @@ export default function ProductCard({
 
   const renderRating = () => {
     if (!config.showRating || !rating) return null;
-    return <Rating rating={rating} reviewCount={reviewCount} />;
+    return <Rating rating={rating} {...(reviewCount && { reviewCount })} />;
   };
 
   const renderSalesInfo = () => {

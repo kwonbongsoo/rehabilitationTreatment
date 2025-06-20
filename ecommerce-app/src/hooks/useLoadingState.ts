@@ -8,7 +8,7 @@
  * - 로딩 타임아웃 처리
  */
 
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 /**
  * 로딩 상태 인터페이스
@@ -65,7 +65,7 @@ export function useLoadingState(options?: LoadingOptions): UseLoadingStateReturn
   const [loadingText, setLoadingText] = useState<string>();
 
   // 타임아웃 관리
-  const timeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
+  const timeoutRef = useRef<number | undefined>(undefined);
 
   // 모든 상태 리셋
   const resetAll = useCallback(() => {
@@ -86,7 +86,7 @@ export function useLoadingState(options?: LoadingOptions): UseLoadingStateReturn
       timeoutRef.current = setTimeout(() => {
         onTimeout?.();
         resetAll();
-      }, timeout);
+      }, timeout) as unknown as number;
     } else {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
@@ -172,7 +172,7 @@ export function useLoadingState(options?: LoadingOptions): UseLoadingStateReturn
     isSubmitting,
     isProcessing,
     isInteractionEnabled,
-    loadingText,
+    ...(loadingText && { loadingText }),
 
     // 액션
     setLoading: setLoadingState,

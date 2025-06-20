@@ -1,5 +1,6 @@
-import Head from 'next/head';
 import ProductGrid from '@/components/common/ProductGrid';
+import Head from 'next/head';
+import React from 'react';
 import styles from './BestSellers.module.css';
 
 const BestSellers: React.FC = () => {
@@ -102,7 +103,6 @@ const BestSellers: React.FC = () => {
   ];
 
   const handleAddToCart = (productId: number) => {
-    console.log('장바구니에 상품 추가:', productId);
     // 실제 장바구니 추가 로직 구현
   };
 
@@ -124,26 +124,26 @@ const BestSellers: React.FC = () => {
         gridType="bestseller"
         initialSort="sales"
         onAddToCart={handleAddToCart}
-        className={styles.productGridCustom}
+        {...(styles.productGridCustom && { className: styles.productGridCustom })}
       />
 
       <div className={styles.infoSection}>
         <h3>베스트셀러 선정 기준</h3>
         <div className={styles.infoGrid}>
           <div className={styles.infoCard}>
-            <h4>📊 판매량</h4>
+            <h4>판매량</h4>
             <p>최근 30일간 판매량을 기준으로 선정</p>
           </div>
           <div className={styles.infoCard}>
-            <h4>⭐ 고객만족도</h4>
+            <h4>고객만족도</h4>
             <p>평점 4.0 이상 상품만 선별</p>
           </div>
           <div className={styles.infoCard}>
-            <h4>🔄 재구매율</h4>
+            <h4>재구매율</h4>
             <p>높은 재구매율을 보이는 상품</p>
           </div>
           <div className={styles.infoCard}>
-            <h4>📈 트렌드</h4>
+            <h4>트렌드</h4>
             <p>현재 트렌드를 반영한 인기 상품</p>
           </div>
         </div>

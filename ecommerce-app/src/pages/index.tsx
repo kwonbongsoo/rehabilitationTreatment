@@ -1,12 +1,12 @@
-import { useEffect, useState } from 'react';
-import Head from 'next/head';
+import UIComponentRenderer from '@/components/home/UIComponentRenderer';
+import HomeSkeleton from '@/components/skeleton/HomeSkeleton';
+import styles from '@/styles/common/Layout.module.css';
+import { HomePageResponse, UIComponent } from '@/types/home';
 import { NextPage } from 'next';
+import Head from 'next/head';
+import { useEffect, useState } from 'react';
 import { useErrorHandler } from '../hooks/useErrorHandler';
 import { mockHomePageData } from '../mocks/homePageData';
-import styles from '@/styles/common/Layout.module.css';
-import { UIComponent, HomePageResponse } from '@/types/home';
-import LoadingIndicator from '@/components/common/LoadingIndicator';
-import UIComponentRenderer from '@/components/home/UIComponentRenderer';
 
 const HomePage: NextPage = () => {
   // 커스텀 에러 핸들러 훅 사용
@@ -53,7 +53,7 @@ const HomePage: NextPage = () => {
 
       <main className={styles.main}>
         {isHomeDataLoading ? (
-          <LoadingIndicator message="상품 정보를 불러오는 중입니다..." size="large" fullScreen />
+          <HomeSkeleton />
         ) : homeData?.components ? (
           homeData.components.map((component: UIComponent) => (
             <UIComponentRenderer key={component.id} component={component} />

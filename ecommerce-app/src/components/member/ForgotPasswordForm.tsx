@@ -1,12 +1,12 @@
-import { useState } from 'react';
+import { Button } from '@/components/common/Button';
+import { FormActions, FormContainer, FormInput } from '@/components/common/Form';
+import { ForgotPasswordRequest } from '@/hooks/useForgotPasswordForm';
 import { useFormState } from '@/hooks/useFormState';
-import { EmailValidator } from '@/utils/validation';
+import styles from '@/styles/auth/Form.module.css';
 import { ErrorHandler } from '@/utils/errorHandling';
 import { NotificationManager } from '@/utils/notifications';
-import { FormContainer, FormInput, FormActions } from '@/components/common/Form';
-import { Button } from '@/components/common/Button';
-import { ForgotPasswordRequest } from '@/hooks/useForgotPasswordForm';
-import styles from '@/styles/auth/Form.module.css';
+import { EmailValidator } from '@/utils/validation';
+import { useState } from 'react';
 
 interface ForgotPasswordFormProps {
   onSubmit: (request: ForgotPasswordRequest) => Promise<void>;
@@ -87,7 +87,7 @@ export default function ForgotPasswordForm({
         value={form.data.email}
         onChange={(e) => form.updateField('email', e.target.value)}
         placeholder="example@email.com"
-        error={form.hasError ? form.error : undefined}
+        {...(form.hasError && { error: form.error })}
         required
         autoComplete="email"
         autoFocus

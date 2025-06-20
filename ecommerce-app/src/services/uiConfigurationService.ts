@@ -1,4 +1,4 @@
-import { QueryClient, QueryCache, MutationCache } from '@tanstack/react-query';
+import { MutationCache, QueryCache, QueryClient } from '@tanstack/react-query';
 import { ToastContainerProps } from 'react-toastify';
 
 // 도메인 타입 정의
@@ -19,7 +19,8 @@ export interface QueryClientConfig {
   };
 }
 
-export interface ToastConfig extends Partial<ToastContainerProps> {
+export interface ToastConfig
+  extends Omit<Partial<ToastContainerProps>, 'position' | 'autoClose' | 'hideProgressBar'> {
   position: ToastContainerProps['position'];
   autoClose: number;
   hideProgressBar: boolean;
