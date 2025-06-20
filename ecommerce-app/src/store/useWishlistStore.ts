@@ -23,7 +23,9 @@ interface WishlistState {
 
 export const useWishlistStore = create<WishlistState>()((set, get) => ({
   items: [],
-  totalItems: 0,
+  get totalItems() {
+    return this.items.length;
+  },
 
   addItem: (item) => {
     set((state) => {

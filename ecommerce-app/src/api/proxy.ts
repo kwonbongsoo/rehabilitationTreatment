@@ -3,10 +3,10 @@ import { BaseError } from '@ecommerce/common';
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import {
-  createProxyErrorFromAxios,
   ProxyError,
   ProxyMethodNotAllowedError,
   ProxyValidationError,
+  createProxyErrorFromAxios,
 } from '../utils/proxyErrors';
 import { KONG_GATEWAY_URL } from './config';
 
@@ -52,6 +52,7 @@ function replacePathParameters(path: string, params: Record<string, any>): strin
     const curlyBracePlaceholder = `{{${key}}}`;
     if (result.includes(curlyBracePlaceholder)) {
       result = result.replace(new RegExp(`\\{\\{${key}\\}\\}`, 'g'), String(value));
+      result = result.replace(new RegExp(`:${key}(?=\\W|$)`, 'g'), String(value));
     }
   });
 
@@ -104,6 +105,10 @@ function buildRequestHeaders(req: NextApiRequest, options: ProxyOptions): Record
         authToken = `Basic ${Buffer.from(authBasicKey).toString('base64')}`;
       } else {
         console.error('❌ AUTH_BASIC_KEY not found for Basic authentication');
+        throw new ProxyError('Basic authentication configuration error', 500, undefined, {
+          reason: 'missing_auth_config',
+          context: { message: 'AUTH_BASIC_KEY environment variable is not configured' },
+        });
       }
 
       // Basic 인증 시에도 기존 게스트 토큰을 별도 헤더로 전송 (로그인 시 게스트 토큰 만료용)

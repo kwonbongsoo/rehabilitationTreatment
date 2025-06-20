@@ -44,7 +44,9 @@ export function createApp(): Koa {
       textLimit: '1mb',
       // JSON 파싱 실패 시 빈 객체로 처리
       onerror: (err, ctx) => {
+        console.error('Body parsing error:', err.message);
         ctx.request.body = {};
+        // Consider throwing specific errors for client feedback
       },
     }),
   );

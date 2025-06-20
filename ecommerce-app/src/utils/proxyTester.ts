@@ -32,8 +32,8 @@ export class IndividualProxyTester {
         success: true,
         method: 'POST',
         url: '/auth/login',
-        status: 200, // 성공 시 200으로 가정
-        data: data,
+        status: data.status || 200,
+        data: data.data || data,
         duration,
         proxyType: 'individual',
       };

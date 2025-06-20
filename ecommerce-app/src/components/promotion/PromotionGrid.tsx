@@ -58,7 +58,7 @@ export default function PromotionGrid({
           columns={columns}
           gap="large"
           onAddToCart={handleAddToCart}
-          {...(styles.promotionGrid && { className: styles.promotionGrid })}
+          className={styles.promotionGrid}
         />
 
         {showViewAll && (

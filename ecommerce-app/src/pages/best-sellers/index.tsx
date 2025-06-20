@@ -124,7 +124,7 @@ const BestSellers: React.FC = () => {
         gridType="bestseller"
         initialSort="sales"
         onAddToCart={handleAddToCart}
-        {...(styles.productGridCustom && { className: styles.productGridCustom })}
+        className={styles.productGridCustom}
       />
 
       <div className={styles.infoSection}>

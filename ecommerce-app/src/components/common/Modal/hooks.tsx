@@ -3,7 +3,6 @@
  */
 
 import { useCallback, useState } from 'react';
-import { ConfirmDialog } from './ConfirmDialog';
 
 /**
  * 모달 훅
@@ -76,23 +75,16 @@ export function useConfirmDialog() {
     closeDialog();
   }, [dialogState, closeDialog]);
 
-  const ConfirmDialogComponent = useCallback(
-    () => (
-      <ConfirmDialog
-        isOpen={dialogState.isOpen}
-        onConfirm={handleConfirm}
-        onCancel={closeDialog}
-        title={dialogState.title}
-        message={dialogState.message}
-        variant={dialogState.variant ?? 'default'}
-      />
-    ),
-    [dialogState, handleConfirm, closeDialog],
-  );
-
   return {
     showConfirm,
-    ConfirmDialog: ConfirmDialogComponent,
+    confirmDialogProps: {
+      isOpen: dialogState.isOpen,
+      onConfirm: handleConfirm,
+      onCancel: closeDialog,
+      title: dialogState.title,
+      message: dialogState.message,
+      variant: dialogState.variant ?? 'default',
+    },
   };
 }
 

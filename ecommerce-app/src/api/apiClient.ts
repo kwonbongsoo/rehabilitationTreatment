@@ -50,6 +50,7 @@ export class ApiClient {
         'Content-Type': 'application/json',
       },
     });
+    this.setupInterceptors();
   }
 
   /**

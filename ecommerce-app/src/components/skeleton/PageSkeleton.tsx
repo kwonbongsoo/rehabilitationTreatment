@@ -27,7 +27,12 @@ export default function PageSkeleton() {
 }
 
 // 상품 리스트 스켈레톤
-export function ProductListSkeleton({ count = 8 }: { count?: number }) {
+// Add this above the component definition
+interface ProductListSkeletonProps {
+  count?: number;
+}
+
+export function ProductListSkeleton({ count = 8 }: ProductListSkeletonProps) {
   return (
     <div className={styles.productListSkeleton}>
       <div className={styles.listHeader}>

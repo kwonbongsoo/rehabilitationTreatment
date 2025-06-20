@@ -20,7 +20,7 @@ interface ProductGridProps {
   variant?: ProductCardProps['variant'];
   columns?: 2 | 3 | 4 | 5;
   gap?: 'small' | 'medium' | 'large';
-  className?: string;
+  className?: string | undefined;
   gridType?: 'default' | 'bestseller';
   onAddToCart?: (productId: number) => void;
   emptyMessage?: string;
@@ -37,7 +37,7 @@ export default function ProductGrid({
   variant = 'standard',
   columns = 4,
   gap = 'medium',
-  className = '',
+  className,
   gridType = 'default',
   onAddToCart,
   emptyMessage = '상품이 없습니다.',
@@ -61,7 +61,7 @@ export default function ProductGrid({
       ${styles.productGrid}
       ${styles[`columns${columns}`]}
       ${styles[`gap${gap.charAt(0).toUpperCase() + gap.slice(1)}`]}
-      ${className}
+      ${className || ''}
     `.trim();
   }, [columns, gap, className]);
 

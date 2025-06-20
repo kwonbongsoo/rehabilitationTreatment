@@ -71,7 +71,7 @@ const ProductsPage: React.FC = () => {
         products={mockProducts}
         title="모든 상품"
         onAddToCart={handleAddToCart}
-        {...(styles.productsGrid && { className: styles.productsGrid })}
+        className={styles.productsGrid}
       />
     </div>
   );

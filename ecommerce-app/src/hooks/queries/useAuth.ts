@@ -46,7 +46,12 @@ export function useLogin() {
   const onSuccessCallback = useCallback(
     (response: LoginResponse) => {
       const { role, id, email, name } = response.data;
-      const filteredUserResponse = { role, id: id || '', email: email || '', name: name || '' };
+      const filteredUserResponse = {
+        role,
+        id: id ?? '',
+        email: email ?? '',
+        name: name ?? '',
+      };
 
       // 상태 업데이트 (동기적으로 처리)
       setUser(filteredUserResponse);

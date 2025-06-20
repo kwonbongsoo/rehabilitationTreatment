@@ -5,7 +5,7 @@
  */
 import { ErrorHandler } from '@/utils/errorHandling';
 import { NotificationManager } from '@/utils/notifications';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useLogout } from './queries/useAuth';
 import { useIdempotentMutation } from './useIdempotentMutation';
 
@@ -24,6 +24,16 @@ interface UseLogoutFormReturn {
 export function useLogoutForm(): UseLogoutFormReturn {
   const logoutMutation = useLogout();
   const { executeMutation, getRequestStatus } = useIdempotentMutation<void, void>();
+  const timeoutRef = useRef<number | null>(null);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        window.clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   // 성공/에러 콜백을 useMemo로 메모이제이션
   const callbacks = useMemo(
@@ -31,7 +41,7 @@ export function useLogoutForm(): UseLogoutFormReturn {
       onSuccess: () => {
         // 성공 메시지 표시
         NotificationManager.showSuccess('로그아웃되었습니다.');
-        setTimeout(() => {
+        timeoutRef.current = window.setTimeout(() => {
           window.location.replace('/');
         }, 3000);
       },

@@ -25,7 +25,7 @@ const nextConfig: NextConfig = {
 
     // 번들 분석용 (환경변수로 활성화)
     if (process.env.ANALYZE === 'true') {
-      const { BundleAnalyzerPlugin } = require('@next/bundle-analyzer')();
+      const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
       config.plugins.push(
         new BundleAnalyzerPlugin({
           analyzerMode: 'server',

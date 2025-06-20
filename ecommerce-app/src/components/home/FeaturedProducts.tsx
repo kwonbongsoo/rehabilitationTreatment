@@ -51,7 +51,7 @@ export default function FeaturedProducts({ title, products }: FeaturedProductsPr
         columns={4}
         gap="large"
         onAddToCart={handleAddToCart}
-        {...(styles.featuredGrid && { className: styles.featuredGrid })}
+        className={styles.featuredGrid}
       />
       <div className={styles.viewAllContainer}>
         <Link href="/products" className={styles.viewAllButton}>

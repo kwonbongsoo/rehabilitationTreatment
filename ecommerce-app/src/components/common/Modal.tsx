@@ -112,7 +112,7 @@ const LoadingModal = () => (
 
 // 다이나믹 컴포넌트들
 export const Modal = dynamic(() => import('./Modal/BaseModal'), {
-  loading: () => null,
+  loading: () => <LoadingModal />,
   ssr: false,
 }) as ComponentType<BaseModalProps>;
 
