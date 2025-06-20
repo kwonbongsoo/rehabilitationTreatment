@@ -1,4 +1,5 @@
 import ProductGrid from '@/components/common/ProductGrid';
+import React from 'react';
 import styles from './Products.module.css';
 
 const ProductsPage: React.FC = () => {
@@ -61,7 +62,6 @@ const ProductsPage: React.FC = () => {
   ];
 
   const handleAddToCart = (productId: number) => {
-    console.log('장바구니에 상품 추가:', productId);
     // 실제 장바구니 추가 로직 구현
   };
 
@@ -70,7 +70,6 @@ const ProductsPage: React.FC = () => {
       <ProductGrid
         products={mockProducts}
         title="모든 상품"
-        showCategory={true}
         onAddToCart={handleAddToCart}
         className={styles.productsGrid}
       />

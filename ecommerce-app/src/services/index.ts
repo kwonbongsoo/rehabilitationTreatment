@@ -4,9 +4,7 @@
  * 클린 아키텍처에 따라 계층별로 서비스를 정리하고 export 합니다.
  */
 
-// Domain Layer (비즈니스 로직)
-export { AuthDomainService, authDomainService } from './domain/authDomainService';
-export { MemberDomainService, memberDomainService } from './domain/memberDomainService';
+// Domain Layer (비즈니스 로직) - 제거됨: API 통합으로 인해 더 이상 필요하지 않음
 
 // Application Layer (애플리케이션 로직)
 export {
@@ -47,16 +45,9 @@ export {
 } from './uiConfigurationService';
 
 // 계층별 서비스 그룹 생성 (import 후)
-import { authDomainService } from './domain/authDomainService';
-import { memberDomainService } from './domain/memberDomainService';
 import { validationService } from './application/validationService';
 import { cookieService } from './infrastructure/cookieService';
 import { tokenService } from './infrastructure/tokenService';
-
-export const DomainServices = {
-  auth: authDomainService,
-  member: memberDomainService,
-} as const;
 
 export const ApplicationServices = {
   validation: validationService,

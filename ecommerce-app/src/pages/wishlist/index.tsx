@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import OptimizedImage from '@/components/common/OptimizedImage';
 import Link from 'next/link';
+import React, { useState } from 'react';
 import { FiHeart, FiShoppingCart, FiTrash2 } from 'react-icons/fi';
 import styles from './Wishlist.module.css';
-import OptimizedImage from '@/components/common/OptimizedImage';
 
 const WishlistPage: React.FC = () => {
   const [wishlistItems, setWishlistItems] = useState([

@@ -8,8 +8,8 @@
  * - 다양한 폼 요소 타입 지원
  */
 
-import React, { InputHTMLAttributes, SelectHTMLAttributes, TextareaHTMLAttributes } from 'react';
 import styles from '@/styles/auth/FormInput.module.css';
+import React, { InputHTMLAttributes, SelectHTMLAttributes, TextareaHTMLAttributes } from 'react';
 
 /**
  * 기본 폼 필드 속성
@@ -322,7 +322,6 @@ export function FormRadioGroup({
                 disabled={disabled || option.disabled}
                 onChange={handleChange}
                 className={`${styles.radio} ${hasError ? styles.inputWithError : ''}`}
-                aria-invalid={hasError}
                 aria-describedby={error ? `${id}-error` : helpText ? `${id}-help` : undefined}
               />
               <label htmlFor={radioId} className={styles.radioLabel}>

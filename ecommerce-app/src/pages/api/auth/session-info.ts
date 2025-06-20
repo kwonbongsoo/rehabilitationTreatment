@@ -1,4 +1,4 @@
-import { createProxyHandler } from '../../../utils/proxyUtils';
+import { createProxyHandler } from '../../../api/proxy';
 import { omitTokens } from '../../../utils/formatters';
 import type { ProxySessionInfoResponse, SessionInfoResponse } from '../../../api/models/auth';
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import OptimizedImage from '@/components/common/OptimizedImage';
 import styles from '@/styles/home/Banner.module.css';
@@ -25,17 +25,18 @@ export default function Banner({
     return () => clearInterval(interval);
   }, [slides.length, autoPlay, autoPlayInterval]);
 
-  const goToSlide = (index: number) => {
+  // 슬라이더 네비게이션 함수들을 useCallback으로 메모이제이션
+  const goToSlide = useCallback((index: number) => {
     setCurrentSlide(index);
-  };
+  }, []);
 
-  const goToPrevSlide = () => {
+  const goToPrevSlide = useCallback(() => {
     setCurrentSlide((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
-  };
+  }, [slides.length]);
 
-  const goToNextSlide = () => {
+  const goToNextSlide = useCallback(() => {
     setCurrentSlide((prev) => (prev + 1) % slides.length);
-  };
+  }, [slides.length]);
 
   if (slides.length === 0) return null;
   return (

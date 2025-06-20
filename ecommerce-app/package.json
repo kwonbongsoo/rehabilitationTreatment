@@ -5,9 +5,14 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:analyze": "ANALYZE=true next build",
     "start": "next start",
     "lint": "eslint .",
-    "format": "prettier --write \"src/**/*.{ts,js,json,md}\""
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,md,html,htm}\"",
+    "type-check": "tsc --noEmit",
+    "build:size": "npm run build && npx size-limit",
+    "precommit": "npm run lint && npm run type-check"
   },
   "dependencies": {
     "@ecommerce/common": "file:../common",
@@ -29,15 +34,28 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.28.0",
+    "@next/bundle-analyzer": "^15.0.0",
+    "@size-limit/preset-app": "^11.0.0",
     "@types/node": "22.15.21",
     "@types/react": "latest",
     "@types/react-dom": "latest",
     "@typescript-eslint/eslint-plugin": "^8.33.1",
     "@typescript-eslint/parser": "^8.33.1",
-    "eslint": "latest",
-    "eslint-config-next": "latest",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^14.2.18",
     "eslint-config-prettier": "^10.1.5",
     "eslint-plugin-prettier": "^5.4.1",
-    "prettier": "^3.5.3"
-  }
+    "prettier": "^3.5.3",
+    "size-limit": "^11.0.0"
+  },
+  "size-limit": [
+    {
+      "path": ".next/static/chunks/pages/index.js",
+      "limit": "300 KB"
+    },
+    {
+      "path": ".next/static/chunks/pages/_app.js",
+      "limit": "200 KB"
+    }
+  ]
 }

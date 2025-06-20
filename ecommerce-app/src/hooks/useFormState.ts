@@ -7,7 +7,7 @@
  * - 폼 초기화, 필드 업데이트, 제출 처리 등 공통 기능 제공
  */
 
-import { useState, useCallback } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 
 /**
  * 폼 상태 인터페이스
@@ -74,7 +74,7 @@ export function useFormState<T extends Record<string, any>>(
 
   // 계산된 값들
   const hasError = Boolean(error);
-  const validationErrors = validate ? validate(data) : [];
+  const validationErrors = useMemo(() => (validate ? validate(data) : []), [validate, data]);
   const isValid = validationErrors.length === 0;
   const canSubmit = isValid && !isLoading && !isSubmitting && isDirty;
 

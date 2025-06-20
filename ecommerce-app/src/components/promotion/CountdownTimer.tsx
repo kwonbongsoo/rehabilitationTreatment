@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import styles from './CountdownTimer.module.css';
 
 interface CountdownTimerProps {
@@ -27,28 +27,35 @@ export default function CountdownTimer({
   });
   const [isExpired, setIsExpired] = useState(false);
 
+  // 타이머 계산 로직을 useCallback으로 메모이제이션
+  const calculateTimeLeft = useCallback(() => {
+    const now = new Date().getTime();
+    const distance = endDate.getTime() - now;
+
+    if (distance < 0) {
+      setIsExpired(true);
+      onExpire?.();
+      return null;
+    }
+
+    return {
+      days: Math.floor(distance / (1000 * 60 * 60 * 24)),
+      hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+      minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
+      seconds: Math.floor((distance % (1000 * 60)) / 1000),
+    };
+  }, [endDate, onExpire]);
+
   useEffect(() => {
     const timer = setInterval(() => {
-      const now = new Date().getTime();
-      const distance = endDate.getTime() - now;
-
-      if (distance < 0) {
-        setIsExpired(true);
-        clearInterval(timer);
-        onExpire?.();
-        return;
+      const newTimeLeft = calculateTimeLeft();
+      if (newTimeLeft) {
+        setTimeLeft(newTimeLeft);
       }
-
-      setTimeLeft({
-        days: Math.floor(distance / (1000 * 60 * 60 * 24)),
-        hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-        minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
-        seconds: Math.floor((distance % (1000 * 60)) / 1000),
-      });
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [endDate, onExpire]);
+  }, [calculateTimeLeft]);
 
   if (isExpired) {
     return (

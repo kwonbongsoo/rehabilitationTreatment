@@ -1,13 +1,13 @@
-import styles from '@/styles/shared/UserFormLayout.module.css';
+import styles from '@/styles/templates/UserFormLayout.module.css';
 
 interface DividerProps {
-    text: string;
+  text: string;
 }
 
 export default function Divider({ text }: DividerProps) {
-    return (
-        <div className={styles.divider}>
-            <span className={styles.dividerText}>{text}</span>
-        </div>
-    );
+  return (
+    <div className={styles.divider}>
+      <span className={styles.dividerText}>{text}</span>
+    </div>
+  );
 }

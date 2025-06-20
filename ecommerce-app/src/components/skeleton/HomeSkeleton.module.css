@@ -1,0 +1,295 @@
+/* 전체 홈 스켈레톤 컨테이너 */
+.homeSkeleton {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* 배너 스켈레톤 */
+.bannerSkeleton {
+  margin-bottom: 60px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* 섹션 타이틀 */
+.sectionTitle {
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+/* 카테고리 스켈레톤 */
+.categoriesSkeleton {
+  margin-bottom: var(--spacing-xxl);
+}
+
+.categoriesWrapper {
+  display: flex;
+  justify-content: center;
+}
+
+.categoriesContainer {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: var(--spacing-md);
+  overflow-x: auto;
+  padding: var(--spacing-md) 0;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  justify-content: center;
+}
+
+.categoriesContainer::-webkit-scrollbar {
+  display: none;
+}
+
+.categoryItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--spacing-md);
+  min-width: 100px;
+  flex-shrink: 0;
+}
+
+.categoryIcon {
+  margin-bottom: var(--spacing-sm);
+}
+
+.categoryName {
+  margin-top: var(--spacing-xs);
+}
+
+/* 상품 그리드 스켈레톤 */
+.productGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+}
+
+.productCard {
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: white;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border-light);
+}
+
+.productImageContainer {
+  position: relative;
+  width: 100%;
+  height: 250px;
+  background-color: #f9f9f9;
+  overflow: hidden;
+}
+
+.productInfo {
+  padding: var(--spacing-lg);
+}
+
+.productName {
+  margin-bottom: var(--spacing-sm);
+}
+
+.productMeta {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+.addToCartButton {
+  margin-top: var(--spacing-sm);
+}
+
+/* 추천 상품 스켈레톤 */
+.featuredProducts {
+  margin-bottom: var(--spacing-xxl);
+}
+
+/* 신상품 스켈레톤 */
+.newArrivals {
+  margin-bottom: var(--spacing-xxl);
+}
+
+.newArrivalsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--spacing-lg);
+}
+
+.newArrivalCard {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  background-color: white;
+}
+
+.newArrivalImageContainer {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  background-color: #f9f9f9;
+}
+
+.newBadgeSkeleton {
+  position: absolute;
+  top: var(--spacing-md);
+  left: var(--spacing-md);
+}
+
+.newArrivalInfo {
+  position: relative;
+  padding: var(--spacing-md);
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+/* 프로모션 스켈레톤 */
+.promotionSkeleton {
+  margin: var(--spacing-xxl) 0;
+}
+
+.promotionCard {
+  width: 100%;
+  height: 200px;
+  background: linear-gradient(135deg, var(--color-primary) 0%, #8b5cf6 100%);
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  padding: var(--spacing-xl);
+}
+
+.promotionContent {
+  color: white;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.promotionDescription {
+  margin: var(--spacing-sm) 0;
+}
+
+/* 리뷰 스켈레톤 */
+.reviewsSkeleton {
+  margin-bottom: var(--spacing-xxl);
+}
+
+.reviewsContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--spacing-lg);
+}
+
+.reviewCard {
+  padding: var(--spacing-lg);
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: var(--shadow-sm);
+}
+
+.reviewHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+}
+
+.reviewerAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: var(--spacing-md);
+}
+
+.reviewerInfo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.reviewContent {
+  margin-bottom: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.reviewProduct {
+  margin-top: var(--spacing-sm);
+}
+
+/* 브랜드 스켈레톤 */
+.brandsSkeleton {
+  margin-bottom: var(--spacing-xxl);
+}
+
+.brandLogos {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--spacing-lg);
+}
+
+.brandLogo {
+  width: calc(16.666% - var(--spacing-lg));
+  min-width: 120px;
+  height: 80px;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .homeSkeleton {
+    padding: 0 var(--spacing-sm);
+  }
+
+  .productGrid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: var(--spacing-md);
+  }
+
+  .newArrivalsGrid {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: var(--spacing-md);
+  }
+
+  .newArrivalImageContainer {
+    height: 250px;
+  }
+
+  .reviewsContainer {
+    grid-template-columns: 1fr;
+  }
+
+  .brandLogo {
+    width: calc(33.333% - var(--spacing-lg));
+  }
+}
+
+@media (max-width: 480px) {
+  .categoryItem {
+    min-width: 80px;
+    padding: var(--spacing-sm);
+  }
+
+  .productGrid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: var(--spacing-sm);
+  }
+
+  .newArrivalsGrid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: var(--spacing-sm);
+  }
+
+  .brandLogo {
+    width: calc(50% - var(--spacing-lg));
+  }
+}

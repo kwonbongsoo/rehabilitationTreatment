@@ -1,15 +1,23 @@
 import { Context, Next } from 'koa';
-import { ForbiddenError, AuthenticationError } from './errorMiddleware';
+import { Config } from '../config/config';
+import { TokenService } from '../services/tokenService';
 import { extractBearerToken } from '../utils/requestHelpers';
+import { AuthenticationError, ForbiddenError } from './errorMiddleware';
 
 /**
  * 인증 미들웨어 클래스
  * - 토큰 존재 여부만 확인
- * - 쿠키의 access_type으로 역할 확인
+ * - 토큰에서 role 정보를 직접 확인
  * - 서비스 호출 없이 독립적으로 작동
  */
 export class AuthMiddleware {
   private static instance: AuthMiddleware;
+  private tokenService: TokenService;
+
+  constructor() {
+    // TokenService 인스턴스 생성
+    this.tokenService = TokenService.getInstance(new Config());
+  }
 
   public static getInstance(): AuthMiddleware {
     if (!AuthMiddleware.instance) {
@@ -17,6 +25,7 @@ export class AuthMiddleware {
     }
     return AuthMiddleware.instance;
   }
+
   /**
    * Basic 키 검증 미들웨어
    */
@@ -68,16 +77,23 @@ export class AuthMiddleware {
 
   /**
    * 로그인 사용자 필요 미들웨어 - 게스트 거부
-   * 쿠키의 access_type으로 확인
+   * 토큰에서 role을 직접 확인
    */
   public requireUser = async (ctx: Context, next: Next): Promise<void> => {
     try {
-      // 헬퍼 함수 사용
-      ctx.state.token = extractBearerToken(ctx.headers.authorization);
+      // 토큰 추출
+      const token = extractBearerToken(ctx.headers.authorization);
+      if (!token) {
+        throw new AuthenticationError('Authorization header missing or invalid format');
+      }
 
-      // 쿠키에서 access_type 확인
-      const accessType = ctx.cookies.get('access_type'); // 게스트 거부
-      if (!accessType || accessType === 'guest') {
+      ctx.state.token = token;
+
+      // 토큰 검증 및 페이로드 추출
+      const payload = this.tokenService.verifyToken(token);
+
+      // 게스트 토큰 거부
+      if (payload.role === 'guest') {
         throw new ForbiddenError('This endpoint requires a logged-in user');
       }
 
@@ -100,28 +116,33 @@ export class AuthMiddleware {
    * 관리자 역할 필요 미들웨어
    */
   public requireAdmin = async (ctx: Context, next: Next): Promise<void> => {
-    // 먼저 토큰 존재 확인
-    const authHeader = ctx.headers.authorization;
-    if (!authHeader) {
-      throw new AuthenticationError('Authorization header missing');
-    }
-
     try {
-      // 토큰 형식 확인
-      ctx.state.token = extractBearerToken(authHeader);
+      // 토큰 추출
+      const token = extractBearerToken(ctx.headers.authorization);
+      if (!token) {
+        throw new AuthenticationError('Authorization header missing');
+      }
 
-      // 쿠키에서 access_type 확인
-      const accessType = ctx.cookies.get('access_type'); // 관리자만 허용
-      if (!accessType || accessType !== 'admin') {
+      ctx.state.token = token;
+
+      // 토큰 검증 및 페이로드 추출
+      const payload = this.tokenService.verifyToken(token);
+
+      // 관리자 권한 확인
+      if (payload.role !== 'admin') {
         throw new ForbiddenError('Admin privileges required');
       }
+
       await next();
     } catch (error) {
       if (error instanceof ForbiddenError) {
         throw error;
       }
+      if (error instanceof AuthenticationError) {
+        throw error;
+      }
       throw new AuthenticationError(
-        error instanceof Error ? error.message : 'Invalid token format',
+        error instanceof Error ? error.message : 'Token verification failed',
       );
     }
   };
@@ -131,19 +152,20 @@ export class AuthMiddleware {
    */
   public allowRoles = (roles: string[]) => {
     return async (ctx: Context, next: Next): Promise<void> => {
-      // 먼저 토큰 존재 확인
-      const authHeader = ctx.headers.authorization;
-      if (!authHeader) {
-        throw new AuthenticationError('Authorization header missing');
-      }
-
       try {
-        // 토큰 형식 확인
-        ctx.state.token = extractBearerToken(authHeader);
+        // 토큰 추출
+        const token = extractBearerToken(ctx.headers.authorization);
+        if (!token) {
+          throw new AuthenticationError('Authorization header missing');
+        }
 
-        // 쿠키에서 access_type 확인
-        const accessType = ctx.cookies.get('access_type'); // 역할 확인
-        if (!accessType || !roles.includes(accessType)) {
+        ctx.state.token = token;
+
+        // 토큰 검증 및 페이로드 추출
+        const payload = this.tokenService.verifyToken(token);
+
+        // 역할 확인
+        if (!roles.includes(payload.role)) {
           throw new ForbiddenError(`Required role: ${roles.join(' or ')}`);
         }
 
@@ -152,8 +174,11 @@ export class AuthMiddleware {
         if (error instanceof ForbiddenError) {
           throw error;
         }
+        if (error instanceof AuthenticationError) {
+          throw error;
+        }
         throw new AuthenticationError(
-          error instanceof Error ? error.message : 'Invalid token format',
+          error instanceof Error ? error.message : 'Token verification failed',
         );
       }
     };

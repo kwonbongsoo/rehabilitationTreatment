@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { Button } from '@/components/common/Button';
+import { FormActions, FormCheckbox, FormContainer, FormInput } from '@/components/common/Form';
 import { useFormState } from '@/hooks/useFormState';
 import { validationService } from '@/services';
-import { FormContainer, FormInput, FormCheckbox, FormActions } from '@/components/common/Form';
-import { Button } from '@/components/common/Button';
+import { useState } from 'react';
 
 interface RegisterFormData {
   id: string;
@@ -71,7 +71,7 @@ export default function RegisterForm({
         value={form.data.id}
         onChange={(e) => form.updateField('id', e.target.value)}
         placeholder="4자 이상 입력하세요"
-        error={form.hasError && form.error.includes('아이디') ? form.error : undefined}
+        {...(form.hasError && form.error.includes('아이디') && { error: form.error })}
         required
       />
 
@@ -82,7 +82,7 @@ export default function RegisterForm({
         value={form.data.name}
         onChange={(e) => form.updateField('name', e.target.value)}
         placeholder="이름을 입력하세요"
-        error={form.hasError && form.error.includes('이름') ? form.error : undefined}
+        {...(form.hasError && form.error.includes('이름') && { error: form.error })}
         required
       />
 
@@ -93,7 +93,7 @@ export default function RegisterForm({
         value={form.data.email}
         onChange={(e) => form.updateField('email', e.target.value)}
         placeholder="example@email.com"
-        error={form.hasError && form.error.includes('이메일') ? form.error : undefined}
+        {...(form.hasError && form.error.includes('이메일') && { error: form.error })}
         required
       />
 
@@ -104,7 +104,7 @@ export default function RegisterForm({
         value={form.data.password}
         onChange={(e) => form.updateField('password', e.target.value)}
         placeholder="8자 이상 입력하세요"
-        error={form.hasError && form.error.includes('비밀번호') ? form.error : undefined}
+        {...(form.hasError && form.error.includes('비밀번호') && { error: form.error })}
         required
       />
 
@@ -115,7 +115,7 @@ export default function RegisterForm({
         value={form.data.confirmPassword}
         onChange={(e) => form.updateField('confirmPassword', e.target.value)}
         placeholder="비밀번호를 다시 입력하세요"
-        error={form.hasError && form.error.includes('확인') ? form.error : undefined}
+        {...(form.hasError && form.error.includes('확인') && { error: form.error })}
         required
       />
 

@@ -1,7 +1,7 @@
-import Link from 'next/link';
 import ProductGrid from '@/components/common/ProductGrid';
+import styles from '@/styles/home/FeaturedProducts.module.css';
 import { calculateDiscountedPrice } from '@/utils/formatters';
-import styles from './FeaturedProducts.module.css';
+import Link from 'next/link';
 
 interface Product {
   id: number;
@@ -24,17 +24,20 @@ export default function FeaturedProducts({ title, products }: FeaturedProductsPr
   }
 
   // 상품 데이터를 ProductCard 형식으로 변환
-  const transformedProducts = products.map((product) => ({
-    ...product,
-    originalPrice: product.discount > 0 ? product.price : undefined,
-    price:
+  const transformedProducts = products.map((product) => {
+    const discountedPrice =
       product.discount > 0
         ? calculateDiscountedPrice(product.price, Math.min(Math.max(product.discount, 0), 100))
-        : product.price,
-  }));
+        : product.price;
+
+    return {
+      ...product,
+      price: discountedPrice,
+      ...(product.discount > 0 && { originalPrice: product.price }),
+    };
+  });
 
   const handleAddToCart = (productId: number) => {
-    console.log('장바구니에 상품 추가:', productId);
     // 실제 장바구니 추가 로직 구현
   };
 
@@ -47,7 +50,6 @@ export default function FeaturedProducts({ title, products }: FeaturedProductsPr
         variant="featured"
         columns={4}
         gap="large"
-        imageHeight={250}
         onAddToCart={handleAddToCart}
         className={styles.featuredGrid}
       />

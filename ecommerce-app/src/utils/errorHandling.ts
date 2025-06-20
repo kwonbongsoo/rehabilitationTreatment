@@ -12,6 +12,7 @@
 /**
  * 에러 타입 열거형
  */
+/* eslint-disable no-unused-vars */
 export enum ErrorType {
   VALIDATION = 'validation',
   AUTHENTICATION = 'authentication',
@@ -20,6 +21,7 @@ export enum ErrorType {
   SERVER = 'server',
   UNKNOWN = 'unknown',
 }
+/* eslint-enable no-unused-vars */
 
 /**
  * 표준화된 에러 인터페이스
@@ -150,7 +152,8 @@ export class ErrorLogger {
     }
   }
 
-  private static sendToExternalLogger(error: StandardError): void {
+  // eslint-disable-next-line no-unused-vars
+  private static sendToExternalLogger(_: StandardError): void {
     // TODO: 외부 로깅 서비스 (Sentry, LogRocket 등) 연동
     // 현재는 콘솔 로그만 출력
   }
@@ -171,7 +174,7 @@ export class ErrorHandler {
       type,
       message,
       originalError: error,
-      context,
+      ...(context && { context }),
       timestamp: Date.now(),
     };
   }
@@ -203,7 +206,7 @@ export class ErrorHandler {
    */
   static handleFormError(error: unknown, context?: string): StandardError {
     return this.handle(error, {
-      context,
+      ...(context && { context }),
       logError: false, // 폼 검증 에러는 로그하지 않음
     });
   }
@@ -213,7 +216,7 @@ export class ErrorHandler {
    */
   static handleApiError(error: unknown, context?: string): StandardError {
     return this.handle(error, {
-      context,
+      ...(context && { context }),
       logError: true,
     });
   }
@@ -241,7 +244,7 @@ export class ErrorHandler {
 /**
  * 에러 처리 데코레이터 (함수 래핑용)
  */
-export function withErrorHandling<T extends (...args: any[]) => any>(fn: T, context?: string): T {
+export function withErrorHandling<T extends (..._args: any[]) => any>(fn: T, context?: string): T {
   return ((...args: Parameters<T>) => {
     try {
       const result = fn(...args);
@@ -249,14 +252,14 @@ export function withErrorHandling<T extends (...args: any[]) => any>(fn: T, cont
       // Promise인 경우 catch 추가
       if (result instanceof Promise) {
         return result.catch((error) => {
-          ErrorHandler.handle(error, { context });
+          ErrorHandler.handle(error, { ...(context && { context }) });
           throw error;
         });
       }
 
       return result;
     } catch (error) {
-      ErrorHandler.handle(error, { context });
+      ErrorHandler.handle(error, { ...(context && { context }) });
       throw error;
     }
   }) as T;
@@ -269,7 +272,7 @@ export async function safeAsync<T>(asyncFn: () => Promise<T>, context?: string):
   try {
     return await asyncFn();
   } catch (error) {
-    ErrorHandler.handle(error, { context });
+    ErrorHandler.handle(error, { ...(context && { context }) });
     return null;
   }
 }

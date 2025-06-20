@@ -1,40 +1,55 @@
+import { Button } from '@/components/common/Button';
+import { ConfirmDialog } from '@/components/common/Modal';
+import { useLogoutForm } from '@/hooks/useLogoutForm';
+import { useAuth } from '@/store/useAuthStore';
+import { ErrorHandler } from '@/utils/errorHandling';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { FiUser, FiSettings, FiShoppingBag, FiHeart, FiLogOut, FiEdit } from 'react-icons/fi';
-import { useAuth } from '@/store/useAuthStore';
-import { Button } from '@/components/common/Button';
-import { Modal, ConfirmDialog } from '@/components/common/Modal';
+import { FiEdit, FiHeart, FiLogOut, FiSettings, FiShoppingBag, FiUser } from 'react-icons/fi';
 import styles from './Account.module.css';
 
 export default function Account() {
   const router = useRouter();
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated } = useAuth();
+  const { handleLogout, isLoading } = useLogoutForm();
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
-  const isClient = typeof window !== 'undefined';
+  const isClientSide = typeof window !== 'undefined';
 
   // 인증되지 않은 사용자 리다이렉트
   useEffect(() => {
-    if (isClient && !isAuthenticated) {
+    if (isClientSide && !isAuthenticated) {
       router.replace('/auth/login');
     }
-  }, [isClient, isAuthenticated, router]);
+  }, [isClientSide, isAuthenticated, router]);
 
   // 로그아웃 처리
-  const handleLogout = async () => {
+  const handleLogoutClick = async () => {
+    if (isLoading) return; // 이미 로딩 중이면 무시
+
     try {
-      await logout();
-      router.replace('/');
+      await handleLogout();
+      setIsLogoutModalOpen(false);
     } catch (error) {
-      console.error('로그아웃 실패:', error);
-    } finally {
+      ErrorHandler.handleFormError(error, '로그아웃');
       setIsLogoutModalOpen(false);
     }
   };
 
-  // 로딩 상태 또는 인증되지 않은 상태에서는 빈 페이지
-  if (!isClient || !isAuthenticated) {
-    return <div>Loading...</div>;
+  // 로딩 상태이거나 인증되지 않은 경우 로딩 표시
+  if (!isClientSide || !isAuthenticated) {
+    return (
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '50vh',
+        }}
+      >
+        Loading...
+      </div>
+    );
   }
 
   return (
@@ -119,8 +134,9 @@ export default function Account() {
               fullWidth
               icon={<FiLogOut />}
               onClick={() => setIsLogoutModalOpen(true)}
+              disabled={isLoading}
             >
-              로그아웃
+              {isLoading ? '로그아웃 중...' : '로그아웃'}
             </Button>
           </div>
         </div>
@@ -129,11 +145,11 @@ export default function Account() {
       {/* 로그아웃 확인 모달 */}
       <ConfirmDialog
         isOpen={isLogoutModalOpen}
-        onConfirm={handleLogout}
+        onConfirm={handleLogoutClick}
         onCancel={() => setIsLogoutModalOpen(false)}
         title="로그아웃"
         message="정말 로그아웃하시겠습니까?"
-        confirmText="로그아웃"
+        confirmText={isLoading ? '로그아웃 중...' : '로그아웃'}
         cancelText="취소"
         variant="default"
       />

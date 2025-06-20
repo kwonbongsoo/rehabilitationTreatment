@@ -4,8 +4,8 @@
  * Edge Runtime에서 실행되어 빠른 성능 제공
  * 조건부 게스트 토큰 발급 및 인증 검증
  */
-import { NextRequest, NextResponse } from 'next/server';
 import { setTokenCookiesEdge } from '@/services';
+import { NextRequest, NextResponse } from 'next/server';
 
 /**
  * 토큰 확인을 건너뛸 경로들 - API 요청, JSON 파일, 정적 파일 접근
@@ -29,7 +29,7 @@ const SKIP_ROUTES = [
 /**
  * 인증된 유저가 접근하면 안 되는 페이지들 (로그인/회원가입/비밀번호 찾기)
  */
-const AUTH_RESTRICTED_ROUTES = ['/auth/login', '/member/register', '/member/forgot-password'];
+const AUTH_RESTRICTED_ROUTES = ['/auth/login', '/auth/register', '/auth/forgot-password'];
 
 /**
  * 쿠키에서 토큰 추출
@@ -119,7 +119,6 @@ export async function middleware(request: NextRequest) {
     // 🚀 인증된 유저가 인증 페이지에 접근하려는 경우 홈으로 리다이렉트
     if (AUTH_RESTRICTED_ROUTES.includes(pathname)) {
       if (isAuthenticatedUser(request)) {
-        console.log(`🔄 인증된 유저가 ${pathname}에 접근 시도. 홈으로 리다이렉트.`);
         return NextResponse.redirect(new URL('/', request.url));
       }
     }

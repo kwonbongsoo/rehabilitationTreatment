@@ -63,7 +63,6 @@ export const useAuthStore = create<AuthState>()(
         set(() => ({
           ...initialState,
         }));
-        console.log('🧹 세션 강제 초기화 완료');
       },
 
       // 계산된 값들 (getter 함수)

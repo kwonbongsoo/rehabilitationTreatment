@@ -4,18 +4,18 @@ import { useRouter } from 'next/router';
 import ForgotPasswordForm from './ForgotPasswordForm';
 import Divider from '../auth/Divider';
 import { useForgotPasswordForm } from '@/hooks/useForgotPasswordForm';
-import styles from '@/styles/shared/UserFormLayout.module.css';
+import styles from '@/styles/templates/UserFormLayout.module.css';
 
 export default function ForgotPasswordPageContent() {
   const router = useRouter();
 
   const { handleForgotPassword, isLoading } = useForgotPasswordForm();
 
-  const isClient = typeof window !== 'undefined';
+  const isClientSide = typeof window !== 'undefined';
   // 클라이언트에서만 토큰 체크 및 리다이렉트
   useEffect(() => {
-    if (!isClient) return;
-  }, [isClient, router]);
+    if (!isClientSide) return;
+  }, [isClientSide, router]);
 
   return (
     <>
@@ -32,7 +32,7 @@ export default function ForgotPasswordPageContent() {
 
       <div className={styles.linkContainer}>
         <p>계정이 없으신가요?</p>
-        <Link href="/member/register" className={styles.link}>
+        <Link href="/auth/register" className={styles.link}>
           회원가입
         </Link>
       </div>

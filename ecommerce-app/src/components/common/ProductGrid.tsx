@@ -1,12 +1,12 @@
-import { useState, useMemo } from 'react';
-import ProductCard, { ProductCardProps } from './ProductCard';
 import {
-  filterAndSortProducts,
-  SortOption,
+  BESTSELLER_SORT_OPTIONS,
   COMMON_CATEGORIES,
   COMMON_SORT_OPTIONS,
-  BESTSELLER_SORT_OPTIONS,
+  filterAndSortProducts,
+  SortOption,
 } from '@/utils/productUtils';
+import { useCallback, useMemo, useState } from 'react';
+import ProductCard, { ProductCardProps } from './ProductCard';
 import styles from './ProductGrid.module.css';
 
 interface ProductGridProps {
@@ -20,12 +20,7 @@ interface ProductGridProps {
   variant?: ProductCardProps['variant'];
   columns?: 2 | 3 | 4 | 5;
   gap?: 'small' | 'medium' | 'large';
-  showAddToCart?: boolean;
-  showRating?: boolean;
-  showSalesInfo?: boolean;
-  showCategory?: boolean;
-  imageHeight?: number;
-  className?: string;
+  className?: string | undefined;
   gridType?: 'default' | 'bestseller';
   onAddToCart?: (productId: number) => void;
   emptyMessage?: string;
@@ -39,15 +34,10 @@ export default function ProductGrid({
   showSortFilter = true,
   initialCategory = 'all',
   initialSort = 'newest',
-  variant = 'default',
+  variant = 'standard',
   columns = 4,
   gap = 'medium',
-  showAddToCart = true,
-  showRating = true,
-  showSalesInfo = false,
-  showCategory = false,
-  imageHeight = 250,
-  className = '',
+  className,
   gridType = 'default',
   onAddToCart,
   emptyMessage = '상품이 없습니다.',
@@ -55,22 +45,28 @@ export default function ProductGrid({
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [sortBy, setSortBy] = useState<SortOption>(initialSort);
 
-  // 그리드 타입에 따른 정렬 옵션 선택
-  const sortOptions = gridType === 'bestseller' ? BESTSELLER_SORT_OPTIONS : COMMON_SORT_OPTIONS;
+  // 그리드 타입에 따른 정렬 옵션 선택을 useMemo로 메모이제이션
+  const sortOptions = useMemo(() => {
+    return gridType === 'bestseller' ? BESTSELLER_SORT_OPTIONS : COMMON_SORT_OPTIONS;
+  }, [gridType]);
 
   // 필터링 및 정렬된 상품들
   const filteredProducts = useMemo(() => {
     return filterAndSortProducts(products, selectedCategory, sortBy);
   }, [products, selectedCategory, sortBy]);
 
-  const gridClass = `
-    ${styles.productGrid}
-    ${styles[`columns${columns}`]}
-    ${styles[`gap${gap.charAt(0).toUpperCase() + gap.slice(1)}`]}
-    ${className}
-  `.trim();
+  // 그리드 클래스를 useMemo로 메모이제이션
+  const gridClass = useMemo(() => {
+    return `
+      ${styles.productGrid}
+      ${styles[`columns${columns}`]}
+      ${styles[`gap${gap.charAt(0).toUpperCase() + gap.slice(1)}`]}
+      ${className || ''}
+    `.trim();
+  }, [columns, gap, className]);
 
-  const renderFilters = () => {
+  // 필터 렌더링 함수를 useCallback으로 메모이제이션
+  const renderFilters = useCallback(() => {
     if (!showFilters) return null;
 
     return (
@@ -113,9 +109,10 @@ export default function ProductGrid({
         )}
       </div>
     );
-  };
+  }, [showFilters, showCategoryFilter, selectedCategory, showSortFilter, sortBy, sortOptions]);
 
-  const renderProducts = () => {
+  // 상품 렌더링 함수를 useCallback으로 메모이제이션
+  const renderProducts = useCallback(() => {
     if (filteredProducts.length === 0) {
       return (
         <div className={styles.emptyState}>
@@ -131,17 +128,12 @@ export default function ProductGrid({
             key={product.id}
             product={product}
             variant={variant}
-            showAddToCart={showAddToCart}
-            showRating={showRating}
-            showSalesInfo={showSalesInfo}
-            showCategory={showCategory}
-            imageHeight={imageHeight}
-            onAddToCart={onAddToCart}
+            {...(onAddToCart && { onAddToCart })}
           />
         ))}
       </div>
     );
-  };
+  }, [filteredProducts, emptyMessage, gridClass, variant, onAddToCart]);
 
   return (
     <div className={styles.container}>

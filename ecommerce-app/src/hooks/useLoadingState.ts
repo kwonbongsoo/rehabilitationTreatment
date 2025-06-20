@@ -8,7 +8,7 @@
  * - 로딩 타임아웃 처리
  */
 
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 /**
  * 로딩 상태 인터페이스
@@ -17,8 +17,8 @@ export interface LoadingState {
   isLoading: boolean;
   isSubmitting: boolean;
   isProcessing: boolean;
-  canInteract: boolean;
-  loadingMessage?: string;
+  isInteractionEnabled: boolean;
+  loadingText?: string;
 }
 
 /**
@@ -62,21 +62,23 @@ export function useLoadingState(options?: LoadingOptions): UseLoadingStateReturn
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [loadingMessage, setLoadingMessage] = useState<string>();
+  const [loadingText, setLoadingText] = useState<string>();
 
   // 타임아웃 관리
-  const timeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
+  const timeoutRef = useRef<number | undefined>(undefined);
 
   // 모든 상태 리셋
   const resetAll = useCallback(() => {
     setIsLoading(false);
     setIsSubmitting(false);
     setIsProcessing(false);
-    setLoadingMessage(undefined);
+    setLoadingText(undefined);
   }, []);
 
   // 계산된 값
-  const canInteract = preventInteraction ? !(isLoading || isSubmitting || isProcessing) : true;
+  const isInteractionEnabled = preventInteraction
+    ? !(isLoading || isSubmitting || isProcessing)
+    : true;
 
   // 타임아웃 처리
   useEffect(() => {
@@ -84,7 +86,7 @@ export function useLoadingState(options?: LoadingOptions): UseLoadingStateReturn
       timeoutRef.current = setTimeout(() => {
         onTimeout?.();
         resetAll();
-      }, timeout);
+      }, timeout) as unknown as number;
     } else {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
@@ -102,7 +104,7 @@ export function useLoadingState(options?: LoadingOptions): UseLoadingStateReturn
   // 로딩 상태 설정
   const setLoadingState = useCallback((loading: boolean, message?: string) => {
     setIsLoading(loading);
-    setLoadingMessage(loading ? message : undefined);
+    setLoadingText(loading ? message : undefined);
   }, []);
 
   // 제출 상태 설정
@@ -169,8 +171,8 @@ export function useLoadingState(options?: LoadingOptions): UseLoadingStateReturn
     isLoading,
     isSubmitting,
     isProcessing,
-    canInteract,
-    loadingMessage,
+    isInteractionEnabled,
+    ...(loadingText && { loadingText }),
 
     // 액션
     setLoading: setLoadingState,
@@ -201,13 +203,13 @@ export function useCombinedLoadingState(
   // 최종 로딩 상태 계산
   const isLoading = internal.isLoading || Boolean(externalLoading);
   const isSubmitting = internal.isSubmitting || Boolean(externalSubmitting);
-  const canInteract = !isLoading && !isSubmitting && !internal.isProcessing;
+  const isInteractionEnabled = !isLoading && !isSubmitting && !internal.isProcessing;
 
   return {
     ...internal,
     isLoading,
     isSubmitting,
-    canInteract,
+    isInteractionEnabled,
   };
 }
 

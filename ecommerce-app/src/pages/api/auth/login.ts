@@ -1,4 +1,4 @@
-import { createProxyHandler } from '../../../utils/proxyUtils';
+import { createProxyHandler } from '../../../api/proxy';
 import { omitTokens } from '../../../utils/formatters';
 import { setLoginCookies } from '@/services';
 import type { ProxyLoginResponse, LoginResponse } from '../../../api/models/auth';

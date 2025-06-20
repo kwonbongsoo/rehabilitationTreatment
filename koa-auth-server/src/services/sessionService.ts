@@ -1,6 +1,6 @@
-import { RedisClient, redis } from '../utils/redisClient';
 import { TokenPayload } from '../interfaces/auth';
 import { BaseError, ErrorCode } from '../middlewares/errorMiddleware';
+import { RedisClient, redis } from '../utils/redisClient';
 
 export class SessionService {
   private redisClient: RedisClient;

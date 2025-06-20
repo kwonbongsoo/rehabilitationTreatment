@@ -1,36 +1,54 @@
-import Link from 'next/link';
-import styles from './NewArrivals.module.css';
 import OptimizedImage from '@/components/common/OptimizedImage';
+import React from 'react';
+import styles from './NewArrivals.module.css';
 
 const NewArrivalsPage: React.FC = () => {
   return (
     <>
       <div className={styles.container}>
-        <div className={styles.header}>
-          <h1 className={styles.title}>신상품</h1>
-          <p className={styles.subtitle}>최신 트렌드를 반영한 새로운 상품들을 만나보세요</p>
-        </div>
-
         <div className={styles.filters}>
-          <div className={styles.filterGroup}>
-            <label>카테고리:</label>
-            <select>
-              <option value="">전체</option>
-              <option value="tops">상의</option>
-              <option value="bottoms">하의</option>
-              <option value="dresses">원피스</option>
-              <option value="accessories">액세서리</option>
-            </select>
-          </div>
-          <div className={styles.filterGroup}>
-            <label>정렬:</label>
-            <select>
-              <option value="newest">최신순</option>
-              <option value="price-low">가격 낮은순</option>
-              <option value="price-high">가격 높은순</option>
-              <option value="popular">인기순</option>
-            </select>
-          </div>
+          <select className={styles.filterSelect}>
+            <option value="">카테고리</option>
+            <option value="tops">상의</option>
+            <option value="bottoms">하의</option>
+            <option value="dresses">원피스</option>
+            <option value="accessories">액세서리</option>
+          </select>
+          <select className={styles.filterSelect}>
+            <option value="">브랜드</option>
+            <option value="brand1">브랜드 A</option>
+            <option value="brand2">브랜드 B</option>
+            <option value="brand3">브랜드 C</option>
+            <option value="brand4">브랜드 D</option>
+          </select>
+          <select className={styles.filterSelect}>
+            <option value="">상황</option>
+            <option value="casual">캐주얼</option>
+            <option value="business">비즈니스</option>
+            <option value="party">파티</option>
+            <option value="sport">스포츠</option>
+          </select>
+          <select className={styles.filterSelect}>
+            <option value="">가격대</option>
+            <option value="under50">5만원 이하</option>
+            <option value="50to100">5-10만원</option>
+            <option value="100to200">10-20만원</option>
+            <option value="over200">20만원 이상</option>
+          </select>
+          <select className={styles.filterSelect}>
+            <option value="">사이즈</option>
+            <option value="xs">XS</option>
+            <option value="s">S</option>
+            <option value="m">M</option>
+            <option value="l">L</option>
+            <option value="xl">XL</option>
+          </select>
+          <select className={styles.filterSelect}>
+            <option value="">배송</option>
+            <option value="free">무료배송</option>
+            <option value="fast">당일배송</option>
+            <option value="premium">프리미엄</option>
+          </select>
         </div>
 
         <div className={styles.productGrid}>
