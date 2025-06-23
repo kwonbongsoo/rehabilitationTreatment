@@ -1,4 +1,4 @@
-import { createMultiMethodProxyHandler } from '../../../utils/proxyUtils';
+import { createMultiMethodProxyHandler } from '../../../api/proxy';
 
 // 멤버 목록 조회 및 생성 API 프록시 핸들러
 export default createMultiMethodProxyHandler({

@@ -9,7 +9,7 @@
  * - 타이핑 효과
  */
 
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 /**
  * 페이드 인 애니메이션 훅
@@ -182,8 +182,10 @@ export function useScrollAnimation(threshold: number = 0.1) {
     }
 
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        setIsVisible(entry.isIntersecting);
+      ([entry]: IntersectionObserverEntry[]) => {
+        if (entry) {
+          setIsVisible(entry.isIntersecting);
+        }
       },
       {
         threshold,
@@ -301,20 +303,20 @@ export function useShakeAnimation(intensity: number = 10, duration: number = 500
   const [isShaking, setIsShaking] = useState(false);
   const [offset, setOffset] = useState(0);
 
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<number | null>(null);
+  const timeoutRef = useRef<number | null>(null);
 
   const shake = useCallback(() => {
     setIsShaking(true);
 
     intervalRef.current = setInterval(() => {
       setOffset((Math.random() - 0.5) * intensity);
-    }, 50);
+    }, 50) as unknown as number;
     timeoutRef.current = setTimeout(() => {
       setIsShaking(false);
       setOffset(0);
       if (intervalRef.current) clearInterval(intervalRef.current);
-    }, duration);
+    }, duration) as unknown as number;
   }, [intensity, duration]);
 
   useEffect(

@@ -4,9 +4,9 @@
  * 클라이언트/서버 환경에서 쿠키 관리를 담당합니다.
  * HttpOnly 쿠키를 통한 안전한 토큰 저장 및 조회를 지원합니다.
  */
+import type { ProxyLoginResponse, UserRole } from '@/api/models/auth';
 import type { NextApiResponse } from 'next';
 import type { NextResponse } from 'next/server';
-import type { ProxyLoginResponse, UserRole } from '@/api/models/auth';
 
 /**
  * 토큰 결과 인터페이스
@@ -147,7 +147,7 @@ export class CookieService {
    */
   private parseCookieString(cookieString: string): [string, string] {
     const [key, value] = cookieString.trim().split('=');
-    return [key, value];
+    return [key || '', value || ''];
   }
 
   /**
@@ -172,7 +172,8 @@ export class CookieService {
    * 클라이언트 쿠키에서 특정 쿠키 찾기
    */
   private findClientCookie(cookieName: string): string | null {
-    if (typeof window === 'undefined') return null;
+    // 서버 사이드에서는 document가 없으므로 null 반환
+    if (typeof window === 'undefined' || typeof document === 'undefined') return null;
 
     const cookies = document.cookie.split(';');
     const targetCookie = cookies.find((cookie) => cookie.trim().startsWith(`${cookieName}=`));
@@ -211,7 +212,7 @@ export class CookieService {
    * 사용자 역할 조회
    */
   getUserRole(): string | null {
-    if (typeof window === 'undefined') return null;
+    // 서버 사이드에서는 null 반환 (findClientCookie에서 이미 처리됨)
     return this.findClientCookie(COOKIE_NAMES.ACCESS_TYPE);
   }
 
@@ -287,7 +288,6 @@ export class CookieService {
       ];
 
       res.setHeader('Set-Cookie', expiredCookies);
-
       return {
         success: true,
         message: '인증 쿠키 제거 완료',

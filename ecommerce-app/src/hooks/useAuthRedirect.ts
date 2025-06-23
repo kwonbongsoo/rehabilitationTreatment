@@ -4,9 +4,9 @@
  * 로그인/회원가입/비밀번호 찾기 페이지에서 이미 인증된 유저를 홈으로 리다이렉트
  * 클라이언트 사이드 fallback으로만 사용 (서버 사이드 우선)
  */
-import { useEffect } from 'react';
-import { useRouter } from 'next/router';
 import { useAuth } from '@/store/useAuthStore';
+import { useRouter } from 'next/router';
+import { useEffect } from 'react';
 
 interface UseAuthRedirectOptions {
   /** 리다이렉트할 경로 (기본값: '/') */
@@ -32,7 +32,6 @@ export const useAuthRedirect = (options: UseAuthRedirectOptions = {}) => {
 
     if (shouldRedirect) {
       const redirect = () => {
-        console.log('🔄 이미 로그인된 유저입니다. 홈으로 리다이렉트합니다.');
         router.replace(redirectTo);
       };
 
@@ -43,6 +42,8 @@ export const useAuthRedirect = (options: UseAuthRedirectOptions = {}) => {
         redirect();
       }
     }
+
+    return () => {}; // 항상 cleanup 함수 반환
   }, [isAuthenticated, isGuest, user, router, redirectTo, includeGuest, delay]);
 
   return {

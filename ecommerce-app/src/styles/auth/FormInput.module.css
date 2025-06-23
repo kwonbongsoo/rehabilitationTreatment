@@ -1,113 +1,118 @@
 .inputGroup {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--spacing-sm);
 }
 
 .label {
-  font-size: 0.875rem;
+  font-size: var(--font-size-sm);
   font-weight: 500;
-  color: #4b5563;
+  color: var(--color-text-secondary);
 }
 
 .input {
-  padding: 0.75rem 1rem;
-  border: 1px solid #d1d5db;
+  padding: var(--spacing-md);
+  border: 1px solid var(--color-border);
   border-radius: 6px;
-  font-size: 1rem;
-  transition: all 0.2s;
+  font-size: var(--font-size-md);
+  transition: all var(--transition-fast);
+  background-color: var(--color-background);
+  color: var(--color-text);
 }
 
 .input:focus {
   outline: none;
-  border-color: #6366f1;
-  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
 }
 
 .input::placeholder {
-  color: #9ca3af;
+  color: var(--color-text-muted);
 }
 
 .inputWithError {
-  border-color: #ef4444;
+  border-color: var(--color-error);
 }
 
 .inputError {
-  color: #ef4444;
-  font-size: 0.875rem;
-  margin-top: 0.25rem;
+  color: var(--color-error);
+  font-size: var(--font-size-sm);
+  margin-top: var(--spacing-xs);
 }
 
 .helpText {
-  color: #6b7280;
-  font-size: 0.875rem;
-  margin-top: 0.25rem;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  margin-top: var(--spacing-xs);
 }
 
 .required {
-  color: #ef4444;
-  margin-left: 0.125rem;
+  color: var(--color-error);
+  margin-left: var(--spacing-xs);
 }
 
 /* Select 스타일 */
 .select {
-  padding: 0.75rem 1rem;
-  border: 1px solid #d1d5db;
+  padding: var(--spacing-md);
+  border: 1px solid var(--color-border);
   border-radius: 6px;
-  font-size: 1rem;
-  transition: all 0.2s;
+  font-size: var(--font-size-md);
+  transition: all var(--transition-fast);
   width: 100%;
-  background-color: white;
+  background-color: var(--color-background);
+  color: var(--color-text);
   cursor: pointer;
 }
 
 .select:focus {
   outline: none;
-  border-color: #6366f1;
-  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
 }
 
 /* Textarea 스타일 */
 .textarea {
-  padding: 0.75rem 1rem;
-  border: 1px solid #d1d5db;
+  padding: var(--spacing-md);
+  border: 1px solid var(--color-border);
   border-radius: 6px;
-  font-size: 1rem;
-  transition: all 0.2s;
+  font-size: var(--font-size-md);
+  transition: all var(--transition-fast);
   width: 100%;
   resize: vertical;
   font-family: inherit;
+  background-color: var(--color-background);
+  color: var(--color-text);
 }
 
 .textarea:focus {
   outline: none;
-  border-color: #6366f1;
-  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
 }
 
 /* Checkbox 스타일 */
 .checkboxContainer {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--spacing-sm);
 }
 
 .checkboxWrapper {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--spacing-sm);
 }
 
 .checkbox {
   width: 1rem;
   height: 1rem;
-  accent-color: #6366f1;
+  accent-color: var(--color-primary);
   cursor: pointer;
 }
 
 .checkboxLabel {
-  font-size: 0.875rem;
-  color: #374151;
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
   cursor: pointer;
   user-select: none;
 }
@@ -119,31 +124,31 @@
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: var(--spacing-lg);
 }
 
 .radioOptions {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--spacing-sm);
 }
 
 .radioWrapper {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--spacing-sm);
 }
 
 .radio {
   width: 1rem;
   height: 1rem;
-  accent-color: #6366f1;
+  accent-color: var(--color-primary);
   cursor: pointer;
 }
 
 .radioLabel {
-  font-size: 0.875rem;
-  color: #374151;
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
   cursor: pointer;
   user-select: none;
 }
@@ -152,39 +157,39 @@
 .fieldGroup {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  padding: 1.5rem;
-  border: 1px solid #e5e7eb;
+  gap: var(--spacing-md);
+  padding: var(--spacing-xl);
+  border: 1px solid var(--color-border);
   border-radius: 8px;
-  background-color: #f9fafb;
+  background-color: var(--color-background-muted);
 }
 
 .groupTitle {
-  font-size: 1.125rem;
+  font-size: var(--font-size-lg);
   font-weight: 600;
-  color: #111827;
+  color: var(--color-text);
   margin: 0;
 }
 
 .groupDescription {
-  font-size: 0.875rem;
-  color: #6b7280;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
   margin: 0;
 }
 
 .groupFields {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: var(--spacing-md);
 }
 
 /* Form Actions 스타일 */
 .formActions {
   display: flex;
-  gap: 0.75rem;
-  margin-top: 1.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid #e5e7eb;
+  gap: var(--spacing-lg);
+  margin-top: var(--spacing-xl);
+  padding-top: var(--spacing-xl);
+  border-top: 1px solid var(--color-border);
 }
 
 .align-left {

@@ -1,5 +1,5 @@
-import { useState } from 'react';
 import Head from 'next/head';
+import React, { useState } from 'react';
 import styles from './Shipping.module.css';
 
 const Shipping: React.FC = () => {

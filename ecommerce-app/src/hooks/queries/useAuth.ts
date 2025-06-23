@@ -1,23 +1,31 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useAuthRepository } from '../../context/RepositoryContext';
-import { LoginRequest, LoginResponse, SessionInfoResponse } from '../../api/models/auth';
-import { queryKeys } from './queryKeys';
+import { useCallback, useEffect, useMemo } from 'react';
+import { apiService } from '../../api/apiClient';
+import {
+  LoginRequest,
+  LoginResponse,
+  LogoutResponse,
+  SessionInfoResponse,
+} from '../../api/models/auth';
 import { useAuth } from '../../store/useAuthStore';
-import { useCallback, useEffect } from 'react';
+import { ErrorHandler } from '../../utils/errorHandling';
+import { queryKeys } from './queryKeys';
 
 interface SessionInfoOptions {
   enabled?: boolean;
   retry?: boolean | number;
   staleTime?: number;
+  gcTime?: number;
+  refetchOnWindowFocus?: boolean;
+  refetchOnMount?: boolean;
   onError?: (error: Error) => void;
 }
 
 /**
- * 로그인 훅 - AuthProvider와 안전한 연동
+ * 로그인 훅 - 새로운 APIClient 사용
  */
 export function useLogin() {
   const queryClient = useQueryClient();
-  const authRepo = useAuthRepository();
   const { setUser } = useAuth();
 
   // mutationFn을 useCallback으로 메모이제이션
@@ -29,16 +37,21 @@ export function useLogin() {
       credentials: LoginRequest;
       idempotencyKey?: string;
     }) => {
-      return authRepo.login(credentials, idempotencyKey);
+      return apiService.login(credentials, idempotencyKey);
     },
-    [authRepo],
+    [],
   );
 
   // 성공 콜백을 useCallback으로 메모이제이션
   const onSuccessCallback = useCallback(
     (response: LoginResponse) => {
       const { role, id, email, name } = response.data;
-      const filteredUserResponse = { role, id, email, name };
+      const filteredUserResponse = {
+        role,
+        id: id ?? '',
+        email: email ?? '',
+        name: name ?? '',
+      };
 
       // 상태 업데이트 (동기적으로 처리)
       setUser(filteredUserResponse);
@@ -51,23 +64,22 @@ export function useLogin() {
     mutationFn,
     onSuccess: onSuccessCallback,
     onError: (error) => {
-      console.error('Login failed:', error);
+      ErrorHandler.handleApiError(error, '로그인');
     },
   });
 }
 
 /**
- * 로그아웃 훅
+ * 로그아웃 훅 - 새로운 APIClient 사용
  */
 export function useLogout() {
-  const authRepo = useAuthRepository();
   const { logout } = useAuth();
   const queryClient = useQueryClient();
 
   // mutationFn을 useCallback으로 메모이제이션
   const mutationFn = useCallback(async () => {
-    return authRepo.logout();
-  }, [authRepo]);
+    return apiService.logout();
+  }, []);
 
   // 성공 콜백을 useCallback으로 메모이제이션
   const onSuccessCallback = useCallback(() => {
@@ -76,38 +88,53 @@ export function useLogout() {
 
     // React Query 캐시 초기화
     queryClient.clear();
-    window.location.reload();
   }, [logout, queryClient]);
 
-  return useMutation<void, Error, void>({
+  return useMutation<LogoutResponse, Error, void>({
     mutationFn,
     onSuccess: onSuccessCallback,
     onError: (error) => {
-      console.error('Logout failed:', error);
+      ErrorHandler.handleApiError(error, '로그아웃');
     },
   });
 }
 
 /**
- * 세션 정보 조회 훅 - useQuery로 변경 (베스트 프랙티스)
+ * 세션 정보 조회 훅 - 새로운 APIClient 사용
  */
 export function useSessionInfo(options: SessionInfoOptions = {}) {
-  const authRepo = useAuthRepository();
   const { setUser } = useAuth();
   const queryClient = useQueryClient();
 
   // 쿼리 함수를 useCallback으로 메모이제이션
   const queryFn = useCallback(async () => {
-    return authRepo.sessionInfo();
-  }, [authRepo]);
+    return apiService.getSessionInfo();
+  }, []);
 
-  const query = useQuery<SessionInfoResponse, Error>({
-    queryKey: queryKeys.user.session(),
-    queryFn,
-    enabled: options.enabled ?? true,
-    retry: options.retry ?? false,
-    staleTime: options.staleTime ?? 5 * 60 * 1000, // 5분
-  });
+  // React Query 옵션을 useMemo로 메모이제이션
+  const queryOptions = useMemo(
+    () => ({
+      queryKey: queryKeys.user.session(),
+      queryFn,
+      enabled: options.enabled ?? true,
+      retry: options.retry ?? false,
+      staleTime: options.staleTime ?? 1 * 60 * 1000, // 1분
+      gcTime: options.gcTime ?? 2 * 60 * 1000, // 2분 (기본값)
+      refetchOnWindowFocus: options.refetchOnWindowFocus ?? true,
+      refetchOnMount: options.refetchOnMount ?? true,
+    }),
+    [
+      queryFn,
+      options.enabled,
+      options.retry,
+      options.staleTime,
+      options.gcTime,
+      options.refetchOnWindowFocus,
+      options.refetchOnMount,
+    ],
+  );
+
+  const query = useQuery<SessionInfoResponse, Error>(queryOptions);
 
   // 성공 시 사이드 이펙트 처리
   useEffect(() => {
@@ -124,7 +151,7 @@ export function useSessionInfo(options: SessionInfoOptions = {}) {
     if (query.error && options.onError) {
       options.onError(query.error);
     }
-  }, [query.error, options.onError]);
+  }, [query.error, options]);
 
   return query;
 }

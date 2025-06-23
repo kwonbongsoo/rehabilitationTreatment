@@ -1,5 +1,5 @@
-import { useState } from 'react';
 import Head from 'next/head';
+import React, { useState } from 'react';
 import styles from './FAQ.module.css';
 
 interface FAQItem {

@@ -1,0 +1,95 @@
+/* 기본 스켈레톤 스타일 */
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, transparent 37%, #f0f0f0 63%);
+  background-size: 400% 100%;
+  display: block;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 애니메이션 타입 */
+.pulse {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.wave {
+  animation: wave 1.5s linear infinite;
+}
+
+.none {
+  animation: none;
+}
+
+/* 변형 타입 */
+.text {
+  background-color: #f0f0f0;
+  border-radius: 4px;
+}
+
+.rectangular {
+  background-color: #f0f0f0;
+}
+
+.circular {
+  background-color: #f0f0f0;
+  border-radius: 50%;
+}
+
+/* 텍스트 라인 간격 */
+.textLineSpacing {
+  margin-top: 8px;
+}
+
+/* 애니메이션 정의 */
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes wave {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* 다크 모드 지원 */
+@media (prefers-color-scheme: dark) {
+  .skeleton {
+    background: linear-gradient(90deg, #2a2a2a 25%, transparent 37%, #2a2a2a 63%);
+    background-size: 400% 100%;
+  }
+
+  .text,
+  .rectangular,
+  .circular {
+    background-color: #2a2a2a;
+  }
+}
+
+/* 접근성 - 애니메이션 감소 설정 */
+@media (prefers-reduced-motion: reduce) {
+  .pulse,
+  .wave {
+    animation: none;
+  }
+
+  .skeleton {
+    background: #f0f0f0;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .skeleton {
+      background: #2a2a2a;
+    }
+  }
+}

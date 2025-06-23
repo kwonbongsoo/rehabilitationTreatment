@@ -8,7 +8,7 @@
  * - 취소 가능한 요청
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useErrorHandler } from './useErrorHandler';
 
 /**
@@ -60,7 +60,7 @@ export function useApiRequest<T>(requestFn: () => Promise<T>, options: ApiReques
   const { handleApiError } = useErrorHandler();
   const abortControllerRef = useRef<AbortController | null>(null);
   const retryCountRef = useRef(0);
-  const timeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
+  const timeoutRef = useRef<number | undefined>(undefined);
 
   // 캐시 관리
   const cache = useRef<Map<string, { data: T; timestamp: number }>>(new Map());
@@ -128,7 +128,7 @@ export function useApiRequest<T>(requestFn: () => Promise<T>, options: ApiReques
         if (timeout > 0) {
           timeoutRef.current = setTimeout(() => {
             abortControllerRef.current?.abort();
-          }, timeout);
+          }, timeout) as unknown as number;
         }
 
         const result = await requestFn();
@@ -201,8 +201,6 @@ export function useApiRequest<T>(requestFn: () => Promise<T>, options: ApiReques
     return null;
   }, [
     requestFn,
-    retries,
-    retryDelay,
     timeout,
     cacheKey,
     getCachedData,

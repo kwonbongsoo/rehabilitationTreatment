@@ -4,10 +4,10 @@
  * 기존의 복잡한 로직을 공통 모듈로 대체하고
  * 비밀번호 찾기 특화 로직만 유지
  */
-import { useCallback } from 'react';
+import { validationService } from '@/services';
 import { ErrorHandler } from '@/utils/errorHandling';
 import { NotificationManager } from '@/utils/notifications';
-import { validationService } from '@/services';
+import { useCallback } from 'react';
 
 /**
  * 비밀번호 찾기 요청 데이터
@@ -34,7 +34,6 @@ class ForgotPasswordService {
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
     // 성공적으로 처리되었다고 가정
-    console.log('비밀번호 재설정 이메일 발송:', request.email);
   }
 }
 

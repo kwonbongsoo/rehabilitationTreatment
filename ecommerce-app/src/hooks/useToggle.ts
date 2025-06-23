@@ -8,7 +8,7 @@
  * - 토글 그룹 관리
  */
 
-import { useState, useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 /**
  * 기본 토글 훅
@@ -190,13 +190,13 @@ export function useTabs<T extends string>(initialTab: T, tabs: T[]) {
   const nextTab = useCallback(() => {
     const currentIndex = tabs.indexOf(activeTab);
     const nextIndex = (currentIndex + 1) % tabs.length;
-    setActiveTab(tabs[nextIndex]);
+    setActiveTab(tabs[nextIndex] as T);
   }, [activeTab, tabs]);
 
   const prevTab = useCallback(() => {
     const currentIndex = tabs.indexOf(activeTab);
     const prevIndex = currentIndex === 0 ? tabs.length - 1 : currentIndex - 1;
-    setActiveTab(tabs[prevIndex]);
+    setActiveTab(tabs[prevIndex] as T);
   }, [activeTab, tabs]);
 
   const isActive = useCallback(

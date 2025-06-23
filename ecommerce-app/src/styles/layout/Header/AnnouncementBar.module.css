@@ -1,0 +1,21 @@
+.announcementBar {
+  color: white;
+  text-align: center;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+.announcementBar.info {
+  background: var(--color-primary);
+}
+
+.announcementBar.promotion {
+  background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+}
+
+.announcementBar.warning {
+  background: var(--color-warning, #f39c12);
+  color: var(--color-text);
+}

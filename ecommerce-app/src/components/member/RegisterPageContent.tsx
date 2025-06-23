@@ -1,9 +1,9 @@
 import React from 'react';
 import Link from 'next/link';
-import RegisterForm from '../member/RegisterForm';
+import RegisterForm from './RegisterForm';
 import Divider from '../auth/Divider';
 import { useRegisterForm } from '@/hooks/useRegisterForm';
-import styles from '@/styles/shared/UserFormLayout.module.css';
+import styles from '@/styles/templates/UserFormLayout.module.css';
 
 export default function RegisterPageContent() {
   const { handleRegister, isLoading } = useRegisterForm();
