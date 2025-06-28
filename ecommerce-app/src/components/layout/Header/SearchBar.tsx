@@ -1,5 +1,5 @@
 import styles from '@/styles/layout/Header/SearchBar.module.css';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import React, { memo, useCallback, useState } from 'react';
 import { FiSearch, FiX } from 'react-icons/fi';
 

@@ -1,6 +1,6 @@
 import styles from '@/styles/layout/Header/MainNavigation.module.css';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
+import { usePathname } from 'next/navigation';
 import React, { memo, useCallback, useMemo } from 'react';
 import { FiX } from 'react-icons/fi';
 
@@ -26,7 +26,7 @@ const DEFAULT_CATEGORIES: Category[] = [
 ];
 
 const MainNavigation: React.FC<MainNavigationProps> = memo(({ isOpen, onClose, categories }) => {
-  const router = useRouter();
+  const pathname = usePathname();
 
   // 카테고리 배열을 useMemo로 메모이제이션
   const memoizedCategories = useMemo(() => {
@@ -50,7 +50,7 @@ const MainNavigation: React.FC<MainNavigationProps> = memo(({ isOpen, onClose, c
 
       <ul>
         {memoizedCategories.map((category, index) => (
-          <li key={index} className={router.pathname === category.href ? styles.active : ''}>
+          <li key={index} className={pathname === category.href ? styles.active : ''}>
             <Link
               href={category.href}
               className={category.isSale ? styles.saleLink : ''}
