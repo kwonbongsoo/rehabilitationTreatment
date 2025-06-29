@@ -1,13 +1,16 @@
+'use client';
+
 /**
- * 로그아웃 폼 훅 (멱등성 키 적용)
+ * 로그아웃 폼 훅
  *
- * useIdempotentMutation을 활용하여 로그아웃 요청에 멱등성 보장
+ * 서버 액션을 사용하여 로그아웃을 수행하고, 간단한 피드백을 제공한다.
  */
+
 import { ErrorHandler } from '@/utils/errorHandling';
 import { NotificationManager } from '@/utils/notifications';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { useLogout } from './queries/useAuth';
-import { useIdempotentMutation } from './useIdempotentMutation';
+import { logout as logoutAction } from '@/app/actions/auth';
+import { useRouter } from 'next/navigation';
+import { useCallback, useRef } from 'react';
 
 /**
  * 로그아웃 폼 훅 반환 타입
@@ -17,63 +20,30 @@ interface UseLogoutFormReturn {
   isLoading: boolean;
 }
 
-/**
- * 로그아웃 폼 관련 비즈니스 로직을 관리하는 커스텀 훅
- * 멱등성 키를 활용하여 중복 로그아웃 요청 방지
- */
 export function useLogoutForm(): UseLogoutFormReturn {
-  const logoutMutation = useLogout();
-  const { executeMutation, getRequestStatus } = useIdempotentMutation<void, void>();
+  const router = useRouter();
   const timeoutRef = useRef<number | null>(null);
 
-  // Cleanup timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (timeoutRef.current) {
-        window.clearTimeout(timeoutRef.current);
-      }
-    };
-  }, []);
-
-  // 성공/에러 콜백을 useMemo로 메모이제이션
-  const callbacks = useMemo(
-    () => ({
-      onSuccess: () => {
-        // 성공 메시지 표시
-        NotificationManager.showSuccess('로그아웃되었습니다.');
-        timeoutRef.current = window.setTimeout(() => {
-          window.location.replace('/');
-        }, 3000);
-      },
-      onError: (error: Error) => {
-        // 에러 메시지를 토스트로 표시
-        const errorMessage = error.message || '로그아웃 중 오류가 발생했습니다.';
-        NotificationManager.showError(errorMessage);
-
-        // 에러 로깅
-        ErrorHandler.handleFormError(error, '로그아웃');
-      },
-    }),
-    [],
-  );
-
   const handleLogout = useCallback(async (): Promise<void> => {
-    await executeMutation(
-      async (_, idempotencyKey) => {
-        await logoutMutation.mutateAsync();
-      },
-      undefined, // 로그아웃은 파라미터가 없음
-      {
-        useSessionKey: true, // 세션별 고정 키 사용
-        ...callbacks,
-      },
-    );
-  }, [logoutMutation, executeMutation, callbacks]);
+    try {
+      await logoutAction();
 
-  const requestStatus = getRequestStatus();
+      NotificationManager.showSuccess('로그아웃되었습니다.');
+
+      // 홈으로 리다이렉트 (약간의 지연 후)
+      timeoutRef.current = window.setTimeout(() => {
+        router.push('/');
+      }, 1500);
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : '로그아웃 중 오류가 발생했습니다.';
+      NotificationManager.showError(errorMessage);
+      ErrorHandler.handleFormError(error, '로그아웃');
+    }
+  }, [router]);
 
   return {
     handleLogout,
-    isLoading: logoutMutation.isPending || requestStatus.isInProgress,
+    isLoading: false,
   };
 }

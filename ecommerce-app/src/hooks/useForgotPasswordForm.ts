@@ -8,6 +8,7 @@ import { validationService } from '@/services';
 import { ErrorHandler } from '@/utils/errorHandling';
 import { NotificationManager } from '@/utils/notifications';
 import { useCallback } from 'react';
+import { forgotPassword as forgotPasswordAction } from '@/app/actions/auth';
 
 /**
  * 비밀번호 찾기 요청 데이터
@@ -25,19 +26,6 @@ interface UseForgotPasswordFormReturn {
 }
 
 /**
- * 비밀번호 찾기 서비스 (모의 구현)
- */
-class ForgotPasswordService {
-  static async sendForgotPasswordRequest(request: ForgotPasswordRequest): Promise<void> {
-    // 실제 API 호출 로직이 들어갈 곳
-    // 현재는 모의 구현
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    // 성공적으로 처리되었다고 가정
-  }
-}
-
-/**
  * 비밀번호 찾기 폼 관련 비즈니스 로직을 관리하는 커스텀 훅
  * 공통 모듈을 활용하여 간소화됨
  */
@@ -51,8 +39,8 @@ export function useForgotPasswordForm(): UseForgotPasswordFormReturn {
           throw new Error(emailValidation.errors[0]);
         }
 
-        // 비밀번호 찾기 요청 실행
-        await ForgotPasswordService.sendForgotPasswordRequest(request);
+        // 비밀번호 찾기 요청 실행 (아직 미구현 API)
+        await forgotPasswordAction(request);
 
         // 성공 메시지 표시
         NotificationManager.showSuccess(

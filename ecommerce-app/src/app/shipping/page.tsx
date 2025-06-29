@@ -89,6 +89,9 @@ export default function Shipping() {
         <button
           className={`${styles.tab} ${selectedTab === 'delivery' ? styles.active : ''}`}
           onClick={() => setSelectedTab('delivery')}
+          role="tab"
+          aria-selected={selectedTab === 'delivery'}
+          aria-controls="delivery-panel"
         >
           배송 옵션
         </button>

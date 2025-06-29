@@ -1,3 +1,4 @@
+'use client';
 /**
  * 로그인 폼 훅 (멱등성 키 적용)
  *
@@ -7,9 +8,8 @@ import { LoginRequest } from '@/api/models/auth';
 import { validationService } from '@/services';
 import { ErrorHandler } from '@/utils/errorHandling';
 import { NotificationManager } from '@/utils/notifications';
-import { useRouter } from 'next/router';
 import { useCallback, useMemo } from 'react';
-import { useLogin } from './queries/useAuth';
+import { login as loginAction } from '@/app/actions/auth';
 import { useIdempotentMutation } from './useIdempotentMutation';
 
 /**
@@ -25,8 +25,6 @@ interface UseLoginFormReturn {
  * 멱등성 키를 활용하여 중복 로그인 요청 방지
  */
 export function useLoginForm(): UseLoginFormReturn {
-  const router = useRouter();
-  const loginMutation = useLogin();
   const { executeMutation, getRequestStatus } = useIdempotentMutation<void, LoginRequest>();
 
   // 안전한 리다이렉트 URL 생성 함수
@@ -51,8 +49,7 @@ export function useLoginForm(): UseLoginFormReturn {
         // 성공 메시지 표시
         NotificationManager.showSuccess('로그인에 성공했습니다!');
         // 리다이렉트 처리
-        const redirectTo = getRedirectUrl(router.query);
-        router.replace(redirectTo);
+        window.location.replace('/');
       },
       onError: (error: Error) => {
         // 에러 메시지를 토스트로 표시
@@ -63,7 +60,7 @@ export function useLoginForm(): UseLoginFormReturn {
         ErrorHandler.handleFormError(error, '로그인');
       },
     }),
-    [getRedirectUrl, router], // getRedirectUrl 의존성 추가
+    [], // getRedirectUrl 의존성 추가
   );
 
   const handleLogin = useCallback(
@@ -73,11 +70,8 @@ export function useLoginForm(): UseLoginFormReturn {
 
       // 멱등성이 보장되는 로그인 요청 실행
       await executeMutation(
-        async (loginCredentials, idempotencyKey) => {
-          await loginMutation.mutateAsync({
-            credentials: loginCredentials,
-            idempotencyKey,
-          });
+        async (loginCredentials) => {
+          await loginAction(loginCredentials);
         },
         credentials,
         {
@@ -86,13 +80,13 @@ export function useLoginForm(): UseLoginFormReturn {
         },
       );
     },
-    [loginMutation, executeMutation, callbacks], // 최소한의 의존성만
+    [executeMutation, callbacks], // 최소한의 의존성만
   );
 
   const requestStatus = getRequestStatus();
 
   return {
     handleLogin,
-    isLoading: loginMutation.isPending || requestStatus.isInProgress,
+    isLoading: requestStatus.isInProgress,
   };
 }

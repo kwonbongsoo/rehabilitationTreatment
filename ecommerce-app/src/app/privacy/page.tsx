@@ -62,7 +62,7 @@ export default function PrivacyPage() {
           <li>개인정보 처리정지 요구</li>
           <li>개인정보 열람요구</li>
           <li>개인정보 정정·삭제 요구</li>
-          <li>개인정보 처리정지 요구</li>
+          <li>개인정보 처리현황 통지요구</li>
         </ul>
       </section>
 

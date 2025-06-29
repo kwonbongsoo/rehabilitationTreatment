@@ -11,6 +11,9 @@ export const API_TIMEOUT = 5000; // 5초
 // 주의: targetPath에는 /api가 포함되지 않음 (Kong Gateway에서 /api 접두사 추가)
 export const KONG_GATEWAY_URL = process.env.KONG_GATEWAY_URL || 'http://localhost:8000';
 
+// 인증 서버(koa-auth) URL
+export const AUTH_SERVICE_URL = process.env.AUTH_SERVICE_URL || 'http://localhost:4000';
+
 // 환경별 설정
 export const getApiConfig = () => {
   const isProduction = process.env.NODE_ENV === 'production';

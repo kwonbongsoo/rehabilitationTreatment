@@ -105,7 +105,8 @@ const getProductName = (item: number): string => {
 // 상품 가격 반환 함수
 const getProductPrice = (item: number): number => {
   const prices = [129000, 89000, 156000, 198000, 79000, 112000];
-  return prices[item - 1] || 0;
+  const index = item - 1;
+  return Number(index >= 0 && index < prices.length ? prices[index] : 0);
 };
 
 // 상품 색상 반환 함수
@@ -118,5 +119,6 @@ const getProductColors = (item: number): string[] => {
     ['#khaki', '#navy', '#charcoal'],
     ['#cream', '#lavender', '#sage'],
   ];
-  return colors[item - 1] || [];
+  const index = item - 1;
+  return (index >= 0 && index < colors.length ? colors[index] : colors[0]) as string[];
 };

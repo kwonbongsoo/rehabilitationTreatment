@@ -3,6 +3,8 @@ import { AppProviders } from '@/providers/AppProviders';
 import '@/styles/globals.css';
 import { Metadata } from 'next';
 import React from 'react';
+import { getSessionInfo } from '@/app/actions/auth';
+import { UserResponse } from '@/api/models/auth';
 
 export const metadata: Metadata = {
   title: {
@@ -41,11 +43,21 @@ export const metadata: Metadata = {
  * - 관심사 분리: Provider 초기화 로직 분리
  * - 인증 초기화: AppProviders > AuthProvider에서 처리
  */
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  let initialUser: UserResponse | null = null;
+
+  try {
+    const session = await getSessionInfo();
+    const { exp, iat, ...user } = session.data;
+    initialUser = user;
+  } catch {
+    // 게스트 또는 비인증 상태
+  }
+
   return (
     <html lang="ko">
       <body>
-        <AppProviders>
+        <AppProviders initialUser={initialUser}>
           <Layout>{children}</Layout>
         </AppProviders>
       </body>

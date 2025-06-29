@@ -1,8 +1,11 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useEffect } from 'react';
 import { useSessionInfo } from '@/hooks/queries/useAuth';
+import { UserResponse } from '@/api/models/auth';
+import { useAuth } from '@/store/useAuthStore';
 
 interface AuthProviderProps {
   children: ReactNode;
+  initialUser?: UserResponse | null;
 }
 
 /**
@@ -14,18 +17,26 @@ interface AuthProviderProps {
  * - 하위 컴포넌트 재렌더링 방지
  * - React Query 기반 인증 상태 관리
  */
-export function AuthProvider({ children }: AuthProviderProps) {
-  // 🎯 인증 상태 초기화 (UI와 분리)
+export function AuthProvider({ children, initialUser }: AuthProviderProps) {
+  const { setUser } = useAuth();
+
+  // 1️⃣ 서버에서 전달된 초기 유저가 있으면 바로 상태 주입
+  useEffect(() => {
+    if (initialUser) {
+      setUser(initialUser);
+    }
+  }, [initialUser, setUser]);
+
+  // 2️⃣ 클라이언트에서만(그리고 초기User가 없을 때) 세션 조회
   useSessionInfo({
-    enabled: typeof window !== 'undefined', // 클라이언트에서만 실행
-    retry: false, // 초기화 시에는 재시도하지 않음
-    staleTime: 1 * 60 * 1000, // 1분 캐싱
-    gcTime: 2 * 60 * 1000, // 2분 보관 (React Query v5에서 cacheTime → gcTime)
-    refetchOnWindowFocus: false, // 윈도우 포커스 시 재요청 방지
-    refetchOnMount: false, // 마운트 시 재요청 방지 (캐시 활용)
+    enabled: typeof window !== 'undefined' && !initialUser,
+    retry: false,
+    staleTime: 60_000,
+    gcTime: 120_000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
     onError: (error) => {
       console.warn('⚠️ 인증 상태 초기화 실패:', error);
-      // 에러 발생 시 setUser(null)은 useSessionInfo hook 내부에서 처리됨
     },
   });
 

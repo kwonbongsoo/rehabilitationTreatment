@@ -4,12 +4,15 @@
  * 기존의 복잡한 로직을 공통 모듈로 대체하고
  * 회원가입 특화 로직만 유지
  */
+'use client';
+
 import { RegisterRequest } from '@/api/models/auth';
 import { ErrorHandler } from '@/utils/errorHandling';
 import { NotificationManager, SUCCESS_MESSAGES } from '@/utils/notifications';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { useCallback, useMemo } from 'react';
-import { useRegister } from './queries/useUser';
+import { register as registerAction } from '@/app/actions/auth';
+import { useIdempotentMutation } from './useIdempotentMutation';
 
 /**
  * 회원가입 폼 데이터
@@ -36,7 +39,7 @@ interface UseRegisterFormReturn {
  */
 export function useRegisterForm(): UseRegisterFormReturn {
   const router = useRouter();
-  const registerMutation = useRegister();
+  const { executeMutation, getRequestStatus } = useIdempotentMutation<void, RegisterRequest>();
 
   // 성공/에러 처리 로직을 useMemo로 메모이제이션
   const handlers = useMemo(
@@ -77,12 +80,14 @@ export function useRegisterForm(): UseRegisterFormReturn {
           email: formData.email.trim(),
         };
 
-        // 회원가입 요청 실행 (멱등성 키 생성)
-        const idempotencyKey = `register_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        await registerMutation.mutateAsync({
-          userData: registerRequest,
-          idempotencyKey,
-        });
+        // 회원가입 요청 실행 (멱등성 키: 세션 고정)
+        await executeMutation(
+          async (req, key) => {
+            await registerAction(req, key);
+          },
+          registerRequest,
+          { useSessionKey: true },
+        );
 
         handlers.showSuccessAndRedirect();
         return true;
@@ -91,11 +96,11 @@ export function useRegisterForm(): UseRegisterFormReturn {
         return false;
       }
     },
-    [registerMutation, handlers], // registerMutation 전체 객체 의존성
+    [executeMutation, handlers], // executeMutation 의존성
   );
 
   return {
     handleRegister,
-    isLoading: registerMutation.isPending,
+    isLoading: getRequestStatus().isInProgress,
   };
 }
