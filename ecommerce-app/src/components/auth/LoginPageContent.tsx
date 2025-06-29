@@ -1,8 +1,10 @@
+'use client';
+
 import { useLoginForm } from '@/hooks/useLoginForm';
 import { useAuth } from '@/store/useAuthStore';
 import styles from '@/styles/templates/UserFormLayout.module.css';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import Divider from './Divider';
 import LoginForm from './LoginForm';
@@ -17,7 +19,7 @@ export default function LoginPageContent() {
   useEffect(() => {
     if (!isClientSide) return;
     if (!isGuest) {
-      router.replace('/');
+      router.push('/');
     }
   }, [isClientSide, router, isGuest]);
 

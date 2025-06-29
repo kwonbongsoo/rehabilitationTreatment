@@ -45,11 +45,9 @@ CURSOR_RULES_README.md
 .eslintcache
 
 dist
-Dockerfile
 .dockerignore
 .env.*
 /postgres-data
 /.next
 prisma/client/
 src/generated/
-ddd-auth-server/

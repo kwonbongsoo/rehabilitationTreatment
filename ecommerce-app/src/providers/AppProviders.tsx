@@ -1,3 +1,5 @@
+'use client';
+
 import { createUIConfigurationService } from '@/services/uiConfigurationService';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
@@ -8,6 +10,7 @@ import { AuthProvider } from './AuthProvider';
 
 interface AppProvidersProps {
   children: ReactNode;
+  initialUser?: import('@/api/models/auth').UserResponse | null;
 }
 
 // UI 설정 서비스 인스턴스 (싱글톤 패턴)
@@ -23,12 +26,12 @@ const uiConfig = uiConfigService.createConfiguration();
  * - 테스트 가능한 구조
  * - AuthProvider로 인증 상태 초기화 (렌더링 최적화)
  */
-export function AppProviders({ children }: AppProvidersProps) {
+export function AppProviders({ children, initialUser = null }: AppProvidersProps) {
   const { queryClient, toastConfig, devtoolsConfig } = uiConfig;
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>{children}</AuthProvider>
+      <AuthProvider initialUser={initialUser}>{children}</AuthProvider>
       <ToastContainer
         {...Object.fromEntries(
           Object.entries(toastConfig).filter(([_, value]) => value !== undefined),

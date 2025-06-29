@@ -71,6 +71,9 @@ const nextConfig: NextConfig = {
     workerThreads: false,
     // CSS 최적화 비활성화 (빌드 에러 방지)
     optimizeCss: false,
+    serverActions: {
+      bodySizeLimit: '10mb',
+    },
   },
 
   // 정적 파일 캐싱

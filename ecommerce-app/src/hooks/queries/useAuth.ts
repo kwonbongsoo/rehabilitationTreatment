@@ -1,14 +1,8 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo } from 'react';
-import { apiService } from '../../api/apiClient';
-import {
-  LoginRequest,
-  LoginResponse,
-  LogoutResponse,
-  SessionInfoResponse,
-} from '../../api/models/auth';
+import { getSessionInfo as getSessionInfoAction } from '@/app/actions/auth';
+import { SessionInfoResponse } from '../../api/models/auth';
 import { useAuth } from '../../store/useAuthStore';
-import { ErrorHandler } from '../../utils/errorHandling';
 import { queryKeys } from './queryKeys';
 
 interface SessionInfoOptions {
@@ -22,84 +16,6 @@ interface SessionInfoOptions {
 }
 
 /**
- * 로그인 훅 - 새로운 APIClient 사용
- */
-export function useLogin() {
-  const queryClient = useQueryClient();
-  const { setUser } = useAuth();
-
-  // mutationFn을 useCallback으로 메모이제이션
-  const mutationFn = useCallback(
-    async ({
-      credentials,
-      idempotencyKey,
-    }: {
-      credentials: LoginRequest;
-      idempotencyKey?: string;
-    }) => {
-      return apiService.login(credentials, idempotencyKey);
-    },
-    [],
-  );
-
-  // 성공 콜백을 useCallback으로 메모이제이션
-  const onSuccessCallback = useCallback(
-    (response: LoginResponse) => {
-      const { role, id, email, name } = response.data;
-      const filteredUserResponse = {
-        role,
-        id: id ?? '',
-        email: email ?? '',
-        name: name ?? '',
-      };
-
-      // 상태 업데이트 (동기적으로 처리)
-      setUser(filteredUserResponse);
-      queryClient.invalidateQueries({ queryKey: queryKeys.user.session() });
-    },
-    [setUser, queryClient],
-  );
-
-  return useMutation<LoginResponse, Error, { credentials: LoginRequest; idempotencyKey?: string }>({
-    mutationFn,
-    onSuccess: onSuccessCallback,
-    onError: (error) => {
-      ErrorHandler.handleApiError(error, '로그인');
-    },
-  });
-}
-
-/**
- * 로그아웃 훅 - 새로운 APIClient 사용
- */
-export function useLogout() {
-  const { logout } = useAuth();
-  const queryClient = useQueryClient();
-
-  // mutationFn을 useCallback으로 메모이제이션
-  const mutationFn = useCallback(async () => {
-    return apiService.logout();
-  }, []);
-
-  // 성공 콜백을 useCallback으로 메모이제이션
-  const onSuccessCallback = useCallback(() => {
-    // AuthProvider 상태 초기화
-    logout();
-
-    // React Query 캐시 초기화
-    queryClient.clear();
-  }, [logout, queryClient]);
-
-  return useMutation<LogoutResponse, Error, void>({
-    mutationFn,
-    onSuccess: onSuccessCallback,
-    onError: (error) => {
-      ErrorHandler.handleApiError(error, '로그아웃');
-    },
-  });
-}
-
-/**
  * 세션 정보 조회 훅 - 새로운 APIClient 사용
  */
 export function useSessionInfo(options: SessionInfoOptions = {}) {
@@ -108,7 +24,7 @@ export function useSessionInfo(options: SessionInfoOptions = {}) {
 
   // 쿼리 함수를 useCallback으로 메모이제이션
   const queryFn = useCallback(async () => {
-    return apiService.getSessionInfo();
+    return getSessionInfoAction();
   }, []);
 
   // React Query 옵션을 useMemo로 메모이제이션

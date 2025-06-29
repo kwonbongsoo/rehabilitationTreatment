@@ -34,6 +34,9 @@ export {
   type TokenWithCookieResult,
 } from './infrastructure/tokenService';
 
+// App Router 전용 쿠키 서비스
+export { setAppRouterLoginCookies, clearAppRouterAuthCookies } from './app-router-cookie-service';
+
 // UI Layer (UI 설정 서비스)
 export {
   UIConfigurationService,

@@ -1,14 +1,4 @@
 /**
- * 사용자 모델 (전체 정보)
- */
-export interface User {
-  id: string;
-  email: string;
-  role: 'customer' | 'admin' | 'guest';
-  name: string;
-}
-
-/**
  * 사용자 정보 업데이트 요청 모델
  */
 export interface UserUpdateRequest {

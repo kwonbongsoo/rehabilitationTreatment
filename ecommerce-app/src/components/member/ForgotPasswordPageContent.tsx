@@ -1,6 +1,8 @@
+'use client';
+
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import ForgotPasswordForm from './ForgotPasswordForm';
 import Divider from '../auth/Divider';
 import { useForgotPasswordForm } from '@/hooks/useForgotPasswordForm';
