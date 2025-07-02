@@ -11,8 +11,8 @@ import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import { ProxyError } from '../utils/proxyErrors';
 import {
   LoginRequest,
-  LoginResponse,
   LogoutResponse,
+  ProxyLoginResponse,
   RegisterRequest,
   SessionInfoResponse,
   UserResponse,
@@ -293,14 +293,14 @@ export class ApiService {
   /**
    * 로그인
    */
-  async login(credentials: LoginRequest): Promise<LoginResponse> {
+  async login(credentials: LoginRequest): Promise<ProxyLoginResponse> {
     const headers = buildRequestHeaders({
       method: 'POST',
       includeAuth: true,
       useBasicAuth: true, // 로그인은 Basic Auth 이용
     });
 
-    return this.authClient.post<LoginResponse>('/auth/login', credentials, {
+    return this.authClient.post<ProxyLoginResponse>('/auth/login', credentials, {
       headers,
     } as RequestOptions);
   }

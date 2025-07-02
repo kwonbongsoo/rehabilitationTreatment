@@ -19,7 +19,7 @@ export default function LoginPageContent() {
   useEffect(() => {
     if (!isClientSide) return;
     if (!isGuest) {
-      router.push('/');
+      router.replace('/');
     }
   }, [isClientSide, router, isGuest]);
 

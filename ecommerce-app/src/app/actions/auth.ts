@@ -27,10 +27,17 @@ export async function login(credentials: LoginRequest): Promise<LoginResponse> {
   // 2) 쿠키 저장
   const cookieStore = await cookies();
   const isProduction = process.env.NODE_ENV === 'production';
-  const { data } = response as unknown as ProxyLoginResponse; // proxy 구조 이용
+  // Ensure response matches expected structure
+  if (!response || typeof response !== 'object' || !('data' in response)) {
+    throw new Error('Invalid login response structure');
+  }
+  const { data } = response;
 
   // 액세스 토큰 쿠키
   if (data?.access_token) {
+    const maxAge = data.exp
+      ? Math.max(0, data.exp - Math.floor(Date.now() / 1000))
+      : 60 * 60 * 24 * 7;
     cookieStore.set('access_token', data.access_token, {
       httpOnly: true,
       secure: isProduction,
@@ -67,18 +74,18 @@ export async function login(credentials: LoginRequest): Promise<LoginResponse> {
  */
 export async function logout(): Promise<LogoutResponse> {
   // 1) 백엔드 로그아웃 호출 (실패해도 쿠키는 삭제)
+  const cookieStore = await cookies();
   try {
     const response = await apiService.logout();
-    // 2) 쿠키 삭제
-    const cookieStore = await cookies();
-    cookieStore.delete('access_token');
-    cookieStore.delete('access_type');
     return response;
   } catch (error) {
     return {
       success: false,
       message: '로그아웃에 실패했습니다.',
     };
+  } finally {
+    cookieStore.delete('access_token');
+    cookieStore.delete('access_type');
   }
 }
 
@@ -90,7 +97,7 @@ export async function register(
   idempotencyKey?: string,
 ): Promise<RegisterResponse> {
   // 멱등성 키가 없으면 서버에서 생성 (안전 장치)
-  const key = idempotencyKey ?? `register_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+  const key = idempotencyKey ?? `register_${Date.now()}_${crypto.randomUUID()}`;
 
   // 1) 백엔드 회원가입 호출
   const response = await apiService.register(userData, key);

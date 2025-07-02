@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
 import styles from './page.module.css';
 import OptimizedImage from '@/components/common/OptimizedImage';
 
@@ -13,6 +14,11 @@ const VALID_COLLECTIONS = ['summer', 'winter', 'spring', 'fall'] as const;
 
 export default function CollectionPage({ params }: CollectionPageProps) {
   const { collection } = params;
+
+  // Validate collection
+  if (!VALID_COLLECTIONS.includes(collection as (typeof VALID_COLLECTIONS)[number])) {
+    notFound();
+  }
 
   const getCollectionTitle = (collection: string) => {
     switch (collection) {

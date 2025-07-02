@@ -49,7 +49,9 @@ export function useLoginForm(): UseLoginFormReturn {
         // 성공 메시지 표시
         NotificationManager.showSuccess('로그인에 성공했습니다!');
         // 리다이렉트 처리
-        window.location.replace('/');
+        const params = new URLSearchParams(window.location.search);
+        const redirectTo = params.get('redirect') || '/';
+        window.location.replace(redirectTo);
       },
       onError: (error: Error) => {
         // 에러 메시지를 토스트로 표시

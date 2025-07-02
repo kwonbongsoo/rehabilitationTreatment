@@ -52,6 +52,7 @@ COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 
 # Next.js 15의 standalone 모드에서 정적 파일을 올바른 위치에 복사
+# Static files are already copied above to ./.next/static
 COPY --from=builder /app/.next/static ./_next/static
 
 # 빌드된 common 패키지를 복사 (runtime에서도 필요할 수 있음)

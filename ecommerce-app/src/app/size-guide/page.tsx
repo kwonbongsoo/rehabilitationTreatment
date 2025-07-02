@@ -96,6 +96,19 @@ export default function SizeGuide() {
     },
   ];
 
+  const getClothingSizeData = () => {
+    switch (selectedCategory) {
+      case 'women':
+        return womenClothingSizes;
+      case 'men':
+        return menClothingSizes;
+      case 'kids':
+        return kidsClothingSizes;
+      default:
+        return womenClothingSizes;
+    }
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.header}>
@@ -153,12 +166,7 @@ export default function SizeGuide() {
                 <div>엉덩이둘레 (cm)</div>
                 <div>{selectedCategory === 'kids' ? '권장 신장 (cm)' : '권장 신장 (cm)'}</div>
               </div>
-              {(selectedCategory === 'women'
-                ? womenClothingSizes
-                : selectedCategory === 'men'
-                  ? menClothingSizes
-                  : kidsClothingSizes
-              ).map((item: ClothingSize, index: number) => (
+              {getClothingSizeData().map((item: ClothingSize, index: number) => (
                 <div key={index} className={styles.tableRow}>
                   <div className={styles.sizeLabel}>{item.size}</div>
                   <div>{item.chest}</div>
