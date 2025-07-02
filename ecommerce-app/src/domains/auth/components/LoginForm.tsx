@@ -1,4 +1,4 @@
-import { LoginRequest } from '@/api/models/auth';
+import { LoginRequest } from '../types/auth';
 import { Button } from '@/components/common/Button';
 import { FormActions, FormContainer, FormInput } from '@/components/common/Form';
 import { useFormState } from '@/hooks/useFormState';

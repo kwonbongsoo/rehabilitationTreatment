@@ -2,10 +2,10 @@ import React from 'react';
 import Link from 'next/link';
 import { RegisterForm } from './RegisterForm';
 import { Divider } from './Divider';
-import { useRegisterForm } from '@/hooks/useRegisterForm';
+import { useRegisterForm } from '@/domains/auth/hooks/useRegisterForm';
 import styles from '@/styles/templates/UserFormLayout.module.css';
 
-export function RegisterPageContent() {
+export default function RegisterPageContent() {
   const { handleRegister, isLoading } = useRegisterForm();
 
   const onSubmit = React.useCallback(

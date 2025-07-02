@@ -4,8 +4,8 @@
  *
  * useIdempotentMutation을 활용하여 로그인 요청에 멱등성 보장
  */
-import { LoginRequest } from '@/api/models/auth';
-import { validationService } from '@/services';
+import { LoginRequest } from '../types/auth';
+import { authValidationService } from '@/domains/auth/services';
 import { ErrorHandler } from '@/utils/errorHandling';
 import { NotificationManager } from '@/utils/notifications';
 import { useCallback, useMemo } from 'react';
@@ -68,7 +68,7 @@ export function useLoginForm(): UseLoginFormReturn {
   const handleLogin = useCallback(
     async (credentials: LoginRequest): Promise<void> => {
       // 검증 서비스를 통한 입력 검증
-      validationService.validateLoginCredentials(credentials);
+      authValidationService.validateLoginCredentials(credentials);
 
       // 멱등성이 보장되는 로그인 요청 실행
       await executeMutation(

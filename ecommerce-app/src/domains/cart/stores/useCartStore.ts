@@ -7,13 +7,39 @@ import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 import type { CartItem, CartState, CartActions, CartSummary } from '../types/cart';
 
+// Mock cart data
+const mockCartItems: CartItem[] = [
+  {
+    id: '1',
+    name: '심플 티셔츠',
+    price: 29000,
+    quantity: 2,
+    image:
+      'https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg',
+    color: '블랙',
+    size: 'M',
+    inStock: true,
+  },
+  {
+    id: '2',
+    name: '캐주얼 데님 자켓',
+    price: 89000,
+    quantity: 1,
+    image:
+      'https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg',
+    color: '블루',
+    size: 'L',
+    inStock: true,
+  },
+];
+
 // Zustand 스토어 타입 (내부 구현 + 퍼블릭 인터페이스)
 export type CartStoreState = CartState & CartActions;
 
 // 초기 상태
 const initialState: CartState = {
-  items: [],
-  totalItems: 0,
+  cartItems: mockCartItems,
+  totalItems: mockCartItems.reduce((sum, item) => sum + item.quantity, 0),
   isLoading: false,
 };
 
@@ -27,11 +53,11 @@ export const useCartStore = create<CartStoreState>()(
         // === 기본 CRUD 액션 ===
         addItem: (newItem) => {
           set((state) => {
-            const existingItem = state.items.find((item) => item.id === newItem.id);
+            const existingItem = state.cartItems.find((item) => item.id === newItem.id);
 
             if (existingItem) {
               // 기존 아이템의 수량 증가
-              const updatedItems = state.items.map((item) =>
+              const updatedItems = state.cartItems.map((item) =>
                 item.id === newItem.id ? { ...item, quantity: item.quantity + 1 } : item,
               );
 
@@ -53,7 +79,7 @@ export const useCartStore = create<CartStoreState>()(
 
             const newState = {
               ...state,
-              items: [...state.items, itemToAdd],
+              items: [...state.cartItems, itemToAdd],
               totalItems: state.totalItems + 1,
             };
             delete newState.error;
@@ -63,12 +89,12 @@ export const useCartStore = create<CartStoreState>()(
 
         removeItem: (itemId) => {
           set((state) => {
-            const item = state.items.find((item) => item.id === itemId);
+            const item = state.cartItems.find((item) => item.id === itemId);
             if (!item) return state;
 
             const newState = {
               ...state,
-              items: state.items.filter((item) => item.id !== itemId),
+              items: state.cartItems.filter((item) => item.id !== itemId),
               totalItems: state.totalItems - item.quantity,
             };
             delete newState.error;
@@ -83,7 +109,7 @@ export const useCartStore = create<CartStoreState>()(
           }
 
           set((state) => {
-            const item = state.items.find((item) => item.id === itemId);
+            const item = state.cartItems.find((item) => item.id === itemId);
             if (!item) return state;
 
             // 최대 수량 제한 확인
@@ -95,7 +121,7 @@ export const useCartStore = create<CartStoreState>()(
 
             const newState = {
               ...state,
-              items: state.items.map((item) =>
+              items: state.cartItems.map((item) =>
                 item.id === itemId ? { ...item, quantity: finalQuantity } : item,
               ),
               totalItems: state.totalItems + quantityDiff,
@@ -109,7 +135,7 @@ export const useCartStore = create<CartStoreState>()(
           set((state) => {
             const newState = {
               ...state,
-              items: state.items.map((item) =>
+              items: state.cartItems.map((item) =>
                 item.id === itemId ? { ...item, ...updates } : item,
               ),
             };
@@ -122,18 +148,18 @@ export const useCartStore = create<CartStoreState>()(
 
         // === 계산 함수들 ===
         getItem: (itemId) => {
-          return get().items.find((item) => item.id === itemId);
+          return get().cartItems.find((item) => item.id === itemId);
         },
 
         getTotalPrice: () => {
-          return get().items.reduce((total, item) => {
+          return get().cartItems.reduce((total, item) => {
             const itemPrice = item.discount ? item.price * (1 - item.discount / 100) : item.price;
             return total + itemPrice * item.quantity;
           }, 0);
         },
 
         getTotalDiscount: () => {
-          return get().items.reduce((total, item) => {
+          return get().cartItems.reduce((total, item) => {
             if (!item.discount || !item.originalPrice) return total;
             const discountAmount = (item.originalPrice - item.price) * item.quantity;
             return total + discountAmount;
@@ -153,7 +179,7 @@ export const useCartStore = create<CartStoreState>()(
         },
 
         isItemInCart: (itemId) => {
-          return get().items.some((item) => item.id === itemId);
+          return get().cartItems.some((item) => item.id === itemId);
         },
 
         // === 로딩 상태 관리 ===
@@ -176,7 +202,7 @@ export const useCartStore = create<CartStoreState>()(
         name: 'cart-store', // localStorage key
         // 민감하지 않은 데이터만 저장
         partialize: (state) => ({
-          items: state.items,
+          cartItems: state.cartItems,
           totalItems: state.totalItems,
         }),
       },
@@ -194,7 +220,7 @@ export const useCartStore = create<CartStoreState>()(
  */
 export const useCartSummary = (): CartSummary => {
   // Zustand selector를 사용하여 필요한 상태만 선택
-  const items = useCartStore((state) => state.items);
+  const items = useCartStore((state) => state.cartItems);
   const getTotalPrice = useCartStore((state) => state.getTotalPrice);
   const getTotalDiscount = useCartStore((state) => state.getTotalDiscount);
   const getItemCount = useCartStore((state) => state.getItemCount);

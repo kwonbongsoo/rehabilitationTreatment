@@ -5,10 +5,10 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ForgotPasswordForm } from './ForgotPasswordForm';
 import { Divider } from './Divider';
-import { useForgotPasswordForm } from '@/hooks/useForgotPasswordForm';
+import { useForgotPasswordForm } from '@/domains/auth/hooks/useForgotPasswordForm';
 import styles from '@/styles/templates/UserFormLayout.module.css';
 
-export function ForgotPasswordPageContent() {
+export default function ForgotPasswordPageContent() {
   const router = useRouter();
 
   const { handleForgotPassword, isLoading } = useForgotPasswordForm();

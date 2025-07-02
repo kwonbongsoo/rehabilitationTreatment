@@ -1,8 +1,8 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo } from 'react';
 import { getSessionInfo as getSessionInfoAction } from '@/app/actions/auth';
-import { SessionInfoResponse } from '@/api/models/auth';
-import { useAuth } from '@/store/useAuthStore';
+import { SessionInfoResponse } from '@/domains/auth/types/auth';
+import { useAuth } from '@/domains/auth/stores';
 import { queryKeys } from '@/hooks/queries/queryKeys';
 
 interface SessionInfoOptions {

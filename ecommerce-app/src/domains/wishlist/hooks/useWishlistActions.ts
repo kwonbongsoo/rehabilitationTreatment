@@ -17,12 +17,12 @@ interface UseWishlistActionsOptions {
 export interface UseWishlistActionsReturn {
   // 액션들
   addToWishlist: (item: WishlistItem) => void;
-  removeFromWishlist: (itemId: string) => void;
+  removeFromWishlist: (itemId: number) => void;
   toggleWishlist: (item: WishlistItem) => void;
   clearWishlist: () => void;
 
   // 상태
-  isInWishlist: (itemId: string) => boolean;
+  isInWishlist: (itemId: number) => boolean;
   wishlistCount: number;
 }
 
@@ -63,7 +63,7 @@ export function useWishlistActions(
   );
 
   const removeFromWishlist = useCallback(
-    (itemId: string) => {
+    (itemId: number) => {
       try {
         removeItem(itemId);
 
@@ -118,7 +118,7 @@ export function useWishlistActions(
     }
   }, [clear, showNotification, onSuccess, onError]);
 
-  const isInWishlist = useCallback((itemId: string) => hasItem(itemId), [hasItem]);
+  const isInWishlist = useCallback((itemId: number) => hasItem(itemId), [hasItem]);
 
   return {
     // 액션들

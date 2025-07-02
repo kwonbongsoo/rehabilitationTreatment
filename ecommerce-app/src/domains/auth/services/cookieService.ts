@@ -4,7 +4,7 @@
  * 클라이언트/서버 환경에서 쿠키 관리를 담당합니다.
  * HttpOnly 쿠키를 통한 안전한 토큰 저장 및 조회를 지원합니다.
  */
-import type { ProxyLoginResponse, UserRole } from '@/api/models/auth';
+import type { ProxyLoginResponse, UserRole } from '@/domains/auth/types/auth';
 import type { NextApiResponse } from 'next';
 import type { NextResponse } from 'next/server';
 

@@ -1,4 +1,4 @@
-import { useAuth } from '@/store/useAuthStore';
+import { useAuth } from '@/domains/auth/stores';
 import Link from 'next/link';
 // Tree shaking 적용을 위해 개별 아이콘 임포트
 import styles from '@/styles/layout/Header/UserActions.module.css';

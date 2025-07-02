@@ -4,7 +4,7 @@ import '@/styles/globals.css';
 import { Metadata } from 'next';
 import React from 'react';
 import { getSessionInfo } from '@/app/actions/auth';
-import { UserResponse } from '@/api/models/auth';
+import { UserResponse } from '@/domains/auth/types/auth';
 
 export const metadata: Metadata = {
   title: {

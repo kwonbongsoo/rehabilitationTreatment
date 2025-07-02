@@ -4,7 +4,7 @@
  * 기존의 복잡한 로직을 공통 모듈로 대체하고
  * 비밀번호 찾기 특화 로직만 유지
  */
-import { validationService } from '@/services';
+import { authValidationService } from '@/domains/auth/services';
 import { ErrorHandler } from '@/utils/errorHandling';
 import { NotificationManager } from '@/utils/notifications';
 import { useCallback } from 'react';
@@ -34,7 +34,7 @@ export function useForgotPasswordForm(): UseForgotPasswordFormReturn {
     async (request: ForgotPasswordRequest): Promise<void> => {
       try {
         // 이메일 유효성 검증
-        const emailValidation = validationService.validateForgotPasswordForm(request);
+        const emailValidation = authValidationService.validateForgotPasswordForm(request);
         if (!emailValidation.isValid) {
           throw new Error(emailValidation.errors[0]);
         }

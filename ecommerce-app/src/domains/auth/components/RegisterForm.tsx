@@ -1,16 +1,9 @@
 import { Button } from '@/components/common/Button';
 import { FormActions, FormCheckbox, FormContainer, FormInput } from '@/components/common/Form';
 import { useFormState } from '@/hooks/useFormState';
-import { validationService } from '@/services';
+import { authValidationService } from '@/domains/auth/services';
 import { useState } from 'react';
-
-interface RegisterFormData {
-  id: string;
-  password: string;
-  confirmPassword: string;
-  name: string;
-  email: string;
-}
+import { RegisterFormData } from '../types/auth';
 
 interface RegisterFormProps {
   onSubmit: (data: RegisterFormData) => Promise<boolean>;
@@ -33,7 +26,7 @@ export function RegisterForm({
       name: '',
       email: '',
     },
-    validate: (data) => validationService.validateRegisterForm(data).errors,
+    validate: (data) => authValidationService.validateRegisterForm(data).errors,
     resetOnSuccess: true,
     preventDuplicateSubmit: true,
   });

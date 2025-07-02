@@ -30,7 +30,7 @@ export function useCartValidation(options: UseCartValidationOptions = {}): UseCa
   const { autoFix = false, showNotifications = true } = options;
 
   // Zustand selector를 사용하여 필요한 상태와 액션만 선택
-  const items = useCartStore((state) => state.items);
+  const items = useCartStore((state) => state.cartItems);
   const validateItem = useCartStore((state) => state.validateItem);
   const removeItem = useCartStore((state) => state.removeItem);
   const updateItem = useCartStore((state) => state.updateItem);

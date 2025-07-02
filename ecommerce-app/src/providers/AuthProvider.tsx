@@ -1,7 +1,7 @@
 import React, { ReactNode, useEffect } from 'react';
-import { useSessionInfo } from '@/hooks/queries/useAuth';
-import { UserResponse } from '@/api/models/auth';
-import { useAuth } from '@/store/useAuthStore';
+import { useSessionInfo } from '@/domains/auth/hooks/useAuth';
+import { UserResponse } from '@/domains/auth/types/auth';
+import { useAuth } from '@/domains/auth/stores';
 
 interface AuthProviderProps {
   children: ReactNode;

@@ -1,7 +1,7 @@
 'use client';
 
-import { useLoginForm } from '@/hooks/useLoginForm';
-import { useAuth } from '@/store/useAuthStore';
+import { useLoginForm } from '@/domains/auth/hooks/useLoginForm';
+import { useAuth } from '@/domains/auth/stores';
 import styles from '@/styles/templates/UserFormLayout.module.css';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -9,7 +9,7 @@ import { useEffect } from 'react';
 import { Divider } from './Divider';
 import { LoginForm } from './LoginForm';
 
-export function LoginPageContent() {
+export default function LoginPageContent() {
   const router = useRouter();
   const { isGuest } = useAuth();
   const { handleLogin, isLoading } = useLoginForm();

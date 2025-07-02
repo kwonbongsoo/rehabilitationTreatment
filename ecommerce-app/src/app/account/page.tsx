@@ -2,8 +2,8 @@
 
 import { Button } from '@/components/common/Button';
 import { ConfirmDialog } from '@/components/common/Modal';
-import { useLogoutForm } from '@/hooks/useLogoutForm';
-import { useAuth } from '@/store/useAuthStore';
+import { useLogoutForm } from '@/domains/auth/hooks/useLogoutForm';
+import { useAuth } from '@/domains/auth/stores';
 import { ErrorHandler } from '@/utils/errorHandling';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';

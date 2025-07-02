@@ -6,24 +6,14 @@
  */
 'use client';
 
-import { RegisterRequest } from '@/api/models/auth';
+import { RegisterRequest } from '@/domains/auth/types/auth';
 import { ErrorHandler } from '@/utils/errorHandling';
 import { NotificationManager, SUCCESS_MESSAGES } from '@/utils/notifications';
 import { useRouter } from 'next/navigation';
 import { useCallback, useMemo } from 'react';
 import { register as registerAction } from '@/app/actions/auth';
 import { useIdempotentMutation } from '@/hooks/useIdempotentMutation';
-
-/**
- * 회원가입 폼 데이터
- */
-export interface RegisterFormData {
-  id: string;
-  password: string;
-  confirmPassword: string;
-  name: string;
-  email: string;
-}
+import { RegisterFormData } from '../types/auth';
 
 /**
  * 회원가입 폼 훅 반환 타입

@@ -4,7 +4,7 @@
  * 서버사이드 전용 토큰 발급 및 쿠키 설정 담당
  */
 import { ServerResponse } from 'http';
-import { createTokenCookies, TokenResult } from '@/services/infrastructure/cookieService';
+import { createTokenCookies, TokenResult } from './cookieService';
 
 /**
  * 쿠키 설정을 포함한 토큰 발급 결과

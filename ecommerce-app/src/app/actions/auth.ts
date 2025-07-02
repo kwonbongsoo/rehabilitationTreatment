@@ -10,7 +10,7 @@ import {
   ForgotPasswordRequest,
   SessionInfoResponse,
   LogoutResponse,
-} from '@/api/models/auth';
+} from '@/domains/auth/types/auth';
 import { apiService } from '@/api/apiClient';
 
 /**

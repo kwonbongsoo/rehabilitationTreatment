@@ -1,6 +1,6 @@
 import { Button } from '@/components/common/Button';
 import { FormActions, FormContainer, FormInput } from '@/components/common/Form';
-import { ForgotPasswordRequest } from '@/hooks/useForgotPasswordForm';
+import { ForgotPasswordRequest } from '@/domains/auth/types/auth';
 import { useFormState } from '@/hooks/useFormState';
 import styles from '@/styles/auth/Form.module.css';
 import { ErrorHandler } from '@/utils/errorHandling';
@@ -13,17 +13,13 @@ interface ForgotPasswordFormProps {
   isLoading?: boolean;
 }
 
-interface ForgotPasswordFormData {
-  email: string;
-}
-
 export function ForgotPasswordForm({
   onSubmit,
   isLoading: externalLoading = false,
 }: ForgotPasswordFormProps) {
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const form = useFormState<ForgotPasswordFormData>({
+  const form = useFormState<ForgotPasswordRequest>({
     initialData: { email: '' },
     validate: (data) => {
       const email = data.email.trim();

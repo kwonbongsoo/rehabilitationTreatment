@@ -13,16 +13,19 @@ export interface Product {
 }
 
 export interface ProductListItem {
-  id: string;
+  id: number;
   name: string;
   price: number;
   image: string;
   rating: number;
-  reviews: number;
+  reviews?: number;
+  category: string;
+  size: string;
+  color: string;
 }
 
 export interface ProductFilter {
-  categoryId?: string;
+  categoryId?: number;
   minPrice?: number;
   maxPrice?: number;
   sortBy?: 'price' | 'rating' | 'newest';

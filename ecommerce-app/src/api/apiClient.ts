@@ -6,7 +6,7 @@
  * - 간단한 API 호출 패턴 제공
  */
 
-import { cookieService } from '@/services';
+import { cookieService } from '@/domains/auth/services';
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import { ProxyError } from '../utils/proxyErrors';
 import {
@@ -16,7 +16,7 @@ import {
   RegisterRequest,
   SessionInfoResponse,
   UserResponse,
-} from './models/auth';
+} from '@/domains/auth/types/auth';
 import { KONG_GATEWAY_URL, AUTH_SERVICE_URL } from './config';
 
 /**

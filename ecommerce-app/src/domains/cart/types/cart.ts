@@ -6,7 +6,7 @@ export interface CartItem {
   name: string;
   price: number;
   quantity: number;
-  image?: string;
+  image: string;
   size?: string;
   color?: string;
   discount?: number; // 할인율 (0-100)
@@ -19,7 +19,7 @@ export interface CartItem {
  * 장바구니 상태 인터페이스
  */
 export interface CartState {
-  items: CartItem[];
+  cartItems: CartItem[];
   totalItems: number;
   isLoading: boolean;
   error?: string;
@@ -55,8 +55,11 @@ export interface CartActions {
  * 장바구니 추가 요청
  */
 export interface AddToCartRequest {
-  productId: string;
+  id: string;
   quantity?: number;
+  name: string;
+  price: number;
+  image: string;
   size?: string;
   color?: string;
   options?: Record<string, any>;

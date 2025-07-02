@@ -42,7 +42,7 @@ export function useCheckout(options: UseCheckoutOptions = {}): UseCheckoutReturn
   const { onSuccess, onError } = options;
   const router = useRouter();
 
-  const items = useCartStore((state) => state.items);
+  const items = useCartStore((state) => state.cartItems);
   const { validateCart, isCartValid } = useCartValidation();
   const { clearCart } = useCartActions();
 
