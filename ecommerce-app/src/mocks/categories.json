@@ -1,0 +1,12 @@
+{
+  "categories": [
+    { "value": "all", "label": "전체" },
+    { "value": "dress", "label": "원피스" },
+    { "value": "top", "label": "상의" },
+    { "value": "pants", "label": "바지" },
+    { "value": "jacket", "label": "아우터" },
+    { "value": "shoes", "label": "신발" },
+    { "value": "bag", "label": "가방" },
+    { "value": "accessories", "label": "액세서리" }
+  ]
+}

@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 
 // 클라이언트에서만 실행되는 컴포넌트로 동적 임포트
 const ForgotPasswordClient = dynamic(
-  () => import('@/components/member/ForgotPasswordPageContent'),
+  () => import('@/domains/auth/components/ForgotPasswordPageContent'),
   {
     ssr: false, // 서버 사이드 렌더링 비활성화
     loading: () => (

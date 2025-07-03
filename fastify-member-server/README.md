@@ -1,61 +1,123 @@
-# Fastify Member Server
+# 회원 서버 (Fastify Member Server)
 
-This project is a Fastify-based server that provides basic functionalities for managing user members. It includes features for user registration, modification, retrieval, and deletion.
+Fastify 기반의 회원 관리 서비스입니다.
 
-## Project Structure
+## 주요 기능
 
+- 회원 정보 CRUD
+- Prisma ORM을 통한 데이터 관리
+- 멱등성 처리
+- 요청 검증
+
+## 기술 스택
+
+- Fastify
+- TypeScript
+- Prisma
+- PostgreSQL
+- Jest (테스트)
+
+## API 엔드포인트
+
+### 회원 관리
+- GET /members - 회원 목록 조회
+- GET /members/:id - 회원 상세 조회
+- POST /members - 회원 생성
+- PUT /members/:id - 회원 정보 수정
+- DELETE /members/:id - 회원 삭제
+
+### 프로필
+- GET /members/:id/profile - 프로필 조회
+- PUT /members/:id/profile - 프로필 수정
+
+## 설치 및 실행
+
+1. 의존성 설치
+```bash
+npm install
 ```
-fastify-member-server
-├── src
-│   ├── app.ts                  # Entry point of the application
-│   ├── controllers
-│   │   └── memberController.ts  # Handles user-related operations
-│   ├── routes
-│   │   └── memberRoutes.ts      # Defines routes for user operations
-│   ├── services
-│   │   └── memberService.ts      # Contains business logic for user management
-│   └── types
-│       └── member.d.ts          # Type definitions for user data
-├── package.json                 # NPM configuration file
-├── tsconfig.json                # TypeScript configuration file
-└── README.md                    # Project documentation
+
+2. 환경 변수 설정
+```bash
+cp .env.example .env
 ```
 
-## Features
-
-- **User Registration**: Allows new users to register.
-- **User Modification**: Enables updating user information.
-- **User Retrieval**: Provides functionality to retrieve user details.
-- **User Deletion**: Allows for the deletion of user accounts.
-
-## Installation
-
-1. Clone the repository:
-   ```
-   git clone <repository-url>
-   ```
-2. Navigate to the project directory:
-   ```
-   cd fastify-member-server
-   ```
-3. Install the dependencies:
-   ```
-   npm install
-   ```
-
-## Usage
-
-To start the server, run:
+3. 데이터베이스 마이그레이션
+```bash
+npx prisma migrate dev
 ```
+
+4. 개발 모드 실행
+```bash
+npm run dev
+```
+
+5. 프로덕션 빌드
+```bash
+npm run build
 npm start
 ```
 
-The server will be running on the specified port, and you can access the member functionalities through the defined routes.
+## 환경 변수
 
-## Contributing
+- `PORT`: 서버 포트 (기본값: 5000)
+- `DATABASE_URL`: PostgreSQL 연결 문자열
+- `REDIS_URL`: Redis 연결 문자열 (멱등성 처리용)
+- `NODE_ENV`: 실행 환경 (development/production)
 
-Contributions are welcome! Please open an issue or submit a pull request for any improvements or features.
+## 테스트
 
-## License
+```bash
+# 단위 테스트 실행
+npm test
 
-This project is licensed under the MIT License.
+# 테스트 커버리지 확인
+npm run test:coverage
+```
+
+## 프로젝트 구조
+
+```
+src/
+├── __tests__/          # 테스트 파일
+├── controllers/        # 컨트롤러
+├── interfaces/         # 타입 정의
+├── middlewares/        # 미들웨어
+├── plugins/            # Fastify 플러그인
+├── routes/             # 라우트 정의
+├── schemas/           # JSON 스키마
+├── services/          # 비즈니스 로직
+└── utils/             # 유틸리티 함수
+```
+
+## 멱등성 처리
+
+### 구현 방식
+- Redis를 사용한 요청 ID 관리
+- 중복 요청 감지 및 처리
+- 응답 캐싱
+
+### 적용 대상
+- POST /members
+- PUT /members/:id
+- DELETE /members/:id
+
+## 데이터베이스
+
+### Prisma 스키마
+- Member 모델
+- Profile 모델
+- 관계 설정
+
+### 마이그레이션
+```bash
+# 마이그레이션 생성
+npx prisma migrate dev --name init
+
+# 마이그레이션 적용
+npx prisma migrate deploy
+```
+
+## API 문서
+
+서버 실행 후 http://localhost:5000/docs 에서 Swagger UI로 API 문서를 확인할 수 있습니다.

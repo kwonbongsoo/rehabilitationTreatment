@@ -10,7 +10,7 @@ import { AuthProvider } from './AuthProvider';
 
 interface AppProvidersProps {
   children: ReactNode;
-  initialUser?: import('@/api/models/auth').UserResponse | null;
+  initialUser?: import('@/domains/auth/types/auth').UserResponse | null;
 }
 
 // UI 설정 서비스 인스턴스 (싱글톤 패턴)

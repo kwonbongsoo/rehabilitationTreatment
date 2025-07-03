@@ -4,7 +4,7 @@
  * Edge Runtime에서 실행되어 빠른 성능 제공
  * 조건부 게스트 토큰 발급 및 인증 검증
  */
-import { setTokenCookiesEdge } from '@/services';
+import { setTokenCookiesEdge } from '@/domains/auth/services';
 import { NextRequest, NextResponse } from 'next/server';
 
 /**

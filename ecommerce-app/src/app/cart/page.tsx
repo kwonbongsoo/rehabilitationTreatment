@@ -3,80 +3,14 @@
 import OptimizedImage from '@/components/common/OptimizedImage';
 import { CartSkeleton } from '@/components/skeleton/PageSkeleton';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
 import { FiArrowRight, FiMinus, FiPlus, FiShoppingCart, FiTrash2 } from 'react-icons/fi';
 import styles from './page.module.css';
-
-// Mock cart data (In a real app, this would come from a store like Zustand or Redux)
-interface CartItem {
-  id: number;
-  name: string;
-  price: number;
-  quantity: number;
-  image: string;
-  options?: {
-    color?: string;
-    size?: string;
-  };
-}
+import { useCartStore } from '@/domains/cart/stores';
+import { useCartActions } from '@/domains/cart/hooks';
 
 export default function CartPage() {
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  // Load mock cart data
-  useEffect(() => {
-    // Simulate API call
-    const loadCart = async () => {
-      await new Promise((resolve) => setTimeout(resolve, 300));
-
-      // This is mock data - in a real app, it would come from an API or store
-      const mockCartItems: CartItem[] = [
-        {
-          id: 1,
-          name: '심플 티셔츠',
-          price: 29000,
-          quantity: 2,
-          image:
-            'https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg',
-          options: {
-            color: '블랙',
-            size: 'M',
-          },
-        },
-        {
-          id: 2,
-          name: '캐주얼 데님 자켓',
-          price: 89000,
-          quantity: 1,
-          image:
-            'https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg',
-          options: {
-            color: '블루',
-            size: 'L',
-          },
-        },
-      ];
-
-      setCartItems(mockCartItems);
-      setIsLoading(false);
-    };
-
-    loadCart();
-  }, []);
-
-  // Cart operations
-  const removeItem = (id: number) => {
-    setCartItems((prevItems) => prevItems.filter((item) => item.id !== id));
-  };
-
-  const updateQuantity = (id: number, newQuantity: number) => {
-    if (newQuantity < 1) return;
-
-    setCartItems((prevItems) =>
-      prevItems.map((item) => (item.id === id ? { ...item, quantity: newQuantity } : item)),
-    );
-  };
+  const { cartItems, isLoading } = useCartStore();
+  const { removeItem, updateQuantity } = useCartActions();
 
   // Calculate cart totals
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -121,8 +55,8 @@ export default function CartPage() {
                   <div className={styles.itemDetails}>
                     <h3>{item.name}</h3>
                     <div className={styles.itemOptions}>
-                      {item.options?.color && <span>색상: {item.options.color}</span>}
-                      {item.options?.size && <span>사이즈: {item.options.size}</span>}
+                      {item.color && <span>색상: {item.color}</span>}
+                      {item.size && <span>사이즈: {item.size}</span>}
                     </div>
                     <p className={styles.itemPrice}>{item.price.toLocaleString()}원</p>
                   </div>

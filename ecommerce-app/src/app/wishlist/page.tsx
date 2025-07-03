@@ -2,62 +2,31 @@
 
 import OptimizedImage from '@/components/common/OptimizedImage';
 import Link from 'next/link';
-import React, { useState } from 'react';
+import React from 'react';
 import { FiHeart, FiShoppingCart, FiTrash2 } from 'react-icons/fi';
 import styles from './page.module.css';
-
-interface WishlistItem {
-  id: number;
-  name: string;
-  price: number;
-  image: string;
-  inStock: boolean;
-}
+import { useWishlistStore } from '@/domains/wishlist/stores';
+import { useWishlistActions } from '@/domains/wishlist/hooks';
+import { useCartActions } from '@/domains/cart/hooks';
 
 export default function WishlistPage() {
-  const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([
-    {
-      id: 1,
-      name: '스타일리시 원피스',
-      price: 89900,
-      image:
-        'https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg',
-      inStock: true,
-    },
-    {
-      id: 2,
-      name: '클래식 셔츠',
-      price: 59900,
-      image:
-        'https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg',
-      inStock: true,
-    },
-    {
-      id: 3,
-      name: '레더 핸드백',
-      price: 199900,
-      image:
-        'https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg',
-      inStock: false,
-    },
-    {
-      id: 4,
-      name: '캐주얼 스니커즈',
-      price: 129900,
-      image:
-        'https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg',
-      inStock: true,
-    },
-  ]);
+  const { wishlistItems } = useWishlistStore();
+  const { removeFromWishlist } = useWishlistActions();
+  const { addToCart } = useCartActions();
 
-  const removeFromWishlist = (id: number) => {
-    setWishlistItems((items) => items.filter((item) => item.id !== id));
-  };
-
-  const moveToCart = (id: number) => {
-    // Mock function - in real app, this would add to cart
-    // Optionally remove from wishlist after adding to cart
-    // removeFromWishlist(id);
+  const moveToCart = async (id: number) => {
+    const item = wishlistItems.find((item) => item.id === id);
+    if (item) {
+      await addToCart({
+        id: `${item.id}_${item.size}_${item.color}`,
+        name: item.name,
+        price: item.price,
+        image: item.image,
+        quantity: 1,
+      });
+      // 장바구니에 추가 후 위시리스트에서 제거
+      removeFromWishlist(id);
+    }
   };
 
   return (
