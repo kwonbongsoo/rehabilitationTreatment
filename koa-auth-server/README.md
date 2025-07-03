@@ -103,6 +103,3 @@ src/
 - 세션 만료 처리
 - 동시 로그인 제어
 
-## API 문서
-
-서버 실행 후 http://localhost:4000/docs 에서 Swagger UI로 API 문서를 확인할 수 있습니다.
