@@ -7,6 +7,11 @@ import { useCallback } from 'react';
 import { useCartStore, useCartSummary } from '../stores/useCartStore';
 import { NotificationManager } from '@/utils/notifications';
 import type { CartItem, UpdateCartItemRequest, AddToCartRequest } from '../types/cart';
+import productInfoData from '@/mocks/product-info.json';
+
+interface ProductInfoData {
+  products: Record<string, MockProductInfo>;
+}
 
 export interface UseCartActionsReturn {
   // 기본 액션들
@@ -266,7 +271,13 @@ export function useCartActions(): UseCartActionsReturn {
   };
 }
 
-// === 모킹 함수 (실제로는 API 서비스로 대체) ===
+// === Mock API ===
+async function mockFetchProductInfo(productId: string): Promise<MockProductInfo | null> {
+  // 실제로는 API 호출
+  await new Promise((resolve) => setTimeout(resolve, 300)); // 가짜 지연
+
+  return (productInfoData as ProductInfoData).products[productId] || null;
+}
 
 interface MockProductInfo {
   id: string;
@@ -277,35 +288,4 @@ interface MockProductInfo {
   discount: number;
   originalPrice: number;
   maxQuantity: number;
-}
-
-async function mockFetchProductInfo(productId: string): Promise<MockProductInfo | null> {
-  // 실제로는 API 호출
-  await new Promise((resolve) => setTimeout(resolve, 500)); // 네트워크 지연 시뮬레이션
-
-  // 모킹 데이터
-  const mockProducts: Record<string, MockProductInfo> = {
-    'product-1': {
-      id: 'product-1',
-      name: '스마트폰 케이스',
-      price: 25000,
-      image: '/images/products/case.jpg',
-      inStock: true,
-      maxQuantity: 10,
-      discount: 10,
-      originalPrice: 25000,
-    },
-    'product-2': {
-      id: 'product-2',
-      name: '무선 이어폰',
-      price: 89000,
-      originalPrice: 99000,
-      discount: 10,
-      image: '/images/products/earphone.jpg',
-      inStock: true,
-      maxQuantity: 5,
-    },
-  };
-
-  return mockProducts[productId] || null;
 }

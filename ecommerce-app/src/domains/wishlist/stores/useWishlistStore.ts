@@ -8,57 +8,14 @@ import type {
   WishlistActions,
   WishlistSummary,
 } from '../types/wishlist';
-
-// Mock wishlist data
-const mockWishlistItems: WishlistItem[] = [
-  {
-    id: 1,
-    name: '스타일리시 원피스',
-    price: 89900,
-    image:
-      'https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg',
-    inStock: true,
-    size: 'M',
-    color: '블랙',
-  },
-  {
-    id: 2,
-    name: '클래식 셔츠',
-    price: 59900,
-    image:
-      'https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg',
-    inStock: true,
-    size: 'L',
-    color: '블루',
-  },
-  {
-    id: 3,
-    name: '레더 핸드백',
-    price: 199900,
-    image:
-      'https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg',
-    inStock: false,
-    size: 'L',
-    color: '블루',
-  },
-  {
-    id: 4,
-    name: '캐주얼 스니커즈',
-    price: 129900,
-    image:
-      'https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg',
-    inStock: true,
-    size: '250',
-    color: '블랙',
-  },
-];
+import wishlistData from '@/mocks/wishlist-items.json';
 
 // Zustand 스토어 타입 (내부 구현 + 퍼블릭 인터페이스)
 export type WishlistStoreState = WishlistState & WishlistActions;
 
 export const useWishlistStore = create<WishlistStoreState>()((set, get) => ({
   // Initialize with mock data
-  wishlistItems: mockWishlistItems,
+  wishlistItems: wishlistData.items,
   get totalItems() {
     return this.wishlistItems.length;
   },

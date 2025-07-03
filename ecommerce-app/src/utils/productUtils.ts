@@ -2,6 +2,9 @@
  * 상품 관련 유틸리티 함수들
  */
 
+import categoriesData from '@/mocks/categories.json';
+import sortOptionsData from '@/mocks/sort-options.json';
+
 export interface BaseProduct {
   id: number;
   name: string;
@@ -81,34 +84,14 @@ export const filterAndSortProducts = <T extends BaseProduct>(
 /**
  * 공통 카테고리 옵션들
  */
-export const COMMON_CATEGORIES = [
-  { value: 'all', label: '전체' },
-  { value: 'dress', label: '원피스' },
-  { value: 'top', label: '상의' },
-  { value: 'pants', label: '바지' },
-  { value: 'jacket', label: '아우터' },
-  { value: 'shoes', label: '신발' },
-  { value: 'bag', label: '가방' },
-  { value: 'accessories', label: '액세서리' },
-];
+export const COMMON_CATEGORIES = categoriesData.categories;
 
 /**
  * 공통 정렬 옵션들
  */
-export const COMMON_SORT_OPTIONS = [
-  { value: 'newest' as SortOption, label: '최신순' },
-  { value: 'price-low' as SortOption, label: '낮은 가격순' },
-  { value: 'price-high' as SortOption, label: '높은 가격순' },
-  { value: 'rating' as SortOption, label: '평점순' },
-  { value: 'sales' as SortOption, label: '판매량순' },
-];
+export const COMMON_SORT_OPTIONS = sortOptionsData.common;
 
 /**
  * 베스트셀러 전용 정렬 옵션들
  */
-export const BESTSELLER_SORT_OPTIONS = [
-  { value: 'sales' as SortOption, label: '판매량순' },
-  { value: 'price-low' as SortOption, label: '낮은 가격순' },
-  { value: 'price-high' as SortOption, label: '높은 가격순' },
-  { value: 'rating' as SortOption, label: '평점순' },
-];
+export const BESTSELLER_SORT_OPTIONS = sortOptionsData.bestseller;

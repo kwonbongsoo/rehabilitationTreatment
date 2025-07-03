@@ -6,7 +6,7 @@ import styles from '@/styles/common/Layout.module.css';
 import { HomePageResponse, UIComponent } from '@/types/home';
 import { useEffect, useState } from 'react';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
-import { mockHomePageData } from '@/mocks/homePageData';
+import homePageData from '@/mocks/home-page.json';
 
 export default function HomePage() {
   // 커스텀 에러 핸들러 훅 사용
@@ -22,7 +22,7 @@ export default function HomePage() {
     const loadMockData = async () => {
       try {
         await new Promise((resolve) => setTimeout(resolve, 300));
-        setHomeData(mockHomePageData);
+        setHomeData(homePageData as HomePageResponse);
         setIsHomeDataLoading(false);
       } catch (error) {
         console.error('Error loading mock data:', error);

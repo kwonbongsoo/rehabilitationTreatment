@@ -6,40 +6,15 @@
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 import type { CartItem, CartState, CartActions, CartSummary } from '../types/cart';
-
-// Mock cart data
-const mockCartItems: CartItem[] = [
-  {
-    id: '1',
-    name: '심플 티셔츠',
-    price: 29000,
-    quantity: 2,
-    image:
-      'https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg',
-    color: '블랙',
-    size: 'M',
-    inStock: true,
-  },
-  {
-    id: '2',
-    name: '캐주얼 데님 자켓',
-    price: 89000,
-    quantity: 1,
-    image:
-      'https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg',
-    color: '블루',
-    size: 'L',
-    inStock: true,
-  },
-];
+import cartData from '@/mocks/cart-items.json';
 
 // Zustand 스토어 타입 (내부 구현 + 퍼블릭 인터페이스)
 export type CartStoreState = CartState & CartActions;
 
 // 초기 상태
 const initialState: CartState = {
-  cartItems: mockCartItems,
-  totalItems: mockCartItems.reduce((sum, item) => sum + item.quantity, 0),
+  cartItems: cartData.items,
+  totalItems: cartData.items.reduce((sum, item) => sum + item.quantity, 0),
   isLoading: false,
 };
 
@@ -203,28 +178,18 @@ export const useCartStore = create<CartStoreState>()(
         },
       }),
       {
-        name: 'cart-store', // localStorage key
-        // 민감하지 않은 데이터만 저장
-        partialize: (state) => ({
-          cartItems: state.cartItems,
-          totalItems: state.totalItems,
-        }),
+        name: 'cart-storage',
       },
     ),
-    {
-      name: 'cart-store', // Redux DevTools 이름
-    },
   ),
 );
-
-// === 헬퍼 훅들 ===
 
 /**
  * 장바구니 요약 정보 계산 훅
  */
 export const useCartSummary = (): CartSummary => {
   // Zustand selector를 사용하여 필요한 상태만 선택
-  const items = useCartStore((state) => state.cartItems);
+  const cartItems = useCartStore((state) => state.cartItems);
   const getTotalPrice = useCartStore((state) => state.getTotalPrice);
   const getTotalDiscount = useCartStore((state) => state.getTotalDiscount);
   const getItemCount = useCartStore((state) => state.getItemCount);
