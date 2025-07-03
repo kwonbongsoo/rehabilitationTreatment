@@ -130,7 +130,6 @@ docker-compose up
 
 ## API 문서
 
-- 인증 서버: http://localhost:4000/docs
 - 회원 서버: http://localhost:5000/docs
 
 ## 테스트

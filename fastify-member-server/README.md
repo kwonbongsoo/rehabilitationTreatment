@@ -63,7 +63,13 @@ npm start
 - `PORT`: 서버 포트 (기본값: 5000)
 - `DATABASE_URL`: PostgreSQL 연결 문자열
 - `REDIS_URL`: Redis 연결 문자열 (멱등성 처리용)
+- `REDIS_PORT`: Redis 포트 (기본값: 6379)
+- `REDIS_PASSWORD`: Redis 비밀번호
+- `REDIS_DB`: Redis 데이터베이스 번호 (기본값: 0)
 - `NODE_ENV`: 실행 환경 (development/production)
+- `POSTGRES_PASSWORD`: PostgreSQL 데이터베이스 비밀번호
+- `POSTGRES_DB`: PostgreSQL 데이터베이스 이름
+- `TZ`: 타임존 설정 (기본값: Asia/Seoul)
 
 ## 테스트
 

@@ -52,23 +52,6 @@ export class AuthController {
   };
 
   /**
-   * 사용자 프로필 정보 반환
-   */
-  public profile = async (ctx: Context): Promise<void> => {
-    sendSuccessResponse(ctx, { user: ctx.state.user });
-  };
-
-  /**
-   * 공개 접근 가능한 엔드포인트
-   */
-  public public = async (ctx: Context): Promise<void> => {
-    sendSuccessResponse(ctx, {
-      message: '게스트/유저 모두 접근 가능',
-      user: ctx.state.user,
-    });
-  };
-
-  /**
    * 토큰 기반 사용자 정보 조회
    */
   public userInfo = async (ctx: Context): Promise<void> => {

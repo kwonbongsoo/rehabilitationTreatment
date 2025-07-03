@@ -15,7 +15,6 @@ export function createAuthRouter(): Router {
    */
   router.post('/login', authMiddleware.verifyBasicAuth, authController.login);
   router.post('/guest-token', authMiddleware.verifyBasicAuth, authController.guestToken);
-  router.get('/public', authController.public);
 
   /**
    * 게스트, 사용자 토큰 검증
@@ -28,7 +27,6 @@ export function createAuthRouter(): Router {
   /**
    * 로그인 사용자 필요 엔드포인트
    */
-  router.get('/profile', authMiddleware.requireUser, authController.profile);
   router.get('/user-info', authMiddleware.requireUser, authController.userInfo);
   router.post('/logout', authMiddleware.requireUser, authController.logout);
 

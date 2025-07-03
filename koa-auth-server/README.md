@@ -20,14 +20,10 @@ Koa.js 기반의 인증 서비스입니다.
 
 ### 인증
 - POST /auth/login - 로그인
-- POST /auth/register - 회원가입
 - POST /auth/logout - 로그아웃
-- GET /auth/me - 현재 사용자 정보
-- POST /auth/refresh - 토큰 갱신
-
-### 토큰
-- POST /token/validate - 토큰 검증
-- POST /token/revoke - 토큰 폐기
+- POST /auth/guest-token - 게스트 토큰 발급
+- GET /auth/verify - 토큰 유효성 검증
+- GET /auth/session-info - 현재 사용자 정보
 
 ## 설치 및 실행
 
@@ -54,11 +50,18 @@ npm start
 
 ## 환경 변수
 
-- `PORT`: 서버 포트 (기본값: 4000)
+- `AUTH_PORT`: 서버 포트 (기본값: 4000)
 - `REDIS_URL`: Redis 연결 문자열
+- `REDIS_PORT`: Redis 연결 포트
+- `REDIS_PASSWORD`: Redis 비밀번호
+- `REDIS_DB`: Redis 데이터베이스 번호 (기본값: 0)
+- `JWT_EXPIRES_IN`: JWT 토큰 만료 시간 (초 단위, 기본값: 3600)
 - `JWT_SECRET`: JWT 시크릿 키
-- `COOKIE_SECRET`: 쿠키 암호화 키
 - `MEMBER_SERVICE_URL`: 회원 서비스 URL
+- `MEMBER_SERVICE_TIMEOUT`: 회원 서비스 요청 타임아웃 (ms, 기본값: 5000)
+- `AUTH_BASIC_KEY`: Basic 인증 키 (서비스간 통신용)
+- `NODE_ENV`: 실행 환경 (development 또는 production)
+
 
 ## 테스트
 
