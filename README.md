@@ -157,7 +157,6 @@ MIT
 - S3 기반 정적 폴백 데이터 관리
 - 컴포넌트별 독립적인 장애 복구 전략
 - SSR 환경에서의 안정성 확보
-  - https://www.notion.so/2233d0e480ab80b4ba3fda9d60551f22
 
 #### 성능 최적화
 - Kong Gateway 캐싱 전략 고도화
@@ -183,6 +182,7 @@ MIT
    - BFF 서버 구축
    - Circuit Breaker 구현
    - 폴백 시스템 구축
+     - https://www.notion.so/2233d0e480ab80b4ba3fda9d60551f22
 
 2. Phase 2: 성능 최적화
    - Kong 캐싱 전략 수립
