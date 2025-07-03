@@ -71,7 +71,6 @@ export const useWishlistStore = create<WishlistStoreState>()((set, get) => ({
 
       return {
         wishlistItems: [...state.wishlistItems, item],
-        totalItems: state.totalItems + 1,
       };
     });
   },
@@ -79,11 +78,10 @@ export const useWishlistStore = create<WishlistStoreState>()((set, get) => ({
   removeItem: (itemId) => {
     set((state) => ({
       wishlistItems: state.wishlistItems.filter((item) => item.id !== itemId),
-      totalItems: Math.max(0, state.totalItems - 1),
     }));
   },
 
-  clear: () => set({ wishlistItems: [], totalItems: 0 }),
+  clear: () => set({ wishlistItems: [] }),
 
   hasItem: (itemId) => {
     return get().wishlistItems.some((item) => item.id === itemId);

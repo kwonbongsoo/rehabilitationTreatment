@@ -130,8 +130,8 @@ export const useProductStore = create<ProductState>()((set, get) => ({
     const { products, filter } = get();
     let filtered = [...products];
 
-    if (filter.categoryId) {
-      filtered = filtered.filter((product) => product.id === filter.categoryId);
+    if (filter.category) {
+      filtered = filtered.filter((product) => product.category === filter.category);
     }
 
     if (filter.minPrice !== undefined) {
@@ -151,7 +151,7 @@ export const useProductStore = create<ProductState>()((set, get) => ({
           case 'rating':
             return (a.rating - b.rating) * order;
           case 'newest':
-            return (new Date(a.id).getTime() - new Date(b.id).getTime()) * order;
+            return (b.id - a.id) * order; // Assuming higher IDs are newer
           default:
             return 0;
         }

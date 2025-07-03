@@ -56,6 +56,6 @@ export function useLogoutForm(): UseLogoutFormReturn {
 
   return {
     handleLogout,
-    isLoading: false,
+    isLoading,
   };
 }

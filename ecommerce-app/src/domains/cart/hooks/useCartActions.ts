@@ -73,7 +73,6 @@ export function useCartActions(): UseCartActionsReturn {
           price: productInfo.price,
           inStock: productInfo.inStock,
           image: productInfo.image,
-          ...(productInfo.image && { image: productInfo.image }),
           ...(request.size && { size: request.size }),
           ...(request.color && { color: request.color }),
           ...(productInfo.discount && { discount: productInfo.discount }),

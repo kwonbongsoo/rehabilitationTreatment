@@ -1,15 +1,17 @@
 export interface Product {
-  id: string;
+  id: number;
   name: string;
   description: string;
   price: number;
   images: string[];
-  categoryId: string;
+  category: string;
   stock: number;
   rating: number;
   reviews: number;
   createdAt: string;
   updatedAt: string;
+  size?: string;
+  color?: string;
 }
 
 export interface ProductListItem {
@@ -25,7 +27,7 @@ export interface ProductListItem {
 }
 
 export interface ProductFilter {
-  categoryId?: number;
+  category?: string;
   minPrice?: number;
   maxPrice?: number;
   sortBy?: 'price' | 'rating' | 'newest';

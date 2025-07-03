@@ -3,7 +3,7 @@
  *
  * 장바구니 아이템들의 유효성을 검증합니다.
  */
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useCartStore } from '../stores/useCartStore';
 import { NotificationManager } from '@/utils/notifications';
 import type { CartItem } from '../types/cart';
@@ -131,7 +131,7 @@ export function useCartValidation(options: UseCartValidationOptions = {}): UseCa
   }, [items, autoFix, validateCart, fixInvalidItems, setError]);
 
   // === 실시간 장바구니 유효성 상태 ===
-  const isCartValid = validateCart().isValid;
+  const isCartValid = useMemo(() => validateCart().isValid, [validateCart]);
 
   return {
     validateCart,

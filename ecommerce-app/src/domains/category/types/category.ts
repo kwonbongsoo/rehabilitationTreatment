@@ -16,6 +16,7 @@ export interface CategoryListItem {
   name: string;
   slug: string;
   image?: string;
+  parentId?: string;
   productCount: number;
 }
 

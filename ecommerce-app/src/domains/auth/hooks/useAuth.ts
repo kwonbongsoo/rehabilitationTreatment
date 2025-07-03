@@ -62,12 +62,14 @@ export function useSessionInfo(options: SessionInfoOptions = {}) {
     }
   }, [query.data, setUser, queryClient]);
 
+  const { onError } = options;
+
   // 에러 처리
   useEffect(() => {
-    if (query.error && options.onError) {
-      options.onError(query.error);
+    if (query.error && onError) {
+      onError(query.error);
     }
-  }, [query.error, options]);
+  }, [query.error, onError]);
 
   return query;
 }

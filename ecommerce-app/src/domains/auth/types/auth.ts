@@ -74,13 +74,7 @@ export interface RegisterResponse {
   message?: string;
 }
 
-export interface RegisterFormData {
-  id: string;
-  password: string;
-  confirmPassword: string;
-  name: string;
-  email: string;
-}
+export type RegisterFormData = RegisterRequest;
 
 /**
  * 사용자 응답 모델 (민감한 정보 제외)

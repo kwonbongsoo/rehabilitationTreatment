@@ -39,7 +39,7 @@ export const useCategoryStore = create<CategoryState>()((set, get) => ({
     let filtered = [...categories];
 
     if (filter.parentId) {
-      filtered = filtered.filter((category) => category.id === filter.parentId);
+      filtered = filtered.filter((category) => category.parentId === filter.parentId);
     }
 
     if (filter.sortBy) {

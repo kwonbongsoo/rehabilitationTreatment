@@ -49,8 +49,8 @@ export function useLoginForm(): UseLoginFormReturn {
         // 성공 메시지 표시
         NotificationManager.showSuccess('로그인에 성공했습니다!');
         // 리다이렉트 처리
-        const params = new URLSearchParams(window.location.search);
-        const redirectTo = params.get('redirect') || '/';
+        const query = Object.fromEntries(new URLSearchParams(window.location.search));
+        const redirectTo = getRedirectUrl(query);
         window.location.replace(redirectTo);
       },
       onError: (error: Error) => {
@@ -62,7 +62,7 @@ export function useLoginForm(): UseLoginFormReturn {
         ErrorHandler.handleFormError(error, '로그인');
       },
     }),
-    [], // getRedirectUrl 의존성 추가
+    [getRedirectUrl], // getRedirectUrl 의존성 추가
   );
 
   const handleLogin = useCallback(

@@ -80,6 +80,7 @@ export const useCartStore = create<CartStoreState>()(
             const newState = {
               ...state,
               items: [...state.cartItems, itemToAdd],
+              cartItems: state.cartItems.filter((item) => item.id !== newItem.id),
               totalItems: state.totalItems + 1,
             };
             delete newState.error;
@@ -95,6 +96,7 @@ export const useCartStore = create<CartStoreState>()(
             const newState = {
               ...state,
               items: state.cartItems.filter((item) => item.id !== itemId),
+              cartItems: state.cartItems.filter((item) => item.id !== itemId),
               totalItems: state.totalItems - item.quantity,
             };
             delete newState.error;
@@ -124,6 +126,7 @@ export const useCartStore = create<CartStoreState>()(
               items: state.cartItems.map((item) =>
                 item.id === itemId ? { ...item, quantity: finalQuantity } : item,
               ),
+              cartItems: state.cartItems.filter((item) => item.id !== itemId),
               totalItems: state.totalItems + quantityDiff,
             };
             delete newState.error;
@@ -138,6 +141,7 @@ export const useCartStore = create<CartStoreState>()(
               items: state.cartItems.map((item) =>
                 item.id === itemId ? { ...item, ...updates } : item,
               ),
+              cartItems: state.cartItems.filter((item) => item.id !== itemId),
             };
             delete newState.error;
             return newState;

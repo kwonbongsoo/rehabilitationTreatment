@@ -15,6 +15,7 @@ export type {
   RefreshTokenRequest,
   RefreshTokenResponse,
   RegisterFormData,
+  UserRole,
 } from './auth';
 
 export type { AuthUser, UserStatus } from './user';

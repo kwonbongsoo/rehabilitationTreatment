@@ -70,10 +70,16 @@ export class TokenService {
    * Auth 서비스 API 호출
    */
   private async callAuthService(url: string): Promise<AuthServiceResponse> {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+
     const response = await fetch(url, {
       method: 'POST',
       headers: this.createRequestHeaders(),
+      signal: controller.signal,
     });
+
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
       throw new Error(`Auth 서비스 응답 오류: ${response.status} ${response.statusText}`);
@@ -87,7 +93,10 @@ export class TokenService {
    */
   private createErrorResult(error: unknown, context: string): TokenResult {
     const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
-    console.error(`❌ ${context}:`, error);
+    // Use your application's logging service
+    if (process.env.NODE_ENV !== 'production') {
+      console.error(`❌ ${context}:`, error);
+    }
 
     return {
       success: false,

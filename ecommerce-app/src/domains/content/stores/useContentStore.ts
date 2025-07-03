@@ -48,16 +48,14 @@ export const useContentStore = create<ContentState>()((set, get) => ({
     }
 
     if (filter.startDate) {
-      filtered = filtered.filter(
-        (content) =>
-          content.publishedAt && new Date(content.publishedAt) >= new Date(filter.startDate!),
+      filtered = filtered.filter((content) =>
+        content.publishedAt ? new Date(content.publishedAt) >= new Date(filter.startDate!) : false,
       );
     }
 
     if (filter.endDate) {
-      filtered = filtered.filter(
-        (content) =>
-          content.publishedAt && new Date(content.publishedAt) <= new Date(filter.endDate!),
+      filtered = filtered.filter((content) =>
+        content.publishedAt ? new Date(content.publishedAt) <= new Date(filter.endDate!) : false,
       );
     }
 
@@ -72,7 +70,7 @@ export const useContentStore = create<ContentState>()((set, get) => ({
               order
             );
           case 'createdAt':
-            return (new Date(a.id).getTime() - new Date(b.id).getTime()) * order;
+            return (new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()) * order;
           case 'title':
             return a.title.localeCompare(b.title) * order;
           default:

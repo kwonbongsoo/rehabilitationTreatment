@@ -13,12 +13,6 @@ export default function ForgotPasswordPageContent() {
 
   const { handleForgotPassword, isLoading } = useForgotPasswordForm();
 
-  const isClientSide = typeof window !== 'undefined';
-  // 클라이언트에서만 토큰 체크 및 리다이렉트
-  useEffect(() => {
-    if (!isClientSide) return;
-  }, [isClientSide, router]);
-
   return (
     <>
       <ForgotPasswordForm onSubmit={handleForgotPassword} isLoading={isLoading} />

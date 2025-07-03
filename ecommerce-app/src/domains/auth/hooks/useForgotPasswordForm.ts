@@ -4,6 +4,7 @@
  * 기존의 복잡한 로직을 공통 모듈로 대체하고
  * 비밀번호 찾기 특화 로직만 유지
  */
+import { useState } from 'react';
 import { authValidationService } from '@/domains/auth/services';
 import { ErrorHandler } from '@/utils/errorHandling';
 import { NotificationManager } from '@/utils/notifications';
@@ -30,9 +31,11 @@ interface UseForgotPasswordFormReturn {
  * 공통 모듈을 활용하여 간소화됨
  */
 export function useForgotPasswordForm(): UseForgotPasswordFormReturn {
+  const [isLoading, setIsLoading] = useState(false);
   const handleForgotPassword = useCallback(
     async (request: ForgotPasswordRequest): Promise<void> => {
       try {
+        setIsLoading(true);
         // 이메일 유효성 검증
         const emailValidation = authValidationService.validateForgotPasswordForm(request);
         if (!emailValidation.isValid) {
@@ -41,15 +44,12 @@ export function useForgotPasswordForm(): UseForgotPasswordFormReturn {
 
         // 비밀번호 찾기 요청 실행 (아직 미구현 API)
         await forgotPasswordAction(request);
-
-        // 성공 메시지 표시
-        NotificationManager.showSuccess(
-          '비밀번호 재설정 이메일이 발송되었습니다. 이메일을 확인해주세요.',
-        );
       } catch (error) {
         // 에러 처리는 공통 모듈에서 담당
         ErrorHandler.handleFormError(error, '비밀번호 찾기');
         throw error;
+      } finally {
+        setIsLoading(false);
       }
     },
     [],

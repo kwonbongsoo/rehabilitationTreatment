@@ -21,6 +21,8 @@ export interface ContentListItem {
   slug: string;
   published: boolean;
   publishedAt?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface ContentFilter {

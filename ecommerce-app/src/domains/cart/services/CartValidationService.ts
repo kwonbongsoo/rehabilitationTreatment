@@ -75,6 +75,8 @@ export class CartValidationService {
     };
   }
 
+  private static readonly MIN_ORDER_AMOUNT = 10000;
+
   /**
    * 체크아웃 가능 여부 검증
    */
@@ -92,10 +94,8 @@ export class CartValidationService {
 
     // 최소 주문 금액 검증 (예: 10,000원)
     const totalAmount = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    const MIN_ORDER_AMOUNT = 10000;
-
-    if (totalAmount < MIN_ORDER_AMOUNT) {
-      errors.push(`최소 주문 금액은 ${MIN_ORDER_AMOUNT.toLocaleString()}원입니다.`);
+    if (totalAmount < this.MIN_ORDER_AMOUNT) {
+      errors.push(`최소 주문 금액은 ${this.MIN_ORDER_AMOUNT.toLocaleString()}원입니다.`);
     }
 
     // 재고 실시간 검증 (실제로는 API 호출 필요)
