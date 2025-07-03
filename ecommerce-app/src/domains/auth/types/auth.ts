@@ -10,49 +10,41 @@ export interface LoginRequest {
  * 로그인 응답 모델
  */
 export interface ProxyLoginResponse {
-  data: {
+  data: LoginResponseI & {
     access_token: string;
-    role: UserRole;
-    exp: number;
-    iat: number;
-    id?: string;
-    email?: string;
-    name?: string;
   };
 }
 
 export interface LoginResponse {
-  data: {
-    role: UserRole;
-    exp: number;
-    iat: number;
-    id?: string;
-    email?: string;
-    name?: string;
-  };
+  data: LoginResponseI;
+}
+
+interface LoginResponseI {
+  role: UserRole;
+  exp: number;
+  iat: number;
+  id?: string;
+  email?: string;
+  name?: string;
 }
 
 export interface ProxySessionInfoResponse {
-  data: {
+  data: SessionInfoResponseI & {
     access_token: string;
-    role: UserRole;
-    exp: number;
-    iat: number;
-    id?: string;
-    email?: string;
-    name?: string;
   };
 }
 
 export interface SessionInfoResponse {
-  data: {
-    role: UserRole;
-    exp: number;
-    iat: number;
-    id?: string;
-    email?: string;
-    name?: string;
-  };
+  data: SessionInfoResponseI;
+}
+
+interface SessionInfoResponseI {
+  role: UserRole;
+  exp: number;
+  iat: number;
+  id?: string;
+  email?: string;
+  name?: string;
 }
 
 /**

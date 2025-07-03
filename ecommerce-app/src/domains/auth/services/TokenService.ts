@@ -133,10 +133,8 @@ export class TokenService {
    */
   private setResponseHeaders(res: ServerResponse, tokenResult: TokenResult): void {
     const cookieHeaders = createTokenCookies(tokenResult);
-    const bearerToken = `Bearer ${tokenResult.data?.access_token || ''}`;
 
     res.setHeader('Set-Cookie', cookieHeaders);
-    res.setHeader('Authorization', bearerToken);
   }
 
   /**

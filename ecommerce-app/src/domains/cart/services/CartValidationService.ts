@@ -94,7 +94,7 @@ export class CartValidationService {
 
     // 최소 주문 금액 검증 (예: 10,000원)
     const totalAmount = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    if (totalAmount < this.MIN_ORDER_AMOUNT) {
+    if (totalAmount < CartValidationService.MIN_ORDER_AMOUNT) {
       errors.push(`최소 주문 금액은 ${this.MIN_ORDER_AMOUNT.toLocaleString()}원입니다.`);
     }
 

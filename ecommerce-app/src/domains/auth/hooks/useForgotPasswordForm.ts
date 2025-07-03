@@ -10,13 +10,7 @@ import { ErrorHandler } from '@/utils/errorHandling';
 import { NotificationManager } from '@/utils/notifications';
 import { useCallback } from 'react';
 import { forgotPassword as forgotPasswordAction } from '@/app/actions/auth';
-
-/**
- * 비밀번호 찾기 요청 데이터
- */
-export interface ForgotPasswordRequest {
-  email: string;
-}
+import { ForgotPasswordRequest } from '@/domains/auth/types/auth';
 
 /**
  * 비밀번호 찾기 폼 훅 반환 타입

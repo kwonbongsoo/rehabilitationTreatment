@@ -69,14 +69,7 @@ export const useAuthStore = create<AuthStore>()(
 
       // 세션 완전 초기화 (긴급 상황용)
       clearSession: () => {
-        set(() => ({
-          ...initialState,
-          getUserRole: get().getUserRole,
-          isAdmin: get().isAdmin,
-          setUser: get().setUser,
-          logout: get().logout,
-          clearSession: get().clearSession,
-        }));
+        get().logout();
       },
 
       // 계산된 값들 (getter 함수)

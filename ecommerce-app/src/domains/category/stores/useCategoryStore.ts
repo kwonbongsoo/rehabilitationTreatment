@@ -2,14 +2,14 @@ import { create } from 'zustand';
 import { Category, CategoryFilter, CategoryListItem } from '../types/category';
 
 interface CategoryState {
-  categories: CategoryListItem[];
+  categories: Category[];
   selectedCategory: Category | null;
   filter: CategoryFilter;
   loading: boolean;
   error: string | null;
 
   // Actions
-  setCategories: (categories: CategoryListItem[]) => void;
+  setCategories: (categories: Category[]) => void;
   setSelectedCategory: (category: Category | null) => void;
   setFilter: (filter: CategoryFilter) => void;
   setLoading: (loading: boolean) => void;

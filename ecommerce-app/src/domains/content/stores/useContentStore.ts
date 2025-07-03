@@ -69,8 +69,6 @@ export const useContentStore = create<ContentState>()((set, get) => ({
                 (b.publishedAt ? new Date(b.publishedAt).getTime() : 0)) *
               order
             );
-          case 'createdAt':
-            return (new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()) * order;
           case 'title':
             return a.title.localeCompare(b.title) * order;
           default:

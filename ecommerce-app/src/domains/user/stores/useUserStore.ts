@@ -41,11 +41,7 @@ export const useUserStore = create<UserState>()((set, get) => ({
   },
 
   clearSession: () => {
-    set({
-      user: null,
-      isAuthenticated: false,
-      isGuest: true,
-    });
+    get().logout();
   },
 
   getUserRole: () => {

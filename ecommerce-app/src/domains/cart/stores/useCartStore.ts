@@ -13,8 +13,8 @@ export type CartStoreState = CartState & CartActions;
 
 // 초기 상태
 const initialState: CartState = {
-  cartItems: cartData.items,
-  totalItems: cartData.items.reduce((sum, item) => sum + item.quantity, 0),
+  cartItems: cartData.items || [],
+  totalItems: (cartData.items || []).reduce((sum, item) => sum + item.quantity, 0),
   isLoading: false,
 };
 
@@ -197,8 +197,8 @@ export const useCartSummary = (): CartSummary => {
   const subtotal = getTotalPrice();
   const discount = getTotalDiscount();
   const shipping = subtotal > 50000 ? 0 : 3000; // 5만원 이상 무료배송
-  const tax = Math.round(subtotal * 0.1); // 10% 세금
-  const total = subtotal + shipping + tax - discount;
+  const tax = Math.round(subtotal * 0.1);
+  const total = subtotal + shipping + tax;
 
   return {
     itemCount: getItemCount(),
