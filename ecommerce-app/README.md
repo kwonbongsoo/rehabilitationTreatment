@@ -78,12 +78,91 @@ npm start
 
 ## 테스트
 
+### 테스트 환경
+- **Jest**: JavaScript 테스트 프레임워크
+- **React Testing Library**: React 컴포넌트 테스트
+- **User Event**: 사용자 상호작용 테스트
+
+### 테스트 실행
+
 ```bash
-# 단위 테스트
+# 모든 테스트 실행
 npm test
 
-# E2E 테스트
-npm run test:e2e
+# 테스트 감시 모드 (개발 중 사용)
+npm run test:watch
+
+# 테스트 커버리지 생성
+npm run test:coverage
+
+# CI 환경에서 테스트 실행
+npm run test:ci
+```
+
+### 테스트 커버리지 목표
+- 브랜치: 80%
+- 함수: 80%
+- 라인: 80%
+- 문장: 80%
+
+### 테스트된 컴포넌트 및 기능
+
+#### 공통 컴포넌트
+- ✅ **Button**: 모든 변형, 상태, 이벤트 테스트
+- ✅ **IconButton**: 아이콘 버튼 전용 테스트
+
+#### 인증 관련
+- ✅ **LoginForm**: 폼 검증, 제출, 상태 관리 테스트
+
+#### 장바구니 기능
+- ✅ **useCartActions**: 장바구니 액션 모든 기능 테스트
+
+#### 유틸리티
+- ✅ **validation**: 모든 검증 함수 테스트
+
+### 테스트 작성 가이드
+
+#### 1. 컴포넌트 테스트
+```typescript
+// 기본 렌더링 테스트
+it('컴포넌트가 올바르게 렌더링된다', () => {
+  render(<Component />)
+  expect(screen.getByRole('button')).toBeInTheDocument()
+})
+
+// 사용자 상호작용 테스트
+it('버튼 클릭 시 함수가 호출된다', async () => {
+  const user = userEvent.setup()
+  const handleClick = jest.fn()
+
+  render(<Component onClick={handleClick} />)
+  await user.click(screen.getByRole('button'))
+
+  expect(handleClick).toHaveBeenCalledTimes(1)
+})
+```
+
+#### 2. 훅 테스트
+```typescript
+import { renderHook, act } from '@testing-library/react'
+
+it('훅이 올바르게 동작한다', () => {
+  const { result } = renderHook(() => useCustomHook())
+
+  act(() => {
+    result.current.action()
+  })
+
+  expect(result.current.state).toBe('expected')
+})
+```
+
+#### 3. 유틸리티 함수 테스트
+```typescript
+it('함수가 올바른 결과를 반환한다', () => {
+  const result = utilityFunction(input)
+  expect(result).toBe(expectedOutput)
+})
 ```
 
 ## 프로젝트 구조

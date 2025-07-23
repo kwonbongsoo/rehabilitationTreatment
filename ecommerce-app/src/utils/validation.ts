@@ -35,14 +35,18 @@ export interface ValidationRule<T = any> {
  */
 export class EmailValidator {
   private static readonly EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  private static readonly CONSECUTIVE_DOTS_REGEX = /\.\./;
 
   static validate(email: string): ValidationResult {
     const errors: string[] = [];
 
     if (!email?.trim()) {
       errors.push('이메일 주소를 입력해주세요.');
-    } else if (!this.EMAIL_REGEX.test(email.trim())) {
-      errors.push('올바른 이메일 형식을 입력해주세요.');
+    } else {
+      const trimmedEmail = email.trim();
+      if (this.CONSECUTIVE_DOTS_REGEX.test(trimmedEmail) || !this.EMAIL_REGEX.test(trimmedEmail)) {
+        errors.push('올바른 이메일 형식을 입력해주세요.');
+      }
     }
 
     return {
@@ -183,7 +187,8 @@ export class NameValidator {
  * 전화번호 검증 클래스
  */
 export class PhoneValidator {
-  private static readonly PHONE_REGEX = /^01[016789]-?\d{3,4}-?\d{4}$/;
+  private static readonly PHONE_REGEX_NO_HYPHEN = /^01[016789]\d{7,9}$/;
+  private static readonly PHONE_REGEX_WITH_HYPHEN = /^01[016789]-\d{3,4}-\d{4}$/;
 
   static validate(phone: string, required: boolean = false): ValidationResult {
     const errors: string[] = [];
@@ -192,14 +197,77 @@ export class PhoneValidator {
       if (required) {
         errors.push('전화번호를 입력해주세요.');
       }
-    } else if (!this.PHONE_REGEX.test(phone.replace(/-/g, ''))) {
-      errors.push('올바른 전화번호 형식을 입력해주세요.');
+    } else {
+      const trimmedPhone = phone.trim();
+      const hasHyphen = trimmedPhone.includes('-');
+
+      let isValid = false;
+
+      if (hasHyphen) {
+        // 하이픈이 있는 경우 하이픈 패턴 검증
+        isValid = this.PHONE_REGEX_WITH_HYPHEN.test(trimmedPhone);
+      } else {
+        // 하이픈이 없는 경우 숫자만 검증
+        isValid = this.PHONE_REGEX_NO_HYPHEN.test(trimmedPhone);
+      }
+
+      if (!isValid) {
+        errors.push('올바른 전화번호 형식을 입력해주세요.');
+      }
     }
 
     return {
       isValid: errors.length === 0,
       errors,
     };
+  }
+}
+
+/**
+ * 한국어 조사 처리 헬퍼 함수들
+ */
+class KoreanParticleHelper {
+  /**
+   * 받침 여부를 확인하는 함수
+   */
+  private static hasFinalConsonant(word: string): boolean {
+    if (!word) return false;
+
+    const lastChar = word[word.length - 1];
+
+    if (!lastChar) return false;
+    const lastCharCode = lastChar.charCodeAt(0);
+
+    // 한글 완성형 범위 (가-힣)
+    if (lastCharCode >= 0xac00 && lastCharCode <= 0xd7a3) {
+      return (lastCharCode - 0xac00) % 28 !== 0;
+    }
+
+    // 영어나 숫자의 경우 발음을 고려
+    if (/[aeiouAEIOU]$/.test(lastChar)) {
+      return false; // 모음으로 끝나는 경우
+    }
+
+    // 영어 단어의 경우 대부분 받침이 없는 것으로 처리
+    if (/[a-zA-Z]$/.test(lastChar)) {
+      return false;
+    }
+
+    return true; // 자음으로 끝나는 경우
+  }
+
+  /**
+   * 을/를 조사를 반환하는 함수
+   */
+  static getObjectParticle(word: string): string {
+    return this.hasFinalConsonant(word) ? '을' : '를';
+  }
+
+  /**
+   * 은/는 조사를 반환하는 함수
+   */
+  static getSubjectParticle(word: string): string {
+    return this.hasFinalConsonant(word) ? '은' : '는';
   }
 }
 
@@ -213,8 +281,13 @@ export class ValidationUtils {
   static required(value: any, fieldName: string): ValidationResult {
     const errors: string[] = [];
 
-    if (value === null || value === undefined || value === '') {
-      errors.push(`${fieldName}을(를) 입력해주세요.`);
+    if (
+      value === null ||
+      value === undefined ||
+      (typeof value === 'string' && value.trim() === '')
+    ) {
+      const particle = KoreanParticleHelper.getObjectParticle(fieldName);
+      errors.push(`${fieldName}${particle} 입력해주세요.`);
     }
 
     return {
@@ -230,7 +303,8 @@ export class ValidationUtils {
     const errors: string[] = [];
 
     if (value && value.length < minLength) {
-      errors.push(`${fieldName}은(는) ${minLength}자 이상이어야 합니다.`);
+      const particle = KoreanParticleHelper.getSubjectParticle(fieldName);
+      errors.push(`${fieldName}${particle} ${minLength}자 이상이어야 합니다.`);
     }
 
     return {
@@ -246,7 +320,8 @@ export class ValidationUtils {
     const errors: string[] = [];
 
     if (value && value.length > maxLength) {
-      errors.push(`${fieldName}은(는) ${maxLength}자 이하여야 합니다.`);
+      const particle = KoreanParticleHelper.getSubjectParticle(fieldName);
+      errors.push(`${fieldName}${particle} ${maxLength}자 이하여야 합니다.`);
     }
 
     return {

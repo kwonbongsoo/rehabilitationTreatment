@@ -57,9 +57,9 @@ export interface CartActions {
 export interface AddToCartRequest {
   id: string;
   quantity?: number;
-  name: string;
-  price: number;
-  image: string;
+  name?: string;
+  price?: number;
+  image?: string;
   size?: string;
   color?: string;
   options?: Record<string, any>;

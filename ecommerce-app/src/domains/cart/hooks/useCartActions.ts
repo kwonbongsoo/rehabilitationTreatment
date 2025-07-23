@@ -7,11 +7,7 @@ import { useCallback } from 'react';
 import { useCartStore, useCartSummary } from '../stores/useCartStore';
 import { NotificationManager } from '@/utils/notifications';
 import type { CartItem, UpdateCartItemRequest, AddToCartRequest } from '../types/cart';
-import productInfoData from '@/mocks/product-info.json';
-
-interface ProductInfoData {
-  products: Record<string, MockProductInfo>;
-}
+import { fetchProductInfo } from '../services/productInfoService';
 
 export interface UseCartActionsReturn {
   // 기본 액션들
@@ -61,7 +57,7 @@ export function useCartActions(): UseCartActionsReturn {
 
         // 1. 상품 정보 검증 (실제로는 API에서 가져와야 함)
         // TODO: 실제 프로덕트 API 연동
-        const productInfo = await mockFetchProductInfo(request.id);
+        const productInfo = await fetchProductInfo(request.id);
 
         if (!productInfo) {
           throw new Error('상품 정보를 찾을 수 없습니다.');
@@ -150,11 +146,9 @@ export function useCartActions(): UseCartActionsReturn {
       const { showNotification = true, reason } = options;
       const item = getItem(itemId);
 
-      if (!item) return;
-
       removeItem(itemId);
 
-      if (showNotification) {
+      if (showNotification && item) {
         const message =
           reason === 'out_of_stock'
             ? `${item.name}이(가) 품절되어 장바구니에서 제거되었습니다.`
@@ -225,8 +219,10 @@ export function useCartActions(): UseCartActionsReturn {
   );
 
   const updateItemOptions = useCallback(
-    (request: UpdateCartItemRequest) => {
-      const { itemId, quantity, size, color, options } = request;
+    (request: UpdateCartItemRequest | { id: string; [key: string]: any }) => {
+      // id 또는 itemId 둘 다 지원
+      const itemId = 'itemId' in request ? request.itemId : (request as any).id;
+      const { quantity, size, color, options } = request;
 
       const updates: Partial<CartItem> = {};
 
@@ -269,23 +265,4 @@ export function useCartActions(): UseCartActionsReturn {
     itemCount: getItemCount(),
     isEmpty: items.length === 0,
   };
-}
-
-// === Mock API ===
-async function mockFetchProductInfo(productId: string): Promise<MockProductInfo | null> {
-  // 실제로는 API 호출
-  await new Promise((resolve) => setTimeout(resolve, 300)); // 가짜 지연
-
-  return (productInfoData as ProductInfoData).products[productId] || null;
-}
-
-interface MockProductInfo {
-  id: string;
-  name: string;
-  price: number;
-  image: string;
-  inStock: boolean;
-  discount: number;
-  originalPrice: number;
-  maxQuantity: number;
 }

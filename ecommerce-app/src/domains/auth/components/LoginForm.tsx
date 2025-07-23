@@ -47,7 +47,7 @@ export function LoginForm({ onSubmit, isLoading: externalLoading = false }: Logi
         value={form.data.id}
         onChange={(e) => form.updateField('id', e.target.value)}
         placeholder="아이디를 입력하세요"
-        {...(form.hasError && form.error.includes('아이디') && { error: form.error })}
+        error={form.hasError && form.error.includes('아이디') ? form.error : ''}
         required
       />
 
@@ -58,7 +58,7 @@ export function LoginForm({ onSubmit, isLoading: externalLoading = false }: Logi
         value={form.data.password}
         onChange={(e) => form.updateField('password', e.target.value)}
         placeholder="비밀번호를 입력하세요"
-        {...(form.hasError && form.error.includes('비밀번호') && { error: form.error })}
+        error={form.hasError && form.error.includes('비밀번호') ? form.error : ''}
         required
       />
 
@@ -69,9 +69,10 @@ export function LoginForm({ onSubmit, isLoading: externalLoading = false }: Logi
           size="large"
           fullWidth
           isLoading={isLoading}
+          loadingText="로그인 중..."
           disabled={!form.canSubmit || isLoading}
         >
-          {isLoading ? '로그인 중...' : '로그인'}
+          로그인
         </Button>
       </FormActions>
     </FormContainer>
