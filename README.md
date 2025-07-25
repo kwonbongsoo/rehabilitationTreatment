@@ -205,7 +205,7 @@ graph TD
   - GET /docs: API 문서
 ```
 
-### 🔐 Auth Server (:3002)
+### 🔐 Auth Server (:4000)
 ```yaml
 역할: 사용자 인증 및 권한 관리
 기술 스택: Koa.js + TypeScript
@@ -222,7 +222,7 @@ graph TD
   - POST /api/auth/logout: 로그아웃
 ```
 
-### 👥 Member Server (:3003)
+### 👥 Member Server (:5000)
 ```yaml
 역할: 회원 정보 관리
 기술 스택: Fastify + Prisma + TypeScript
@@ -268,31 +268,31 @@ graph LR
 
     subgraph "Docker Network: app-network"
         subgraph "Frontend"
-            NextJS[Next.js :3000]
+            NextJS[Next.js<br/>Port 3000]
         end
 
         subgraph "Gateway Layer"
-            Kong[Kong Gateway<br/>:8000 (proxy)<br/>:8001 (admin)]
+            Kong[Kong Gateway<br/>Proxy: 8000]
         end
 
         subgraph "Service Mesh"
-            Auth[koa-auth-server<br/>:3002]
-            Member[fastify-member-server<br/>:3003]
-            BFF[bff-server<br/>:3001]
+            Auth[koa-auth-server<br/>Port 4000]
+            Member[fastify-member-server<br/>Port 5000]
+            BFF[bff-server<br/>Port 3001]
         end
 
         subgraph "Data Layer"
-            Redis[Redis<br/>:6379]
-            PostgreSQL[PostgreSQL<br/>:5432]
+            Redis[Redis<br/>Port 6379]
+            PostgreSQL[PostgreSQL<br/>Port 5432]
         end
     end
 
     %% External connections
     Internet --> Client
-    Client -->|HTTP :3000| NextJS
+    Client -->|HTTP Port 3000| NextJS
 
     %% Internal network connections
-    NextJS -.->|직접 통신| Auth
+    NextJS -.->|Direct Connection| Auth
     NextJS -->|API Gateway| Kong
 
     Kong --> BFF
@@ -305,8 +305,8 @@ graph LR
     BFF --> Member
 
     %% Port exposure
-    NextJS -.->|포트 노출<br/>3000| Internet
-    Kong -.->|포트 노출<br/>8000| Internet
+    NextJS -.->|Exposed Port 3000| Internet
+    Kong -.->|Exposed Port 8000| Internet
 
     style Internet fill:#e1f5fe
     style Client fill:#f3e5f5
@@ -395,10 +395,9 @@ docker-compose up --build
 | 서비스 | 포트 | URL | 설명 |
 |--------|------|-----|------|
 | Kong Gateway | 8000 | http://localhost:8000 | API Gateway 프록시 |
-| Kong Admin API | 8001 | http://localhost:8001 | Kong 관리 API |
 | BFF Server | 3001 | http://localhost:3001 | Backend for Frontend |
-| Auth Server | 3002 | http://localhost:3002 | 인증 서비스 |
-| Member Server | 3003 | http://localhost:3003 | 회원 서비스 |
+| Auth Server | 3002 | http://localhost:4000 | 인증 서비스 |
+| Member Server | 3003 | http://localhost:5000 | 회원 서비스 |
 | Frontend | 3000 | http://localhost:3000 | 웹 애플리케이션 |
 
 ## 📊 API 사용 예시
@@ -406,7 +405,7 @@ docker-compose up --build
 ### 1. 사용자 인증
 ```bash
 # 로그인
-curl -X POST http://localhost:3002/api/auth/login \
+curl -X POST http://localhost:4000/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email": "test@example.com", "password": "password123"}'
 ```
@@ -422,32 +421,6 @@ curl http://localhost:8000/api/home \
 curl http://localhost:8000/api/members \
   -H "Authorization: Bearer your-jwt-token" \
   -H "X-Idempotency-Key: unique-key-456"
-```
-
-## 📈 모니터링 및 관리
-
-### Kong 관리 API
-```bash
-# 서비스 상태 확인
-curl http://localhost:8001/status
-
-# 활성 플러그인 확인
-curl http://localhost:8001/plugins
-
-# 서비스 목록 확인
-curl http://localhost:8001/services
-
-# 라우트 목록 확인
-curl http://localhost:8001/routes
-```
-
-### 플러그인 상태 확인
-```bash
-# token-validator 플러그인 상태
-curl http://localhost:8001/plugins | jq '.data[] | select(.name=="token-validator")'
-
-# idempotency 플러그인 상태
-curl http://localhost:8001/plugins | jq '.data[] | select(.name=="idempotency")'
 ```
 
 ## 🧪 테스트
@@ -508,8 +481,6 @@ new-service:
 # 설정 변경 후 Kong 재시작
 docker-compose restart kong
 
-# 설정 적용 확인
-curl http://localhost:8001/plugins
 ```
 
 ## 🚀 배포 가이드
@@ -581,7 +552,7 @@ docker exec -it kong redis-cli -h redis-host ping
 docker logs koa-auth-server
 
 # 토큰 유효성 수동 확인
-curl http://localhost:3002/api/auth/verify \
+curl http://localhost:4000/api/auth/verify \
   -H "Authorization: Bearer your-token"
 ```
 

@@ -47,8 +47,6 @@ services:
     container_name: bff-server
     env_file:
       - ./bff-server/.env
-    ports:
-      - '3001:3001'
     depends_on:
       - koa-auth-server
       - fastify-member-server
