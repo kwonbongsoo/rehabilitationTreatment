@@ -163,29 +163,29 @@ graph TD
     style Response fill:#e8f5e8
 ```
 
-## 🚀 주요 특징
+## 주요 특징
 
-### 🔒 보안 & 인증
+### 보안 & 인증
 - **Kong API Gateway**: 중앙집중식 API 관리 및 보안
 - **JWT 기반 인증**: token-validator 플러그인으로 토큰 검증
 - **Redis 세션 관리**: 확장 가능한 세션 저장소
 - **멱등성 보장**: 중복 요청 방지 (Redis 기반)
 - **내부 네트워크 격리**: Docker 네트워크로 서비스 보호
 
-### ⚡ 성능 & 안정성
+### 성능 & 안정성
 - **BFF 패턴**: 프론트엔드 최적화된 API 응답
 - **마이크로서비스**: 서비스별 독립적 확장
 - **멱등성 처리**: 안전한 재시도 메커니즘
 
-### 🏗️ 아키텍처 패턴
+### 아키텍처 패턴
 - **Clean Architecture**: 계층 분리 및 의존성 관리
 - **Domain-Driven Design**: 비즈니스 로직 중심 설계
 - **API Gateway Pattern**: 중앙집중식 API 관리
 - **Backend for Frontend**: 클라이언트 최적화
 
-## 📦 서비스 구성
+## 서비스 구성
 
-### 🌐 Kong API Gateway (:8000)
+### Kong API Gateway (:8000)
 ```yaml
 역할: API 프록시 및 중앙 관리
 기술 스택: Kong Community Edition
@@ -200,7 +200,7 @@ graph TD
   - idempotency: 중복 요청 방지
 ```
 
-### 🔄 BFF Server (:3001)
+### BFF Server (:3001)
 ```yaml
 역할: Frontend를 위한 API 집계 서버
 기술 스택: Fastify + TypeScript
@@ -216,7 +216,7 @@ graph TD
   - GET /docs: API 문서
 ```
 
-### 🔐 Auth Server (:4000)
+### Auth Server (:4000)
 ```yaml
 역할: 사용자 인증 및 권한 관리
 기술 스택: Koa.js + TypeScript
@@ -235,7 +235,7 @@ graph TD
   - POST /api/auth/verify: 토큰 검증
 ```
 
-### 👥 Member Server (:5000)
+### Member Server (:5000)
 ```yaml
 역할: 회원 정보 관리
 기술 스택: Fastify + Prisma + TypeScript
@@ -253,7 +253,7 @@ graph TD
   - DELETE /api/members/:id: 회원 삭제
 ```
 
-### 🎨 Frontend (:3000)
+### Frontend (:3000)
 ```yaml
 역할: 사용자 인터페이스
 기술 스택: Next.js 14 + TypeScript
@@ -270,7 +270,7 @@ graph TD
   - src/api/: API 클라이언트
 ```
 
-## 🌐 네트워크 구성
+## 네트워크 구성
 
 ```mermaid
 graph LR
@@ -330,15 +330,15 @@ graph LR
     style PostgreSQL fill:#f1f8e9
 ```
 
-## 🚀 시작하기
+## 시작하기
 
-### 📋 요구사항
+### 요구사항
 - Node.js 18+
 - npm 9+
 - Docker & Docker Compose
 - Redis (Cloud 또는 로컬)
 
-### 🛠️ 설치 및 실행
+### 설치 및 실행
 
 1. **저장소 클론**
 ```bash
@@ -398,7 +398,7 @@ KONG_PLUGINS=token-validator,idempotency
 docker-compose up --build
 ```
 
-## 🌐 서비스 엔드포인트
+## 서비스 엔드포인트
 
 | 서비스 | 포트 | URL | 설명 |
 |--------|------|-----|------|
@@ -408,7 +408,7 @@ docker-compose up --build
 | Member Server | 5000 | http://localhost:5000 | 회원 서비스 |
 | Frontend | 3000 | http://localhost:3000 | 웹 애플리케이션 |
 
-## 📊 API 사용 예시
+## API 사용 예시
 
 ### 1. 사용자 인증
 ```bash
@@ -449,7 +449,7 @@ curl http://localhost:3001/api/home \
   -H "Authorization: Bearer your-jwt-token"
 ```
 
-## 🧪 테스트
+## 테스트
 
 ### 통합 테스트 시나리오
 ```bash
@@ -505,9 +505,9 @@ export class BFFService {
 }
 ```
 
-## 🔮 향후 계획
+## 향후 계획
 
-### Phase 1: 현재 완료된 기능 ✅
+### Phase 1: 현재 완료된 기능
 - Kong API Gateway 구축
 - BFF 서버 구현 (비즈니스 데이터 UI 데이터를 변환하는 용도)
 - JWT 기반 인증 체계
@@ -530,7 +530,7 @@ export class BFFService {
 - [ ] **로그 집계**: 중앙집중식 로깅
 - [ ] **알림 체계**: 장애 알림 시스템
 
-## 🔍 트러블슈팅
+## 트러블슈팅
 
 ### 일반적인 문제들
 
@@ -555,7 +555,7 @@ curl http://localhost:4000/api/auth/verify \
   -H "Authorization: Bearer your-token"
 ```
 
-## 📚 참고 문서
+## 참고 문서
 
 - [Kong Gateway 공식 문서](https://docs.konghq.com/)
 - [Fastify 문서](https://www.fastify.io/)
@@ -569,6 +569,3 @@ curl http://localhost:4000/api/auth/verify \
 MIT License
 
 ---
-
-**현재 구현된 아키텍처**: Kong Gateway + BFF Pattern + JWT Auth + Microservices
-**다음 단계**: 비즈니스 서비스 확장
