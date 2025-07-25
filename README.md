@@ -7,34 +7,34 @@
 ```mermaid
 graph TB
     subgraph "External"
-        Client[클라이언트<br/>브라우저/앱]
+        Client[클라이언트 브라우저/앱]
     end
 
     subgraph "Frontend Layer"
-        Frontend[Next.js<br/>E-Commerce App<br/>:3000<br/>API Routes /api/*<br/>HttpOnly 쿠키 → Bearer 토큰 변환]
+        Frontend[Next.js E-Commerce App<br/>Port 3000<br/>API Routes /api/*<br/>쿠키 to Bearer 토큰 변환]
     end
 
-    subgraph "Internal Docker Network<br/>(외부 접근 차단)"
+    subgraph "Internal Docker Network"
         subgraph "API Gateway"
-            Kong[Kong API Gateway<br/>:8000<br/>• API 프록시<br/>• JWT 토큰 검증<br/>• 멱등성 처리<br/>• 라우팅]
+            Kong[Kong API Gateway<br/>Port 8000<br/>API 프록시<br/>JWT 토큰 검증<br/>멱등성 처리<br/>라우팅]
         end
 
         subgraph "Authentication Layer"
-            Auth[Auth 서비스<br/>Koa.js<br/>:4000<br/>• JWT 발급/검증<br/>• 사용자 인증<br/>• 세션 관리]
+            Auth[Auth 서비스<br/>Koa.js Port 4000<br/>JWT 발급/검증<br/>사용자 인증<br/>세션 관리]
         end
 
         subgraph "BFF Layer"
-            BFF[BFF Server<br/>Fastify<br/>:3001<br/>• 데이터 집계<br/>• UI 최적화 변환<br/>• 비즈니스 로직 조합]
+            BFF[BFF Server<br/>Fastify Port 3001<br/>데이터 집계<br/>UI 최적화 변환<br/>비즈니스 로직 조합]
         end
 
         subgraph "Business Services"
-            Member[Member 서비스<br/>Fastify<br/>:5000<br/>• 회원 관리<br/>• CRUD 연산]
-            Other[기타 비즈니스 서비스<br/>(미구현)<br/>• Product<br/>• Order<br/>• Payment]
+            Member[Member 서비스<br/>Fastify Port 5000<br/>회원 관리<br/>CRUD 연산]
+            Other[기타 비즈니스 서비스<br/>미구현 상태<br/>Product Order Payment]
         end
 
         subgraph "Data Layer"
             Redis[(Redis<br/>토큰 저장<br/>세션 관리<br/>멱등성 캐시)]
-            PostgreSQL[(PostgreSQL<br/>Database<br/>회원 데이터)]
+            PostgreSQL[(PostgreSQL Database<br/>회원 데이터)]
         end
     end
 
@@ -43,7 +43,7 @@ graph TB
     Frontend -->|HTTP 응답| Client
 
     %% Frontend to internal services
-    Frontend -->|API Routes<br/>/api/*| Kong
+    Frontend -->|API Routes /api/*| Kong
     Frontend -.->|직접 인증| Auth
 
     %% Kong routing
@@ -51,7 +51,7 @@ graph TB
     Kong --> Auth
     Kong --> Member
 
-    %% BFF connections (데이터 집계만)
+    %% BFF connections - 데이터 집계만
     BFF --> Member
     BFF --> Other
 
@@ -175,7 +175,6 @@ graph TD
 - **BFF 패턴**: 프론트엔드 최적화된 API 응답
 - **마이크로서비스**: 서비스별 독립적 확장
 - **멱등성 처리**: 안전한 재시도 메커니즘
-- **Connection Pooling**: 데이터베이스 연결 최적화
 
 ### 🏗️ 아키텍처 패턴
 - **Clean Architecture**: 계층 분리 및 의존성 관리
