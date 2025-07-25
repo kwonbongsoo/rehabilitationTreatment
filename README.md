@@ -25,7 +25,7 @@ graph TB
         end
 
         subgraph "BFF Layer"
-            BFF[BFF Server<br/>Fastify Port 3001<br/>데이터 집계<br/>UI 최적화 변환<br/>비즈니스 로직 조합]
+            BFF[BFF Server<br/>Fastify Port 3001<br/>UI 최적화 변환<br/>비즈니스 로직 조합]
         end
 
         subgraph "Business Services"
