@@ -1,4 +1,6 @@
 import Layout from '@/components/layout/Layout';
+import SessionProvider from '@/components/providers/SessionProvider';
+import SessionInitializer from '@/components/providers/SessionInitializer';
 import { AppProviders } from '@/providers/AppProviders';
 import '@/styles/globals.css';
 import { Metadata } from 'next';
@@ -46,7 +48,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="ko">
       <body>
         <AppProviders>
-          <Layout>{children}</Layout>
+          <SessionInitializer />
+          <SessionProvider>
+            <Layout>{children}</Layout>
+          </SessionProvider>
         </AppProviders>
       </body>
     </html>

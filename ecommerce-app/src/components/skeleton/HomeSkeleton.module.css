@@ -1,7 +1,7 @@
 /* 전체 홈 스켈레톤 컨테이너 */
 .homeSkeleton {
   width: 100%;
-  max-width: 1200px;
+  max-width: 500px;
   margin: 0 auto;
   padding: 0 20px;
 }

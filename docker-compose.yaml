@@ -70,7 +70,7 @@ services:
       - app-network
   # Kong API Gateway
   kong:
-    image: kong:3.6
+    image: kong:3.9
     container_name: kong
     env_file:
       - ./kong/.env

@@ -5,7 +5,6 @@ import AnnouncementBar from './AnnouncementBar';
 import MainLogo from './MainLogo';
 import MainNavigation from './MainNavigation';
 import SubNavigation from './SubNavigation';
-import UserActions from './UserActions';
 
 const Header: React.FC = memo(() => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -51,7 +50,6 @@ const Header: React.FC = memo(() => {
 
           <MainLogo />
           <MainNavigation isOpen={isMenuOpen} onClose={closeMenu} />
-          <UserActions />
         </div>
       </div>
 

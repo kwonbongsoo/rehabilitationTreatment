@@ -14,12 +14,23 @@
   max-width: 500px; /* 모바일 앱 스타일 */
   margin: 0 auto;
   padding: 0;
+  padding-bottom: calc(80px + env(safe-area-inset-bottom)); /* 하단 네비게이션을 위한 패딩 */
   min-height: 100vh;
   background: var(--color-background);
   position: relative;
   overflow-x: hidden;
   overflow-y: auto; /* 세로 스크롤 허용 */
-  max-width: 100%; /* 추가로 확실하게 */
+}
+
+/* 바텀 네비게이션이 없는 페이지 (필터, 인증 등) */
+.noBottomNav {
+  padding-bottom: 0 !important;
+}
+
+@media (min-width: 1024px) {
+  .noBottomNav {
+    padding-bottom: 0 !important;
+  }
 }
 
 /* 큰 화면에서의 모바일 앱 시뮬레이션 */
@@ -33,11 +44,13 @@
   }
 
   .main {
+    max-width: 500px; /* 데스크탑에서도 모바일 UI 유지 */
     box-shadow: 0 0 30px rgba(11, 143, 172, 0.15);
     border-radius: 20px;
     overflow: hidden;
     height: calc(100vh - 40px); /* 상하 패딩 20px씩 제외 */
     overflow-y: auto; /* 세로 스크롤 활성화 */
+    padding-bottom: calc(80px + env(safe-area-inset-bottom)); /* 데스크탑에서도 하단 네비게이션 패딩 유지 */
     /* max-height 제거 - 스크롤 문제 해결 */
   }
 }

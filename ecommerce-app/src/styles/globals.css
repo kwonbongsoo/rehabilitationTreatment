@@ -48,6 +48,16 @@
   --font-size-4xl: 2.25rem;
   --font-size-xxl: 2.5rem;
 
+  /* Z-index 레이어 관리 */
+  --z-index-base: 1;
+  --z-index-dropdown: 100;
+  --z-index-sticky: 200;
+  --z-index-header: 500;
+  --z-index-bottom-nav: 1000;
+  --z-index-overlay: 5000;
+  --z-index-modal: 9999;
+  --z-index-toast: 10000;
+
   /* 간격 */
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;

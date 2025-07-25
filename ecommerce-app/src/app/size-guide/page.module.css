@@ -1,0 +1,232 @@
+.content {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 20px 16px;
+  overflow-x: hidden;
+  position: relative;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0 0 8px 0;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.filterCard {
+  background: var(--color-background);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.filterGroup {
+  margin-bottom: 16px;
+}
+
+.filterGroup:last-child {
+  margin-bottom: 0;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text);
+  margin-bottom: 8px;
+  display: block;
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.filterButton {
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.filterButton:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.filterButton.active {
+  background: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+}
+
+.sizeCard {
+  background: var(--color-background);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  margin-bottom: 24px;
+}
+
+.sizeTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 16px;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+}
+
+.sizeTable {
+  display: grid;
+  gap: 8px;
+  min-width: 500px;
+}
+
+.clothingTable {
+  grid-template-columns: repeat(5, 1fr);
+}
+
+.shoeTable {
+  grid-template-columns: repeat(5, 1fr);
+  min-width: 400px;
+}
+
+.tableHeader {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+  padding: 8px;
+  background: var(--color-background);
+  border-radius: 4px;
+}
+
+.tableCell {
+  font-size: 14px;
+  color: var(--color-text);
+  padding: 8px;
+  font-weight: 500;
+}
+
+.tableDataCell {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  padding: 8px;
+}
+
+.accessoryInfo {
+  padding: 16px;
+  background: var(--color-background);
+  border-radius: 8px;
+}
+
+.accessoryText {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  margin-bottom: 12px;
+}
+
+.accessoryList {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  margin: 0;
+  padding-left: 20px;
+}
+
+.section {
+  margin-top: 24px;
+}
+
+.sectionTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.tipCard {
+  background: var(--color-background);
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.tipIcon {
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+
+.tipTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0 0 8px 0;
+}
+
+.tipDescription {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* 모바일 최적화 */
+@media (max-width: 768px) {
+  .content {
+    padding: 16px 12px;
+  }
+
+  .filterCard,
+  .sizeCard {
+    padding: 16px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .tipCard {
+    padding: 12px;
+  }
+
+  .sizeTable {
+    font-size: 12px;
+  }
+
+  .tableHeader,
+  .tableCell,
+  .tableDataCell {
+    font-size: 12px;
+    padding: 6px;
+  }
+}

@@ -1,5 +1,43 @@
+/* 페이지 헤더 */
+.pageHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e5e7eb;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.backButton {
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #374151;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.backButton:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.headerTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+}
+
 .mobileAuthContainer {
-  min-height: 100vh;
+  min-height: calc(100vh - 73px); /* 헤더 높이 제외 */
   background: #f8f9fa;
   padding: 40px 24px 24px;
   display: flex;
@@ -149,15 +187,29 @@
   line-height: 1.4;
 }
 
+/* 데스크탑에서 모바일 UI */
+@media (min-width: 1024px) {
+  .pageHeader {
+    max-width: 500px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .mobileAuthContainer {
+    max-width: 500px;
+    margin: 0 auto;
+  }
+}
+
 @media (max-width: 480px) {
   .mobileAuthContainer {
     padding: 32px 20px 20px;
   }
-  
+
   .authTitle {
     font-size: 24px;
   }
-  
+
   .authSubtitle {
     font-size: 14px;
   }

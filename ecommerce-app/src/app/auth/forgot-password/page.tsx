@@ -23,29 +23,10 @@ const ForgotPasswordClient = dynamic(
   },
 );
 
-const UserFormLayoutClient = dynamic(() => import('@/components/templates/UserFormLayout'), {
-  ssr: false,
-  loading: () => (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh',
-      }}
-    >
-      <LoadingIndicator />
-    </div>
-  ),
-});
-
 export default function ForgotPasswordPage() {
   return (
-    <UserFormLayoutClient
-      title="비밀번호 찾기"
-      description="비밀번호를 재설정하여 다시 로그인하세요"
-    >
+    <div style={{ minHeight: '100vh', background: '#f8f9fa' }}>
       <ForgotPasswordClient />
-    </UserFormLayoutClient>
+    </div>
   );
 }

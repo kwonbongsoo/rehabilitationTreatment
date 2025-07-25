@@ -165,8 +165,10 @@
 
 @media (min-width: 1024px) {
   .categoryContainer {
-    max-width: 1200px;
+    max-width: 500px; /* 모바일 앱 스타일 */
     margin: 0 auto;
+    min-height: calc(100vh - 40px); /* 상하 패딩 20px씩 제외 */
+    background: transparent; /* Layout의 배경색 사용 */
   }
 
   .productGrid {

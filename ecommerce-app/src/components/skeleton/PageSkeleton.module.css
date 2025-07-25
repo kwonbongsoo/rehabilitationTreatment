@@ -1,7 +1,7 @@
 /* 기본 페이지 스켈레톤 */
 .pageSkeleton {
   width: 100%;
-  max-width: 1200px;
+  max-width: 500px;
   margin: 0 auto;
   padding: 40px 20px;
 }
@@ -45,7 +45,7 @@
 /* 상품 리스트 스켈레톤 */
 .productListSkeleton {
   width: 100%;
-  max-width: 1200px;
+  max-width: 500px;
   margin: 0 auto;
   padding: 40px 20px;
 }
@@ -92,7 +92,7 @@
 /* 상품 상세 스켈레톤 */
 .productDetailSkeleton {
   width: 100%;
-  max-width: 1200px;
+  max-width: 500px;
   margin: 0 auto;
   padding: 40px 20px;
 }
@@ -152,7 +152,7 @@
 /* 카트 스켈레톤 */
 .cartSkeleton {
   width: 100%;
-  max-width: 1200px;
+  max-width: 500px;
   margin: 0 auto;
   padding: 40px 20px;
 }

@@ -9,7 +9,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: var(--z-index-modal);
   backdrop-filter: blur(2px);
   animation: fadeIn 0.2s ease-out;
 }
@@ -208,6 +208,7 @@
 /* 드로어 스타일 */
 .drawerOverlay {
   background-color: rgba(0, 0, 0, 0.3);
+  z-index: var(--z-index-modal);
 }
 
 .drawer {
@@ -289,6 +290,7 @@
 .bottomSheetOverlay {
   background-color: rgba(0, 0, 0, 0.3);
   align-items: flex-end;
+  z-index: var(--z-index-modal);
 }
 
 .bottomSheet {

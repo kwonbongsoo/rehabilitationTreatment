@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import UIComponentRenderer from '@/components/home/UIComponentRenderer';
 import MobileHeader from '@/components/home/MobileHeader';
 import HomeSkeleton from '@/components/skeleton/HomeSkeleton';
@@ -9,6 +10,7 @@ import { HomePageResponse, UIComponent } from '@/types/home';
 import { getHomeDataAction } from './actions/home';
 
 export default function HomePage() {
+  const router = useRouter();
   const [homeData, setHomeData] = useState<HomePageResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -34,10 +36,14 @@ export default function HomePage() {
     loadHomeData();
   }, []);
 
+  const handleFilterClick = () => {
+    router.push('/filter');
+  };
+
   if (isLoading) {
     return (
       <div className={styles.homeContainer}>
-        <MobileHeader />
+        <MobileHeader onFilterClick={handleFilterClick} />
         <HomeSkeleton />
       </div>
     );
@@ -46,7 +52,7 @@ export default function HomePage() {
   if (error) {
     return (
       <div className={styles.homeContainer}>
-        <MobileHeader />
+        <MobileHeader onFilterClick={handleFilterClick} />
         <main className={styles.main}>
           <div className={styles.errorMessage}>{error}</div>
         </main>
@@ -56,7 +62,7 @@ export default function HomePage() {
 
   return (
     <div className={styles.homeContainer}>
-      <MobileHeader />
+      <MobileHeader onFilterClick={handleFilterClick} />
       <main className={styles.main}>
         <div className={styles.content}>
           {homeData?.components?.map((component: UIComponent) => (

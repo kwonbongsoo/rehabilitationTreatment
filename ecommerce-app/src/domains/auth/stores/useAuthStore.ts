@@ -13,6 +13,9 @@ export interface AuthState {
   isAuthenticated: boolean;
   isGuest: boolean;
 
+  // 세션 초기화 상태
+  isSessionInitialized: boolean;
+
   // 계산된 값들 (getter 함수)
   getUserRole: () => UserRole;
   isAdmin: () => boolean;
@@ -23,15 +26,22 @@ export interface AuthActions {
   setUser: (user: UserResponse | null) => void;
   logout: () => Promise<void>;
   clearSession: () => void; // 세션 완전 초기화
+
+  // 세션 초기화 상태 관리
+  setSessionInitialized: (initialized: boolean) => void;
 }
 
 type AuthStore = AuthState & AuthActions;
 
 // 초기 상태 정의 (재사용을 위해 별도 객체로)
-const initialState: Pick<AuthState, 'user' | 'isAuthenticated' | 'isGuest'> = {
+const initialState: Pick<
+  AuthState,
+  'user' | 'isAuthenticated' | 'isGuest' | 'isSessionInitialized'
+> = {
   user: null,
   isAuthenticated: false,
   isGuest: true,
+  isSessionInitialized: false,
 };
 
 export const useAuthStore = create<AuthStore>()(
@@ -51,6 +61,7 @@ export const useAuthStore = create<AuthStore>()(
             user,
             isAuthenticated,
             isGuest,
+            isSessionInitialized: true, // 사용자 정보가 설정되면 세션 초기화 완료
           };
         });
       },
@@ -59,17 +70,27 @@ export const useAuthStore = create<AuthStore>()(
         // 🔄 완전한 세션 초기화
         set(() => ({
           ...initialState,
+          isSessionInitialized: true, // 로그아웃도 초기화된 상태로 간주
           getUserRole: get().getUserRole,
           isAdmin: get().isAdmin,
           setUser: get().setUser,
           logout: get().logout,
           clearSession: get().clearSession,
+          setSessionInitialized: get().setSessionInitialized,
         }));
       },
 
       // 세션 완전 초기화 (긴급 상황용)
       clearSession: () => {
         get().logout();
+      },
+
+      // 세션 초기화 상태 관리
+      setSessionInitialized: (initialized) => {
+        set((state) => ({
+          ...state,
+          isSessionInitialized: initialized,
+        }));
       },
 
       // 계산된 값들 (getter 함수)
@@ -91,19 +112,31 @@ export const useAuthStore = create<AuthStore>()(
 
 // React Context 패턴과 호환되는 훅 (기존 코드 호환성)
 export const useAuth = () => {
-  const { user, isAuthenticated, isGuest, setUser, logout, clearSession, getUserRole, isAdmin } =
-    useAuthStore();
+  const {
+    user,
+    isAuthenticated,
+    isGuest,
+    isSessionInitialized,
+    setUser,
+    logout,
+    clearSession,
+    setSessionInitialized,
+    getUserRole,
+    isAdmin,
+  } = useAuthStore();
 
   return {
     // 상태
     user,
     isAuthenticated,
     isGuest,
+    isSessionInitialized,
 
     // 액션
     setUser,
     logout,
     clearSession,
+    setSessionInitialized,
 
     // 헬퍼
     getUserRole,

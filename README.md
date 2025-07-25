@@ -1,7 +1,8 @@
 # E-Commerce 플랫폼
 
 마이크로서비스 아키텍처 기반의 이커머스 플랫폼으로, Kong API Gateway와 BFF(Backend for Frontend) 패턴을 적용한 현대적인 웹 애플리케이션입니다.
-
+## UI
+![UI](커머스.png)
 ## 🏗️ 시스템 아키텍처
 
 ```mermaid
@@ -477,28 +478,6 @@ curl http://localhost:8000/api/members \
 
 ## 🔧 개발 가이드
 
-### BFF 서버 데이터 집계 패턴
-```typescript
-// BFF에서 여러 서비스 데이터 집계 예시
-export class HomePageService {
-  async getHomePageData(): Promise<HomePageResponse> {
-    // 1. Member 서비스에서 사용자 통계
-    const memberStats = await this.memberService.getStats();
-
-    // 2. 다른 비즈니스 서비스들에서 데이터 가져오기 (미구현)
-    // const products = await this.productService.getFeatured();
-    // const orders = await this.orderService.getRecent();
-
-    // 3. UI 최적화된 형태로 데이터 변환
-    return {
-      memberCount: memberStats.total,
-      // featuredProducts: products.map(transformForUI),
-      // recentOrders: orders.slice(0, 5)
-    };
-  }
-}
-```
-
 ### 새로운 비즈니스 서비스 추가
 1. **Kong에 서비스 추가**
 ```yaml
@@ -539,7 +518,6 @@ export class BFFService {
 - [ ] **Product Service**: 상품 관리 서비스 (포트 6000)
 - [ ] **Order Service**: 주문 관리 서비스 (포트 7000)
 - [ ] **Payment Service**: 결제 처리 서비스 (포트 8000)
-- [ ] **BFF 데이터 집계**: 다중 서비스 조합
 
 ### Phase 3: 성능 최적화
 - [ ] **Kong 캐싱**: 엔드포인트별 캐싱 전략
@@ -565,15 +543,6 @@ docker logs kong
 docker exec -it kong ping bff-server
 docker exec -it kong ping koa-auth-server
 docker exec -it kong ping fastify-member-server
-```
-
-**BFF 데이터 집계 실패**
-```bash
-# BFF 서버 로그 확인
-docker logs bff-server
-
-# Member 서비스 연결 테스트
-docker exec -it bff-server curl http://fastify-member-server:5000/health
 ```
 
 **토큰 검증 실패**

@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
+import Layout from '@/components/layout/Layout';
+import styles from './page.module.css';
 
 // 타입 정의
 interface ClothingSize {
@@ -72,6 +74,7 @@ export default function SizeGuide() {
     { kor: '265', us: '9.5', uk: '7.5', eu: '41', cm: '26.5' },
     { kor: '270', us: '10', uk: '8', eu: '42', cm: '27.0' },
   ];
+
   const measurementTips = [
     {
       title: '가슴둘레 측정법',
@@ -109,153 +112,153 @@ export default function SizeGuide() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f8f9fa', padding: '20px 16px' }}>
-      <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-        <h1 style={{ fontSize: '18px', fontWeight: '600', color: '#333', margin: '0 0 8px 0' }}>Size Guide</h1>
-        <p style={{ fontSize: '14px', color: '#666', margin: '0' }}>Choose the right size for perfect fit</p>
-      </div>
-      <div style={{ background: 'white', borderRadius: '16px', padding: '20px', marginBottom: '16px' }}>
-        <div style={{ marginBottom: '16px' }}>
-          <label style={{ fontSize: '14px', fontWeight: '500', color: '#333', marginBottom: '8px', display: 'block' }}>Category</label>
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-            {categories.map((category) => (
-              <button
-                key={category.value}
-                style={{
-                  padding: '8px 16px',
-                  borderRadius: '20px',
-                  border: '1px solid #ddd',
-                  background: selectedCategory === category.value ? '#007bff' : 'transparent',
-                  color: selectedCategory === category.value ? 'white' : '#666',
-                  fontSize: '14px',
-                  cursor: 'pointer'
-                }}
-                onClick={() => setSelectedCategory(category.value)}
-              >
-                {category.label}
-              </button>
+    <Layout>
+      <div className={styles.content}>
+        <div className={styles.header}>
+          <h1 className={styles.title}>Size Guide</h1>
+          <p className={styles.subtitle}>Choose the right size for perfect fit</p>
+        </div>
+
+        <div className={styles.filterCard}>
+          <div className={styles.filterGroup}>
+            <label className={styles.label}>Category</label>
+            <div className={styles.buttonGroup}>
+              {categories.map((category) => (
+                <button
+                  key={category.value}
+                  className={`${styles.filterButton} ${
+                    selectedCategory === category.value ? styles.active : ''
+                  }`}
+                  onClick={() => setSelectedCategory(category.value)}
+                >
+                  {category.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className={styles.filterGroup}>
+            <label className={styles.label}>Type</label>
+            <div className={styles.buttonGroup}>
+              {types.map((type) => (
+                <button
+                  key={type.value}
+                  className={`${styles.filterButton} ${
+                    selectedType === type.value ? styles.active : ''
+                  }`}
+                  onClick={() => setSelectedType(type.value)}
+                >
+                  {type.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className={styles.sizeCard}>
+          {selectedType === 'clothing' ? (
+            <div>
+              <h3 className={styles.sizeTitle}>
+                {selectedCategory === 'women'
+                  ? 'Women'
+                  : selectedCategory === 'men'
+                    ? 'Men'
+                    : 'Kids'}{' '}
+                Clothing Sizes
+              </h3>
+              <div className={styles.tableWrapper}>
+                <div className={`${styles.sizeTable} ${styles.clothingTable}`}>
+                  <div className={styles.tableHeader}>Size</div>
+                  <div className={styles.tableHeader}>Chest (cm)</div>
+                  <div className={styles.tableHeader}>Waist (cm)</div>
+                  <div className={styles.tableHeader}>Hip (cm)</div>
+                  <div className={styles.tableHeader}>Height (cm)</div>
+                  {getClothingSizeData().map((item: ClothingSize, index: number) => (
+                    <React.Fragment key={index}>
+                      <div className={styles.tableCell}>{item.size}</div>
+                      <div className={styles.tableDataCell}>{item.chest}</div>
+                      <div className={styles.tableDataCell}>{item.waist}</div>
+                      <div className={styles.tableDataCell}>{item.hip}</div>
+                      <div className={styles.tableDataCell}>{item.length}</div>
+                    </React.Fragment>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : selectedType === 'shoes' ? (
+            <div>
+              <h3 className={styles.sizeTitle}>Shoe Sizes</h3>
+              <div className={styles.tableWrapper}>
+                <div className={`${styles.sizeTable} ${styles.shoeTable}`}>
+                  <div className={styles.tableHeader}>KOR</div>
+                  <div className={styles.tableHeader}>US</div>
+                  <div className={styles.tableHeader}>UK</div>
+                  <div className={styles.tableHeader}>EU</div>
+                  <div className={styles.tableHeader}>Length (cm)</div>
+                  {shoeSizes.map((item: ShoeSize, index: number) => (
+                    <React.Fragment key={index}>
+                      <div className={styles.tableCell}>{item.kor}</div>
+                      <div className={styles.tableDataCell}>{item.us}</div>
+                      <div className={styles.tableDataCell}>{item.uk}</div>
+                      <div className={styles.tableDataCell}>{item.eu}</div>
+                      <div className={styles.tableDataCell}>{item.cm}</div>
+                    </React.Fragment>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div>
+              <h3 className={styles.sizeTitle}>Accessory Sizes</h3>
+              <div className={styles.accessoryInfo}>
+                <p className={styles.accessoryText}>
+                  Most accessories are one-size-fits-all or adjustable.
+                </p>
+                <ul className={styles.accessoryList}>
+                  <li>Necklaces: Adjustable chain length</li>
+                  <li>Rings: Mostly adjustable sizes</li>
+                  <li>Bracelets: Adjustable chain length</li>
+                  <li>Hats: Head circumference 56-58cm</li>
+                  <li>Belts: Adjustable to waist size</li>
+                </ul>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className={styles.section}>
+          <h3 className={styles.sectionTitle}>Measurement Guide</h3>
+          <div className={styles.grid}>
+            {measurementTips.map((tip, index) => (
+              <div key={index} className={styles.tipCard}>
+                <div className={styles.tipIcon}>{tip.icon}</div>
+                <h4 className={styles.tipTitle}>{tip.title}</h4>
+                <p className={styles.tipDescription}>{tip.description}</p>
+              </div>
             ))}
           </div>
         </div>
 
-        <div>
-          <label style={{ fontSize: '14px', fontWeight: '500', color: '#333', marginBottom: '8px', display: 'block' }}>Type</label>
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-            {types.map((type) => (
-              <button
-                key={type.value}
-                style={{
-                  padding: '8px 16px',
-                  borderRadius: '20px',
-                  border: '1px solid #ddd',
-                  background: selectedType === type.value ? '#007bff' : 'transparent',
-                  color: selectedType === type.value ? 'white' : '#666',
-                  fontSize: '14px',
-                  cursor: 'pointer'
-                }}
-                onClick={() => setSelectedType(type.value)}
-              >
-                {type.label}
-              </button>
-            ))}
+        <div className={styles.section}>
+          <h3 className={styles.sectionTitle}>Size Selection Tips</h3>
+          <div className={styles.grid}>
+            <div className={styles.tipCard}>
+              <h4 className={styles.tipTitle}>🎯 Accurate Measurement</h4>
+              <p className={styles.tipDescription}>Keep the tape measure snug but not tight.</p>
+            </div>
+            <div className={styles.tipCard}>
+              <h4 className={styles.tipTitle}>📐 Proper Fit</h4>
+              <p className={styles.tipDescription}>
+                Measure while wearing only undergarments for accuracy.
+              </p>
+            </div>
+            <div className={styles.tipCard}>
+              <h4 className={styles.tipTitle}>📞 Get Help</h4>
+              <p className={styles.tipDescription}>Contact customer service for size assistance.</p>
+            </div>
           </div>
         </div>
       </div>
-
-      <div style={{ background: 'white', borderRadius: '16px', padding: '20px' }}>
-        {selectedType === 'clothing' ? (
-          <div>
-            <h3 style={{ fontSize: '16px', fontWeight: '600', color: '#333', marginBottom: '16px' }}>
-              {selectedCategory === 'women' ? 'Women' : selectedCategory === 'men' ? 'Men' : 'Kids'} Clothing Sizes
-            </h3>
-            <div style={{ overflowX: 'auto' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '8px', minWidth: '500px' }}>
-                <div style={{ fontSize: '14px', fontWeight: '600', color: '#333', padding: '8px', background: '#f8f9fa' }}>Size</div>
-                <div style={{ fontSize: '14px', fontWeight: '600', color: '#333', padding: '8px', background: '#f8f9fa' }}>Chest (cm)</div>
-                <div style={{ fontSize: '14px', fontWeight: '600', color: '#333', padding: '8px', background: '#f8f9fa' }}>Waist (cm)</div>
-                <div style={{ fontSize: '14px', fontWeight: '600', color: '#333', padding: '8px', background: '#f8f9fa' }}>Hip (cm)</div>
-                <div style={{ fontSize: '14px', fontWeight: '600', color: '#333', padding: '8px', background: '#f8f9fa' }}>Height (cm)</div>
-                {getClothingSizeData().map((item: ClothingSize, index: number) => (
-                  <React.Fragment key={index}>
-                    <div style={{ fontSize: '14px', color: '#333', padding: '8px', fontWeight: '500' }}>{item.size}</div>
-                    <div style={{ fontSize: '14px', color: '#666', padding: '8px' }}>{item.chest}</div>
-                    <div style={{ fontSize: '14px', color: '#666', padding: '8px' }}>{item.waist}</div>
-                    <div style={{ fontSize: '14px', color: '#666', padding: '8px' }}>{item.hip}</div>
-                    <div style={{ fontSize: '14px', color: '#666', padding: '8px' }}>{item.length}</div>
-                  </React.Fragment>
-                ))}
-              </div>
-            </div>
-          </div>
-        ) : selectedType === 'shoes' ? (
-          <div>
-            <h3 style={{ fontSize: '16px', fontWeight: '600', color: '#333', marginBottom: '16px' }}>Shoe Sizes</h3>
-            <div style={{ overflowX: 'auto' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '8px', minWidth: '400px' }}>
-                <div style={{ fontSize: '14px', fontWeight: '600', color: '#333', padding: '8px', background: '#f8f9fa' }}>KOR</div>
-                <div style={{ fontSize: '14px', fontWeight: '600', color: '#333', padding: '8px', background: '#f8f9fa' }}>US</div>
-                <div style={{ fontSize: '14px', fontWeight: '600', color: '#333', padding: '8px', background: '#f8f9fa' }}>UK</div>
-                <div style={{ fontSize: '14px', fontWeight: '600', color: '#333', padding: '8px', background: '#f8f9fa' }}>EU</div>
-                <div style={{ fontSize: '14px', fontWeight: '600', color: '#333', padding: '8px', background: '#f8f9fa' }}>Length (cm)</div>
-                {shoeSizes.map((item: ShoeSize, index: number) => (
-                  <React.Fragment key={index}>
-                    <div style={{ fontSize: '14px', color: '#333', padding: '8px', fontWeight: '500' }}>{item.kor}</div>
-                    <div style={{ fontSize: '14px', color: '#666', padding: '8px' }}>{item.us}</div>
-                    <div style={{ fontSize: '14px', color: '#666', padding: '8px' }}>{item.uk}</div>
-                    <div style={{ fontSize: '14px', color: '#666', padding: '8px' }}>{item.eu}</div>
-                    <div style={{ fontSize: '14px', color: '#666', padding: '8px' }}>{item.cm}</div>
-                  </React.Fragment>
-                ))}
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div>
-            <h3 style={{ fontSize: '16px', fontWeight: '600', color: '#333', marginBottom: '16px' }}>Accessory Sizes</h3>
-            <div style={{ padding: '16px', background: '#f8f9fa', borderRadius: '8px' }}>
-              <p style={{ fontSize: '14px', color: '#666', marginBottom: '12px' }}>Most accessories are one-size-fits-all or adjustable.</p>
-              <ul style={{ fontSize: '14px', color: '#666', lineHeight: '1.6', margin: '0', paddingLeft: '20px' }}>
-                <li>Necklaces: Adjustable chain length</li>
-                <li>Rings: Mostly adjustable sizes</li>
-                <li>Bracelets: Adjustable chain length</li>
-                <li>Hats: Head circumference 56-58cm</li>
-                <li>Belts: Adjustable to waist size</li>
-              </ul>
-            </div>
-          </div>
-        )}
-      </div>
-
-      <div style={{ marginTop: '24px' }}>
-        <h3 style={{ fontSize: '16px', fontWeight: '600', color: '#333', marginBottom: '16px', textAlign: 'center' }}>Measurement Guide</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
-          {measurementTips.map((tip, index) => (
-            <div key={index} style={{ background: 'white', borderRadius: '12px', padding: '16px', textAlign: 'center' }}>
-              <div style={{ fontSize: '24px', marginBottom: '8px' }}>{tip.icon}</div>
-              <h4 style={{ fontSize: '14px', fontWeight: '600', color: '#333', margin: '0 0 8px 0' }}>{tip.title}</h4>
-              <p style={{ fontSize: '12px', color: '#666', margin: '0', lineHeight: '1.4' }}>{tip.description}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div style={{ marginTop: '24px' }}>
-        <h3 style={{ fontSize: '16px', fontWeight: '600', color: '#333', marginBottom: '16px', textAlign: 'center' }}>Size Selection Tips</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
-          <div style={{ background: 'white', borderRadius: '12px', padding: '16px', textAlign: 'center' }}>
-            <h4 style={{ fontSize: '14px', fontWeight: '600', color: '#333', margin: '0 0 8px 0' }}>🎯 Accurate Measurement</h4>
-            <p style={{ fontSize: '12px', color: '#666', margin: '0', lineHeight: '1.4' }}>Keep the tape measure snug but not tight.</p>
-          </div>
-          <div style={{ background: 'white', borderRadius: '12px', padding: '16px', textAlign: 'center' }}>
-            <h4 style={{ fontSize: '14px', fontWeight: '600', color: '#333', margin: '0 0 8px 0' }}>📐 Proper Fit</h4>
-            <p style={{ fontSize: '12px', color: '#666', margin: '0', lineHeight: '1.4' }}>Measure while wearing only undergarments for accuracy.</p>
-          </div>
-          <div style={{ background: 'white', borderRadius: '12px', padding: '16px', textAlign: 'center' }}>
-            <h4 style={{ fontSize: '14px', fontWeight: '600', color: '#333', margin: '0 0 8px 0' }}>📞 Get Help</h4>
-            <p style={{ fontSize: '12px', color: '#666', margin: '0', lineHeight: '1.4' }}>Contact customer service for size assistance.</p>
-          </div>
-        </div>
-      </div>
-    </div>
+    </Layout>
   );
 }

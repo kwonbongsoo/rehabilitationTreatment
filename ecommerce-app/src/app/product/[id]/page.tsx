@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import OptimizedImage from '@/components/common/OptimizedImage';
 import { Button } from '@/components/common/Button';
 import styles from './page.module.css';
+import Link from 'next/link';
 
 interface ProductDetailPageProps {
   params: {
@@ -175,7 +176,9 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
         <div className={styles.sizeSection}>
           <div className={styles.sizeHeader}>
             <span className={styles.sizeLabel}>Select size</span>
-            <button className={styles.sizeChartButton}>Size chart</button>
+            <Link className={styles.sizeChartButton} href="/size-guide">
+              Size Guide
+            </Link>
           </div>
           <div className={styles.sizeOptions}>
             {mockProduct.sizes.map((size) => (

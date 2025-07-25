@@ -7,7 +7,7 @@
 .main {
   flex-grow: 1;
   width: 92%;
-  max-width: 1400px;
+  max-width: 500px;
   margin: 0 auto;
   padding: 30px 0;
 }

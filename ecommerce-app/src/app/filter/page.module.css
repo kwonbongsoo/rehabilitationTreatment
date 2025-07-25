@@ -1,0 +1,377 @@
+.filterPage {
+  min-height: 100vh;
+  background: var(--color-background);
+  display: flex;
+  flex-direction: column;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--color-background);
+  border-bottom: none;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.backButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.backButton:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.title {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.content {
+  flex: 1;
+  padding: 0 16px;
+  overflow-y: auto;
+}
+
+.section {
+  margin-bottom: 24px;
+  padding-top: 20px;
+}
+
+.sectionTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0 0 12px 0;
+}
+
+.buttonGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.filterButton {
+  padding: 10px 24px;
+  border: 1px solid #e5e7eb;
+  background: var(--color-background);
+  color: var(--color-text-secondary);
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+  white-space: nowrap;
+  min-width: 60px;
+}
+
+.filterButton:hover {
+  border-color: #3b82f6;
+  background-color: rgba(59, 130, 246, 0.05);
+}
+
+.filterButton.active {
+  background: #4f46e5;
+  color: white;
+  border-color: #4f46e5;
+}
+
+.ratingButton {
+  padding: 10px 16px;
+  border: 1px solid #e5e7eb;
+  background: var(--color-background);
+  color: var(--color-text-secondary);
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+  min-width: 60px;
+  white-space: nowrap;
+}
+
+.ratingButton:hover {
+  border-color: #3b82f6;
+  background-color: rgba(59, 130, 246, 0.05);
+}
+
+.ratingButton.active {
+  background: #4f46e5;
+  color: white;
+  border-color: #4f46e5;
+}
+
+.priceRangeContainer {
+  margin-top: 16px;
+}
+
+.priceInputs {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.priceInput {
+  display: flex;
+  align-items: center;
+}
+
+.priceLabel {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.sliderContainer {
+  position: relative;
+  height: 40px;
+  margin: 0 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.sliderContainer::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: #e5e7eb;
+  border-radius: 3px;
+  transform: translateY(-50%);
+}
+
+.sliderTrack {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 6px;
+  background: #4f46e5;
+  border-radius: 3px;
+  pointer-events: none;
+}
+
+.slider {
+  position: absolute;
+  width: 100%;
+  height: 40px;
+  background: transparent;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  pointer-events: none;
+  top: 0;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: #4f46e5;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 3px solid white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  pointer-events: auto;
+  transition: transform 0.1s ease;
+  margin-top: 0px;
+}
+
+.slider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+}
+
+.slider::-webkit-slider-thumb:active {
+  transform: scale(1.2);
+}
+
+.slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: #4f46e5;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 3px solid white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  pointer-events: auto;
+  transition: transform 0.1s ease;
+}
+
+.slider::-moz-range-thumb:hover {
+  transform: scale(1.1);
+}
+
+.slider::-moz-range-thumb:active {
+  transform: scale(1.2);
+}
+
+.sliderMin {
+  z-index: 3;
+}
+
+.sliderMax {
+  z-index: 4;
+}
+
+.bottomActions {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  border-top: none;
+  background: var(--color-background);
+}
+
+.resetButton {
+  flex: 1;
+  padding: 16px;
+  border: 1px solid #d1d5db;
+  background: var(--color-background);
+  color: var(--color-text-secondary);
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+}
+
+.resetButton:hover {
+  background-color: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.applyButton {
+  flex: 1;
+  padding: 16px;
+  border: none;
+  background: #4f46e5;
+  color: white;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+}
+
+.applyButton:hover {
+  background: #3730a3;
+}
+
+/* 모바일 최적화 */
+@media (max-width: 768px) {
+  .content {
+    padding: 16px;
+  }
+
+  .section {
+    margin-bottom: 28px;
+  }
+
+  .filterButton {
+    font-size: 13px;
+    padding: 7px 14px;
+  }
+
+  .ratingButton {
+    font-size: 12px;
+    padding: 5px 10px;
+    min-width: 42px;
+  }
+
+  .bottomActions {
+    padding: 16px;
+  }
+
+  .resetButton,
+  .applyButton {
+    font-size: 15px;
+    padding: 12px;
+  }
+}
+
+/* 데스크탑에서 모바일 UI 유지 */
+@media (min-width: 1024px) {
+  .filterPage {
+    max-width: 500px;
+    margin: 0 auto;
+    box-shadow: 0 0 30px rgba(11, 143, 172, 0.15);
+    border-radius: 20px;
+    overflow: hidden;
+    height: calc(100vh - 40px);
+    margin-top: 20px;
+  }
+}
+
+/* 다크 모드 지원 */
+@media (prefers-color-scheme: dark) {
+  .filterPage {
+    background: var(--color-background);
+  }
+
+  .header {
+    background: var(--color-background);
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .title {
+    color: var(--color-text);
+  }
+
+  .sectionTitle {
+    color: var(--color-text);
+  }
+
+  .filterButton,
+  .ratingButton {
+    background: var(--color-background);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: var(--color-text-secondary);
+  }
+
+  .resetButton {
+    background: var(--color-background);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: var(--color-text);
+  }
+
+  .resetButton:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+
+  .bottomActions {
+    background: var(--color-background);
+    border-top-color: rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* 접근성 */
+@media (prefers-reduced-motion: reduce) {
+  .filterButton,
+  .ratingButton,
+  .resetButton,
+  .applyButton,
+  .backButton {
+    transition: none;
+  }
+}

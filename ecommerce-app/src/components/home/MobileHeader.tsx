@@ -9,6 +9,7 @@ interface MobileHeaderProps {
   showBackButton?: boolean;
   onSearchClick?: () => void;
   onNotificationClick?: () => void;
+  onFilterClick?: () => void;
   customActionButton?: {
     icon: React.ReactNode;
     onClick: () => void;
@@ -21,6 +22,7 @@ const MobileHeader: React.FC<MobileHeaderProps> = ({
   showBackButton = false,
   onSearchClick,
   onNotificationClick,
+  onFilterClick,
   customActionButton,
 }) => {
   const router = useRouter();
@@ -40,9 +42,17 @@ const MobileHeader: React.FC<MobileHeaderProps> = ({
   const handleNotificationClick = () => {
     if (onNotificationClick) {
       onNotificationClick();
+    }
+  };
+
+  const handleFilterClick = (event: React.MouseEvent) => {
+    // 이벤트 버블링 방지 - 부모의 onClick(서치바 클릭) 실행 방지
+    event.stopPropagation();
+
+    if (onFilterClick) {
+      onFilterClick();
     } else {
-      // 알림 페이지로 이동하거나 알림 모달 열기
-      console.log('Notification clicked');
+      router.push('/filter');
     }
   };
 
@@ -84,9 +94,21 @@ const MobileHeader: React.FC<MobileHeaderProps> = ({
       <div className={styles.searchSection}>
         <div className={styles.searchBar} onClick={handleSearchClick}>
           <span className={styles.searchIcon}>🔍</span>
-          <span className={styles.searchPlaceholder}>검색해보세요</span>
-          <button className={styles.filterButton} aria-label="필터">
-            <span className={styles.filterIcon}>⚙️</span>
+          <span className={styles.searchPlaceholder}>Search</span>
+          <button className={styles.filterButton} onClick={handleFilterClick} aria-label="필터">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              className={styles.filterIcon}
+            >
+              <rect x="3" y="4" width="2" height="16" fill="white" rx="1" />
+              <rect x="7" y="2" width="2" height="20" fill="white" rx="1" />
+              <rect x="11" y="6" width="2" height="12" fill="white" rx="1" />
+              <rect x="15" y="3" width="2" height="18" fill="white" rx="1" />
+              <rect x="19" y="5" width="2" height="14" fill="white" rx="1" />
+            </svg>
           </button>
         </div>
       </div>
