@@ -20,8 +20,8 @@ graph TB
         end
 
         subgraph "Core Services"
-            Auth[Auth 서비스<br/>Koa.js<br/>:3002<br/>• JWT 발급/검증<br/>• 사용자 인증]
-            Member[Member 서비스<br/>Fastify<br/>:3003<br/>• 회원 관리<br/>• CRUD 연산]
+            Auth[Auth 서비스<br/>Koa.js<br/>:4000<br/>• JWT 발급/검증<br/>• 사용자 인증]
+            Member[Member 서비스<br/>Fastify<br/>:5000<br/>• 회원 관리<br/>• CRUD 연산]
             BFF[BFF Server<br/>Fastify<br/>:3001<br/>• API 집계<br/>• 데이터 변환]
         end
 
@@ -370,8 +370,8 @@ REDIS_DB=0
 IDEMPOTENCY_TTL=3600
 
 # 서비스 URL
-MEMBER_SERVER_URL=http://fastify-member-server:3003
-AUTH_SERVER_URL=http://koa-auth-server:3002
+MEMBER_SERVER_URL=http://fastify-member-server:5000
+AUTH_SERVER_URL=http://koa-auth-server:4000
 BFF_SERVER_URL=http://bff-server:3001
 
 # 활성 플러그인
@@ -396,8 +396,8 @@ docker-compose up --build
 |--------|------|-----|------|
 | Kong Gateway | 8000 | http://localhost:8000 | API Gateway 프록시 |
 | BFF Server | 3001 | http://localhost:3001 | Backend for Frontend |
-| Auth Server | 3002 | http://localhost:4000 | 인증 서비스 |
-| Member Server | 3003 | http://localhost:5000 | 회원 서비스 |
+| Auth Server | 4000 | http://localhost:4000 | 인증 서비스 |
+| Member Server | 5000 | http://localhost:5000 | 회원 서비스 |
 | Frontend | 3000 | http://localhost:3000 | 웹 애플리케이션 |
 
 ## 📊 API 사용 예시
