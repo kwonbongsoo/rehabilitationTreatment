@@ -1,0 +1,164 @@
+.mobileAuthContainer {
+  min-height: 100vh;
+  background: #f8f9fa;
+  padding: 40px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.authHeader {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.authTitle {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 12px 0;
+}
+
+.authSubtitle {
+  font-size: 16px;
+  color: #666;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.authForm {
+  margin-bottom: 32px;
+}
+
+.forgotPassword {
+  text-align: center;
+  margin-top: 24px;
+}
+
+.forgotLink {
+  color: #4f46e5;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.forgotLink:hover {
+  text-decoration: underline;
+}
+
+.authFooter {
+  text-align: center;
+}
+
+.footerText {
+  font-size: 14px;
+  color: #666;
+  margin: 0 0 8px 0;
+}
+
+.signupLink {
+  color: #4f46e5;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.signupLink:hover {
+  text-decoration: underline;
+}
+
+/* Form styles - using CSS Modules approach */
+.authForm :global(.mobile-auth-form) {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.authForm :global(.form-group) {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.authForm :global(.form-input) {
+  width: 100%;
+  padding: 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  font-size: 16px;
+  background: white;
+  color: #333;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.authForm :global(.form-input:focus) {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.authForm :global(.form-input::placeholder) {
+  color: #9ca3af;
+}
+
+.authForm :global(.error-text) {
+  color: #ef4444;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.authForm :global(.auth-submit-button) {
+  background: #4f46e5 !important;
+  border: none !important;
+  border-radius: 12px !important;
+  padding: 16px !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  color: white !important;
+  transition: all 0.2s ease !important;
+}
+
+.authForm :global(.auth-submit-button:hover) {
+  background: #4338ca !important;
+  transform: translateY(-1px);
+}
+
+.authForm :global(.auth-submit-button:disabled) {
+  background: #9ca3af !important;
+  transform: none !important;
+  cursor: not-allowed !important;
+}
+
+.authForm :global(.checkbox-container) {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.authForm :global(.checkbox-input) {
+  width: 20px;
+  height: 20px;
+  accent-color: #4f46e5;
+  cursor: pointer;
+}
+
+.authForm :global(.checkbox-text) {
+  font-size: 14px;
+  color: #666;
+  line-height: 1.4;
+}
+
+@media (max-width: 480px) {
+  .mobileAuthContainer {
+    padding: 32px 20px 20px;
+  }
+  
+  .authTitle {
+    font-size: 24px;
+  }
+  
+  .authSubtitle {
+    font-size: 14px;
+  }
+}

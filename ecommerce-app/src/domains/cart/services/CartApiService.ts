@@ -3,7 +3,7 @@
  *
  * 장바구니 관련 API 통신을 담당합니다.
  */
-import type { CartItem, AddToCartRequest } from '../types/cart';
+import type { CartItem } from '../types/cart';
 import type { CheckoutRequest, CheckoutResponse } from '../types/checkout';
 
 export class CartApiService {

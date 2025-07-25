@@ -10,7 +10,6 @@ import { AuthProvider } from './AuthProvider';
 
 interface AppProvidersProps {
   children: ReactNode;
-  initialUser?: import('@/domains/auth/types/auth').UserResponse | null;
 }
 
 // UI 설정 서비스 인스턴스 (싱글톤 패턴)
@@ -18,20 +17,19 @@ const uiConfigService = createUIConfigurationService();
 const uiConfig = uiConfigService.createConfiguration();
 
 /**
- * 애플리케이션 전역 프로바이더 컴포넌트
+ * 애플리케이션 전역 프로바이더 컴포넌트 - 정적 버전
  *
- * 관심사 분리:
- * - 모든 Provider 초기화 로직을 한곳에 집중
- * - _app.tsx에서 렌더링 로직 분리
- * - 테스트 가능한 구조
- * - AuthProvider로 인증 상태 초기화 (렌더링 최적화)
+ * 실무 베스트 프랙티스:
+ * - Layout은 완전 정적으로 유지
+ * - 서버에서 인증 상태 초기화하지 않음
+ * - 클라이언트에서 필요시에만 인증 상태 로드
  */
-export function AppProviders({ children, initialUser = null }: AppProvidersProps) {
+export function AppProviders({ children }: AppProvidersProps) {
   const { queryClient, toastConfig, devtoolsConfig } = uiConfig;
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider initialUser={initialUser}>{children}</AuthProvider>
+      <AuthProvider>{children}</AuthProvider>
       <ToastContainer
         {...Object.fromEntries(
           Object.entries(toastConfig).filter(([_, value]) => value !== undefined),

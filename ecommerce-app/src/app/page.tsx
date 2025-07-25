@@ -1,60 +1,69 @@
 'use client';
 
-import UIComponentRenderer from '@/components/home/UIComponentRenderer';
-import HomeSkeleton from '@/components/skeleton/HomeSkeleton';
-import styles from '@/styles/common/Layout.module.css';
-import { HomePageResponse, UIComponent } from '@/types/home';
 import { useEffect, useState } from 'react';
-import { useErrorHandler } from '@/hooks/useErrorHandler';
-import homePageData from '@/mocks/home-page.json';
+import UIComponentRenderer from '@/components/home/UIComponentRenderer';
+import MobileHeader from '@/components/home/MobileHeader';
+import HomeSkeleton from '@/components/skeleton/HomeSkeleton';
+import styles from '@/styles/home/HomePage.module.css';
+import { HomePageResponse, UIComponent } from '@/types/home';
+import { getHomeDataAction } from './actions/home';
 
 export default function HomePage() {
-  // 커스텀 에러 핸들러 훅 사용
-  const { handleError } = useErrorHandler();
-
-  // 목 데이터 직접 사용하기 (API 호출 없이)
   const [homeData, setHomeData] = useState<HomePageResponse | null>(null);
-  const [isHomeDataLoading, setIsHomeDataLoading] = useState(true);
-  const [homeDataError, setHomeDataError] = useState<Error | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // 목 데이터 로딩 시뮬레이션
   useEffect(() => {
-    const loadMockData = async () => {
+    async function loadHomeData() {
       try {
-        await new Promise((resolve) => setTimeout(resolve, 300));
-        setHomeData(homePageData as HomePageResponse);
-        setIsHomeDataLoading(false);
-      } catch (error) {
-        console.error('Error loading mock data:', error);
-        setHomeDataError(error as Error);
-        setIsHomeDataLoading(false);
-      }
-    };
+        setIsLoading(true);
+        setError(null);
 
-    loadMockData();
+        const data = await getHomeDataAction();
+        setHomeData(data);
+      } catch (err) {
+        console.error('Error loading home data:', err);
+        const errorMessage =
+          err instanceof Error ? err.message : '페이지를 불러오는데 실패했습니다.';
+        setError(errorMessage);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadHomeData();
   }, []);
 
-  // 홈 데이터 에러 처리
-  useEffect(() => {
-    if (homeDataError) {
-      // React Error #185 방지를 위해 다음 틱에서 실행
-      setTimeout(() => {
-        handleError(homeDataError);
-      }, 0);
-    }
-  }, [homeDataError, handleError]);
+  if (isLoading) {
+    return (
+      <div className={styles.homeContainer}>
+        <MobileHeader />
+        <HomeSkeleton />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={styles.homeContainer}>
+        <MobileHeader />
+        <main className={styles.main}>
+          <div className={styles.errorMessage}>{error}</div>
+        </main>
+      </div>
+    );
+  }
 
   return (
-    <main className={styles.main}>
-      {isHomeDataLoading ? (
-        <HomeSkeleton />
-      ) : homeData?.components ? (
-        homeData.components.map((component: UIComponent) => (
-          <UIComponentRenderer key={component.id} component={component} />
-        ))
-      ) : (
-        <div>페이지를 불러오는 데 문제가 발생했습니다.</div>
-      )}
-    </main>
+    <div className={styles.homeContainer}>
+      <MobileHeader />
+      <main className={styles.main}>
+        <div className={styles.content}>
+          {homeData?.components?.map((component: UIComponent) => (
+            <UIComponentRenderer key={component.id} component={component} />
+          ))}
+        </div>
+      </main>
+    </div>
   );
 }

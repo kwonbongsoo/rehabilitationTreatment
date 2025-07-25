@@ -1,16 +1,18 @@
+'use client';
+
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import OptimizedImage from '@/components/common/OptimizedImage';
 import styles from '@/styles/home/Banner.module.css';
-import { Slide, BannerProps, DEFAULT_BANNER_CONFIG } from '@/types/banner.types';
+import { BannerProps, DEFAULT_BANNER_CONFIG } from '@/types/banner.types';
 
 export default function Banner({
   slides,
   autoPlay = DEFAULT_BANNER_CONFIG.autoPlay,
   autoPlayInterval = DEFAULT_BANNER_CONFIG.autoPlayInterval,
   showDots = DEFAULT_BANNER_CONFIG.showDots,
-  showArrows = DEFAULT_BANNER_CONFIG.showArrows,
-  imageSizes = DEFAULT_BANNER_CONFIG.imageSizes,
+  showArrows: _showArrows = DEFAULT_BANNER_CONFIG.showArrows,
+  imageSizes: _imageSizes = DEFAULT_BANNER_CONFIG.imageSizes,
   className = '',
 }: BannerProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -30,13 +32,13 @@ export default function Banner({
     setCurrentSlide(index);
   }, []);
 
-  const goToPrevSlide = useCallback(() => {
-    setCurrentSlide((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
-  }, [slides.length]);
+  // const goToPrevSlide = useCallback(() => {
+  //   setCurrentSlide((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
+  // }, [slides.length]);
 
-  const goToNextSlide = useCallback(() => {
-    setCurrentSlide((prev) => (prev + 1) % slides.length);
-  }, [slides.length]);
+  // const goToNextSlide = useCallback(() => {
+  //   setCurrentSlide((prev) => (prev + 1) % slides.length);
+  // }, [slides.length]);
 
   if (slides.length === 0) return null;
   return (
@@ -47,55 +49,37 @@ export default function Banner({
             key={slide.id}
             className={`${styles.slide} ${index === currentSlide ? styles.activeSlide : ''}`}
           >
-            <div className={styles.imageContainer}>
-              <OptimizedImage
-                src={slide.src}
-                alt={slide.alt}
-                fill
-                priority={index === 0} // 첫 번째 슬라이드만 우선순위
-                className={styles.sliderImage}
-                sizes={imageSizes}
-              />
-            </div>
-            <div className={styles.slideContent}>
-              <h2>{slide.title || slide.alt}</h2>
-              {slide.description && <p className={styles.slideDescription}>{slide.description}</p>}
-              <Link href={slide.link} className={styles.sliderButton}>
-                {slide.buttonText || '자세히 보기'}
-              </Link>
-            </div>
+            <Link href={slide.link} className={styles.slideLink}>
+              <div className={styles.slideContent}>
+                <div className={styles.textContent}>
+                  <h3 className={styles.slideTitle}>New collection</h3>
+                  <p className={styles.slideSubtitle}>Discount 50% for the first transaction</p>
+                  <button className={styles.shopButton}>Shop now</button>
+                </div>
+                <div className={styles.imageContainer}>
+                  <OptimizedImage
+                    src={slide.src}
+                    alt={slide.alt}
+                    width={120}
+                    height={160}
+                    priority={index === 0}
+                    className={styles.sliderImage}
+                  />
+                </div>
+              </div>
+            </Link>
           </div>
         ))}
-
-        {/* 화살표 네비게이션 */}
-        {showArrows && slides.length > 1 && (
-          <>
-            <button
-              className={`${styles.arrowButton} ${styles.prevButton}`}
-              onClick={goToPrevSlide}
-              aria-label="이전 슬라이드"
-            >
-              &#8249;
-            </button>
-            <button
-              className={`${styles.arrowButton} ${styles.nextButton}`}
-              onClick={goToNextSlide}
-              aria-label="다음 슬라이드"
-            >
-              &#8250;
-            </button>
-          </>
-        )}
 
         {/* 도트 네비게이션 */}
         {showDots && slides.length > 1 && (
           <div className={styles.sliderDots}>
-            {slides.map((slide, index) => (
+            {slides.map((_, index) => (
               <button
                 key={index}
                 className={`${styles.dot} ${index === currentSlide ? styles.activeDot : ''}`}
                 onClick={() => goToSlide(index)}
-                aria-label={`${slide.title || slide.alt} 슬라이드로 이동`}
+                aria-label={`슬라이드 ${index + 1}로 이동`}
               />
             ))}
           </div>

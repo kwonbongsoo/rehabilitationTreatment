@@ -4,14 +4,12 @@ import { cookies } from 'next/headers';
 import {
   LoginRequest,
   LoginResponse,
-  ProxyLoginResponse,
   RegisterRequest,
   RegisterResponse,
   ForgotPasswordRequest,
-  SessionInfoResponse,
   LogoutResponse,
 } from '@/domains/auth/types/auth';
-import { apiService } from '@/api/apiClient';
+import { AUTH_SERVICE_URL, KONG_GATEWAY_URL } from '@/api/config';
 
 /**
  * 로그인 서버 액션
@@ -21,11 +19,39 @@ import { apiService } from '@/api/apiClient';
  * 3. 클라이언트에는 최소한의 정보만 반환한다.
  */
 export async function login(credentials: LoginRequest): Promise<LoginResponse> {
-  // 1) API 호출
-  const response = await apiService.login(credentials);
+  // 1) API 호출 - Basic Auth 사용
+  const authBasicKey = process.env.AUTH_BASIC_KEY;
+  if (!authBasicKey) {
+    throw new Error('AUTH_BASIC_KEY 환경 변수가 설정되어 있지 않습니다.');
+  }
+
+  const cookieStore = await cookies();
+  const existingToken = cookieStore.get('access_token')?.value;
+  
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    'Authorization': `Basic ${Buffer.from(authBasicKey).toString('base64')}`,
+  };
+  
+  // 기존 게스트 토큰이 있으면 X-Previous-Token으로 전달 (게스트 토큰 만료용)
+  if (existingToken) {
+    headers['X-Previous-Token'] = existingToken;
+  }
+
+  const apiResponse = await fetch(`${AUTH_SERVICE_URL}/api/auth/login`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(credentials),
+    cache: 'no-store',
+  });
+
+  if (!apiResponse.ok) {
+    throw new Error(`HTTP error! status: ${apiResponse.status}`);
+  }
+
+  const response = await apiResponse.json();
 
   // 2) 쿠키 저장
-  const cookieStore = await cookies();
   const isProduction = process.env.NODE_ENV === 'production';
   // Ensure response matches expected structure
   if (!response || typeof response !== 'object' || !('data' in response)) {
@@ -43,7 +69,7 @@ export async function login(credentials: LoginRequest): Promise<LoginResponse> {
       secure: isProduction,
       sameSite: 'lax',
       path: '/',
-      maxAge: 60 * 60 * 24 * 7,
+      maxAge: maxAge,
     });
   }
 
@@ -76,9 +102,30 @@ export async function logout(): Promise<LogoutResponse> {
   // 1) 백엔드 로그아웃 호출 (실패해도 쿠키는 삭제)
   const cookieStore = await cookies();
   try {
-    const response = await apiService.logout();
+    const accessToken = cookieStore.get('access_token')?.value;
+    
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    
+    if (accessToken) {
+      headers['Authorization'] = `Bearer ${accessToken}`;
+    }
+
+    const apiResponse = await fetch(`${AUTH_SERVICE_URL}/api/auth/logout`, {
+      method: 'POST',
+      headers,
+      cache: 'no-store',
+    });
+
+    if (!apiResponse.ok && apiResponse.status !== 401) {
+      throw new Error(`HTTP error! status: ${apiResponse.status}`);
+    }
+
+    const response = await apiResponse.json();
     return response;
   } catch (error) {
+    console.error('logout error', error);
     return {
       success: false,
       message: '로그아웃에 실패했습니다.',
@@ -99,10 +146,37 @@ export async function register(
   // 멱등성 키가 없으면 서버에서 생성 (안전 장치)
   const key = idempotencyKey ?? `register_${Date.now()}_${crypto.randomUUID()}`;
 
-  // 1) 백엔드 회원가입 호출
-  const response = await apiService.register(userData, key);
+  const cookieStore = await cookies();
+  const accessToken = cookieStore.get('access_token')?.value;
 
-  return response as unknown as RegisterResponse;
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    'X-Idempotency-Key': key,
+  };
+
+  if (accessToken) {
+    headers['Authorization'] = `Bearer ${accessToken}`;
+  }
+
+  // 1) Kong Gateway를 통한 회원가입 호출
+  const apiResponse = await fetch(`${KONG_GATEWAY_URL}/api/members`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({
+      id: userData.id,
+      password: userData.password,
+      name: userData.name,
+      email: userData.email,
+    }),
+    cache: 'no-store',
+  });
+
+  if (!apiResponse.ok) {
+    throw new Error(`HTTP error! status: ${apiResponse.status}`);
+  }
+
+  const response = await apiResponse.json();
+  return response.data as RegisterResponse;
 }
 
 /**
@@ -115,20 +189,3 @@ export async function forgotPassword(_request: ForgotPasswordRequest): Promise<v
   throw new Error('Forgot password API is not implemented yet.');
 }
 
-/**
- * 세션 정보 조회 서버 액션
- *
- * 1. 쿠키에서 access_token 추출
- * 2. 인증 서버에 세션 정보 요청
- */
-export async function getSessionInfo(): Promise<SessionInfoResponse> {
-  const cookieStore = await cookies();
-  const tokenExists = Boolean(cookieStore.get('access_token')?.value);
-
-  if (!tokenExists) {
-    const { AuthenticationError } = await import('@ecommerce/common');
-    throw new AuthenticationError('인증이 필요합니다.'); // 401
-  }
-
-  return apiService.getSessionInfo();
-}

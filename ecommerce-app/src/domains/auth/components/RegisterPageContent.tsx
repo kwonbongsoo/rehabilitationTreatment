@@ -1,9 +1,8 @@
 import React from 'react';
 import Link from 'next/link';
 import { RegisterForm } from './RegisterForm';
-import { Divider } from './Divider';
 import { useRegisterForm } from '@/domains/auth/hooks/useRegisterForm';
-import styles from '@/styles/templates/UserFormLayout.module.css';
+import styles from '@/styles/auth/MobileAuth.module.css';
 
 export default function RegisterPageContent() {
   const { handleRegister, isLoading } = useRegisterForm();
@@ -31,17 +30,22 @@ export default function RegisterPageContent() {
   );
 
   return (
-    <>
-      <RegisterForm onSubmit={onSubmit} isLoading={isLoading} />
+    <div className={styles.mobileAuthContainer}>
+      <div className={styles.authHeader}>
+        <h1 className={styles.authTitle}>Create Account</h1>
+        <p className={styles.authSubtitle}>Fill your information below or register with your social account.</p>
+      </div>
 
-      <Divider text="또는" />
+      <div className={`${styles.authForm}`}>
+        <RegisterForm onSubmit={onSubmit} isLoading={isLoading} />
+      </div>
 
-      <div className={styles.linkContainer}>
-        <p>이미 계정이 있으신가요?</p>
-        <Link href="/auth/login" className={styles.primaryLink}>
-          로그인
+      <div className={styles.authFooter}>
+        <p className={styles.footerText}>Already have an account?</p>
+        <Link href="/auth/login" className={styles.signupLink}>
+          Sign in
         </Link>
       </div>
-    </>
+    </div>
   );
 }

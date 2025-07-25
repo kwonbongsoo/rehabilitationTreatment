@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import { ReactNode } from 'react';
-import styles from '@/styles/templates/UserFormLayout.module.css';
+// import styles from '@/styles/templates/UserFormLayout.module.css';
 
 interface UserFormLayoutProps {
   children: ReactNode;
@@ -22,14 +22,14 @@ export default function UserFormLayout({
         <meta name="description" content={description} />
       </Head>
 
-      <div className={styles.container}>
-        <div className={styles.card}>
-          <div className={styles.logoContainer}>
-            <h1 className={styles.logo}>SHOP</h1>
-            <p className={styles.tagline}>당신의 쇼핑을 더 스마트하게</p>
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8f9fa', padding: '20px' }}>
+        <div style={{ background: 'white', borderRadius: '16px', padding: '40px', width: '100%', maxWidth: '400px', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
+          <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+            <h1 style={{ fontSize: '32px', fontWeight: '700', color: '#007bff', margin: '0 0 8px 0' }}>SHOP</h1>
+            <p style={{ fontSize: '14px', color: '#666', margin: '0' }}>당신의 쇼핑을 더 스마트하게</p>
           </div>
 
-          {errorMessage && <div className={styles.errorMessage}>{errorMessage}</div>}
+          {errorMessage && <div style={{ background: '#f8d7da', color: '#721c24', padding: '12px', borderRadius: '8px', marginBottom: '20px', fontSize: '14px' }}>{errorMessage}</div>}
 
           {children}
         </div>

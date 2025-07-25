@@ -1,53 +1,160 @@
-.promoSection {
-    margin: var(--spacing-xxl) 0;
+.promotionSection {
+  padding: 16px;
+  background: transparent;
 }
 
-.promoCard {
-    width: 100%;
-    height: 200px;
-    background: linear-gradient(135deg, var(--color-primary) 0%, #8b5cf6 100%);
-    border-radius: 12px;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    padding: var(--spacing-xl);
+.promotionCard {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  border-radius: 20px;
+  padding: 24px 20px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(11, 143, 172, 0.3);
+  font-family: 'Poppins', sans-serif;
 }
 
-.promoContent {
-    color: white;
+.promotionContent {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  color: white;
 }
 
-.promoTitle {
-    font-size: var(--font-size-xl);
-    margin-bottom: var(--spacing-md);
+.promotionTitle {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 12px 0;
+  line-height: 1.3;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.promoText {
-    margin-bottom: var(--spacing-lg);
-    font-size: var(--font-size-md);
+.promotionDescription {
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0 0 20px 0;
+  opacity: 0.95;
+  max-width: 280px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-.promoButton {
-    display: inline-block;
-    background-color: white;
-    color: var(--color-primary);
-    padding: var(--spacing-md) var(--spacing-lg);
-    border-radius: 6px;
-    font-weight: 600;
-    transition: all var(--transition-fast);
+.promotionButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  color: var(--color-primary);
+  padding: 12px 24px;
+  border-radius: 25px;
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+  min-width: 120px;
+  font-family: 'Poppins', sans-serif;
 }
 
-.promoButton:hover {
-    background-color: rgba(255, 255, 255, 0.9);
-    transform: translateY(-2px);
+.promotionButton:hover {
+  background: #f8fafc;
+  color: var(--color-primary-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(255, 255, 255, 0.4);
 }
 
-@media (max-width: 480px) {
-    .promoTitle {
-        font-size: var(--font-size-lg);
-    }
+.promotionDecoration {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  z-index: 1;
+}
 
-    .promoText {
-        font-size: var(--font-size-sm);
-    }
+.circle1 {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  top: -40px;
+  right: -40px;
+  opacity: 0.6;
+}
+
+.circle2 {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 50%;
+  bottom: -20px;
+  left: -20px;
+  opacity: 0.8;
+}
+
+/* 작은 모바일 화면 최적화 */
+@media (max-width: 375px) {
+  .promotionCard {
+    padding: 20px 16px;
+  }
+
+  .promotionTitle {
+    font-size: 18px;
+  }
+
+  .promotionDescription {
+    font-size: 13px;
+    margin-bottom: 16px;
+  }
+
+  .promotionButton {
+    padding: 10px 20px;
+    font-size: 13px;
+  }
+}
+
+/* 큰 모바일 화면 */
+@media (min-width: 480px) {
+  .promotionCard {
+    padding: 28px 24px;
+    border-radius: 24px;
+  }
+
+  .promotionTitle {
+    font-size: 22px;
+  }
+
+  .promotionDescription {
+    font-size: 15px;
+    max-width: 320px;
+  }
+
+  .circle1 {
+    width: 140px;
+    height: 140px;
+    top: -50px;
+    right: -50px;
+  }
+
+  .circle2 {
+    width: 100px;
+    height: 100px;
+    bottom: -30px;
+    left: -30px;
+  }
+}
+
+/* 다크모드 지원 */
+@media (prefers-color-scheme: dark) {
+  .promotionButton {
+    background: rgba(255, 255, 255, 0.95);
+    color: #1e40af;
+  }
+
+  .promotionButton:hover {
+    background: rgba(248, 250, 252, 0.98);
+    color: #1e40af;
+  }
 }

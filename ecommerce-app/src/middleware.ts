@@ -102,7 +102,7 @@ async function issueGuestToken(): Promise<{
       role: data.data.role || 'guest',
       maxAge,
     };
-  } catch (error) {
+  } catch {
     throw new Error('Failed to issue guest token');
   }
 }
@@ -134,7 +134,7 @@ export async function middleware(request: NextRequest) {
       }
     }
     return NextResponse.next();
-  } catch (error) {
+  } catch {
     return NextResponse.next();
   }
 }

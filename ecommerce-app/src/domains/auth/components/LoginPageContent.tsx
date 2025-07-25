@@ -2,11 +2,10 @@
 
 import { useLoginForm } from '@/domains/auth/hooks/useLoginForm';
 import { useAuth } from '@/domains/auth/stores';
-import styles from '@/styles/templates/UserFormLayout.module.css';
+import styles from '@/styles/auth/MobileAuth.module.css';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import { Divider } from './Divider';
 import { LoginForm } from './LoginForm';
 
 export default function LoginPageContent() {
@@ -24,23 +23,28 @@ export default function LoginPageContent() {
   }, [isClientSide, router, isGuest]);
 
   return (
-    <>
-      <LoginForm onSubmit={handleLogin} isLoading={isLoading} />
-
-      <div className={styles.linkContainer}>
-        <Link href="/auth/forgot-password" className={styles.link}>
-          비밀번호를 잊으셨나요?
-        </Link>
+    <div className={styles.mobileAuthContainer}>
+      <div className={styles.authHeader}>
+        <h1 className={styles.authTitle}>Hi Welcome</h1>
+        <p className={styles.authSubtitle}>Hello again, you&apos;ve been missed!</p>
       </div>
 
-      <Divider text="또는" />
+      <div className={`${styles.authForm}`}>
+        <LoginForm onSubmit={handleLogin} isLoading={isLoading} />
 
-      <div className={styles.linkContainer}>
-        <p>계정이 없으신가요?</p>
-        <Link href="/auth/register" className={styles.primaryLink}>
-          회원가입
+        <div className={styles.forgotPassword}>
+          <Link href="/auth/forgot-password" className={styles.forgotLink}>
+            Forgot your password?
+          </Link>
+        </div>
+      </div>
+
+      <div className={styles.authFooter}>
+        <p className={styles.footerText}>Don&apos;t have an account?</p>
+        <Link href="/auth/register" className={styles.signupLink}>
+          Sign up for free
         </Link>
       </div>
-    </>
+    </div>
   );
 }

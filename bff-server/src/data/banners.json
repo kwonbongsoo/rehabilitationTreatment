@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "imageUrl": "https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg",
+    "altText": "여름 시즌 세일",
+    "linkUrl": "/products/seasonal",
+    "order": 1,
+    "isActive": true
+  },
+  {
+    "id": 2,
+    "imageUrl": "https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg",
+    "altText": "신상품 컬렉션",
+    "linkUrl": "/products/new",
+    "order": 2,
+    "isActive": true
+  },
+  {
+    "id": 3,
+    "imageUrl": "https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg",
+    "altText": "특별 할인 이벤트",
+    "linkUrl": "/products/sale",
+    "order": 3,
+    "isActive": true
+  }
+]

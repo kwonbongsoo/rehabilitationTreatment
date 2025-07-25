@@ -1,22 +1,43 @@
 .categorySection {
-    margin: var(--spacing-xxl) 0;
-    overflow: hidden;
+    margin: 24px 16px;
+}
+
+.sectionHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.sectionTitle {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+}
+
+.seeAllLink {
+    font-size: 12px;
+    color: #4f46e5;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.seeAllLink:hover {
+    text-decoration: underline;
 }
 
 .categoriesWrapper {
-    display: flex;
-    justify-content: center;
+    overflow: hidden;
 }
 
 .categories {
     display: flex;
-    flex-wrap: nowrap;
-    gap: var(--spacing-md);
+    gap: 16px;
     overflow-x: auto;
-    padding: var(--spacing-md) 0;
+    padding: 8px 0;
     scrollbar-width: none;
     -ms-overflow-style: none;
-    justify-content: center;
 }
 
 .categories::-webkit-scrollbar {
@@ -27,29 +48,50 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: var(--spacing-md);
-    min-width: 100px;
+    min-width: 60px;
     flex-shrink: 0;
-    transition: transform var(--transition-fast);
+    text-decoration: none;
+    transition: transform 0.2s ease;
 }
 
 .category:hover {
-    transform: translateY(-5px);
+    transform: translateY(-2px);
+}
+
+.categoryIconContainer {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 8px;
+    transition: all 0.2s ease;
+}
+
+.category:first-child .categoryIconContainer {
+    background: #4f46e5;
+}
+
+.category:first-child .categoryIcon {
+    color: white;
 }
 
 .categoryIcon {
-    font-size: 2.5rem;
-    margin-bottom: var(--spacing-sm);
+    font-size: 20px;
+    color: #4f46e5;
 }
 
 .categoryName {
-    font-size: var(--font-size-sm);
+    font-size: 11px;
+    color: #666;
     text-align: center;
+    font-weight: 500;
 }
 
 @media (max-width: 480px) {
-    .category {
-        min-width: 80px;
-        padding: var(--spacing-sm);
+    .categorySection {
+        margin: 20px 12px;
     }
 }

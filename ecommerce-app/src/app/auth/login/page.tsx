@@ -20,26 +20,11 @@ const LoginPageClient = dynamic(() => import('@/domains/auth/components/LoginPag
   ),
 });
 
-const UserFormLayoutClient = dynamic(() => import('@/components/templates/UserFormLayout'), {
-  ssr: false,
-  loading: () => (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh',
-      }}
-    >
-      <LoadingIndicator />
-    </div>
-  ),
-});
 
 export default function LoginPage() {
   return (
-    <UserFormLayoutClient title="로그인" description="쇼핑몰 로그인 페이지">
+    <div style={{ minHeight: '100vh', background: '#f8f9fa' }}>
       <LoginPageClient />
-    </UserFormLayoutClient>
+    </div>
   );
 }

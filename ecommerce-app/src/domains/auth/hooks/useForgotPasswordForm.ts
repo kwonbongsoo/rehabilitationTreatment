@@ -7,7 +7,6 @@
 import { useState } from 'react';
 import { authValidationService } from '@/domains/auth/services';
 import { ErrorHandler } from '@/utils/errorHandling';
-import { NotificationManager } from '@/utils/notifications';
 import { useCallback } from 'react';
 import { forgotPassword as forgotPasswordAction } from '@/app/actions/auth';
 import { ForgotPasswordRequest } from '@/domains/auth/types/auth';
@@ -25,7 +24,7 @@ interface UseForgotPasswordFormReturn {
  * 공통 모듈을 활용하여 간소화됨
  */
 export function useForgotPasswordForm(): UseForgotPasswordFormReturn {
-  const [isLoading, setIsLoading] = useState(false);
+  const [, setIsLoading] = useState(false);
   const handleForgotPassword = useCallback(
     async (request: ForgotPasswordRequest): Promise<void> => {
       try {

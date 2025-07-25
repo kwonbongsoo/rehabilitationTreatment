@@ -1,14 +1,13 @@
 'use client';
 
-import { Button } from '@/components/common/Button';
 import { ConfirmDialog } from '@/components/common/Modal';
 import { useLogoutForm } from '@/domains/auth/hooks/useLogoutForm';
 import { useAuth } from '@/domains/auth/stores';
 import { ErrorHandler } from '@/utils/errorHandling';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { FiEdit, FiHeart, FiLogOut, FiSettings, FiShoppingBag, FiUser } from 'react-icons/fi';
-import styles from './page.module.css';
+import { FiHeart, FiLogOut, FiSettings, FiShoppingBag, FiUser } from 'react-icons/fi';
+import styles from '@/styles/account/MobileAccount.module.css';
 
 export default function AccountPage() {
   const router = useRouter();
@@ -48,85 +47,63 @@ export default function AccountPage() {
 
   return (
     <>
-      <div className={styles.container}>
-        <div className={styles.content}>
-          {/* 사용자 정보 헤더 */}
-          <div className={styles.userHeader}>
-            <div className={styles.userAvatar}>
-              <FiUser size={40} />
+      <div className={styles.mobileAccountContainer}>
+        {/* 헤더 */}
+        <div className={styles.accountHeader}>
+          <h1 className={styles.accountTitle}>Profile</h1>
+        </div>
+
+        {/* 사용자 정보 카드 */}
+        <div className={styles.userCard}>
+          <div className={styles.userAvatar}>
+            <FiUser size={32} />
+          </div>
+          <div className={styles.userInfo}>
+            <h2 className={styles.userName}>{user?.name || 'User'}</h2>
+            <p className={styles.userEmail}>{user?.email || 'user@example.com'}</p>
+          </div>
+        </div>
+
+        {/* 메뉴 리스트 */}
+        <div className={styles.menuList}>
+          <div className={styles.menuItem} onClick={() => router.push('/account/orders')}>
+            <div className={styles.menuIcon}>
+              <FiShoppingBag size={20} />
             </div>
-            <div className={styles.userInfo}>
-              <h1 className={styles.userName}>{user?.name || '사용자'}</h1>
-              <p className={styles.userEmail}>{user?.email}</p>
-              <span className={styles.userRole}>
-                {user?.role === 'admin' ? '관리자' : '일반 회원'}
-              </span>
-            </div>
-            <Button
-              variant="outline"
-              size="small"
-              icon={<FiEdit />}
-              onClick={() => router.push('/account/profile')}
-            >
-              프로필 수정
-            </Button>
+            <span className={styles.menuText}>Orders</span>
+            <div className={styles.menuArrow}>›</div>
           </div>
 
-          {/* 계정 메뉴 */}
-          <div className={styles.menuGrid}>
-            <div className={styles.menuCard} onClick={() => router.push('/account/orders')}>
-              <div className={styles.menuIcon}>
-                <FiShoppingBag size={24} />
-              </div>
-              <div className={styles.menuContent}>
-                <h3 className={styles.menuTitle}>주문 내역</h3>
-                <p className={styles.menuDescription}>주문 상태 확인 및 관리</p>
-              </div>
+          <div className={styles.menuItem} onClick={() => router.push('/wishlist')}>
+            <div className={styles.menuIcon}>
+              <FiHeart size={20} />
             </div>
-
-            <div className={styles.menuCard} onClick={() => router.push('/wishlist')}>
-              <div className={styles.menuIcon}>
-                <FiHeart size={24} />
-              </div>
-              <div className={styles.menuContent}>
-                <h3 className={styles.menuTitle}>위시리스트</h3>
-                <p className={styles.menuDescription}>관심 상품 관리</p>
-              </div>
-            </div>
-
-            <div className={styles.menuCard} onClick={() => router.push('/account/profile')}>
-              <div className={styles.menuIcon}>
-                <FiUser size={24} />
-              </div>
-              <div className={styles.menuContent}>
-                <h3 className={styles.menuTitle}>개인정보</h3>
-                <p className={styles.menuDescription}>프로필 및 개인정보 관리</p>
-              </div>
-            </div>
-
-            <div className={styles.menuCard} onClick={() => router.push('/account/settings')}>
-              <div className={styles.menuIcon}>
-                <FiSettings size={24} />
-              </div>
-              <div className={styles.menuContent}>
-                <h3 className={styles.menuTitle}>계정 설정</h3>
-                <p className={styles.menuDescription}>보안 및 알림 설정</p>
-              </div>
-            </div>
+            <span className={styles.menuText}>Wishlist</span>
+            <div className={styles.menuArrow}>›</div>
           </div>
 
-          {/* 로그아웃 버튼 */}
-          <div className={styles.logoutSection}>
-            <Button
-              variant="outline"
-              size="large"
-              fullWidth
-              icon={<FiLogOut />}
-              onClick={() => setIsLogoutModalOpen(true)}
-              disabled={isLoading}
-            >
-              {isLoading ? '로그아웃 중...' : '로그아웃'}
-            </Button>
+          <div className={styles.menuItem} onClick={() => router.push('/account/profile')}>
+            <div className={styles.menuIcon}>
+              <FiUser size={20} />
+            </div>
+            <span className={styles.menuText}>Profile</span>
+            <div className={styles.menuArrow}>›</div>
+          </div>
+
+          <div className={styles.menuItem} onClick={() => router.push('/account/settings')}>
+            <div className={styles.menuIcon}>
+              <FiSettings size={20} />
+            </div>
+            <span className={styles.menuText}>Settings</span>
+            <div className={styles.menuArrow}>›</div>
+          </div>
+
+          <div className={styles.menuItem} onClick={() => setIsLogoutModalOpen(true)}>
+            <div className={styles.menuIcon}>
+              <FiLogOut size={20} />
+            </div>
+            <span className={styles.menuText}>Logout</span>
+            <div className={styles.menuArrow}>›</div>
           </div>
         </div>
       </div>
@@ -136,10 +113,10 @@ export default function AccountPage() {
         isOpen={isLogoutModalOpen}
         onConfirm={handleLogoutClick}
         onCancel={() => setIsLogoutModalOpen(false)}
-        title="로그아웃"
-        message="정말 로그아웃하시겠습니까?"
-        confirmText={isLoading ? '로그아웃 중...' : '로그아웃'}
-        cancelText="취소"
+        title="Logout"
+        message="Are you sure you want to logout?"
+        confirmText={isLoading ? 'Logging out...' : 'Logout'}
+        cancelText="Cancel"
         variant="default"
       />
     </>

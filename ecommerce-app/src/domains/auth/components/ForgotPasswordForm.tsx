@@ -2,7 +2,7 @@ import { Button } from '@/components/common/Button';
 import { FormActions, FormContainer, FormInput } from '@/components/common/Form';
 import { ForgotPasswordRequest } from '@/domains/auth/types/auth';
 import { useFormState } from '@/hooks/useFormState';
-import styles from '@/styles/auth/Form.module.css';
+// import styles from '@/styles/auth/Form.module.css';
 import { ErrorHandler } from '@/utils/errorHandling';
 import { NotificationManager } from '@/utils/notifications';
 import { EmailValidator } from '@/utils/validation';
@@ -46,18 +46,18 @@ export function ForgotPasswordForm({
   // 성공 상태일 때는 성공 메시지 표시
   if (isSuccess) {
     return (
-      <div className={styles.form}>
-        <div className={styles.successMessage}>
-          <h3>이메일이 전송되었습니다!</h3>
+      <div style={{ padding: '20px' }}>
+        <div style={{ textAlign: 'center', background: '#d4edda', color: '#155724', padding: '20px', borderRadius: '8px' }}>
+          <h3 style={{ fontSize: '18px', fontWeight: '600', margin: '0 0 12px 0' }}>이메일이 전송되었습니다!</h3>
           <p>
             입력하신 이메일 주소로 비밀번호 재설정 링크를 전송했습니다.
             <br />
             이메일을 확인하시고 링크를 클릭하여 비밀번호를 재설정해주세요.
           </p>
-          <p className={styles.emailNote}>
+          <p style={{ fontSize: '14px', fontWeight: '600', margin: '0 0 12px 0' }}>
             <strong>{form.data.email}</strong>로 전송되었습니다.
           </p>
-          <p className={styles.helperText}>
+          <p style={{ fontSize: '12px', color: '#495057', lineHeight: '1.5', margin: '0' }}>
             이메일이 도착하지 않았다면 스팸 폴더를 확인해주세요.
             <br />몇 분 후에도 이메일이 오지 않으면 다시 시도해주세요.
           </p>
@@ -68,7 +68,7 @@ export function ForgotPasswordForm({
 
   return (
     <FormContainer onSubmit={handleSubmit}>
-      <div className={styles.description}>
+      <div style={{ marginBottom: '20px' }}>
         <p>
           비밀번호를 재설정하려면 가입 시 사용한 이메일 주소를 입력해주세요.
           <br />
@@ -102,7 +102,7 @@ export function ForgotPasswordForm({
         </Button>
       </FormActions>
 
-      <div className={styles.helperText}>
+      <div style={{ marginTop: '16px' }}>
         <p>
           • 이메일 전송까지 몇 분이 소요될 수 있습니다
           <br />

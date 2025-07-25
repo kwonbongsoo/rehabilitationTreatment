@@ -1,11 +1,4 @@
-import {
-  BaseError,
-  ValidationError,
-  AuthenticationError,
-  NotFoundError,
-  ErrorCode,
-  ErrorDetails,
-} from '@ecommerce/common';
+import { BaseError, ValidationError, ErrorCode, ErrorDetails } from '@ecommerce/common';
 
 /**
  * 프록시 에러 베이스 클래스 - 모든 프록시 에러의 공통 부모

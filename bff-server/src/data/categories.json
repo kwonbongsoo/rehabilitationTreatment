@@ -1,0 +1,10 @@
+[
+  { "id": 1, "name": "의류", "slug": "clothing", "iconCode": "👕", "order": 1, "isActive": true },
+  { "id": 2, "name": "신발", "slug": "shoes", "iconCode": "👟", "order": 2, "isActive": true },
+  { "id": 3, "name": "가방", "slug": "bags", "iconCode": "👜", "order": 3, "isActive": true },
+  { "id": 4, "name": "액세서리", "slug": "accessories", "iconCode": "💍", "order": 4, "isActive": true },
+  { "id": 5, "name": "뷰티", "slug": "beauty", "iconCode": "💄", "order": 5, "isActive": true },
+  { "id": 6, "name": "홈리빙", "slug": "home", "iconCode": "🏠", "order": 6, "isActive": true },
+  { "id": 7, "name": "디지텀", "slug": "digital", "iconCode": "💻", "order": 7, "isActive": true },
+  { "id": 8, "name": "스포츠", "slug": "sports", "iconCode": "⚽", "order": 8, "isActive": true }
+]

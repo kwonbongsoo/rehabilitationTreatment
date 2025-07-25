@@ -1,5 +1,4 @@
 import { Button } from '@/components/common/Button';
-import { FormActions, FormCheckbox, FormContainer, FormInput } from '@/components/common/Form';
 import { useFormState } from '@/hooks/useFormState';
 import { authValidationService } from '@/domains/auth/services';
 import { useState } from 'react';
@@ -43,7 +42,7 @@ export function RegisterForm({
       if (success) {
         setAgreeTerms(false); // 약관 동의도 초기화
       }
-    } catch (error) {
+    } catch {
       // 에러를 다시 던지지 않음 - useRegisterForm에서 토스트로 처리됨
       // 폼 상태는 그대로 유지
     }
@@ -56,82 +55,105 @@ export function RegisterForm({
   const isButtonDisabled = isFormLoading || isSubmitting || !agreeTerms || !form.canSubmit;
 
   return (
-    <FormContainer onSubmit={handleSubmit}>
-      <FormInput
-        id="register-id"
-        label="아이디"
-        type="text"
-        value={form.data.id}
-        onChange={(e) => form.updateField('id', e.target.value)}
-        placeholder="4자 이상 입력하세요"
-        {...(form.hasError && form.error.includes('아이디') && { error: form.error })}
-        required
-      />
+    <form onSubmit={handleSubmit} className="mobile-auth-form">
+      <div className="form-group">
+        <input
+          id="register-id"
+          type="text"
+          value={form.data.id}
+          onChange={(e) => form.updateField('id', e.target.value)}
+          placeholder="Username"
+          className="form-input"
+          required
+        />
+        {form.hasError && form.error.includes('아이디') && (
+          <span className="error-text">{form.error}</span>
+        )}
+      </div>
 
-      <FormInput
-        id="register-name"
-        label="이름"
-        type="text"
-        value={form.data.name}
-        onChange={(e) => form.updateField('name', e.target.value)}
-        placeholder="이름을 입력하세요"
-        {...(form.hasError && form.error.includes('이름') && { error: form.error })}
-        required
-      />
+      <div className="form-group">
+        <input
+          id="register-name"
+          type="text"
+          value={form.data.name}
+          onChange={(e) => form.updateField('name', e.target.value)}
+          placeholder="Name"
+          className="form-input"
+          required
+        />
+        {form.hasError && form.error.includes('이름') && (
+          <span className="error-text">{form.error}</span>
+        )}
+      </div>
 
-      <FormInput
-        id="register-email"
-        label="이메일"
-        type="email"
-        value={form.data.email}
-        onChange={(e) => form.updateField('email', e.target.value)}
-        placeholder="example@email.com"
-        {...(form.hasError && form.error.includes('이메일') && { error: form.error })}
-        required
-      />
+      <div className="form-group">
+        <input
+          id="register-email"
+          type="email"
+          value={form.data.email}
+          onChange={(e) => form.updateField('email', e.target.value)}
+          placeholder="Email"
+          className="form-input"
+          required
+        />
+        {form.hasError && form.error.includes('이메일') && (
+          <span className="error-text">{form.error}</span>
+        )}
+      </div>
 
-      <FormInput
-        id="register-password"
-        label="비밀번호"
-        type="password"
-        value={form.data.password}
-        onChange={(e) => form.updateField('password', e.target.value)}
-        placeholder="8자 이상 입력하세요"
-        {...(form.hasError && form.error.includes('비밀번호') && { error: form.error })}
-        required
-      />
+      <div className="form-group">
+        <input
+          id="register-password"
+          type="password"
+          value={form.data.password}
+          onChange={(e) => form.updateField('password', e.target.value)}
+          placeholder="Password"
+          className="form-input"
+          required
+        />
+        {form.hasError && form.error.includes('비밀번호') && (
+          <span className="error-text">{form.error}</span>
+        )}
+      </div>
 
-      <FormInput
-        id="register-confirm-password"
-        label="비밀번호 확인"
-        type="password"
-        value={form.data.confirmPassword}
-        onChange={(e) => form.updateField('confirmPassword', e.target.value)}
-        placeholder="비밀번호를 다시 입력하세요"
-        {...(form.hasError && form.error.includes('확인') && { error: form.error })}
-        required
-      />
+      <div className="form-group">
+        <input
+          id="register-confirm-password"
+          type="password"
+          value={form.data.confirmPassword}
+          onChange={(e) => form.updateField('confirmPassword', e.target.value)}
+          placeholder="Confirm Password"
+          className="form-input"
+          required
+        />
+        {form.hasError && form.error.includes('확인') && (
+          <span className="error-text">{form.error}</span>
+        )}
+      </div>
 
-      <FormCheckbox
-        id="agree-terms"
-        label="이용약관 및 개인정보 처리방침에 동의합니다."
-        checked={agreeTerms}
-        onChange={(e) => setAgreeTerms(e.target.checked)}
-        required
-      />
+      <div className="form-group">
+        <label className="checkbox-container">
+          <input
+            type="checkbox"
+            checked={agreeTerms}
+            onChange={(e) => setAgreeTerms(e.target.checked)}
+            className="checkbox-input"
+          />
+          <span className="checkbox-text">Agree with Terms & Condition</span>
+        </label>
+      </div>
 
-      <FormActions>
-        <Button
-          type="submit"
-          variant="primary"
-          size="large"
-          fullWidth
-          isLoading={isFormLoading}
-          disabled={isButtonDisabled}
-        >
-          {isFormLoading ? '처리 중...' : '회원가입'}
-        </Button>
-      </FormActions>
-    </FormContainer>
+      <Button
+        type="submit"
+        variant="primary"
+        size="large"
+        fullWidth
+        isLoading={isFormLoading}
+        disabled={isButtonDisabled}
+        className="auth-submit-button"
+      >
+        {isFormLoading ? 'Creating...' : 'Sign up'}
+      </Button>
+    </form>
   );
 }

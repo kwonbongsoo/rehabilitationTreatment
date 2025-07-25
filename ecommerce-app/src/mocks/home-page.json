@@ -169,22 +169,6 @@
           }
         ]
       }
-    },
-    {
-      "id": "brands-1",
-      "type": "brands",
-      "title": "제휴 브랜드",
-      "visible": true,
-      "data": {
-        "logos": [
-          { "id": 1, "name": "브랜드 1" },
-          { "id": 2, "name": "브랜드 2" },
-          { "id": 3, "name": "브랜드 3" },
-          { "id": 4, "name": "브랜드 4" },
-          { "id": 5, "name": "브랜드 5" },
-          { "id": 6, "name": "브랜드 6" }
-        ]
-      }
     }
   ]
 }

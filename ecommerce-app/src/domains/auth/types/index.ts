@@ -1,5 +1,4 @@
 // Auth 도메인 타입들의 공개 인터페이스
-import { UserRole } from './auth';
 
 export type {
   LoginRequest,

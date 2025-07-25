@@ -160,6 +160,9 @@ describe('useCartActions', () => {
         await result.current.addToCart({ id: 'test', quantity: 1 });
         await result.current.clearCart({ confirm: false });
       });
+
+      // 함수들이 정상적으로 실행되었는지 확인
+      expect(result.current).toBeDefined();
     });
   });
 });

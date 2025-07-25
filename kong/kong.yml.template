@@ -40,3 +40,17 @@ services:
         paths:
           - /api/auth
         strip_path: false
+
+  - name: bff-server
+    url: ${BFF_SERVER_URL}
+    routes:
+      - name: bff-api
+        paths:
+          - /api/home
+        strip_path: false
+        plugins:
+          - name: token-validator
+            config:
+              auth_server_url: "${AUTH_SERVER_URL}"
+              token_header: "Authorization"
+              token_prefix: "Bearer "

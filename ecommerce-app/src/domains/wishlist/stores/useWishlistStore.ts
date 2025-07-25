@@ -3,7 +3,6 @@
  */
 import { create } from 'zustand';
 import type {
-  WishlistItem,
   WishlistState,
   WishlistActions,
   WishlistSummary,

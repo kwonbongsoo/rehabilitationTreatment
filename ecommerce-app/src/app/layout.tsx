@@ -3,8 +3,6 @@ import { AppProviders } from '@/providers/AppProviders';
 import '@/styles/globals.css';
 import { Metadata } from 'next';
 import React from 'react';
-import { getSessionInfo } from '@/app/actions/auth';
-import { UserResponse } from '@/domains/auth/types/auth';
 
 export const metadata: Metadata = {
   title: {
@@ -36,28 +34,18 @@ export const metadata: Metadata = {
 };
 
 /**
- * App Router 루트 레이아웃
+ * App Router 루트 레이아웃 - 클라이언트 전용 인증 패턴
  *
- * 클린 아키텍처 원칙 적용:
- * - 단일 책임 원칙: 전역 레이아웃 구성만 담당
- * - 관심사 분리: Provider 초기화 로직 분리
- * - 인증 초기화: AppProviders > AuthProvider에서 처리
+ * 실무 베스트 프랙티스:
+ * - SSR 중에는 정적 렌더링 유지
+ * - 클라이언트에서 인증 상태 로드
+ * - React Query 클라이언트 전용 실행으로 안전성 보장
  */
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  let initialUser: UserResponse | null = null;
-
-  try {
-    const session = await getSessionInfo();
-    const { exp, iat, ...user } = session.data;
-    initialUser = user;
-  } catch {
-    // 게스트 또는 비인증 상태
-  }
-
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ko">
       <body>
-        <AppProviders initialUser={initialUser}>
+        <AppProviders>
           <Layout>{children}</Layout>
         </AppProviders>
       </body>

@@ -1,6 +1,5 @@
 import { LoginRequest } from '../types/auth';
 import { Button } from '@/components/common/Button';
-import { FormActions, FormContainer, FormInput } from '@/components/common/Form';
 import { useFormState } from '@/hooks/useFormState';
 import { validateLoginForm } from '@/utils/validation';
 
@@ -30,7 +29,7 @@ export function LoginForm({ onSubmit, isLoading: externalLoading = false }: Logi
         id: data.id.trim(),
         password: data.password,
       });
-    } catch (error) {
+    } catch {
       // 에러를 다시 던지지 않음 - useLoginForm에서 토스트로 처리됨
       // 폼 상태는 그대로 유지
     }
@@ -39,42 +38,49 @@ export function LoginForm({ onSubmit, isLoading: externalLoading = false }: Logi
   const isLoading = externalLoading || form.isSubmitting;
 
   return (
-    <FormContainer onSubmit={handleSubmit}>
-      <FormInput
-        id="login-id"
-        label="아이디"
-        type="text"
-        value={form.data.id}
-        onChange={(e) => form.updateField('id', e.target.value)}
-        placeholder="아이디를 입력하세요"
-        error={form.hasError && form.error.includes('아이디') ? form.error : ''}
-        required
-      />
+    <form onSubmit={handleSubmit} className="mobile-auth-form">
+      <div className="form-group">
+        <input
+          id="login-id"
+          type="text"
+          value={form.data.id}
+          onChange={(e) => form.updateField('id', e.target.value)}
+          placeholder="Username"
+          className="form-input"
+          required
+        />
+        {form.hasError && form.error.includes('아이디') && (
+          <span className="error-text">{form.error}</span>
+        )}
+      </div>
 
-      <FormInput
-        id="login-password"
-        label="비밀번호"
-        type="password"
-        value={form.data.password}
-        onChange={(e) => form.updateField('password', e.target.value)}
-        placeholder="비밀번호를 입력하세요"
-        error={form.hasError && form.error.includes('비밀번호') ? form.error : ''}
-        required
-      />
+      <div className="form-group">
+        <input
+          id="login-password"
+          type="password"
+          value={form.data.password}
+          onChange={(e) => form.updateField('password', e.target.value)}
+          placeholder="Password"
+          className="form-input"
+          required
+        />
+        {form.hasError && form.error.includes('비밀번호') && (
+          <span className="error-text">{form.error}</span>
+        )}
+      </div>
 
-      <FormActions>
-        <Button
-          type="submit"
-          variant="primary"
-          size="large"
-          fullWidth
-          isLoading={isLoading}
-          loadingText="로그인 중..."
-          disabled={!form.canSubmit || isLoading}
-        >
-          로그인
-        </Button>
-      </FormActions>
-    </FormContainer>
+      <Button
+        type="submit"
+        variant="primary"
+        size="large"
+        fullWidth
+        isLoading={isLoading}
+        loadingText="Sign in..."
+        disabled={!form.canSubmit || isLoading}
+        className="auth-submit-button"
+      >
+        Sign in
+      </Button>
+    </form>
   );
 }

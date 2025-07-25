@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import styles from './page.module.css';
+// import styles from './page.module.css';
 import OptimizedImage from '@/components/common/OptimizedImage';
 import { notFound } from 'next/navigation';
 
@@ -71,44 +71,151 @@ export default function ProductTypePage({ params }: ProductTypePageProps) {
   ];
 
   return (
-    <div className={styles.container}>
-      <h1 className={styles.title}>{getTypeTitle(productType)}</h1>
+    <div style={{ minHeight: '100vh', background: '#f8f9fa', padding: '20px' }}>
+      <h1
+        style={{
+          fontSize: '28px',
+          fontWeight: '700',
+          color: '#333',
+          textAlign: 'center',
+          margin: '0 0 20px 0',
+        }}
+      >
+        {getTypeTitle(productType)}
+      </h1>
 
       {productType === 'sale' && (
-        <div className={styles.saleNotice}>
-          <p>🔥 특별 할인가로 만나보세요!</p>
+        <div
+          style={{
+            background: '#fff3cd',
+            color: '#856404',
+            padding: '12px 20px',
+            borderRadius: '8px',
+            textAlign: 'center',
+            marginBottom: '20px',
+          }}
+        >
+          <p style={{ margin: '0', fontSize: '16px', fontWeight: '600' }}>
+            🔥 특별 할인가로 만나보세요!
+          </p>
         </div>
       )}
 
       {productType === 'new' && (
-        <div className={styles.newNotice}>
-          <p>✨ 최신 트렌드 상품들을 확인해보세요!</p>
+        <div
+          style={{
+            background: '#d1ecf1',
+            color: '#0c5460',
+            padding: '12px 20px',
+            borderRadius: '8px',
+            textAlign: 'center',
+            marginBottom: '20px',
+          }}
+        >
+          <p style={{ margin: '0', fontSize: '16px', fontWeight: '600' }}>
+            ✨ 최신 트렌드 상품들을 확인해보세요!
+          </p>
         </div>
       )}
 
-      <div className={styles.productsGrid}>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+          gap: '24px',
+        }}
+      >
         {mockProducts.map((product) => (
-          <Link href={`/products/${product.id}`} key={product.id} className={styles.productCard}>
-            <div className={styles.productImage}>
+          <Link
+            href={`/product/2`}
+            key={product.id}
+            style={{
+              display: 'block',
+              background: 'white',
+              borderRadius: '16px',
+              overflow: 'hidden',
+              textDecoration: 'none',
+              color: 'inherit',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+              position: 'relative',
+            }}
+          >
+            <div style={{ position: 'relative', width: '100%', aspectRatio: '1' }}>
               <OptimizedImage
                 src={product.image}
                 alt={product.name}
                 width={500}
                 height={500}
-                className={styles.image}
+                style={{ objectFit: 'cover' }}
               />
-              {product.isNew && <span className={styles.newBadge}>NEW</span>}
-              {product.onSale && <span className={styles.saleBadge}>SALE</span>}
+              {product.isNew && (
+                <span
+                  style={{
+                    position: 'absolute',
+                    top: '8px',
+                    right: '8px',
+                    background: '#28a745',
+                    color: 'white',
+                    fontSize: '10px',
+                    padding: '4px 8px',
+                    borderRadius: '12px',
+                    fontWeight: '600',
+                  }}
+                >
+                  NEW
+                </span>
+              )}
+              {product.onSale && (
+                <span
+                  style={{
+                    position: 'absolute',
+                    top: '8px',
+                    left: '8px',
+                    background: '#dc3545',
+                    color: 'white',
+                    fontSize: '10px',
+                    padding: '4px 8px',
+                    borderRadius: '12px',
+                    fontWeight: '600',
+                  }}
+                >
+                  SALE
+                </span>
+              )}
             </div>
-            <div className={styles.productInfo}>
-              <h3 className={styles.productName}>{product.name}</h3>
-              <div className={styles.priceSection}>
-                <p className={styles.productPrice}>{product.price.toLocaleString()}원</p>
+            <div style={{ padding: '20px' }}>
+              <h3
+                style={{ fontSize: '16px', fontWeight: '600', color: '#333', margin: '0 0 8px 0' }}
+              >
+                {product.name}
+              </h3>
+              <div style={{ marginBottom: '8px' }}>
+                <p
+                  style={{
+                    fontSize: '18px',
+                    fontWeight: '700',
+                    color: '#007bff',
+                    margin: '0',
+                    display: 'inline-block',
+                  }}
+                >
+                  {product.price.toLocaleString()}원
+                </p>
                 {product.originalPrice && (
-                  <p className={styles.originalPrice}>{product.originalPrice.toLocaleString()}원</p>
+                  <p
+                    style={{
+                      fontSize: '14px',
+                      color: '#999',
+                      textDecoration: 'line-through',
+                      margin: '0 0 0 8px',
+                      display: 'inline-block',
+                    }}
+                  >
+                    {product.originalPrice.toLocaleString()}원
+                  </p>
                 )}
               </div>
-              <div className={styles.productRating}>⭐ {product.rating}</div>
+              <div style={{ fontSize: '14px', color: '#666' }}>⭐ {product.rating}</div>
             </div>
           </Link>
         ))}

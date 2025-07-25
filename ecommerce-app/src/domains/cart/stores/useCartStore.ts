@@ -38,7 +38,7 @@ export const useCartStore = create<CartStoreState>()(
 
               const newState = {
                 ...state,
-                items: updatedItems,
+                cartItems: updatedItems,
                 totalItems: state.totalItems + 1,
               };
               delete newState.error;
@@ -54,8 +54,7 @@ export const useCartStore = create<CartStoreState>()(
 
             const newState = {
               ...state,
-              items: [...state.cartItems, itemToAdd],
-              cartItems: state.cartItems.filter((item) => item.id !== newItem.id),
+              cartItems: [...state.cartItems, itemToAdd],
               totalItems: state.totalItems + 1,
             };
             delete newState.error;
@@ -70,7 +69,6 @@ export const useCartStore = create<CartStoreState>()(
 
             const newState = {
               ...state,
-              items: state.cartItems.filter((item) => item.id !== itemId),
               cartItems: state.cartItems.filter((item) => item.id !== itemId),
               totalItems: state.totalItems - item.quantity,
             };
@@ -98,10 +96,9 @@ export const useCartStore = create<CartStoreState>()(
 
             const newState = {
               ...state,
-              items: state.cartItems.map((item) =>
+              cartItems: state.cartItems.map((item) =>
                 item.id === itemId ? { ...item, quantity: finalQuantity } : item,
               ),
-              cartItems: state.cartItems.filter((item) => item.id !== itemId),
               totalItems: state.totalItems + quantityDiff,
             };
             delete newState.error;
@@ -113,10 +110,9 @@ export const useCartStore = create<CartStoreState>()(
           set((state) => {
             const newState = {
               ...state,
-              items: state.cartItems.map((item) =>
+              cartItems: state.cartItems.map((item) =>
                 item.id === itemId ? { ...item, ...updates } : item,
               ),
-              cartItems: state.cartItems.filter((item) => item.id !== itemId),
             };
             delete newState.error;
             return newState;
@@ -189,7 +185,6 @@ export const useCartStore = create<CartStoreState>()(
  */
 export const useCartSummary = (): CartSummary => {
   // Zustand selector를 사용하여 필요한 상태만 선택
-  const cartItems = useCartStore((state) => state.cartItems);
   const getTotalPrice = useCartStore((state) => state.getTotalPrice);
   const getTotalDiscount = useCartStore((state) => state.getTotalDiscount);
   const getItemCount = useCartStore((state) => state.getItemCount);

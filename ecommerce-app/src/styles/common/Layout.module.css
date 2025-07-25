@@ -1,21 +1,65 @@
+.layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-background);
+  font-family: 'Poppins', sans-serif;
+  overflow-x: hidden; /* 추가 */
+  max-width: 100vw; /* 추가 */
+}
+
 .main {
+  flex: 1;
   width: 100%;
-  max-width: 1200px;
+  max-width: 500px; /* 모바일 앱 스타일 */
   margin: 0 auto;
-  padding: var(--spacing-lg) var(--spacing-md);
-  min-height: calc(100vh - var(--header-height, 72px));
-  background-color: var(--color-background);
+  padding: 0;
+  min-height: 100vh;
+  background: var(--color-background);
+  position: relative;
+  overflow-x: hidden;
+  overflow-y: auto; /* 세로 스크롤 허용 */
+  max-width: 100%; /* 추가로 확실하게 */
 }
 
-/* 반응형 스타일 */
-@media (max-width: 768px) {
+/* 큰 화면에서의 모바일 앱 시뮬레이션 */
+@media (min-width: 1024px) {
+  .layout {
+    background: var(--color-background-secondary);
+    justify-content: center;
+    align-items: flex-start;
+    padding: 20px 0;
+    min-height: 100vh;
+  }
+
   .main {
-    padding: var(--spacing-md) var(--spacing-sm);
+    box-shadow: 0 0 30px rgba(11, 143, 172, 0.15);
+    border-radius: 20px;
+    overflow: hidden;
+    height: calc(100vh - 40px); /* 상하 패딩 20px씩 제외 */
+    overflow-y: auto; /* 세로 스크롤 활성화 */
+    /* max-height 제거 - 스크롤 문제 해결 */
   }
 }
 
-@media (max-width: 480px) {
+/* 다크모드 지원 */
+@media (prefers-color-scheme: dark) {
+  .layout {
+    background: var(--color-background);
+  }
+
   .main {
-    padding: var(--spacing-sm);
+    background: var(--color-background);
+  }
+
+  @media (min-width: 1024px) {
+    .layout {
+      background: var(--color-background-muted);
+    }
+
+    .main {
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
+    }
   }
 }
+

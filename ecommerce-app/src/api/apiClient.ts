@@ -418,6 +418,7 @@ export class ApiService {
       await this.getSessionInfo();
       return true;
     } catch (error) {
+      console.error('checkAuth error', error);
       return false;
     }
   }

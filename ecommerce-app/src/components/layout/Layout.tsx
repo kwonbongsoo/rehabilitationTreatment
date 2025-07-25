@@ -1,7 +1,7 @@
 'use client';
 
 import React, { memo } from 'react';
-import Header from './Header';
+import BottomNavigation from './BottomNavigation';
 import styles from '@/styles/common/Layout.module.css';
 
 interface LayoutProps {
@@ -11,8 +11,8 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = memo(({ children }) => {
   return (
     <div className={styles.layout}>
-      <Header />
       <main className={styles.main}>{children}</main>
+      <BottomNavigation />
     </div>
   );
 });

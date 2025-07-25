@@ -35,6 +35,9 @@ yarn-error.log*
 .cursor/
 CURSOR_RULES_README.md
 .cursorrules
+CLAUDE.md
+c2c-rules/
+.claude/
 
 # TypeScript
 *.tsbuildinfo

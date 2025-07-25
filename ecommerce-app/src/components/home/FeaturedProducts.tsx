@@ -1,63 +1,53 @@
-import ProductGrid from '@/components/common/ProductGrid';
-import styles from '@/styles/home/FeaturedProducts.module.css';
-import { calculateDiscountedPrice } from '@/utils/formatters';
-import Link from 'next/link';
+'use client';
 
-interface Product {
+import React from 'react';
+import Link from 'next/link';
+import ProductCard, { Product } from '@/components/common/ProductCard';
+import styles from '@/styles/home/FeaturedProducts.module.css';
+
+interface FeaturedProduct extends Product {
   id: number;
   name: string;
   price: number;
-  discount: number;
+  originalPrice?: number;
   image: string;
   rating: number;
-  reviewCount: number;
+  isNew?: boolean;
+  discount?: number;
 }
 
 interface FeaturedProductsProps {
   title: string;
-  products: Product[];
+  products: FeaturedProduct[];
 }
 
-export default function FeaturedProducts({ title, products }: FeaturedProductsProps) {
-  if (!products || products.length === 0) {
-    return null;
-  }
-
-  // 상품 데이터를 ProductCard 형식으로 변환
-  const transformedProducts = products.map((product) => {
-    const discountedPrice =
-      product.discount > 0
-        ? calculateDiscountedPrice(product.price, Math.min(Math.max(product.discount, 0), 100))
-        : product.price;
-
-    return {
-      ...product,
-      price: discountedPrice,
-      ...(product.discount > 0 && { originalPrice: product.price }),
-    };
-  });
-
-  const handleAddToCart = (productId: number) => {
-    // 실제 장바구니 추가 로직 구현
+const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ title, products }) => {
+  const handleWishlistToggle = (productId: number) => {
+    console.log('Toggle wishlist for product:', productId);
+    // 위시리스트 토글 로직 구현
   };
 
   return (
-    <section className={styles.section}>
-      <ProductGrid
-        products={transformedProducts}
-        title={title}
-        showFilters={false}
-        variant="featured"
-        columns={4}
-        gap="large"
-        onAddToCart={handleAddToCart}
-        className={styles.featuredGrid}
-      />
-      <div className={styles.viewAllContainer}>
-        <Link href="/products" className={styles.viewAllButton}>
-          모든 상품 보기
+    <section className={styles.featuredSection}>
+      <div className={styles.sectionHeader}>
+        <h2 className={styles.sectionTitle}>{title}</h2>
+        <Link href="/products" className={styles.viewAllLink}>
+          see all
         </Link>
+      </div>
+
+      <div className={styles.productsGrid}>
+        {products.map((product) => (
+          <ProductCard
+            key={product.id}
+            product={product}
+            onWishlistToggle={handleWishlistToggle}
+            className={styles.productCard || ''}
+          />
+        ))}
       </div>
     </section>
   );
-}
+};
+
+export default FeaturedProducts;

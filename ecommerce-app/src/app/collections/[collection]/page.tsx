@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import styles from './page.module.css';
+// import styles from './page.module.css';
 import OptimizedImage from '@/components/common/OptimizedImage';
 
 interface CollectionPageProps {
@@ -67,10 +67,12 @@ export default function CollectionPage({ params }: CollectionPageProps) {
   ];
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <h1 className={styles.title}>{getCollectionTitle(collection)}</h1>
-        <p className={styles.description}>
+    <div style={{ minHeight: '100vh', background: '#f8f9fa', padding: '20px' }}>
+      <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+        <h1 style={{ fontSize: '28px', fontWeight: '700', color: '#333', margin: '0 0 16px 0' }}>
+          {getCollectionTitle(collection)}
+        </h1>
+        <p style={{ fontSize: '16px', color: '#666', lineHeight: '1.6', margin: '0' }}>
           {collection === 'summer' && '시원하고 스타일리시한 여름 아이템을 만나보세요'}
           {collection === 'winter' && '따뜻하고 세련된 겨울 패션을 제안합니다'}
           {collection === 'spring' && '상큼하고 경쾌한 봄의 분위기를 담았습니다'}
@@ -78,21 +80,46 @@ export default function CollectionPage({ params }: CollectionPageProps) {
         </p>
       </div>
 
-      <div className={styles.productGrid}>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+          gap: '24px',
+        }}
+      >
         {mockProducts.map((product) => (
-          <Link href={`/products/${product.id}`} key={product.id} className={styles.productCard}>
-            <div className={styles.productImage}>
+          <Link
+            href={`/product/2`}
+            key={product.id}
+            style={{
+              display: 'block',
+              background: 'white',
+              borderRadius: '16px',
+              overflow: 'hidden',
+              textDecoration: 'none',
+              color: 'inherit',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+              transition: 'transform 0.2s',
+            }}
+          >
+            <div style={{ position: 'relative', width: '100%', aspectRatio: '1' }}>
               <OptimizedImage
                 src={product.image}
                 alt={product.name}
                 width={500}
                 height={500}
-                className={styles.image}
+                style={{ objectFit: 'cover' }}
               />
             </div>
-            <div className={styles.productInfo}>
-              <h3 className={styles.productName}>{product.name}</h3>
-              <p className={styles.productPrice}>{product.price.toLocaleString()}원</p>
+            <div style={{ padding: '20px' }}>
+              <h3
+                style={{ fontSize: '16px', fontWeight: '600', color: '#333', margin: '0 0 8px 0' }}
+              >
+                {product.name}
+              </h3>
+              <p style={{ fontSize: '20px', fontWeight: '700', color: '#007bff', margin: '0' }}>
+                {product.price.toLocaleString()}원
+              </p>
             </div>
           </Link>
         ))}

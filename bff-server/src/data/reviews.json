@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "customerName": "김지현",
+    "rating": 5,
+    "comment": "배송이 빠르고 상품 퀄리티가 정말 좋아요! 다음에도 여기서 구매할 예정입니다.",
+    "productName": "캐주얼 데님 자켓",
+    "createdAt": "2024-06-15T14:20:00Z"
+  },
+  {
+    "id": 2,
+    "customerName": "이수진",
+    "rating": 4.5,
+    "comment": "가격 대비 퀄리티가 훌륭해요. 사이즈도 딱 맞고 디자인이 세련되어서 마음에 들어요!",
+    "productName": "미니멀 백팩",
+    "createdAt": "2024-06-18T09:30:00Z"
+  },
+  {
+    "id": 3,
+    "customerName": "박민호",
+    "rating": 5,
+    "comment": "오래 찾던 디자인을 여기서 발견했어요. 품질도 좋고 착용감이 정말 편안합니다.",
+    "productName": "클래식 운동화",
+    "createdAt": "2024-06-20T16:45:00Z"
+  }
+]

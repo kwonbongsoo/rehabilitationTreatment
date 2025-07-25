@@ -20,26 +20,11 @@ const RegisterPageClient = dynamic(() => import('@/domains/auth/components/Regis
   ),
 });
 
-const UserFormLayoutClient = dynamic(() => import('@/components/templates/UserFormLayout'), {
-  ssr: false,
-  loading: () => (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh',
-      }}
-    >
-      <LoadingIndicator />
-    </div>
-  ),
-});
 
 export default function RegisterPage() {
   return (
-    <UserFormLayoutClient title="회원가입" description="쇼핑몰 회원가입 페이지">
+    <div style={{ minHeight: '100vh', background: '#f8f9fa' }}>
       <RegisterPageClient />
-    </UserFormLayoutClient>
+    </div>
   );
 }

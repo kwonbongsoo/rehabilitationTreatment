@@ -1,261 +1,122 @@
 .sliderSection {
-    margin: var(--spacing-lg) 0;
+    margin: 20px 16px;
 }
 
 .slider {
     position: relative;
-    width: 100%;
-    height: 500px;
-    /* 기본 PC 크기 증가 */
-    border-radius: 12px;
+    border-radius: 16px;
     overflow: hidden;
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
 }
 
 .slide {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    transition: opacity var(--transition-normal);
+    display: none;
+    padding: 24px;
+    min-height: 160px;
 }
 
 .activeSlide {
-    opacity: 1;
+    display: block;
 }
 
-.imageContainer {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    background-color: #f0f0f0;
-}
-
-.sliderImage {
-    object-fit: cover;
-    object-position: center;
-}
-
-.imagePlaceholder {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(45deg, var(--color-primary), #8b5cf6);
-    color: white;
-    font-size: var(--font-size-lg);
-    font-weight: bold;
+.slideLink {
+    display: block;
+    text-decoration: none;
+    color: inherit;
 }
 
 .slideContent {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
     display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding: var(--spacing-xxl);
-    color: white;
-    background: linear-gradient(to right, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0) 100%);
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
 }
 
-.slideContent h2 {
-    font-size: var(--font-size-xxl);
-    margin-bottom: var(--spacing-md);
-    max-width: 60%;
+.textContent {
+    flex: 1;
+    color: white;
 }
 
-.sliderButton {
-    display: inline-block;
-    background-color: var(--color-primary);
-    color: white;
-    padding: var(--spacing-md) var(--spacing-lg);
-    border-radius: 6px;
+.slideTitle {
+    font-size: 18px;
     font-weight: 600;
-    transition: background-color var(--transition-fast);
-    width: fit-content;
+    margin: 0 0 8px 0;
+    color: white;
 }
 
-.sliderButton:hover {
-    background-color: var(--color-primary-dark);
+.slideSubtitle {
+    font-size: 14px;
+    margin: 0 0 16px 0;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.4;
+}
+
+.shopButton {
+    background: white;
+    color: #4f46e5;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.shopButton:hover {
+    background: #f8f9fa;
+    transform: translateY(-1px);
+}
+
+.imageContainer {
+    margin-left: 16px;
+}
+
+.sliderImage {
+    border-radius: 8px;
+    object-fit: cover;
 }
 
 .sliderDots {
-    position: absolute;
-    bottom: var(--spacing-lg);
-    right: var(--spacing-lg);
     display: flex;
-    gap: var(--spacing-sm);
+    justify-content: center;
+    gap: 8px;
+    padding: 16px 0 8px;
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 .dot {
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
-    background-color: rgba(255, 255, 255, 0.5);
     border: none;
+    background: rgba(255, 255, 255, 0.3);
     cursor: pointer;
-    transition: background-color var(--transition-fast);
+    transition: all 0.2s ease;
 }
 
 .activeDot {
-    background-color: white;
+    background: white;
 }
 
-.slideDescription {
-    font-size: var(--font-size-md);
-    margin-bottom: var(--spacing-lg);
-    max-width: 70%;
-    line-height: 1.6;
-    opacity: 0.9;
-}
-
-/* 화살표 네비게이션 */
-.arrowButton {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background-color: rgba(255, 255, 255, 0.8);
-    color: var(--color-text-primary);
-    border: none;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    font-size: var(--font-size-xl);
-    font-weight: bold;
-    cursor: pointer;
-    transition: all var(--transition-fast);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 2;
-}
-
-.arrowButton:hover {
-    background-color: rgba(255, 255, 255, 1);
-    transform: translateY(-50%) scale(1.1);
-}
-
-.prevButton {
-    left: var(--spacing-lg);
-}
-
-.nextButton {
-    right: var(--spacing-lg);
-}
-
-/* 큰 데스크톱 (1200px 이상) */
-@media (min-width: 1200px) {
-    .slider {
-        height: 600px;
-    }
-}
-
-/* 태블릿 (768px - 1199px) */
-@media (max-width: 1199px) and (min-width: 769px) {
-    .slider {
-        height: 400px;
-    }
-}
-
-/* 작은 태블릿 및 큰 모바일 (481px - 768px) */
-@media (max-width: 768px) {
-    .slider {
-        height: 300px;
-    }
-
-    .slideContent {
-        padding: var(--spacing-lg);
-    }
-
-    .slideContent h2 {
-        font-size: var(--font-size-xl);
-        max-width: 80%;
-    }
-
-    .slideDescription {
-        font-size: var(--font-size-sm);
-        max-width: 85%;
-    }
-
-    .sliderButton {
-        padding: var(--spacing-sm) var(--spacing-md);
-        font-size: var(--font-size-sm);
-    }
-
-    .arrowButton {
-        width: 40px;
-        height: 40px;
-        font-size: var(--font-size-lg);
-    }
-
-    .prevButton {
-        left: var(--spacing-md);
-    }
-
-    .nextButton {
-        right: var(--spacing-md);
-    }
-}
-
-/* 작은 모바일 (480px 이하) */
 @media (max-width: 480px) {
-    .slider {
-        height: 250px;
-        border-radius: 8px;
+    .sliderSection {
+        margin: 16px 12px;
     }
-
-    .slideContent {
-        padding: var(--spacing-md);
+    
+    .slide {
+        padding: 20px;
+        min-height: 140px;
     }
-
-    .slideContent h2 {
-        font-size: var(--font-size-lg);
-        max-width: 100%;
-        margin-bottom: var(--spacing-sm);
+    
+    .slideTitle {
+        font-size: 16px;
     }
-
-    .slideDescription {
-        font-size: var(--font-size-xs);
-        max-width: 100%;
-        margin-bottom: var(--spacing-sm);
-    }
-
-    .sliderButton {
-        padding: var(--spacing-sm) var(--spacing-md);
-        font-size: var(--font-size-sm);
-    }
-
-    .sliderDots {
-        bottom: var(--spacing-md);
-        right: var(--spacing-md);
-    }
-
-    .arrowButton {
-        width: 35px;
-        height: 35px;
-        font-size: var(--font-size-md);
-    }
-
-    .prevButton {
-        left: var(--spacing-sm);
-    }
-
-    .nextButton {
-        right: var(--spacing-sm);
-    }
-}
-
-/* 매우 작은 모바일 (360px 이하) */
-@media (max-width: 360px) {
-    .slider {
-        height: 200px;
-    }
-
-    .slideContent h2 {
-        font-size: var(--font-size-md);
+    
+    .slideSubtitle {
+        font-size: 12px;
     }
 }

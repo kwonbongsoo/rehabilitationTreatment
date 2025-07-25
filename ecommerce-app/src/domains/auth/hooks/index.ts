@@ -3,4 +3,3 @@ export { useLoginForm } from './useLoginForm';
 export { useRegisterForm } from './useRegisterForm';
 export { useForgotPasswordForm } from './useForgotPasswordForm';
 export { useLogoutForm } from './useLogoutForm';
-export { useSessionInfo } from './useAuth';

@@ -1,10 +1,10 @@
 'use client';
 
-import ProductGrid from '@/components/common/ProductGrid';
 import React from 'react';
-import styles from './page.module.css';
+import styles from '@/styles/products/MobileProducts.module.css';
 import { useProductStore } from '@/domains/product/stores/useProductStore';
 import { useCartActions } from '@/domains/cart/hooks';
+import OptimizedImage from '@/components/common/OptimizedImage';
 
 export default function ProductsPage() {
   const { products } = useProductStore();
@@ -24,20 +24,37 @@ export default function ProductsPage() {
   };
 
   return (
-    <div className={styles.container}>
+    <main className={styles.mobileProducts}>
       <div className={styles.header}>
-        <h1 className={styles.title}>모든 상품</h1>
-        <p className={styles.subtitle}>다양한 브랜드의 트렌디한 상품들을 만나보세요</p>
+        <h1 className={styles.title}>All Products</h1>
       </div>
 
-      <div className={styles.productsWrapper}>
-        <ProductGrid
-          products={products}
-          title=""
-          onAddToCart={handleAddToCart}
-          className={styles.productsGrid}
-        />
+      <div className={styles.productsContent}>
+        <div className={styles.productsGrid}>
+          {products.map((product) => (
+            <div key={product.id} className={styles.productCard}>
+              <div className={styles.productImageContainer}>
+                <OptimizedImage
+                  src={product.image}
+                  alt={product.name}
+                  className={styles.productImage}
+                />
+                <button className={styles.favoriteButton}>♡</button>
+              </div>
+              <div className={styles.productInfo}>
+                <h3 className={styles.productName}>{product.name}</h3>
+                <p className={styles.productPrice}>${product.price}</p>
+                <button
+                  className={styles.addToCartButton}
+                  onClick={() => handleAddToCart(product.id)}
+                >
+                  Add to Cart
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
+    </main>
   );
 }

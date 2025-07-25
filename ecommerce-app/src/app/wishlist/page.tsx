@@ -3,8 +3,8 @@
 import OptimizedImage from '@/components/common/OptimizedImage';
 import Link from 'next/link';
 import React from 'react';
-import { FiHeart, FiShoppingCart, FiTrash2 } from 'react-icons/fi';
-import styles from './page.module.css';
+import { FiHeart, FiTrash2 } from 'react-icons/fi';
+import styles from '@/styles/wishlist/MobileWishlist.module.css';
 import { useWishlistStore } from '@/domains/wishlist/stores';
 import { useWishlistActions } from '@/domains/wishlist/hooks';
 import { useCartActions } from '@/domains/cart/hooks';
@@ -30,78 +30,73 @@ export default function WishlistPage() {
   };
 
   return (
-    <div className={styles.container}>
+    <main className={styles.mobileWishlist}>
       <div className={styles.header}>
-        <h1 className={styles.title}>
-          <FiHeart className={styles.heartIcon} />
-          나의 위시리스트
-        </h1>
-        <p className={styles.subtitle}>마음에 든 상품들을 저장해두고 나중에 구매하세요</p>
+        <h1 className={styles.title}>Wishlist</h1>
       </div>
 
       {wishlistItems.length === 0 ? (
         <div className={styles.emptyState}>
-          <FiHeart size={64} className={styles.emptyIcon} />
-          <h2>위시리스트가 비어있습니다</h2>
-          <p>마음에 드는 상품을 위시리스트에 추가해보세요</p>
+          <FiHeart size={60} className={styles.emptyIcon} />
+          <h2>Your wishlist is empty</h2>
+          <p>Save items you love to buy later</p>
           <Link href="/products" className={styles.shopButton}>
-            쇼핑 계속하기
+            Start Shopping
           </Link>
         </div>
       ) : (
-        <>
-          <div className={styles.wishlistInfo}>
-            <span className={styles.itemCount}>총 {wishlistItems.length}개의 상품</span>
+        <div className={styles.wishlistContent}>
+          <div className={styles.itemCount}>
+            {wishlistItems.length} item{wishlistItems.length > 1 ? 's' : ''}
           </div>
 
           <div className={styles.wishlistGrid}>
             {wishlistItems.map((item) => (
               <div key={item.id} className={styles.wishlistItem}>
-                <div className={styles.productImage}>
+                <div className={styles.productImageContainer}>
                   <OptimizedImage
                     src={item.image}
                     alt={item.name}
-                    width={500}
-                    height={500}
-                    className={styles.image}
+                    width={200}
+                    height={200}
+                    className={styles.productImage}
                   />
+                  <button
+                    className={styles.removeButton}
+                    onClick={() => removeFromWishlist(item.id)}
+                    aria-label="Remove from wishlist"
+                  >
+                    <FiTrash2 size={16} />
+                  </button>
                   {!item.inStock && (
-                    <div className={styles.outOfStockOverlay}>
-                      <span>품절</span>
+                    <div className={styles.outOfStockBadge}>
+                      Out of Stock
                     </div>
                   )}
                 </div>
+                
                 <div className={styles.productInfo}>
                   <h3 className={styles.productName}>{item.name}</h3>
-                  <p className={styles.productPrice}>{item.price.toLocaleString()}원</p>
-
-                  <div className={styles.actions}>
-                    {item.inStock ? (
-                      <button
-                        className={styles.addToCartButton}
-                        onClick={() => moveToCart(item.id)}
-                      >
-                        <FiShoppingCart size={16} />
-                        장바구니 담기
-                      </button>
-                    ) : (
-                      <button className={styles.notifyButton}>재입고 알림</button>
-                    )}
-
+                  <p className={styles.productPrice}>${item.price}</p>
+                  
+                  {item.inStock ? (
                     <button
-                      className={styles.removeButton}
-                      onClick={() => removeFromWishlist(item.id)}
-                      aria-label="위시리스트에서 제거"
+                      className={styles.addToCartButton}
+                      onClick={() => moveToCart(item.id)}
                     >
-                      <FiTrash2 size={16} />
+                      Add to Cart
                     </button>
-                  </div>
+                  ) : (
+                    <button className={styles.notifyButton}>
+                      Notify When Available
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
           </div>
-        </>
+        </div>
       )}
-    </div>
+    </main>
   );
 }

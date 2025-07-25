@@ -1,0 +1,205 @@
+.mobileHeader {
+  background: var(--color-background);
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(11, 143, 172, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(11, 143, 172, 0.08);
+  font-family: 'Poppins', sans-serif;
+}
+
+.headerTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.actionButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  padding: 8px;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+}
+
+.actionButton:hover {
+  background-color: #f5f5f5;
+}
+
+.notificationIcon {
+  font-size: 20px;
+  color: #333;
+}
+
+.notificationBadge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: #ff4757;
+  color: white;
+  font-size: 10px;
+  font-weight: 600;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.searchSection {
+  width: 100%;
+}
+
+.searchBar {
+  display: flex;
+  align-items: center;
+  background: var(--color-background-secondary);
+  border: 1px solid rgba(11, 143, 172, 0.2);
+  border-radius: 24px;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  gap: 12px;
+}
+
+.searchBar:hover {
+  background: rgba(210, 235, 231, 0.7);
+  border-color: rgba(11, 143, 172, 0.3);
+}
+
+.searchBar:focus-within {
+  background: var(--color-background);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(11, 143, 172, 0.15);
+}
+
+.searchIcon {
+  font-size: 16px;
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
+}
+
+.searchPlaceholder {
+  flex: 1;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  font-weight: 400;
+  font-family: 'Poppins', sans-serif;
+}
+
+.filterButton {
+  background: var(--color-primary);
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.filterButton:hover {
+  background: var(--color-primary-hover);
+  transform: scale(1.05);
+}
+
+.filterIcon {
+  font-size: 14px;
+  color: white;
+}
+
+/* 모바일 최적화 */
+@media (max-width: 768px) {
+  .mobileHeader {
+    padding: 12px 16px;
+  }
+
+  .title {
+    font-size: 16px;
+  }
+
+  .searchBar {
+    padding: 10px 14px;
+  }
+
+  .searchPlaceholder {
+    font-size: 13px;
+  }
+
+  .filterButton {
+    width: 28px;
+    height: 28px;
+  }
+
+  .filterIcon {
+    font-size: 12px;
+  }
+}
+
+/* 다크모드 지원 */
+@media (prefers-color-scheme: dark) {
+  .mobileHeader {
+    background: var(--color-background);
+    border-bottom-color: rgba(123, 193, 183, 0.2);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  .title {
+    color: var(--color-text-primary);
+  }
+
+  .searchBar {
+    background: var(--color-background-secondary);
+    border-color: rgba(123, 193, 183, 0.3);
+  }
+
+  .searchBar:hover {
+    background: rgba(26, 61, 67, 0.8);
+    border-color: rgba(123, 193, 183, 0.4);
+  }
+
+  .searchBar:focus-within {
+    background: var(--color-background-muted);
+    border-color: var(--color-secondary);
+    box-shadow: 0 0 0 3px rgba(123, 193, 183, 0.2);
+  }
+
+  .searchPlaceholder {
+    color: var(--color-text-secondary);
+  }
+
+  .searchIcon {
+    color: var(--color-text-secondary);
+  }
+
+  .actionButton:hover {
+    background-color: var(--color-background-secondary);
+  }
+
+  .notificationIcon {
+    color: var(--color-text-primary);
+  }
+}

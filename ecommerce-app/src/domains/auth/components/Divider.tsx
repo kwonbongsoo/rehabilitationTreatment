@@ -1,4 +1,4 @@
-import styles from '@/styles/templates/UserFormLayout.module.css';
+// import styles from '@/styles/templates/UserFormLayout.module.css';
 
 interface DividerProps {
   text: string;
@@ -6,8 +6,10 @@ interface DividerProps {
 
 export function Divider({ text }: DividerProps) {
   return (
-    <div className={styles.divider}>
-      <span className={styles.dividerText}>{text}</span>
+    <div style={{ display: 'flex', alignItems: 'center', margin: '24px 0' }}>
+      <div style={{ flex: '1', height: '1px', background: '#e9ecef' }}></div>
+      <span style={{ padding: '0 16px', fontSize: '14px', color: '#666' }}>{text}</span>
+      <div style={{ flex: '1', height: '1px', background: '#e9ecef' }}></div>
     </div>
   );
 }
