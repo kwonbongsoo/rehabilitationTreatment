@@ -530,7 +530,7 @@ export class BFFService {
 
 ### Phase 1: 현재 완료된 기능 ✅
 - Kong API Gateway 구축
-- BFF 서버 구현 (데이터 집계 전용)
+- BFF 서버 구현 (비즈니스 데이터 UI 데이터를 변환하는 용도)
 - JWT 기반 인증 체계
 - 멱등성 처리 (Redis)
 - 마이크로서비스 아키텍처
