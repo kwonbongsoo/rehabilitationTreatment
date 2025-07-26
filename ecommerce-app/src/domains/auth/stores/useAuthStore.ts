@@ -10,7 +10,6 @@ import { UserResponse, UserRole } from '../types/auth';
 export interface AuthState {
   // 상태 (순수한 인증 상태만)
   user: UserResponse | null;
-  isAuthenticated: boolean;
   isGuest: boolean;
 
   // 세션 초기화 상태
@@ -34,12 +33,8 @@ export interface AuthActions {
 type AuthStore = AuthState & AuthActions;
 
 // 초기 상태 정의 (재사용을 위해 별도 객체로)
-const initialState: Pick<
-  AuthState,
-  'user' | 'isAuthenticated' | 'isGuest' | 'isSessionInitialized'
-> = {
+const initialState: Pick<AuthState, 'user' | 'isGuest' | 'isSessionInitialized'> = {
   user: null,
-  isAuthenticated: false,
   isGuest: true,
   isSessionInitialized: false,
 };
@@ -53,13 +48,11 @@ export const useAuthStore = create<AuthStore>()(
       // 액션들
       setUser: (user) => {
         set((state) => {
-          const isAuthenticated = Boolean(user);
-          const isGuest = !isAuthenticated || user?.role === 'guest';
+          const isGuest = user?.role === 'guest';
 
           return {
             ...state,
             user,
-            isAuthenticated,
             isGuest,
             isSessionInitialized: true, // 사용자 정보가 설정되면 세션 초기화 완료
           };
@@ -114,7 +107,6 @@ export const useAuthStore = create<AuthStore>()(
 export const useAuth = () => {
   const {
     user,
-    isAuthenticated,
     isGuest,
     isSessionInitialized,
     setUser,
@@ -128,7 +120,6 @@ export const useAuth = () => {
   return {
     // 상태
     user,
-    isAuthenticated,
     isGuest,
     isSessionInitialized,
 

@@ -114,38 +114,3 @@ export class GatewayError extends ProxyError {
 export function isProxyError(error: any): error is ProxyError {
   return error instanceof ProxyError;
 }
-
-/**
- * Axios 에러를 적절한 프록시 에러로 변환하는 팩토리 함수
- */
-export function createProxyErrorFromAxios(error: any, targetPath: string): ProxyError {
-  if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND') {
-    return new BackendConnectionError(
-      'Unable to connect to backend server',
-      targetPath,
-      error.message,
-    );
-  }
-
-  if (error.code === 'TIMEOUT' || error.code === 'ECONNABORTED') {
-    return new BackendConnectionError(
-      `Request timeout after ${error.config?.timeout || 30000}ms`,
-      targetPath,
-      error.message,
-    );
-  }
-
-  if (error.response) {
-    return new GatewayError(
-      error.response.status,
-      error.response.data,
-      `Gateway error: ${error.message}`,
-    );
-  }
-
-  // 기타 예상치 못한 에러
-  return new ProxyError(`Network error: ${error.message}`, 500, ErrorCode.INTERNAL_ERROR, {
-    reason: 'unexpected_network_error',
-    context: { targetPath, errorCode: error.code },
-  });
-}

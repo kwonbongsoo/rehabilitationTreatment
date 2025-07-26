@@ -1,3 +1,6 @@
+// API 서비스 레이어
+export { UserService } from './userService';
+
 // UI Layer (UI 설정 서비스)
 export {
   UIConfigurationService,
@@ -7,3 +10,8 @@ export {
   type ToastConfig,
   type DevtoolsConfig,
 } from './uiConfigurationService';
+
+// 향후 추가될 서비스들
+// export { ProductService } from './productService';
+// export { OrderService } from './orderService';
+// export { CartService } from './cartService';

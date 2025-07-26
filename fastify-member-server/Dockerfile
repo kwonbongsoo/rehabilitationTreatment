@@ -55,6 +55,9 @@ RUN npm run postinstall
 
 RUN chmod +x /app/entrypoint.sh
 
+# 파일 소유권을 node 사용자로 변경
+RUN chown -R node:node /app
+
 USER node
 EXPOSE 5000
 HEALTHCHECK --interval=30s --timeout=3s CMD wget -q --spider http://localhost:5000/api/members/health || exit 1

@@ -3,7 +3,7 @@
 마이크로서비스 아키텍처 기반의 이커머스 플랫폼으로, Kong API Gateway와 BFF(Backend for Frontend) 패턴을 적용한 현대적인 웹 애플리케이션입니다.
 ## UI
 ![UI](커머스.png)
-## 🏗️ 시스템 아키텍처
+## 시스템 아키텍처
 
 ```mermaid
 graph TB
@@ -72,7 +72,7 @@ graph TB
     style Other fill:#fafafa
 ```
 
-## 🔄 데이터 플로우
+## 데이터 플로우
 
 ```mermaid
 sequenceDiagram
@@ -134,7 +134,7 @@ sequenceDiagram
     end
 ```
 
-## 🏭 Kong Gateway 플러그인 구성
+## Kong Gateway 플러그인 구성
 
 ```mermaid
 graph TD

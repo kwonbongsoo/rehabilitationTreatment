@@ -8,7 +8,7 @@ const nextConfig: NextConfig = {
 
   // 컴파일러 최적화
   compiler: {
-    // removeConsole: process.env.NODE_ENV === 'production',
+    removeConsole: process.env.NODE_ENV === 'production',
   },
 
   // 빌드 최적화
@@ -60,7 +60,7 @@ const nextConfig: NextConfig = {
   },
 
   // 서버 외부 패키지 설정 (Next.js 15에서 변경됨)
-  serverExternalPackages: ['axios', 'react-icons'],
+  serverExternalPackages: ['react-icons'],
 
   // 실험적 기능
   experimental: {

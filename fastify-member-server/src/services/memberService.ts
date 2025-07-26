@@ -138,6 +138,18 @@ export class MemberService implements IMemberService {
     }
   }
 
+  async init() {
+    const password = await bcrypt.hash('123123123', 10);
+    await this.prisma.member.create({
+      data: {
+        id: 'star12310',
+        email: 'star12310@naver.com',
+        name: '권봉수',
+        password,
+      },
+    });
+  }
+
   // ===== 공개 API 메서드 =====
   async create(data: MemberInput): Promise<MemberOutput> {
     // 1. 비즈니스 규칙 검증

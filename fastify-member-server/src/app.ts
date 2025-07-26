@@ -36,6 +36,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   // 싱글톤 의존성 설정
   const prisma = new PrismaClient();
   const memberService = MemberService.getInstance(prisma);
+  await memberService.init();
   const memberController = MemberController.getInstance(memberService);
 
   // 의존성 주입 컨테이너 등록

@@ -45,11 +45,6 @@ export class AuthService {
     // 입력 유효성 검증
     this.validationService.validateCredentials(credentials);
 
-    // 기존 게스트 토큰이 있다면 만료 처리 (세션 고정 공격 방지)
-    if (previousToken) {
-      await this.sessionService.removeSession(previousToken);
-    }
-
     // 멤버 API에서 사용자 검증
     const user = await this.memberApiClient.verifyCredentials(credentials.id, credentials.password);
 
@@ -64,6 +59,11 @@ export class AuthService {
     const now = Math.floor(Date.now() / 1000);
     const ttl = Math.max(0, tokenResponse.payload.exp - now);
     await this.sessionService.storeSession(tokenResponse.token, tokenResponse.payload, ttl);
+
+    // 기존 게스트 토큰이 있다면 만료 처리 (세션 고정 공격 방지)
+    if (previousToken) {
+      await this.sessionService.removeSession(previousToken);
+    }
 
     return {
       data: {

@@ -5,7 +5,7 @@
  */
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
-import { ApiError, BaseError } from '../api/types';
+import { ApiError, BaseError } from '@/lib/api';
 
 export interface ToastError {
   id: string;

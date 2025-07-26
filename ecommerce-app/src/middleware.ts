@@ -6,6 +6,7 @@
  */
 import { setTokenCookiesEdge } from '@/domains/auth/services';
 import { NextRequest, NextResponse } from 'next/server';
+import { HeaderBuilderFactory } from '@/lib/server/headerBuilder';
 
 /**
  * 토큰 확인을 건너뛸 경로들 - API 요청, JSON 파일, 정적 파일 접근
@@ -74,13 +75,13 @@ async function issueGuestToken(): Promise<{
 
   try {
     const requestUrl = `${authServiceUrl}${authPrefix}/guest-token`;
+    const headers = await HeaderBuilderFactory
+      .createForMiddlewareBasicAuth()
+      .build();
+
     const response = await fetch(requestUrl, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'User-Agent': 'NextJS-Middleware',
-        Authorization: `Basic ${btoa(`${authBasicKey}`)}`,
-      },
+      headers,
     });
 
     if (!response.ok) {

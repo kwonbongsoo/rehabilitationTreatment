@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useErrorStore } from '../store/useErrorStore';
-import { BaseError, AuthenticationError, ValidationError, NotFoundError } from '../api/types';
+import { BaseError, AuthenticationError, ValidationError, NotFoundError } from '@/lib/api';
 
 /**
  * 에러 처리 훅

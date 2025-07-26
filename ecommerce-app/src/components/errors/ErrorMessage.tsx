@@ -1,5 +1,5 @@
 import React from 'react';
-import { ApiError } from '../../api/types';
+import { ApiError, getUserMessage } from '@/lib/api';
 
 interface ErrorMessageProps {
   error: Error | ApiError | string;
@@ -14,27 +14,12 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({
   showRetry = false,
   onRetry,
 }) => {
-  // 에러 메시지 추출
+  // 에러 메시지 추출 (Common 모듈 기반)
   const getMessage = () => {
     if (typeof error === 'string') return error;
-
-    if ('status' in error && error.status) {
-      // API 에러 처리
-      switch (error.status) {
-        case 401:
-          return '로그인이 필요합니다';
-        case 403:
-          return '접근 권한이 없습니다';
-        case 404:
-          return '요청하신 정보를 찾을 수 없습니다';
-        case 500:
-          return '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요';
-        default:
-          return error.message || '오류가 발생했습니다';
-      }
-    }
-
-    return error.message || '알 수 없는 오류가 발생했습니다';
+    
+    // getUserMessage 유틸리티 함수 사용
+    return getUserMessage(error);
   };
 
   const renderContent = () => (

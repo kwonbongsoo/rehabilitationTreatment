@@ -19,6 +19,21 @@ export interface LoginResponse {
   data: LoginResponseI;
 }
 
+/**
+ * Server Action 결과 타입 (성공/실패 모두 처리)
+ */
+export interface LoginActionResult {
+  success: boolean;
+  data?: LoginResponseI;
+  error?: string;
+}
+
+export interface RegisterActionResult {
+  success: boolean;
+  data?: RegisterResponse;
+  error?: string;
+}
+
 interface LoginResponseI {
   role: UserRole;
   exp: number;

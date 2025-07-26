@@ -1,29 +1,22 @@
 'use server';
 
 import { HomePageResponse } from '@/types/home';
-import { KONG_GATEWAY_URL } from '@/api/config';
-import { cookies } from 'next/headers';
+import { HeaderBuilderFactory } from '@/lib/server/headerBuilder';
 
 /**
  * 홈 페이지 데이터 조회 서버 액션
- * 
+ *
  * - Kong API Gateway를 통해 BFF 서버의 홈 데이터를 가져옴
  * - 클라이언트에서 호출 가능하지만 서버에서 실행됨
  * - 내부 네트워크 통신으로 Kong에 접근
  */
+
+const KONG_GATEWAY_URL = process.env.KONG_GATEWAY_URL;
+
 export async function getHomeDataAction(): Promise<HomePageResponse> {
   try {
-    const cookieStore = await cookies();
-    const accessToken = cookieStore.get('access_token')?.value;
-    
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    };
-    
-    if (accessToken) {
-      headers['Authorization'] = `Bearer ${accessToken}`;
-    }
-    
+    const headers = await HeaderBuilderFactory.createForApiRequest().build();
+
     const response = await fetch(`${KONG_GATEWAY_URL}/api/home`, {
       method: 'GET',
       headers,
@@ -35,7 +28,7 @@ export async function getHomeDataAction(): Promise<HomePageResponse> {
     }
 
     const result: { success: boolean; data: HomePageResponse } = await response.json();
-    
+
     if (!result.success || !result.data) {
       throw new Error('Invalid response format');
     }

@@ -6,6 +6,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - NODE_ENV=production
+      - NODE_ENV=development
+      # - NODE_ENV=production
     # volumes: # 개발 시 코드 동기화가 필요하면 사용
     #   - .:/app

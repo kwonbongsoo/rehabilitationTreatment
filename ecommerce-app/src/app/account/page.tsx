@@ -11,7 +11,7 @@ import styles from '@/styles/account/MobileAccount.module.css';
 
 export default function AccountPage() {
   const router = useRouter();
-  const { user, isAuthenticated } = useAuth();
+  const { user } = useAuth();
   const { handleLogout, isLoading } = useLogoutForm();
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const isClientSide = typeof window !== 'undefined';
@@ -30,7 +30,7 @@ export default function AccountPage() {
   };
 
   // 로딩 상태이거나 인증되지 않은 경우 로딩 표시
-  if (!isClientSide || !isAuthenticated) {
+  if (!isClientSide) {
     return (
       <div
         style={{

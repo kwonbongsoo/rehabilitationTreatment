@@ -1,7 +1,7 @@
 'use client';
 
 import { useAuth } from '@/domains/auth/stores';
-import { useAuthQuery } from '@/hooks/queries/useAuthQuery';
+import { useCurrentUser } from '@/hooks/api';
 import { useEffect } from 'react';
 
 /**
@@ -9,13 +9,13 @@ import { useEffect } from 'react';
  *
  * 특징:
  * - 앱 시작 시 한 번만 세션 정보 초기화
- * - useAuthQuery를 통해 사용자 정보 가져오기
+ * - useCurrentUser를 통해 사용자 정보 가져오기
  * - zustand store에 세션 정보 설정
  * - UI 렌더링 없음 (순수 로직 컴포넌트)
  */
 export default function SessionInitializer() {
   const { setUser, isSessionInitialized } = useAuth();
-  const { data: user, isLoading, error } = useAuthQuery();
+  const { data: user, isLoading, error } = useCurrentUser();
 
   // 세션 초기화 로직
   useEffect(() => {

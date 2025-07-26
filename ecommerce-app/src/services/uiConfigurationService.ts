@@ -88,7 +88,7 @@ class QueryClientFactory implements IQueryClientFactory {
           if (error?.status === 401) {
             // 인증 실패 시 로그아웃 처리
             if (typeof window !== 'undefined') {
-              window.location.href = '/auth/login';
+              window.location.reload();
             }
           }
         },
@@ -108,7 +108,7 @@ class QueryClientFactory implements IQueryClientFactory {
           if (error?.status === 401) {
             // 인증 실패 시 처리
             if (typeof window !== 'undefined') {
-              window.location.href = '/auth/login';
+              window.location.reload();
             }
           }
         },

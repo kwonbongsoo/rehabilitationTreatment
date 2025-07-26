@@ -70,10 +70,14 @@ export function useLoginForm(): UseLoginFormReturn {
       // 검증 서비스를 통한 입력 검증
       authValidationService.validateLoginCredentials(credentials);
 
-      // 멱등성이 보장되는 로그인 요청 실행
+      // 로그인 요청 실행
       await executeMutation(
         async (loginCredentials) => {
-          await loginAction(loginCredentials);
+          const result = await loginAction(loginCredentials);
+
+          if (!result.success) {
+            throw new Error(result.error || '로그인에 실패했습니다.');
+          }
         },
         credentials,
         {
