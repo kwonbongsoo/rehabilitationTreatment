@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import { useAuth } from '@/domains/auth/stores';
-import AuthSkeleton from '@/components/skeleton/AuthSkeleton';
+import HomeSkeleton from '@/components/skeleton/HomeSkeleton';
 
 interface SessionProviderProps {
   children: React.ReactNode;
@@ -40,7 +40,7 @@ export default function SessionProvider({ children }: SessionProviderProps) {
             boxShadow: '0 0 30px rgba(11, 143, 172, 0.15)',
           }}
         >
-          <AuthSkeleton />
+          <HomeSkeleton />
         </div>
       </div>
     );

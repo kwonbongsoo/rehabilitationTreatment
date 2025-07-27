@@ -86,9 +86,24 @@ services:
         kong start"
     networks:
       - app-network
-    ports:
-      - '8000:8000'
-      - '8001:8001'
+
+  # Kong Warm-up Service
+  kong-warmup:
+    image: curlimages/curl:latest
+    container_name: kong-warmup
+    depends_on:
+      - kong
+      - bff-server
+    volumes:
+      - ./warm-up.sh:/warm-up.sh:ro
+    env_file:
+      - ./kong/.env
+    environment:
+      - KONG_GATEWAY_URL=http://kong:8000
+    command: /bin/sh /warm-up.sh
+    networks:
+      - app-network
+    restart: "no"
 
 networks:
   app-network:

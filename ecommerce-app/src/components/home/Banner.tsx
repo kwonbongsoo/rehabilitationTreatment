@@ -215,7 +215,7 @@ export default function Banner({
                       src={slide.src}
                       alt={slide.alt}
                       width={120}
-                      height={160}
+                      height={120}
                       priority={index === 0}
                       className={styles.sliderImage}
                     />

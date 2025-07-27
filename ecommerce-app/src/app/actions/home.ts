@@ -17,20 +17,22 @@ const KONG_GATEWAY_URL = process.env.KONG_GATEWAY_URL;
 export async function getHomeDataAction(): Promise<HomePageActionResult> {
   try {
     const headers = await HeaderBuilderFactory.createForApiRequest().build();
-
     const response = await fetch(`${KONG_GATEWAY_URL}/api/home`, {
       method: 'GET',
       headers,
-      cache: 'no-store', // 항상 최신 데이터
+      next: { revalidate: 60 }, // 60초 캐시
     });
 
-    return await handleApiResponse(response, (json) => {
+    const result = (await handleApiResponse(response, (json) => {
       if (!json.success || !json.data) {
         throw new Error('Invalid response format');
       }
       return json.data as HomePageResponse;
-    }) as HomePageActionResult;
+    })) as HomePageActionResult;
+
+    return result;
   } catch (error) {
+    console.error('[서버액션] 에러 발생:', error);
     return handleActionError(error) as HomePageActionResult;
   }
 }

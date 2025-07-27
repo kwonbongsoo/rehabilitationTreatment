@@ -1,13 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { FiArrowLeft } from 'react-icons/fi';
 import styles from './page.module.css';
 
 export default function FilterPage() {
-  const router = useRouter();
-
   // 필터 상태
   const [selectedBrand, setSelectedBrand] = useState('All');
   const [selectedGender, setSelectedGender] = useState('All');
@@ -20,20 +16,12 @@ export default function FilterPage() {
   const sortOptions = ['Most Recent', 'Popular', 'Price High'];
   const ratings = [1, 2, 3, 4, 5];
 
-  const handleBackClick = () => {
-    router.back();
-  };
-
   const handleResetFilter = () => {
     setSelectedBrand('All');
     setSelectedGender('All');
     setSelectedSort('Popular');
     setSelectedRating(4);
     setPriceRange([10, 50]);
-  };
-
-  const handleApply = () => {
-    router.back();
   };
 
   const handlePriceChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -85,15 +73,6 @@ export default function FilterPage() {
 
   return (
     <div className={styles.filterPage}>
-      {/* 헤더 */}
-      <header className={styles.header}>
-        <button className={styles.backButton} onClick={handleBackClick}>
-          <FiArrowLeft size={24} />
-        </button>
-        <h1 className={styles.title}>Filter</h1>
-        <div></div>
-      </header>
-
       <div className={styles.content}>
         {/* Brands */}
         <section className={styles.section}>
@@ -217,7 +196,7 @@ export default function FilterPage() {
         <button className={styles.resetButton} onClick={handleResetFilter}>
           Reset Filter
         </button>
-        <button className={styles.applyButton} onClick={handleApply}>
+        <button className={styles.applyButton} onClick={() => {}}>
           Apply
         </button>
       </div>
