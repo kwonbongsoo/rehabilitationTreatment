@@ -537,7 +537,6 @@ export class BFFService {
 ### Phase 2: 비즈니스 서비스 확장
 - [ ] **Product Service**: 상품 관리 서비스 (포트 6000)
 - [ ] **Order Service**: 주문 관리 서비스 (포트 7000)
-- [ ] **Payment Service**: 결제 처리 서비스 (포트 8000)
 
 ### Phase 3: 성능 최적화 ✅
 - [x] **Kong 성능 최적화**: 메모리 사용량 75% 감소, 로그 레벨 최적화
@@ -546,7 +545,6 @@ export class BFFService {
 - [x] **CDN 이미지 최적화**: Cloudflare Workers 기반 이미지 리사이징 및 WebP 변환
 - [ ] **Kong 캐싱**: 엔드포인트별 캐싱 전략
 - [ ] **BFF 응답 캐싱**: 집계된 데이터 캐싱
-- [ ] **Database 최적화**: 인덱싱 및 쿼리 최적화
 
 ### Phase 4: 모니터링 & 관찰성
 - [ ] **메트릭 수집**: Prometheus + Grafana
