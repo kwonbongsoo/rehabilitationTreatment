@@ -47,8 +47,6 @@ services:
     container_name: bff-server
     env_file:
       - ./bff-server/.env
-    ports:
-      - '3001:3001'
     depends_on:
       - koa-auth-server
       - fastify-member-server
@@ -88,9 +86,6 @@ services:
         kong start"
     networks:
       - app-network
-    ports:
-      - '8000:8000'
-      - '8001:8001'
 
   # Kong Warm-up Service
   kong-warmup:
@@ -101,6 +96,8 @@ services:
       - bff-server
     volumes:
       - ./warm-up.sh:/warm-up.sh:ro
+    env_file:
+      - ./kong/.env
     environment:
       - KONG_GATEWAY_URL=http://kong:8000
     command: /bin/sh /warm-up.sh

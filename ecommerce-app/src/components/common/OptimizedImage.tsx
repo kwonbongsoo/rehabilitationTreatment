@@ -10,7 +10,8 @@ interface OptimizedImageProps extends Omit<ImgHTMLAttributes<HTMLImageElement>, 
 }
 
 function buildCdnUrl(src: string, width?: number, height?: number): string {
-  const cdnDomain = process.env.CDN_DOMAIN || 'https://image-resizer.star1231076.workers.dev';
+  const cdnDomain =
+    process.env.NEXT_PUBLIC_CDN_DOMAIN || 'https://image-resizer.star1231076.workers.dev';
   if (!cdnDomain) return src;
 
   const params = new URLSearchParams();

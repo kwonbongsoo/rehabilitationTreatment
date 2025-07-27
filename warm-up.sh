@@ -20,12 +20,12 @@ echo "✓ Kong health check completed!"
 echo "Testing Kong → Auth call..."
 curl -s -o /dev/null -w "Time: %{time_total}s\n" "$KONG_URL/api/auth/health" && echo "✓ Kong auth endpoint completed" || echo "⚠ Kong auth endpoint failed"
 
-# Test Kong → Members call (no token required for health)
+# Test Kong → Members call with token
 echo "Testing Kong → Members call..."
-curl -s -o /dev/null -w "Time: %{time_total}s\n" "$KONG_URL/api/members/health" && echo "✓ Kong members endpoint completed" || echo "⚠ Kong members endpoint failed"
+curl -s -o /dev/null -w "Time: %{time_total}s\n" "$KONG_URL/api/members/health" -H "Authorization: Bearer ${TEST_TOKEN}" && echo "✓ Kong members endpoint completed" || echo "⚠ Kong members endpoint failed"
 
 # Test Kong → BFF call with token
 echo "Testing Kong → BFF call..."
-curl -s -o /dev/null -w "Time: %{time_total}s\n" "$KONG_URL/api/home" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiZ29kIiwiaWF0IjoxNzUzNjE1ODExfQ.igJ2zdPROgud15pGmS8UkWtvgOPtloD_yoiQkyG_2D4" && echo "✓ Kong BFF endpoint completed" || echo "⚠ Kong BFF endpoint failed"
+curl -s -o /dev/null -w "Time: %{time_total}s\n" "$KONG_URL/api/home" -H "Authorization: Bearer ${TEST_TOKEN}" && echo "✓ Kong BFF endpoint completed" || echo "⚠ Kong BFF endpoint failed"
 
 echo "✓ All warm-up completed!"
