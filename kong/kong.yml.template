@@ -2,6 +2,14 @@ _format_version: "3.0"
 _transform: true
 
 services:
+  # Health Check Service (Kong 자체)
+  - name: kong-health
+    url: http://localhost:8001/status
+    routes:
+      - name: health-check
+        paths:
+          - /health
+        strip_path: true
   - name: fastify-member-server
     url: "${MEMBER_SERVER_URL}"
     routes:

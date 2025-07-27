@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter, usePathname } from 'next/navigation';
+import React from 'react';
 import styles from './CommonHeader.module.css';
 
 interface CommonHeaderProps {
@@ -9,10 +10,10 @@ interface CommonHeaderProps {
   onDeleteClick?: () => void;
 }
 
-const CommonHeader: React.FC<CommonHeaderProps> = ({ 
-  title, 
-  showDeleteButton = false, 
-  onDeleteClick 
+const CommonHeader: React.FC<CommonHeaderProps> = ({
+  title,
+  showDeleteButton = false,
+  onDeleteClick,
 }) => {
   const router = useRouter();
   const pathname = usePathname();
@@ -25,11 +26,7 @@ const CommonHeader: React.FC<CommonHeaderProps> = ({
 
   return (
     <div className={styles.header}>
-      <button 
-        className={styles.backButton} 
-        onClick={handleBackClick} 
-        aria-label="뒤로가기"
-      >
+      <button className={styles.backButton} onClick={handleBackClick} aria-label="뒤로가기">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
           <path
             d="M15 18L9 12L15 6"
@@ -40,15 +37,11 @@ const CommonHeader: React.FC<CommonHeaderProps> = ({
           />
         </svg>
       </button>
-      
+
       <h1 className={styles.title}>{title}</h1>
-      
+
       {isCartPage && showDeleteButton && (
-        <button 
-          className={styles.deleteAllButton} 
-          onClick={onDeleteClick} 
-          aria-label="전체 삭제"
-        >
+        <button className={styles.deleteAllButton} onClick={onDeleteClick} aria-label="전체 삭제">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
             <polyline points="3,6 5,6 21,6" stroke="currentColor" strokeWidth="2" />
             <path
@@ -61,10 +54,8 @@ const CommonHeader: React.FC<CommonHeaderProps> = ({
           </svg>
         </button>
       )}
-      
-      {!isCartPage && (
-        <div className={styles.placeholder} />
-      )}
+
+      {!isCartPage && <div className={styles.placeholder} />}
     </div>
   );
 };

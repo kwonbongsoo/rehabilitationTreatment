@@ -8,7 +8,7 @@ const nextConfig: NextConfig = {
 
   // 컴파일러 최적화
   compiler: {
-    removeConsole: process.env.NODE_ENV === 'production',
+    removeConsole: false, // 성능 측정을 위해 임시 비활성화
   },
 
   // 빌드 최적화
@@ -47,6 +47,12 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       },
       {
+        protocol: 'https',
+        hostname: 'image-resizer.star1231076.workers.dev',
+        port: '',
+        pathname: '/**',
+      },
+      {
         protocol: 'http',
         hostname: 'localhost',
         port: '3000',
@@ -55,8 +61,12 @@ const nextConfig: NextConfig = {
     ],
     formats: ['image/webp', 'image/avif'],
     minimumCacheTTL: 86400, // 24시간 캐싱
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    // 이미지 품질과 성능 트레이드오프
+    dangerouslyAllowSVG: false,
+    // 이미지 최적화 프로세스 개수 제한 (메모리 사용량 감소)
+    domains: [],
   },
 
   // 서버 외부 패키지 설정 (Next.js 15에서 변경됨)

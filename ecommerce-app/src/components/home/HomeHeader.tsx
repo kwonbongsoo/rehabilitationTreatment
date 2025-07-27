@@ -1,6 +1,6 @@
 'use client';
 
-import Image from 'next/image';
+import OptimizedImage from '@/components/common/OptimizedImage';
 import { FiSearch, FiSliders, FiBell, FiHeart } from 'react-icons/fi';
 import styles from '@/styles/home/HomeHeader.module.css';
 
@@ -28,7 +28,7 @@ export default function HomeHeader({
         <div className={styles.userProfile}>
           <div className={styles.avatar}>
             {user?.avatar ? (
-              <Image
+              <OptimizedImage
                 src={user.avatar}
                 alt={user.name}
                 width={32}

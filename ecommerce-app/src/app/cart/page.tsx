@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+// import { useRouter } from 'next/navigation';
 import OptimizedImage from '@/components/common/OptimizedImage';
 import { Button } from '@/components/common/Button';
 import { ConfirmDialog } from '@/components/common/Modal';
@@ -21,7 +21,7 @@ interface CartItem {
 }
 
 export default function CartPage() {
-  const router = useRouter();
+  // const router = useRouter();
   const { cartItems, isLoading } = useCartStore();
   const { removeItem, updateQuantity, clearCart } = useCartActions();
 
