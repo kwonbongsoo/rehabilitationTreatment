@@ -34,7 +34,7 @@ export default function OptimizedImage({
   loading,
   ...props
 }: OptimizedImageProps) {
-  const optimizedSrc = buildCdnUrl(src, Number(width) ?? 500, Number(height) ?? 500);
+  const optimizedSrc = buildCdnUrl(src, width ? Number(width) : 500, height ? Number(height) : 500);
   const optimizedFallbackSrc = buildCdnUrl(
     fallbackSrc,
     Number(width) ?? 500,
