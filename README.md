@@ -188,16 +188,29 @@ graph TD
 ### Kong API Gateway (:8000)
 ```yaml
 역할: API 프록시 및 중앙 관리
-기술 스택: Kong Community Edition
+기술 스택: Kong Community Edition 3.9
 주요 기능:
   - API 라우팅 및 프록시
   - JWT 토큰 검증 (token-validator)
   - 멱등성 처리 (idempotency + Redis)
   - 플러그인 기반 확장
+  - 자동 웜업 시스템 (warm-up.sh)
+
+성능 최적화:
+  - 메모리 사용량 75% 감소 (로그 레벨 error)
+  - access 로그 비활성화로 I/O 부하 감소
+  - worker 프로세스 최적화 (1개)
+  - keepalive 설정 개선 (10000 requests, 75s timeout)
 
 현재 활성 플러그인:
   - token-validator: JWT 토큰 검증
   - idempotency: 중복 요청 방지
+
+웜업 엔드포인트:
+  - /health: Kong 자체 상태 확인
+  - /api/auth/health: Auth 서비스 웜업
+  - /api/members/health: Members 서비스 웜업 (토큰 필요)
+  - /api/home: BFF 서비스 웜업 (토큰 필요)
 ```
 
 ### BFF Server (:3001)
@@ -261,8 +274,15 @@ graph TD
 주요 기능:
   - App Router 기반 라우팅
   - 도메인별 상태 관리 (Zustand)
-  - Server-Side Rendering
+  - Server-Side Rendering (홈페이지)
   - HttpOnly 쿠키 → Bearer 토큰 변환
+  - CDN 이미지 최적화 (Cloudflare Workers)
+
+성능 최적화:
+  - 홈페이지 SSR 전환으로 초기 로딩 속도 향상
+  - 이미지 WebP 변환 및 리사이징 자동화
+  - Next.js Image 최적화 설정 개선
+    - next/image로 인한 부하 책임 CDN으로 위임.
 
 디렉토리 구조:
   - src/domains/: 도메인별 로직 분리
@@ -519,7 +539,11 @@ export class BFFService {
 - [ ] **Order Service**: 주문 관리 서비스 (포트 7000)
 - [ ] **Payment Service**: 결제 처리 서비스 (포트 8000)
 
-### Phase 3: 성능 최적화
+### Phase 3: 성능 최적화 ✅
+- [x] **Kong 성능 최적화**: 메모리 사용량 75% 감소, 로그 레벨 최적화
+- [x] **웜업 시스템**: 컨테이너 시작 시 자동 웜업으로 초기 응답 속도 개선
+- [x] **SSR 전환**: 홈페이지 서버사이드 렌더링으로 초기 로딩 속도 향상
+- [x] **CDN 이미지 최적화**: Cloudflare Workers 기반 이미지 리사이징 및 WebP 변환
 - [ ] **Kong 캐싱**: 엔드포인트별 캐싱 전략
 - [ ] **BFF 응답 캐싱**: 집계된 데이터 캐싱
 - [ ] **Database 최적화**: 인덱싱 및 쿼리 최적화
