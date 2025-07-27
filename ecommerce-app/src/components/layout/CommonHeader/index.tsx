@@ -27,7 +27,7 @@ const CommonHeader: React.FC<CommonHeaderProps> = ({
   };
 
   const isCartPage = pathname === '/cart';
-  const isProductDetailPage = pathname.startsWith('/products/') && pathname.split('/').length > 2;
+  const isProductDetailPage = /^\/products\/[^/]+$/.test(pathname);
 
   return (
     <div className={styles.header}>
@@ -61,10 +61,17 @@ const CommonHeader: React.FC<CommonHeaderProps> = ({
       )}
 
       {isProductDetailPage && (
-        <button 
+        <button
           className={`${styles.wishlistButton} ${isWishlisted ? styles.wishlisted : ''}`}
-          onClick={onWishlistToggle}
+          onClick={() => onWishlistToggle?.()}
           aria-label={isWishlisted ? '위시리스트에서 제거' : '위시리스트에 추가'}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              onWishlistToggle?.();
+            }
+          }}
+          disabled={!onWishlistToggle}
         >
           {isWishlisted ? (
             <svg width="24" height="24" viewBox="0 0 24 24" fill="#FF4757">

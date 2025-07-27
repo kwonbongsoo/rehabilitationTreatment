@@ -179,10 +179,10 @@ const nextConfig: NextConfig = {
             key: 'Cache-Control',
             value: 'public, max-age=31536000, immutable',
           },
-          {
-            key: 'Link',
-            value: '</_next/static/css/:path*>; rel=preload; as=style',
-          },
+          // {
+          //   key: 'Link',
+          //   value: '</_next/static/css/:path*>; rel=preload; as=style',
+          // },
         ],
       },
       // JavaScript preload 헤더

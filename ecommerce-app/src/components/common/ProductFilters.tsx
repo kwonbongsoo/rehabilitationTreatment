@@ -28,14 +28,14 @@ const DEFAULT_FILTER_OPTIONS: FilterOption[] = [
   { value: '전체', label: '전체' },
   { value: '할인상품', label: '할인상품' },
   { value: '신상품', label: '신상품' },
-  { value: '입고상품', label: '입고상품' }
+  { value: '인기상품', label: '인기상품' },
 ];
 
 const DEFAULT_SORT_OPTIONS: SortOption[] = [
   { value: 'popular', label: '인기순' },
   { value: 'newest', label: '최신순' },
   { value: 'price-low', label: '가격 낮은순' },
-  { value: 'price-high', label: '가격 높은순' }
+  { value: 'price-high', label: '가격 높은순' },
 ];
 
 export default function ProductFilters({
@@ -46,7 +46,7 @@ export default function ProductFilters({
   onViewModeChange,
   defaultFilter = '전체',
   defaultSort = 'popular',
-  defaultViewMode = 'grid'
+  defaultViewMode = 'grid',
 }: ProductFiltersProps) {
   const [filterBy, setFilterBy] = useState(defaultFilter);
   const [sortBy, setSortBy] = useState(defaultSort);

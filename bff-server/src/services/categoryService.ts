@@ -21,14 +21,24 @@ class CategoryService {
     const productsPath = join(__dirname, '../data/categoriesProduct.json');
 
     const [categoriesData, productsData] = await Promise.all([
-      readFile(categoriesPath, 'utf-8'),
-      readFile(productsPath, 'utf-8'),
+      readFile(categoriesPath, 'utf-8').catch((err) => {
+        throw new Error(`Failed to load categories.json: ${err.message}`);
+      }),
+      readFile(productsPath, 'utf-8').catch((err) => {
+        throw new Error(`Failed to load categoriesProduct.json: ${err.message}`);
+      }),
     ]);
 
-    return {
-      categories: JSON.parse(categoriesData) as CategoryRaw[],
-      products: JSON.parse(productsData) as ProductRaw[],
-    };
+    try {
+      return {
+        categories: JSON.parse(categoriesData) as CategoryRaw[],
+        products: JSON.parse(productsData) as ProductRaw[],
+      };
+    } catch (err) {
+      throw new Error(
+        `Failed to parse JSON data: ${err instanceof Error ? err.message : 'Unknown error'}`,
+      );
+    }
   }
 
   private getDefaultFilters(): FilterOption[] {
@@ -42,7 +52,7 @@ class CategoryService {
 
   private getDefaultSortOptions(): FilterOption[] {
     return [
-      { value: 'popularity', label: '인기순' },
+      { value: 'popular', label: '인기순' },
       { value: 'price-low', label: '낮은 가격순' },
       { value: 'price-high', label: '높은 가격순' },
       { value: 'rating', label: '평점순' },

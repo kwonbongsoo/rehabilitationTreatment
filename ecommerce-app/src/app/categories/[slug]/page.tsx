@@ -13,7 +13,7 @@ interface CategoryPageProps {
 }
 
 const sortOptions = [
-  { value: 'popularity', label: '인기순' },
+  { value: 'popular', label: '인기순' },
   { value: 'price-low', label: '낮은 가격순' },
   { value: 'price-high', label: '높은 가격순' },
   { value: 'rating', label: '평점순' },
@@ -29,7 +29,7 @@ const filterOptions = [
 
 export default function CategoryPage({ params }: CategoryPageProps) {
   const { slug: category } = params;
-  const [sortBy, setSortBy] = useState('popularity');
+  const [sortBy, setSortBy] = useState('popular');
   const [filterBy, setFilterBy] = useState('전체');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 

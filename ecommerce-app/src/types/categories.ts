@@ -50,30 +50,18 @@ export interface CategoryDetailData {
   filters: CategoryFilter[];
 }
 
-// API 응답 래퍼 타입
-export interface CategoryPageResponse {
+export interface ApiResponse<T> {
   success: boolean;
-  data: CategoryPageData;
+  data: T;
   error?: string;
 }
 
-export interface CategoryDetailResponse {
-  success: boolean;
-  data: CategoryDetailData;
-  error?: string;
-}
+export type CategoryPageResponse = ApiResponse<CategoryPageData>;
+export type CategoryDetailResponse = ApiResponse<CategoryDetailData>;
 
-// Server Action 결과 타입
-export interface CategoryPageActionResult {
-  success: boolean;
-  data?: CategoryPageData;
-  error?: string;
+export interface ActionResult<T> extends ApiResponse<T> {
   statusCode?: number;
 }
 
-export interface CategoryDetailActionResult {
-  success: boolean;
-  data?: CategoryDetailData;
-  error?: string;
-  statusCode?: number;
-}
+export type CategoryPageActionResult = ActionResult<CategoryPageData>;
+export type CategoryDetailActionResult = ActionResult<CategoryDetailData>;

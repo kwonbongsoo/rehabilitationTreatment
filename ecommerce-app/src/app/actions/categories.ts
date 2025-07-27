@@ -30,7 +30,7 @@ export async function getCategoriesAction(): Promise<CategoryPageActionResult> {
       return json.data;
     });
 
-    return result;
+    return result as CategoryPageActionResult;
   } catch (error) {
     console.error('[서버액션] 카테고리 조회 에러:', error);
     return handleActionError(error) as CategoryPageActionResult;
@@ -56,7 +56,7 @@ export async function getCategoryDetailAction(slug: string): Promise<CategoryDet
       return json.data;
     });
 
-    return result;
+    return result as CategoryDetailActionResult;
   } catch (error) {
     console.error('[서버액션] 카테고리 상세 조회 에러:', error);
     return handleActionError(error) as CategoryDetailActionResult;

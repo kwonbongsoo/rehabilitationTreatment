@@ -19,7 +19,7 @@ export default function CategoriesClient({
   filterOptions,
   sortOptions,
 }: CategoriesClientProps) {
-  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number>(0);
   const [currentFilter, setCurrentFilter] = useState('전체');
   const [currentSort, setCurrentSort] = useState('popular');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -34,7 +34,7 @@ export default function CategoriesClient({
     let products = allProducts;
 
     // 카테고리 필터링
-    if (selectedCategoryId !== null) {
+    if (selectedCategoryId !== 0) {
       products = products.filter((product) => product.categoryId === selectedCategoryId);
     }
 
