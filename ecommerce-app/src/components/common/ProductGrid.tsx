@@ -19,6 +19,8 @@ interface ProductGridProps {
   initialSort?: SortOption;
   gridType?: 'default' | 'bestseller';
   emptyMessage?: string;
+  onWishlistToggle?: (productId: number) => void;
+  isWishlisted?: (productId: number) => boolean;
 }
 
 export default function ProductGrid({
@@ -29,6 +31,8 @@ export default function ProductGrid({
   initialSort = 'newest',
   gridType = 'default',
   emptyMessage = '상품이 없습니다.',
+  onWishlistToggle,
+  isWishlisted,
 }: ProductGridProps) {
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [sortBy, setSortBy] = useState<SortOption>(initialSort);
@@ -89,7 +93,12 @@ export default function ProductGrid({
 
       <div className={styles.productGrid}>
         {filteredProducts.map((product) => (
-          <ProductCard key={product.id} product={product} />
+          <ProductCard
+            key={product.id}
+            product={product}
+            onWishlistToggle={onWishlistToggle || (() => {})}
+            isWishlisted={isWishlisted ? isWishlisted(product.id) : false}
+          />
         ))}
       </div>
     </div>

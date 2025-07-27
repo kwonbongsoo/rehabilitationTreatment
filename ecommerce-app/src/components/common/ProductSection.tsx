@@ -13,6 +13,7 @@ interface ProductSectionProps {
   viewAllLink?: string;
   className?: string;
   onWishlistToggle?: (productId: number) => void;
+  isFirstSection?: boolean;
 }
 
 export default function ProductSection({
@@ -23,6 +24,7 @@ export default function ProductSection({
   viewAllLink = '/products',
   className = '',
   onWishlistToggle,
+  isFirstSection = false,
 }: ProductSectionProps) {
   const handleWishlistToggle = (productId: number) => {
     if (onWishlistToggle) {
@@ -49,8 +51,13 @@ export default function ProductSection({
       </div>
 
       <div className={styles.productsGrid}>
-        {products.map((product) => (
-          <ProductCard key={product.id} product={product} onWishlistToggle={handleWishlistToggle} />
+        {products.map((product, index) => (
+          <ProductCard 
+            key={product.id} 
+            product={product} 
+            onWishlistToggle={handleWishlistToggle}
+            priority={isFirstSection && index < 2}
+          />
         ))}
       </div>
     </section>

@@ -24,6 +24,9 @@ export interface BannerComponent extends BaseUIComponent {
       src: string;
       alt: string;
       link: string;
+      title?: string;
+      description?: string;
+      backgroundColor?: string;
     }[];
   };
 }
@@ -121,4 +124,12 @@ export type UIComponent =
 // API 응답 타입
 export interface HomePageResponse {
   components: UIComponent[];
+}
+
+// Server Action 결과 타입
+export interface HomePageActionResult {
+  success: boolean;
+  data?: HomePageResponse;
+  error?: string;
+  statusCode?: number;
 }

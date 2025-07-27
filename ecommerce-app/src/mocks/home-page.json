@@ -8,19 +8,19 @@
         "slides": [
           {
             "id": 1,
-            "src": "https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg",
+            "src": "https://www.kbs-cdn.shop/image/product-default.jpg",
             "alt": "여름 시즌 세일",
             "link": "/products/seasonal"
           },
           {
             "id": 2,
-            "src": "https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg",
+            "src": "https://www.kbs-cdn.shop/image/product-default.jpg",
             "alt": "신상품 컬렉션",
             "link": "/products/new"
           },
           {
             "id": 3,
-            "src": "https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg",
+            "src": "https://www.kbs-cdn.shop/image/product-default.jpg",
             "alt": "특별 할인 이벤트",
             "link": "/products/sale"
           }
@@ -57,7 +57,7 @@
             "name": "심플 티셔츠",
             "price": 29000,
             "discount": 0,
-            "image": "https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg",
+            "image": "https://www.kbs-cdn.shop/image/product-default.jpg",
             "rating": 4.5,
             "reviewCount": 123
           },
@@ -66,7 +66,7 @@
             "name": "캐주얼 데님 자켓",
             "price": 89000,
             "discount": 15,
-            "image": "https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg",
+            "image": "https://www.kbs-cdn.shop/image/product-default.jpg",
             "rating": 4.8,
             "reviewCount": 87
           },
@@ -75,7 +75,7 @@
             "name": "클래식 운동화",
             "price": 69000,
             "discount": 0,
-            "image": "https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg",
+            "image": "https://www.kbs-cdn.shop/image/product-default.jpg",
             "rating": 4.2,
             "reviewCount": 56
           },
@@ -84,7 +84,7 @@
             "name": "미니멀 백팩",
             "price": 59000,
             "discount": 10,
-            "image": "https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg",
+            "image": "https://www.kbs-cdn.shop/image/product-default.jpg",
             "rating": 4.7,
             "reviewCount": 92
           }
@@ -113,25 +113,25 @@
             "id": 101,
             "name": "플로랄 드레스",
             "price": 79000,
-            "image": "https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg"
+            "image": "https://www.kbs-cdn.shop/image/product-default.jpg"
           },
           {
             "id": 102,
             "name": "슬림핏 청바지",
             "price": 69000,
-            "image": "https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg"
+            "image": "https://www.kbs-cdn.shop/image/product-default.jpg"
           },
           {
             "id": 103,
             "name": "니트 스웨터",
             "price": 59000,
-            "image": "https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg"
+            "image": "https://www.kbs-cdn.shop/image/product-default.jpg"
           },
           {
             "id": 104,
             "name": "캐주얼 슬립온",
             "price": 49000,
-            "image": "https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg"
+            "image": "https://www.kbs-cdn.shop/image/product-default.jpg"
           }
         ]
       }

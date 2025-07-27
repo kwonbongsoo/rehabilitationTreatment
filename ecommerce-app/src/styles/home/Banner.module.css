@@ -1,122 +1,260 @@
 .sliderSection {
     margin: 20px 16px;
+    position: relative;
+    perspective: 1000px;
+    overflow: hidden;
 }
 
 .slider {
     position: relative;
-    border-radius: 16px;
-    overflow: hidden;
-    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    border-radius: 20px;
+    display: flex;
+    width: 100%;
+    height: 180px;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.12),
+        0 2px 8px rgba(0, 0, 0, 0.08);
+    backdrop-filter: blur(10px);
+    transform-style: preserve-3d;
 }
 
 .slide {
-    display: none;
-    padding: 24px;
-    min-height: 160px;
+    flex: 0 0 100%;
+    padding: 32px;
+    min-height: 100%;
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: var(--slide-bg, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
+}
+
+.slide::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg,
+        rgba(255, 255, 255, 0.05) 0%,
+        rgba(255, 255, 255, 0.02) 100%);
+    backdrop-filter: blur(4px);
+    border-radius: inherit;
+    pointer-events: none;
+    z-index: 0;
 }
 
 .activeSlide {
-    display: block;
+    /* Remove display block as we're using flexbox */
 }
 
 .slideLink {
     display: block;
     text-decoration: none;
     color: inherit;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -webkit-touch-callout: none;
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
 }
 
 .slideContent {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    width: 100%;
     height: 100%;
+    z-index: 2;
+    position: relative;
 }
 
 .textContent {
     flex: 1;
     color: white;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .slideTitle {
-    font-size: 18px;
-    font-weight: 600;
-    margin: 0 0 8px 0;
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0 0 12px 0;
     color: white;
+    background: linear-gradient(45deg, #ffffff 0%, #f0f0f0 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: none;
 }
 
 .slideSubtitle {
-    font-size: 14px;
-    margin: 0 0 16px 0;
-    color: rgba(255, 255, 255, 0.8);
-    line-height: 1.4;
+    font-size: 16px;
+    margin: 0 0 20px 0;
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.5;
+    font-weight: 400;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
 }
 
 .shopButton {
-    background: white;
-    color: #4f46e5;
+    background: linear-gradient(45deg, #ffffff 0%, #f8f9fa 100%);
+    color: #1a1a1a;
     border: none;
-    border-radius: 8px;
-    padding: 8px 16px;
-    font-size: 12px;
+    border-radius: 12px;
+    padding: 12px 24px;
+    font-size: 14px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow:
+        0 4px 16px rgba(0, 0, 0, 0.1),
+        0 2px 4px rgba(0, 0, 0, 0.05);
+    transform: translateZ(0);
 }
 
 .shopButton:hover {
-    background: #f8f9fa;
-    transform: translateY(-1px);
+    background: linear-gradient(45deg, #f8f9fa 0%, #e9ecef 100%);
+    transform: translateY(-2px) translateZ(0);
+    box-shadow:
+        0 8px 24px rgba(0, 0, 0, 0.15),
+        0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.shopButton:active {
+    transform: translateY(0) translateZ(0);
+    transition: all 0.1s ease;
 }
 
 .imageContainer {
-    margin-left: 16px;
+    margin-left: 24px;
+    position: relative;
+    transform: translateZ(10px);
 }
 
 .sliderImage {
-    border-radius: 8px;
+    border-radius: 16px;
     object-fit: cover;
+    box-shadow:
+        0 8px 24px rgba(0, 0, 0, 0.2),
+        0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.imageContainer:hover .sliderImage {
+    transform: scale(1.05) rotateY(5deg);
 }
 
 .sliderDots {
     display: flex;
     justify-content: center;
-    gap: 8px;
-    padding: 16px 0 8px;
+    gap: 12px;
+    padding: 20px 0 12px;
     position: absolute;
     bottom: 0;
     left: 50%;
     transform: translateX(-50%);
+    z-index: 10;
 }
 
 .dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
+    width: 12px;
+    height: 4px;
+    border-radius: 2px;
     border: none;
-    background: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.4);
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(8px);
+}
+
+.dot:hover {
+    background: rgba(255, 255, 255, 0.6);
+    transform: scale(1.1);
 }
 
 .activeDot {
-    background: white;
+    background: rgba(255, 255, 255, 0.9);
+    width: 24px;
+    box-shadow: 0 2px 8px rgba(255, 255, 255, 0.3);
 }
 
+/* 반응형 디자인 */
 @media (max-width: 480px) {
     .sliderSection {
         margin: 16px 12px;
     }
-    
+
+    .slider {
+        height: 160px;
+        border-radius: 16px;
+    }
+
     .slide {
-        padding: 20px;
-        min-height: 140px;
+        padding: 24px 20px;
     }
-    
+
     .slideTitle {
-        font-size: 16px;
+        font-size: 20px;
+        margin-bottom: 8px;
     }
-    
+
     .slideSubtitle {
+        font-size: 14px;
+        margin-bottom: 16px;
+    }
+
+    .shopButton {
+        padding: 10px 20px;
+        font-size: 13px;
+        border-radius: 10px;
+    }
+
+    .imageContainer {
+        margin-left: 16px;
+    }
+
+    .sliderImage {
+        border-radius: 12px;
+    }
+
+    .imageContainer:hover .sliderImage {
+        transform: scale(1.02);
+    }
+
+    .sliderDots {
+        gap: 8px;
+        padding: 16px 0 8px;
+    }
+
+    .dot {
+        width: 10px;
+        height: 3px;
+    }
+
+    .activeDot {
+        width: 20px;
+    }
+}
+
+@media (max-width: 360px) {
+    .slideTitle {
+        font-size: 18px;
+    }
+
+    .slideSubtitle {
+        font-size: 13px;
+    }
+
+    .shopButton {
+        padding: 8px 16px;
         font-size: 12px;
     }
 }

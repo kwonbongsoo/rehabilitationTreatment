@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import MobileHeader from '@/components/home/MobileHeader';
 import ProductCard, { Product } from '@/components/common/ProductCard';
 import { Button } from '@/components/common/Button';
 import styles from './page.module.css';
@@ -33,42 +32,47 @@ export default function CategoryPage({ params }: CategoryPageProps) {
   const [filterBy, setFilterBy] = useState('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
-  // Mock products for the category
-  const mockProducts: Product[] = [
-    {
-      id: 1,
-      name: 'White shirt',
-      price: 69.0,
-      originalPrice: 89.0,
-      image: '/images/products/promotion.jpg',
-      rating: 4.9,
-      isNew: true,
-      discount: 22,
-    },
-    {
-      id: 2,
-      name: 'Black shirt',
-      price: 70.0,
-      image: '/images/products/promotion.jpg',
-      rating: 4.9,
-    },
-    {
-      id: 3,
-      name: 'White shirt',
-      price: 69.0,
-      originalPrice: 89.0,
-      image: '/images/products/promotion.jpg',
-      rating: 4.9,
-      discount: 22,
-    },
-    {
-      id: 4,
-      name: 'Black shirt',
-      price: 70.0,
-      image: '/images/products/promotion.jpg',
-      rating: 4.9,
-    },
-  ];
+  console.log(category);
+
+  // Mock products for the category - useMemo로 안정적인 참조 생성
+  const mockProducts: Product[] = useMemo(
+    () => [
+      {
+        id: 1,
+        name: 'White shirt',
+        price: 69.0,
+        originalPrice: 89.0,
+        image: 'https://www.kbs-cdn.shop/image/promotion.jpg',
+        rating: 4.9,
+        isNew: true,
+        discount: 22,
+      },
+      {
+        id: 2,
+        name: 'Black shirt',
+        price: 70.0,
+        image: 'https://www.kbs-cdn.shop/image/promotion.jpg',
+        rating: 4.9,
+      },
+      {
+        id: 3,
+        name: 'White shirt',
+        price: 69.0,
+        originalPrice: 89.0,
+        image: 'https://www.kbs-cdn.shop/image/promotion.jpg',
+        rating: 4.9,
+        discount: 22,
+      },
+      {
+        id: 4,
+        name: 'Black shirt',
+        price: 70.0,
+        image: 'https://www.kbs-cdn.shop/image/promotion.jpg',
+        rating: 4.9,
+      },
+    ],
+    [],
+  ); // 빈 의존성 배열 - 컴포넌트 생명주기 동안 안정적
 
   const filteredAndSortedProducts = useMemo(() => {
     let filtered = mockProducts;
@@ -106,14 +110,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
     });
 
     return filtered;
-  }, [sortBy, filterBy]);
-
-  const categoryDisplayName =
-    {
-      shoes: '신발',
-      clothing: '의류',
-      accessories: '액세서리',
-    }[category] || category;
+  }, [sortBy, filterBy, mockProducts]);
 
   const handleWishlistToggle = (productId: number) => {
     console.log('Toggle wishlist for product:', productId);
@@ -122,8 +119,6 @@ export default function CategoryPage({ params }: CategoryPageProps) {
 
   return (
     <div className={styles.categoryContainer}>
-      <MobileHeader title={categoryDisplayName} showBackButton={true} />
-
       {/* 필터 및 정렬 */}
       <div className={styles.controls}>
         <div className={styles.filters}>

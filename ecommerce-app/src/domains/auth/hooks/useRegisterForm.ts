@@ -73,7 +73,11 @@ export function useRegisterForm(): UseRegisterFormReturn {
         // 회원가입 요청 실행 (멱등성 키: 세션 고정)
         await executeMutation(
           async (req, key) => {
-            await registerAction(req, key);
+            const result = await registerAction(req, key);
+            if (!result.success) {
+              const error = new Error(result.error || '회원가입에 실패했습니다.');
+              throw error;
+            }
           },
           registerRequest,
           { useSessionKey: true },

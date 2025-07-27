@@ -26,12 +26,21 @@ export interface LoginActionResult {
   success: boolean;
   data?: LoginResponseI;
   error?: string;
+  statusCode?: number; // HTTP 상태 코드 추가
 }
 
 export interface RegisterActionResult {
   success: boolean;
   data?: RegisterResponse;
   error?: string;
+  statusCode?: number;
+}
+
+export interface LogoutActionResult {
+  success: boolean;
+  error?: string;
+  statusCode?: number;
+  data?: LogoutResponse;
 }
 
 interface LoginResponseI {
@@ -51,6 +60,13 @@ export interface ProxySessionInfoResponse {
 
 export interface SessionInfoResponse {
   data: SessionInfoResponseI;
+}
+
+export interface SessionInfoActionResult {
+  success: boolean;
+  data?: SessionInfoResponseI;
+  error?: string;
+  statusCode?: number;
 }
 
 interface SessionInfoResponseI {

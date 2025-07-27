@@ -5,6 +5,7 @@ export interface Slide {
   alt: string;
   title?: string;
   description?: string;
+  backgroundColor?: string;
   link: string;
   buttonText?: string;
 }

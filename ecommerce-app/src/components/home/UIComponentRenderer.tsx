@@ -8,9 +8,10 @@ import ProductSection from '@/components/common/ProductSection';
 
 interface UIComponentRendererProps {
   component: UIComponent;
+  index?: number;
 }
 
-export default function UIComponentRenderer({ component }: UIComponentRendererProps) {
+export default function UIComponentRenderer({ component, index = 0 }: UIComponentRendererProps) {
   if (!component.visible) {
     return null;
   }
@@ -33,6 +34,7 @@ export default function UIComponentRenderer({ component }: UIComponentRendererPr
           title={component.title || '추천 상품'}
           products={component.data.products}
           viewAllLink="/products/featured"
+          isFirstSection={index <= 1}
         />
       );
 
@@ -42,6 +44,7 @@ export default function UIComponentRenderer({ component }: UIComponentRendererPr
           title={component.title || '신상품'}
           products={component.data.products}
           viewAllLink="/products/new"
+          isFirstSection={index <= 1}
         />
       );
 

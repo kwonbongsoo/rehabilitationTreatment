@@ -32,6 +32,7 @@ export default function NewArrivals({ title, products }: NewArrivalsProps) {
             product={product}
             onWishlistToggle={handleWishlistToggle}
             className={styles.productCard || ''}
+            priority={false}
           />
         ))}
       </div>

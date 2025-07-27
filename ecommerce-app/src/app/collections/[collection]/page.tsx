@@ -1,8 +1,7 @@
 import React from 'react';
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
-// import styles from './page.module.css';
-import OptimizedImage from '@/components/common/OptimizedImage';
+import CollectionProductGrid from '@/components/collections/CollectionProductGrid';
+import type { Product } from '@/components/common/ProductCard';
 
 interface CollectionPageProps {
   params: {
@@ -35,95 +34,72 @@ export default function CollectionPage({ params }: CollectionPageProps) {
     }
   };
 
-  const mockProducts = [
+  const mockProducts: Product[] = [
     {
       id: 1,
       name: `${getCollectionTitle(collection)} 상품 1`,
       price: 69900,
-      image:
-        'https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg',
+      originalPrice: 79900,
+      image: 'https://www.kbs-cdn.shop/image/product-default.jpg',
+      rating: 4.5,
+      isNew: true,
+      discount: 13,
+      description: '편안하고 스타일리시한 디자인',
     },
     {
       id: 2,
       name: `${getCollectionTitle(collection)} 상품 2`,
       price: 89900,
-      image:
-        'https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg',
+      originalPrice: 99900,
+      image: 'https://www.kbs-cdn.shop/image/product-default.jpg',
+      rating: 4.2,
+      discount: 10,
+      description: '고급스러운 소재와 마감',
     },
     {
       id: 3,
       name: `${getCollectionTitle(collection)} 상품 3`,
       price: 79900,
-      image:
-        'https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg',
+      image: 'https://www.kbs-cdn.shop/image/product-default.jpg',
+      rating: 4.8,
+      description: '베스트셀러 아이템',
     },
     {
       id: 4,
       name: `${getCollectionTitle(collection)} 상품 4`,
       price: 99900,
-      image:
-        'https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg',
+      image: 'https://www.kbs-cdn.shop/image/product-default.jpg',
+      rating: 4.3,
+      isNew: true,
+      description: '신제품 출시 기념',
     },
   ];
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f8f9fa', padding: '20px' }}>
-      <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-        <h1 style={{ fontSize: '28px', fontWeight: '700', color: '#333', margin: '0 0 16px 0' }}>
-          {getCollectionTitle(collection)}
-        </h1>
-        <p style={{ fontSize: '16px', color: '#666', lineHeight: '1.6', margin: '0' }}>
-          {collection === 'summer' && '시원하고 스타일리시한 여름 아이템을 만나보세요'}
-          {collection === 'winter' && '따뜻하고 세련된 겨울 패션을 제안합니다'}
-          {collection === 'spring' && '상큼하고 경쾌한 봄의 분위기를 담았습니다'}
-          {collection === 'fall' && '차분하고 우아한 가을 룩을 선보입니다'}
-        </p>
-      </div>
-
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-          gap: '24px',
-        }}
+    <div style={{ minHeight: '100vh' }}>
+      <main
+        style={{ background: '#f8f9fa', padding: '40px 20px', minHeight: 'calc(100vh - 200px)' }}
       >
-        {mockProducts.map((product) => (
-          <Link
-            href={`/product/2`}
-            key={product.id}
-            style={{
-              display: 'block',
-              background: 'white',
-              borderRadius: '16px',
-              overflow: 'hidden',
-              textDecoration: 'none',
-              color: 'inherit',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-              transition: 'transform 0.2s',
-            }}
-          >
-            <div style={{ position: 'relative', width: '100%', aspectRatio: '1' }}>
-              <OptimizedImage
-                src={product.image}
-                alt={product.name}
-                width={500}
-                height={500}
-                style={{ objectFit: 'cover' }}
-              />
-            </div>
-            <div style={{ padding: '20px' }}>
-              <h3
-                style={{ fontSize: '16px', fontWeight: '600', color: '#333', margin: '0 0 8px 0' }}
-              >
-                {product.name}
-              </h3>
-              <p style={{ fontSize: '20px', fontWeight: '700', color: '#007bff', margin: '0' }}>
-                {product.price.toLocaleString()}원
-              </p>
-            </div>
-          </Link>
-        ))}
-      </div>
+        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+          {/* 컬렉션 헤더 */}
+          <div style={{ textAlign: 'center', marginBottom: '60px' }}>
+            <h1
+              style={{ fontSize: '36px', fontWeight: '700', color: '#333', margin: '0 0 16px 0' }}
+            >
+              {getCollectionTitle(collection)}
+            </h1>
+            <p style={{ fontSize: '18px', color: '#666', lineHeight: '1.6', margin: '0' }}>
+              {collection === 'summer' && '시원하고 스타일리시한 여름 아이템을 만나보세요'}
+              {collection === 'winter' && '따뜻하고 세련된 겨울 패션을 제안합니다'}
+              {collection === 'spring' && '상큼하고 경쾌한 봄의 분위기를 담았습니다'}
+              {collection === 'fall' && '차분하고 우아한 가을 룩을 선보입니다'}
+            </p>
+          </div>
+
+          {/* 상품 그리드 */}
+          <CollectionProductGrid products={mockProducts} />
+        </div>
+      </main>
     </div>
   );
 }

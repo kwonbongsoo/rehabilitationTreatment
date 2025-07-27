@@ -1,7 +1,8 @@
 'use server';
 
-import { HomePageResponse } from '@/types/home';
+import { HomePageResponse, HomePageActionResult } from '@/types/home';
 import { HeaderBuilderFactory } from '@/lib/server/headerBuilder';
+import { handleApiResponse, handleActionError } from '@/lib/server/errorHandler';
 
 /**
  * 홈 페이지 데이터 조회 서버 액션
@@ -13,7 +14,7 @@ import { HeaderBuilderFactory } from '@/lib/server/headerBuilder';
 
 const KONG_GATEWAY_URL = process.env.KONG_GATEWAY_URL;
 
-export async function getHomeDataAction(): Promise<HomePageResponse> {
+export async function getHomeDataAction(): Promise<HomePageActionResult> {
   try {
     const headers = await HeaderBuilderFactory.createForApiRequest().build();
 
@@ -23,19 +24,13 @@ export async function getHomeDataAction(): Promise<HomePageResponse> {
       cache: 'no-store', // 항상 최신 데이터
     });
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const result: { success: boolean; data: HomePageResponse } = await response.json();
-
-    if (!result.success || !result.data) {
-      throw new Error('Invalid response format');
-    }
-
-    return result.data;
+    return await handleApiResponse(response, (json) => {
+      if (!json.success || !json.data) {
+        throw new Error('Invalid response format');
+      }
+      return json.data as HomePageResponse;
+    }) as HomePageActionResult;
   } catch (error) {
-    console.error('Error loading home data from BFF server:', error);
-    throw new Error('홈 페이지 데이터를 불러오는데 실패했습니다.');
+    return handleActionError(error) as HomePageActionResult;
   }
 }

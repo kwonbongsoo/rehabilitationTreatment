@@ -97,6 +97,9 @@ class HomePageService {
             src: item.imageUrl,
             alt: item.altText,
             link: item.linkUrl,
+            title: item.title,
+            description: item.description,
+            backgroundColor: item.backgroundColor,
           })),
       },
     };
@@ -140,16 +143,6 @@ class HomePageService {
         filteredProducts = rawData;
         break;
     }
-
-    console.log(
-      `📦 ${title} (${type}): 전체 ${rawData.length}개 중 ${filteredProducts.length}개 상품 필터링됨`,
-    );
-    console.log(
-      `📋 필터링된 상품들:`,
-      filteredProducts.map(
-        (p) => `${p.id}: ${p.name} (isNew: ${p.isNew}, isFeatured: ${p.isFeatured})`,
-      ),
-    );
 
     return {
       id,

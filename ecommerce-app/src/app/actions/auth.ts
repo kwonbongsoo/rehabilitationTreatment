@@ -8,9 +8,10 @@ import {
   RegisterResponse,
   RegisterActionResult,
   ForgotPasswordRequest,
-  LogoutResponse,
+  LogoutActionResult,
 } from '@/domains/auth/types/auth';
 import { HeaderBuilderFactory } from '@/lib/server/headerBuilder';
+import { handleApiResponse, handleActionError } from '@/lib/server/errorHandler';
 
 const AUTH_SERVICE_URL = process.env.AUTH_SERVICE_URL;
 const KONG_GATEWAY_URL = process.env.KONG_GATEWAY_URL;
@@ -40,38 +41,12 @@ export async function login(credentials: LoginRequest): Promise<LoginActionResul
       cache: 'no-store',
     });
 
-    if (!apiResponse.ok) {
-      let errorMessage = `HTTP error! status: ${apiResponse.status}`;
-
-      try {
-        const errorResponse = await apiResponse.json();
-        console.error('API Error Response:', errorResponse);
-
-        if (errorResponse?.message) {
-          errorMessage = errorResponse.message;
-        } else if (errorResponse?.error) {
-          errorMessage = errorResponse.error;
-        }
-      } catch (parseError) {
-        console.error('Failed to parse error response:', parseError);
-      }
-
-      console.error('Login failed with message:', errorMessage);
-
-      // 사용자 친화적인 에러 메시지로 변환
-      if (errorMessage.includes('not found')) {
-        errorMessage = '존재하지 않는 사용자입니다.';
-      } else if (errorMessage.includes('password')) {
-        errorMessage = '비밀번호가 올바르지 않습니다.';
-      }
-
-      return {
-        success: false,
-        error: errorMessage,
-      };
+    const result = await handleApiResponse(apiResponse, (json) => json);
+    if (!result.success) {
+      return result as LoginActionResult;
     }
 
-    const response = await apiResponse.json();
+    const response = result.data;
 
     // 2) 쿠키 저장
     const isProduction = process.env.NODE_ENV === 'production';
@@ -117,12 +92,7 @@ export async function login(credentials: LoginRequest): Promise<LoginActionResul
       data: { role, id, email, name, exp, iat },
     };
   } catch (error) {
-    console.error('Login action error:', error);
-
-    return {
-      success: false,
-      error: '로그인 중 오류가 발생했습니다.',
-    };
+    return handleActionError(error) as LoginActionResult;
   }
 }
 
@@ -133,7 +103,7 @@ export async function login(credentials: LoginRequest): Promise<LoginActionResul
  * 2. 클라이언트 및 서버 쿠키를 삭제한다.
  * 3. 추가 반환값은 없다.
  */
-export async function logout(): Promise<LogoutResponse> {
+export async function logout(): Promise<LogoutActionResult> {
   // 1) 백엔드 로그아웃 호출 (실패해도 쿠키는 삭제)
   const cookieStore = await cookies();
   try {
@@ -145,21 +115,18 @@ export async function logout(): Promise<LogoutResponse> {
       cache: 'no-store',
     });
 
+    cookieStore.delete('access_token');
+    cookieStore.delete('access_type');
+
     if (!apiResponse.ok && apiResponse.status !== 401) {
-      throw new Error(`HTTP error! status: ${apiResponse.status}`);
+      const result = await handleApiResponse(apiResponse);
+      return result as LogoutActionResult;
     }
 
     const response = await apiResponse.json();
     return response;
   } catch (error) {
-    console.error('logout error', error);
-    return {
-      success: false,
-      message: '로그아웃에 실패했습니다.',
-    };
-  } finally {
-    cookieStore.delete('access_token');
-    cookieStore.delete('access_type');
+    return handleActionError(error) as LogoutActionResult;
   }
 }
 
@@ -189,45 +156,17 @@ export async function register(
       cache: 'no-store',
     });
 
-    if (!apiResponse.ok) {
-      let errorMessage = `HTTP error! status: ${apiResponse.status}`;
-
-      try {
-        const errorResponse = await apiResponse.json();
-        if (errorResponse?.message) {
-          errorMessage = errorResponse.message;
-        } else if (errorResponse?.error) {
-          errorMessage = errorResponse.error;
-        }
-      } catch {
-        // JSON 파싱 실패 시 기본 메시지 사용
-      }
-
-      // 사용자 친화적인 메시지로 변환
-      if (errorMessage.includes('already exists')) {
-        errorMessage = '이미 사용 중인 아이디입니다.';
-      } else if (errorMessage.includes('email')) {
-        errorMessage = '이미 사용 중인 이메일입니다.';
-      }
-
-      return {
-        success: false,
-        error: errorMessage,
-      };
+    const result = await handleApiResponse(apiResponse, (json) => json.data as RegisterResponse);
+    if (!result.success) {
+      return result as RegisterActionResult;
     }
 
-    const response = await apiResponse.json();
     return {
       success: true,
-      data: response.data as RegisterResponse,
+      data: result.data as RegisterResponse,
     };
   } catch (error) {
-    console.error('Register action error:', error);
-
-    return {
-      success: false,
-      error: '회원가입 중 오류가 발생했습니다.',
-    };
+    return handleActionError(error) as RegisterActionResult;
   }
 }
 

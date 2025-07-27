@@ -1,5 +1,5 @@
 .categorySection {
-    padding: 2rem 1.5rem;
+    padding: 1.5rem 1rem;
 }
 
 .sectionHeader {
@@ -88,10 +88,4 @@
     color: #666;
     text-align: center;
     font-weight: 500;
-}
-
-@media (max-width: 480px) {
-    .categorySection {
-        margin: 20px 12px;
-    }
 }

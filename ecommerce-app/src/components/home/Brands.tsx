@@ -26,6 +26,7 @@ export default function Brands({ title, logos }: BrandsProps) {
                   alt={logo.name}
                   width={120}
                   height={80}
+                  lazy={true}
                   style={{ objectFit: 'contain' }}
                 />
               </div>

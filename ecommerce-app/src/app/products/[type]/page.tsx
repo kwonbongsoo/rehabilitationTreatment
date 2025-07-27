@@ -40,8 +40,7 @@ export default function ProductTypePage({ params }: ProductTypePageProps) {
       name: `${getTypeTitle(productType)} 1`,
       price: 59900,
       originalPrice: productType === 'sale' ? 89900 : undefined,
-      image:
-        'https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg',
+      image: 'https://www.kbs-cdn.shop/image/product-default.jpg',
       rating: 4.5,
       isNew: productType === 'new',
       onSale: productType === 'sale',
@@ -51,8 +50,7 @@ export default function ProductTypePage({ params }: ProductTypePageProps) {
       name: `${getTypeTitle(productType)} 2`,
       price: 79900,
       originalPrice: productType === 'sale' ? 119900 : undefined,
-      image:
-        'https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg',
+      image: 'https://www.kbs-cdn.shop/image/product-default.jpg',
       rating: 4.3,
       isNew: productType === 'new',
       onSale: productType === 'sale',
@@ -62,8 +60,7 @@ export default function ProductTypePage({ params }: ProductTypePageProps) {
       name: `${getTypeTitle(productType)} 3`,
       price: 99900,
       originalPrice: productType === 'sale' ? 149900 : undefined,
-      image:
-        'https://image.mustit.co.kr/lib/upload/admin/specialSale/6c646f20abbdb77a7d90bd4fd7c4a5d1.jpg',
+      image: 'https://www.kbs-cdn.shop/image/product-default.jpg',
       rating: 4.7,
       isNew: productType === 'new',
       onSale: productType === 'sale',

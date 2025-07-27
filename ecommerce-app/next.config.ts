@@ -42,7 +42,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'image.mustit.co.kr',
+        hostname: 'www.kbs-cdn.shop',
         port: '',
         pathname: '/**',
       },

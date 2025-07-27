@@ -37,12 +37,13 @@ const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ title, products }) 
       </div>
 
       <div className={styles.productsGrid}>
-        {products.map((product) => (
+        {products.map((product, index) => (
           <ProductCard
             key={product.id}
             product={product}
             onWishlistToggle={handleWishlistToggle}
             className={styles.productCard || ''}
+            priority={index < 2}
           />
         ))}
       </div>

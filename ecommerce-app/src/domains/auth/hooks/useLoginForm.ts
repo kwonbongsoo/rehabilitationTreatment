@@ -53,7 +53,16 @@ export function useLoginForm(): UseLoginFormReturn {
         const redirectTo = getRedirectUrl(query);
         window.location.replace(redirectTo);
       },
-      onError: (error: Error) => {
+      onError: (error: Error & { statusCode?: number }) => {
+        // 401 에러인 경우 새로고침 로직 실행
+        if (error.statusCode === 401 || error.statusCode === 403) {
+          NotificationManager.showError('로그인이 필요합니다. 페이지를 새로고침합니다.');
+          setTimeout(() => {
+            window.location.reload();
+          }, 1500);
+          return;
+        }
+
         // 에러 메시지를 토스트로 표시
         const errorMessage = error.message || '로그인 중 오류가 발생했습니다.';
         NotificationManager.showError(errorMessage);
@@ -76,7 +85,11 @@ export function useLoginForm(): UseLoginFormReturn {
           const result = await loginAction(loginCredentials);
 
           if (!result.success) {
-            throw new Error(result.error || '로그인에 실패했습니다.');
+            const error = new Error(result.error || '로그인에 실패했습니다.') as Error & {
+              statusCode?: number;
+            };
+            error.statusCode = result.statusCode || 500; // 상태 코드 전달
+            throw error;
           }
         },
         credentials,

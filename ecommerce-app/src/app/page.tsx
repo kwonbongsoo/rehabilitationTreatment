@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import UIComponentRenderer from '@/components/home/UIComponentRenderer';
-import MobileHeader from '@/components/home/MobileHeader';
 import HomeSkeleton from '@/components/skeleton/HomeSkeleton';
 import styles from '@/styles/home/HomePage.module.css';
 import { HomePageResponse, UIComponent } from '@/types/home';
@@ -22,7 +21,11 @@ export default function HomePage() {
         setError(null);
 
         const data = await getHomeDataAction();
-        setHomeData(data);
+        if (!data.success) {
+          throw new Error(data.error!);
+        }
+
+        setHomeData(data.data!);
       } catch (err) {
         console.error('Error loading home data:', err);
         const errorMessage =
@@ -43,7 +46,6 @@ export default function HomePage() {
   if (isLoading) {
     return (
       <div className={styles.homeContainer}>
-        <MobileHeader onFilterClick={handleFilterClick} />
         <HomeSkeleton />
       </div>
     );
@@ -52,7 +54,6 @@ export default function HomePage() {
   if (error) {
     return (
       <div className={styles.homeContainer}>
-        <MobileHeader onFilterClick={handleFilterClick} />
         <main className={styles.main}>
           <div className={styles.errorMessage}>{error}</div>
         </main>
@@ -62,11 +63,10 @@ export default function HomePage() {
 
   return (
     <div className={styles.homeContainer}>
-      <MobileHeader onFilterClick={handleFilterClick} />
       <main className={styles.main}>
         <div className={styles.content}>
-          {homeData?.components?.map((component: UIComponent) => (
-            <UIComponentRenderer key={component.id} component={component} />
+          {homeData?.components?.map((component: UIComponent, index: number) => (
+            <UIComponentRenderer key={component.id} component={component} index={index} />
           ))}
         </div>
       </main>

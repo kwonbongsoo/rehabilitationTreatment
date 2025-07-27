@@ -18,7 +18,7 @@ interface MobileHeaderProps {
 }
 
 const MobileHeader: React.FC<MobileHeaderProps> = ({
-  title = 'Home Screen',
+  title = 'Home',
   showBackButton = false,
   onSearchClick,
   onNotificationClick,

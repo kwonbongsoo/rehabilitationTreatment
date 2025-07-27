@@ -36,7 +36,11 @@ export function useLogoutForm(): UseLogoutFormReturn {
   const handleLogout = useCallback(async (): Promise<void> => {
     try {
       setIsLoading(true);
-      await logoutAction();
+      const result = await logoutAction();
+      
+      if (!result.success) {
+        throw new Error(result.error || '로그아웃에 실패했습니다.');
+      }
 
       NotificationManager.showSuccess('로그아웃되었습니다.');
 

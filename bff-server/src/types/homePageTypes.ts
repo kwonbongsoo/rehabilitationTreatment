@@ -5,6 +5,9 @@ export interface RawBannerData {
   linkUrl: string;
   order: number;
   isActive: boolean;
+  title: string;
+  description: string;
+  backgroundColor: string;
 }
 
 export interface RawCategoryData {
