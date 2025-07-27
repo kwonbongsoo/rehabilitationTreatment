@@ -8,7 +8,7 @@ const nextConfig: NextConfig = {
 
   // 컴파일러 최적화
   compiler: {
-    removeConsole: false, // 성능 측정을 위해 임시 비활성화
+    removeConsole: process.env.NODE_ENV === 'production',
   },
 
   // 빌드 최적화
