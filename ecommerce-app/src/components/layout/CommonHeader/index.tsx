@@ -8,12 +8,16 @@ interface CommonHeaderProps {
   title: string;
   showDeleteButton?: boolean;
   onDeleteClick?: () => void;
+  isWishlisted?: boolean;
+  onWishlistToggle?: () => void;
 }
 
 const CommonHeader: React.FC<CommonHeaderProps> = ({
   title,
   showDeleteButton = false,
   onDeleteClick,
+  isWishlisted = false,
+  onWishlistToggle,
 }) => {
   const router = useRouter();
   const pathname = usePathname();
@@ -23,6 +27,7 @@ const CommonHeader: React.FC<CommonHeaderProps> = ({
   };
 
   const isCartPage = pathname === '/cart';
+  const isProductDetailPage = pathname.startsWith('/products/') && pathname.split('/').length > 2;
 
   return (
     <div className={styles.header}>
@@ -55,7 +60,32 @@ const CommonHeader: React.FC<CommonHeaderProps> = ({
         </button>
       )}
 
-      {!isCartPage && <div className={styles.placeholder} />}
+      {isProductDetailPage && (
+        <button 
+          className={`${styles.wishlistButton} ${isWishlisted ? styles.wishlisted : ''}`}
+          onClick={onWishlistToggle}
+          aria-label={isWishlisted ? '위시리스트에서 제거' : '위시리스트에 추가'}
+        >
+          {isWishlisted ? (
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="#FF4757">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+            </svg>
+          ) : (
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+            </svg>
+          )}
+        </button>
+      )}
+
+      {!isCartPage && !isProductDetailPage && <div className={styles.placeholder} />}
     </div>
   );
 };

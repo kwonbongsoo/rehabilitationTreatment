@@ -119,7 +119,7 @@ class HomePageService {
             id: item.id,
             name: item.name,
             icon: item.iconCode,
-            link: `/category/${item.slug}`,
+            link: `/categories/${item.slug}`,
           })),
       },
     };

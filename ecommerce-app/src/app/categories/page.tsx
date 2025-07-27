@@ -1,0 +1,25 @@
+import CategoriesClient from '@/components/categories/CategoriesClient';
+import { getCategoriesAction } from '@/app/actions/categories';
+
+export default async function CategoriesPage() {
+  const data = await getCategoriesAction();
+
+  if (!data.success) {
+    return (
+      <div style={{ padding: '20px', textAlign: 'center' }}>
+        <p>{data.error || 'Failed to load data'}</p>
+      </div>
+    );
+  }
+
+  const { categories, allProducts, filters, sortOptions } = data.data!;
+
+  return (
+    <CategoriesClient
+      categories={categories}
+      allProducts={allProducts}
+      filterOptions={filters}
+      sortOptions={sortOptions}
+    />
+  );
+}

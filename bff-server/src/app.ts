@@ -6,6 +6,7 @@ import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
 import { requestLogger } from './middleware/requestLogger';
 import homePageRoutes from './routes/homePageRoutes';
+import categoryRoutes from './routes/categoryRoutes';
 // import { authRoutes } from './routes/authRoutes';
 // import { memberRoutes } from './routes/memberRoutes';
 
@@ -91,6 +92,7 @@ export async function buildApp(): Promise<FastifyInstance> {
 
   // API routes will be registered here
   await app.register(homePageRoutes);
+  await app.register(categoryRoutes);
   // await app.register(authRoutes, { prefix: '/api/auth' });
   // await app.register(memberRoutes, { prefix: '/api/members' });
 

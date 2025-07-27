@@ -9,10 +9,18 @@ const nextConfig: NextConfig = {
   // 컴파일러 최적화
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
+    // removeConsole: false,
   },
 
   // 빌드 최적화
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
+    // React DevTools 관련 경고 억제
+    if (dev && !isServer) {
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        'react-devtools-shared/src/backend/utils': false,
+      };
+    }
     // 서버 사이드에서 self 전역 변수 폴리필
     if (isServer) {
       config.resolve.fallback = {
@@ -21,6 +29,13 @@ const nextConfig: NextConfig = {
         net: false,
         tls: false,
       };
+
+      // self 전역 변수 폴리필 추가
+      config.plugins.push(
+        new webpack.DefinePlugin({
+          self: 'globalThis',
+        }),
+      );
     }
 
     // 번들 분석용 (환경변수로 활성화)
@@ -34,6 +49,37 @@ const nextConfig: NextConfig = {
       );
     }
 
+    // CSS와 JavaScript 최적화
+    config.optimization.splitChunks = {
+      chunks: 'all',
+      cacheGroups: {
+        // CSS 분리 (기존)
+        styles: {
+          name: 'styles',
+          test: /\.(css|scss)$/,
+          chunks: 'all',
+          enforce: true,
+        },
+        react: {
+          test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
+          name: 'react',
+          chunks: 'all',
+          priority: 20,
+        },
+        common: {
+          name: 'common',
+          minChunks: 2,
+          chunks: 'all',
+          priority: 5,
+          reuseExistingChunk: true,
+        },
+      },
+    };
+
+    // Tree shaking 최적화
+    config.optimization.usedExports = true;
+    config.optimization.sideEffects = true;
+
     return config;
   },
 
@@ -43,6 +89,12 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'www.kbs-cdn.shop',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'static.kbs-cdn.shop',
         port: '',
         pathname: '/**',
       },
@@ -59,28 +111,35 @@ const nextConfig: NextConfig = {
         pathname: '/_next/images/**',
       },
     ],
-    formats: ['image/webp', 'image/avif'],
-    minimumCacheTTL: 86400, // 24시간 캐싱
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
-    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
-    // 이미지 품질과 성능 트레이드오프
-    dangerouslyAllowSVG: false,
-    // 이미지 최적화 프로세스 개수 제한 (메모리 사용량 감소)
+    // formats: ['image/webp', 'image/avif'],
+    // minimumCacheTTL: 86400, // 24시간 캐싱
+    // deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+    // imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    // // 이미지 품질과 성능 트레이드오프
+    // dangerouslyAllowSVG: false,
+    // // 이미지 최적화 프로세스 개수 제한 (메모리 사용량 감소)
     domains: [],
   },
 
-  // 서버 외부 패키지 설정 (Next.js 15에서 변경됨)
-  serverExternalPackages: ['react-icons'],
-
   // 실험적 기능
   experimental: {
-    optimizePackageImports: ['@/components', '@/utils', '@/hooks'],
+    // 패키지 import 최적화 (Tree shaking)
+    optimizePackageImports: [
+      '@/components',
+      '@/utils',
+      '@/hooks',
+      'lodash',
+      'date-fns',
+      'react-icons',
+      'zustand',
+    ],
     // 정적 최적화
     optimizeServerReact: true,
     // 메모리 최적화
     workerThreads: false,
-    // CSS 최적화 비활성화 (빌드 에러 방지)
-    optimizeCss: false,
+    // CSS 최적화 활성화 (preload를 위해)
+    optimizeCss: true,
+    cssChunking: 'strict',
     serverActions: {
       bodySizeLimit: '10mb',
     },
@@ -109,6 +168,34 @@ const nextConfig: NextConfig = {
           {
             key: 'Cache-Control',
             value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      // CSS preload 헤더
+      {
+        source: '/_next/static/css/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+          {
+            key: 'Link',
+            value: '</_next/static/css/:path*>; rel=preload; as=style',
+          },
+        ],
+      },
+      // JavaScript preload 헤더
+      {
+        source: '/_next/static/chunks/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+          {
+            key: 'Link',
+            value: '</_next/static/chunks/:path*>; rel=preload; as=script',
           },
         ],
       },

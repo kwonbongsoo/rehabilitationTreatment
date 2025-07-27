@@ -25,7 +25,11 @@ echo "Testing Kong → Members call..."
 curl -s -o /dev/null -w "Time: %{time_total}s\n" "$KONG_URL/api/members/health" -H "Authorization: Bearer ${TEST_TOKEN}" && echo "✓ Kong members endpoint completed" || echo "⚠ Kong members endpoint failed"
 
 # Test Kong → BFF call with token
-echo "Testing Kong → BFF call..."
-curl -s -o /dev/null -w "Time: %{time_total}s\n" "$KONG_URL/api/home" -H "Authorization: Bearer ${TEST_TOKEN}" && echo "✓ Kong BFF endpoint completed" || echo "⚠ Kong BFF endpoint failed"
+echo "Testing Kong → BFF home call..."
+curl -s -o /dev/null -w "Time: %{time_total}s\n" "$KONG_URL/api/home" -H "Authorization: Bearer ${TEST_TOKEN}" && echo "✓ Kong BFF home endpoint completed" || echo "⚠ Kong BFF home endpoint failed"
+
+# Test Kong → BFF categories call with token
+echo "Testing Kong → BFF categories call..."
+curl -s -o /dev/null -w "Time: %{time_total}s\n" "$KONG_URL/api/categories" -H "Authorization: Bearer ${TEST_TOKEN}" && echo "✓ Kong BFF categories endpoint completed" || echo "⚠ Kong BFF categories endpoint failed"
 
 echo "✓ All warm-up completed!"

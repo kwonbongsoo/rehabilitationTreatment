@@ -20,7 +20,7 @@ const getPageTitle = (pathname: string): string => {
     };
     return titles[collection] || '컬렉션';
   }
-  if (pathname.startsWith('/category/')) {
+  if (pathname.startsWith('/categories/')) {
     const category = pathname.split('/')[2] || '';
     const titles: { [key: string]: string } = {
       shoes: '신발',
@@ -34,7 +34,8 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/account') return '계정';
   if (pathname === '/filter') return '필터';
   if (pathname === '/size-guide') return '사이즈 가이드';
-  if (pathname.startsWith('/product/')) return '상품 상세';
+  if (pathname.startsWith('/product/')) return 'Details';
+  if (pathname.startsWith('/categories')) return 'Categories';
 
   return '페이지';
 };
