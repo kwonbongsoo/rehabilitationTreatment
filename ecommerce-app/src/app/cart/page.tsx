@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 // import { useRouter } from 'next/navigation';
-import OptimizedImage from '@/components/common/OptimizedImage';
+import OptimizedImageNext from '@/components/common/OptimizedImageNext';
 import { Button } from '@/components/common/Button';
 import { ConfirmDialog } from '@/components/common/Modal';
 import { CartSkeleton } from '@/components/skeleton/PageSkeleton';
@@ -38,21 +38,21 @@ export default function CartPage() {
       name: 'Classic T-shirt',
       price: 169.0,
       quantity: 1,
-      image: 'https://www.kbs-cdn.shop/image/promotion.jpg',
+      image: 'https://static.kbs-cdn.shop/image/promotion.jpg',
     },
     {
       id: '2',
       name: 'Skinny Jeans',
       price: 169.0,
       quantity: 1,
-      image: 'https://www.kbs-cdn.shop/image/promotion.jpg',
+      image: 'https://static.kbs-cdn.shop/image/promotion.jpg',
     },
     {
       id: '3',
       name: 'Slip Dresses',
       price: 169.0,
       quantity: 1,
-      image: 'https://www.kbs-cdn.shop/image/promotion.jpg',
+      image: 'https://static.kbs-cdn.shop/image/promotion.jpg',
     },
   ];
 
@@ -98,15 +98,9 @@ export default function CartPage() {
     }
   };
 
-  const applyDiscountCode = () => {
-    console.log('Applying discount code:', discountCode);
-    // Implement discount logic here
-  };
+  const applyDiscountCode = () => {};
 
-  const handleCheckout = () => {
-    console.log('Proceeding to checkout');
-    // Implement checkout logic here
-  };
+  const handleCheckout = () => {};
 
   // CommonLayout에서 발생하는 clearCart 이벤트 리스너
   useEffect(() => {
@@ -144,7 +138,7 @@ export default function CartPage() {
                   onClick={() => handleItemClick(item.id)}
                 >
                   <div className={styles.itemImage}>
-                    <OptimizedImage
+                    <OptimizedImageNext
                       src={item.image}
                       alt={item.name}
                       width={60}

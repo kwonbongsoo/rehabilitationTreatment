@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
-import OptimizedImage from '@/components/common/OptimizedImage';
+import OptimizedImageNext from '@/components/common/OptimizedImageNext';
 import styles from '@/styles/home/Banner.module.css';
 import { BannerProps, DEFAULT_BANNER_CONFIG } from '@/types/banner.types';
 import React from 'react';
@@ -11,7 +11,7 @@ export default function Banner({
   slides,
   autoPlay = DEFAULT_BANNER_CONFIG.autoPlay,
   autoPlayInterval = DEFAULT_BANNER_CONFIG.autoPlayInterval,
-  showDots = DEFAULT_BANNER_CONFIG.showDots,
+  showDots: _showDots = DEFAULT_BANNER_CONFIG.showDots,
   showArrows: _showArrows = DEFAULT_BANNER_CONFIG.showArrows,
   imageSizes: _imageSizes = DEFAULT_BANNER_CONFIG.imageSizes,
   className = '',
@@ -204,14 +204,14 @@ export default function Banner({
               <Link href={slide.link} className={styles.slideLink} onClick={handleLinkClick}>
                 <div className={styles.slideContent}>
                   <div className={styles.textContent}>
-                    <h3 className={styles.slideTitle}>{slide.title || 'New collection'}</h3>
+                    <h2 className={styles.slideTitle}>{slide.title || 'New collection'}</h2>
                     <p className={styles.slideSubtitle}>
                       {slide.description || 'Discount 50% for the first transaction'}
                     </p>
                     <button className={styles.shopButton}>{slide.buttonText || 'Shop now'}</button>
                   </div>
                   <div className={styles.imageContainer}>
-                    <OptimizedImage
+                    <OptimizedImageNext
                       src={slide.src}
                       alt={slide.alt}
                       width={120}
@@ -226,20 +226,6 @@ export default function Banner({
           );
         })}
       </div>
-
-      {/* 도트 네비게이션 */}
-      {showDots && slides.length > 1 && (
-        <div className={styles.sliderDots}>
-          {slides.map((_, index) => (
-            <button
-              key={index}
-              className={`${styles.dot} ${index === currentSlide ? styles.activeDot : ''}`}
-              onClick={() => goToSlide(index)}
-              aria-label={`슬라이드 ${index + 1}로 이동`}
-            />
-          ))}
-        </div>
-      )}
     </section>
   );
 }

@@ -24,7 +24,7 @@ export function CategoriesSkeleton() {
               <div className={styles.categoryIcon}>
                 <Skeleton width="40px" height="40px" />
               </div>
-              <Skeleton width="60px" height="14px" className={styles.categoryName || ''} />
+              <Skeleton width="60px" height="14px" className={styles.categoryName} />
             </div>
           ))}
         </div>
@@ -43,7 +43,7 @@ export function ProductGridSkeleton({ count = 4 }: { count?: number }) {
             <ImageSkeleton width="100%" height="250px" />
           </div>
           <div className={styles.productInfo}>
-            <Skeleton width="90%" height="18px" className={styles.productName || ''} />
+            <Skeleton width="90%" height="18px" className={styles.productName} />
             <Skeleton width="70%" height="16px" />
             <div className={styles.productMeta}>
               <Skeleton width="80px" height="22px" />
@@ -53,7 +53,7 @@ export function ProductGridSkeleton({ count = 4 }: { count?: number }) {
               width="100%"
               height="40px"
               borderRadius="8px"
-              className={styles.addToCartButton || ''}
+              className={styles.addToCartButton}
             />
           </div>
         </div>
@@ -109,7 +109,7 @@ export function PromotionSkeleton() {
       <div className={styles.promotionCard}>
         <div className={styles.promotionContent}>
           <Skeleton width="250px" height="28px" />
-          <Skeleton width="350px" height="16px" className={styles.promotionDescription || ''} />
+          <Skeleton width="350px" height="16px" className={styles.promotionDescription} />
           <Skeleton width="100px" height="36px" borderRadius="6px" />
         </div>
       </div>
@@ -141,7 +141,7 @@ export function ReviewsSkeleton() {
               <Skeleton width="90%" height="14px" />
               <Skeleton width="80%" height="14px" />
             </div>
-            <Skeleton width="120px" height="12px" className={styles.reviewProduct || ''} />
+            <Skeleton width="120px" height="12px" className={styles.reviewProduct} />
           </div>
         ))}
       </div>

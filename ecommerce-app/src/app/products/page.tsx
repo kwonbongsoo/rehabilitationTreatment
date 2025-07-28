@@ -4,7 +4,7 @@ import React from 'react';
 import styles from '@/styles/products/MobileProducts.module.css';
 import { useProductStore } from '@/domains/product/stores/useProductStore';
 import { useCartActions } from '@/domains/cart/hooks';
-import OptimizedImage from '@/components/common/OptimizedImage';
+import OptimizedImageNext from '@/components/common/OptimizedImageNext';
 
 export default function ProductsPage() {
   const { products } = useProductStore();
@@ -34,9 +34,11 @@ export default function ProductsPage() {
           {products.map((product) => (
             <div key={product.id} className={styles.productCard}>
               <div className={styles.productImageContainer}>
-                <OptimizedImage
+                <OptimizedImageNext
                   src={product.image}
                   alt={product.name}
+                  width={500}
+                  height={500}
                   className={styles.productImage}
                 />
                 <button className={styles.favoriteButton}>♡</button>

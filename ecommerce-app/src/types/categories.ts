@@ -1,0 +1,67 @@
+// BFF에서 받는 카테고리 관련 타입 정의
+
+export interface Product {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  originalPrice?: number;
+  discount?: number;
+  image: string;
+  rating: number;
+  reviewCount: number;
+  isNew?: boolean;
+  tags?: string[];
+  categoryId?: number;
+}
+
+export interface CategoryWithProducts {
+  id: number;
+  name: string;
+  slug: string;
+  iconCode: string;
+  order: number;
+  isActive: boolean;
+  products: Product[];
+}
+
+export interface CategoryFilter {
+  id: string;
+  name: string;
+  type: 'category' | 'brand' | 'size' | 'color' | 'sort';
+  options: string[];
+}
+
+export interface FilterOption {
+  value: string;
+  label: string;
+}
+
+export interface CategoryPageData {
+  categories: CategoryWithProducts[];
+  allProducts: Product[];
+  filters: FilterOption[];
+  totalProducts: number;
+  sortOptions: FilterOption[];
+}
+
+export interface CategoryDetailData {
+  category: CategoryWithProducts;
+  filters: CategoryFilter[];
+}
+
+export interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+  error?: string;
+}
+
+export type CategoryPageResponse = ApiResponse<CategoryPageData>;
+export type CategoryDetailResponse = ApiResponse<CategoryDetailData>;
+
+export interface ActionResult<T> extends ApiResponse<T> {
+  statusCode?: number;
+}
+
+export type CategoryPageActionResult = ActionResult<CategoryPageData>;
+export type CategoryDetailActionResult = ActionResult<CategoryDetailData>;

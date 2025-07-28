@@ -5,7 +5,7 @@
       "name": "심플 티셔츠",
       "price": 29000,
       "quantity": 2,
-      "image": "https://www.kbs-cdn.shop/image/product-default.jpg",
+      "image": "https://static.kbs-cdn.shop/image/product-default.jpg",
       "color": "블랙",
       "size": "M",
       "inStock": true
@@ -15,7 +15,7 @@
       "name": "캐주얼 데님 자켓",
       "price": 89000,
       "quantity": 1,
-      "image": "https://www.kbs-cdn.shop/image/product-default.jpg",
+      "image": "https://static.kbs-cdn.shop/image/product-default.jpg",
       "color": "블루",
       "size": "L",
       "inStock": true

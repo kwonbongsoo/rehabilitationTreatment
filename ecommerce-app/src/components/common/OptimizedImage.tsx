@@ -27,7 +27,7 @@ function buildCdnUrl(src: string, width?: number, height?: number): string {
 export default function OptimizedImage({
   src,
   fallbackSrc = 'https://www.kbs-cdn.shop/image/placeholder.webp',
-  lazy = true,
+  lazy = false,
   priority = false,
   width,
   height,

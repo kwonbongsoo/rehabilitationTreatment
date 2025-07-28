@@ -3,6 +3,10 @@
 마이크로서비스 아키텍처 기반의 이커머스 플랫폼으로, Kong API Gateway와 BFF(Backend for Frontend) 패턴을 적용한 현대적인 웹 애플리케이션입니다.
 ## UI
 ![UI](커머스.png)
+
+## LightHouse
+![Performance](lighthouse.png)
+
 ## 시스템 아키텍처
 
 ```mermaid

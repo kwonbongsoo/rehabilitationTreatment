@@ -1,6 +1,6 @@
 import React from 'react';
 import Rating from '@/components/common/Rating';
-import OptimizedImage from '@/components/common/OptimizedImage';
+import OptimizedImageNext from '@/components/common/OptimizedImageNext';
 import styles from '@/styles/home/Reviews.module.css';
 
 interface ReviewsProps {
@@ -36,7 +36,7 @@ export default function Reviews({ title, reviews }: ReviewsProps) {
               <div className={styles.userInfo}>
                 {review.avatar ? (
                   <div className={styles.avatarWrapper}>
-                    <OptimizedImage
+                    <OptimizedImageNext
                       src={review.avatar}
                       alt={`${review.name} 프로필 이미지`}
                       width={36}
@@ -48,7 +48,7 @@ export default function Reviews({ title, reviews }: ReviewsProps) {
                   <div className={styles.avatarInitials}>{review.initials}</div>
                 )}
                 <div className={styles.userDetails}>
-                  <h4 className={styles.userName}>{review.name}</h4>
+                  <h3 className={styles.userName}>{review.name}</h3>
                   <Rating rating={review.rating} size="small" />
                 </div>
               </div>

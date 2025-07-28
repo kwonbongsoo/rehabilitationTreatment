@@ -163,7 +163,7 @@ class ToastConfigProvider implements IToastConfigProvider {
 class DevtoolsConfigProvider implements IDevtoolsConfigProvider {
   getDevtoolsConfig(): DevtoolsConfig {
     return {
-      enabled: process.env.NODE_ENV === 'development',
+      enabled: false, // devtools 완전 비활성화
       initialIsOpen: false,
     };
   }

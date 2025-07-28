@@ -1,5 +1,4 @@
-'use client';
-
+// SSR 최적화를 위해 'use client' 제거
 import React from 'react';
 import Link from 'next/link';
 import ProductCard, { Product } from '@/components/common/ProductCard';
@@ -22,11 +21,7 @@ interface FeaturedProductsProps {
 }
 
 const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ title, products }) => {
-  const handleWishlistToggle = (productId: number) => {
-    console.log('Toggle wishlist for product:', productId);
-    // 위시리스트 토글 로직 구현
-  };
-
+  // const handleWishlistToggle = (productId: number) => productId;
   return (
     <section className={styles.featuredSection}>
       <div className={styles.sectionHeader}>
@@ -41,9 +36,8 @@ const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ title, products }) 
           <ProductCard
             key={product.id}
             product={product}
-            onWishlistToggle={handleWishlistToggle}
-            className={styles.productCard || ''}
-            priority={index < 2}
+            className={styles.productCard}
+            priority={index === 0} // 첫 번째만 high priority
           />
         ))}
       </div>

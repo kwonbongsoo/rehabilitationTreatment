@@ -11,10 +11,7 @@ interface NewArrivalsProps {
 }
 
 export default function NewArrivals({ title, products }: NewArrivalsProps) {
-  const handleWishlistToggle = (productId: number) => {
-    console.log('Toggle wishlist for product:', productId);
-    // 위시리스트 토글 로직 구현
-  };
+  const handleWishlistToggle = (productId: number) => productId;
 
   return (
     <section className={styles.newArrivalsSection}>
@@ -31,7 +28,7 @@ export default function NewArrivals({ title, products }: NewArrivalsProps) {
             key={product.id}
             product={product}
             onWishlistToggle={handleWishlistToggle}
-            className={styles.productCard || ''}
+            className={styles.productCard}
             priority={false}
           />
         ))}

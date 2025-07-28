@@ -3,6 +3,7 @@ import SessionProvider from '@/components/providers/SessionProvider';
 import SessionInitializer from '@/components/providers/SessionInitializer';
 import { AppProviders } from '@/providers/AppProviders';
 import '@/styles/globals.css';
+import 'react-toastify/dist/ReactToastify.css';
 import { Metadata } from 'next';
 import React from 'react';
 

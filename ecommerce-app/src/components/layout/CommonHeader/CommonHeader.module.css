@@ -54,6 +54,28 @@
   color: #ff3742;
 }
 
+.wishlistButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: #666;
+  transition: all 0.2s ease;
+}
+
+.wishlistButton:hover {
+  color: #FF4757;
+  transform: scale(1.1);
+}
+
+.wishlistButton.wishlisted {
+  color: #FF4757;
+}
+
 .placeholder {
   width: 40px;
   height: 40px;

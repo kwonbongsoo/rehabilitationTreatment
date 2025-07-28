@@ -75,13 +75,13 @@
 }
 
 .navItem.active {
-  color: #0B8FAC;
-  background-color: rgba(11, 143, 172, 0.15);
+  color: #065a6b;
+  background-color: rgba(6, 90, 107, 0.2);
 }
 
 .navItem.active .navIcon {
   transform: scale(1.1);
-  color: #0B8FAC;
+  color: #065a6b;
 }
 
 .navIcon {
@@ -89,20 +89,20 @@
   height: 24px;
   margin-bottom: 4px;
   transition: all 0.3s ease;
-  color: #858585;
+  color: #4b5563;
 }
 
 .navLabel {
   font-size: 11px;
   font-weight: 500;
   line-height: 1;
-  color: #858585;
+  color: #4b5563;
   transition: all 0.3s ease;
   font-family: 'Poppins', sans-serif;
 }
 
 .navItem.active .navLabel {
-  color: #0B8FAC;
+  color: #065a6b;
   font-weight: 600;
 }
 
@@ -155,15 +155,15 @@
   }
 
   .navItem.active .navLabel {
-    color: #D2EBE7;
+    color: #ffffff;
   }
 
   .navItem.active {
-    color: #D2EBE7;
-    background-color: rgba(210, 235, 231, 0.2);
+    color: #ffffff;
+    background-color: rgba(210, 235, 231, 0.3);
   }
 
   .navItem.active .navIcon {
-    color: #D2EBE7;
+    color: #ffffff;
   }
 }
