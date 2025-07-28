@@ -1,7 +1,7 @@
 [
   {
     "id": 1,
-    "imageUrl": "https://www.kbs-cdn.shop/image/product-default.jpg",
+    "imageUrl": "https://static.kbs-cdn.shop/image/product-default.jpg",
     "altText": "여름 시즌 세일",
     "linkUrl": "/products/seasonal",
     "title": "Summer Sale 2024",
@@ -12,7 +12,7 @@
   },
   {
     "id": 2,
-    "imageUrl": "https://www.kbs-cdn.shop/image/product-default.jpg",
+    "imageUrl": "https://static.kbs-cdn.shop/image/product-default.jpg",
     "altText": "신상품 컬렉션",
     "linkUrl": "/products/new",
     "title": "New Collection",
@@ -23,7 +23,7 @@
   },
   {
     "id": 3,
-    "imageUrl": "https://www.kbs-cdn.shop/image/product-default.jpg",
+    "imageUrl": "https://static.kbs-cdn.shop/image/product-default.jpg",
     "altText": "특별 할인 이벤트",
     "linkUrl": "/products/sale",
     "title": "Special Event",

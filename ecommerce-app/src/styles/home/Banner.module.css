@@ -152,39 +152,6 @@
     transform: scale(1.05) rotateY(5deg);
 }
 
-.sliderDots {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    padding: 20px 0 12px;
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 10;
-}
-
-.dot {
-    width: 12px;
-    height: 4px;
-    border-radius: 2px;
-    border: none;
-    background: rgba(255, 255, 255, 0.4);
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    backdrop-filter: blur(8px);
-}
-
-.dot:hover {
-    background: rgba(255, 255, 255, 0.6);
-    transform: scale(1.1);
-}
-
-.activeDot {
-    background: rgba(255, 255, 255, 0.9);
-    width: 24px;
-    box-shadow: 0 2px 8px rgba(255, 255, 255, 0.3);
-}
 
 /* 반응형 디자인 */
 @media (max-width: 480px) {
@@ -227,20 +194,6 @@
 
     .imageContainer:hover .sliderImage {
         transform: scale(1.02);
-    }
-
-    .sliderDots {
-        gap: 8px;
-        padding: 16px 0 8px;
-    }
-
-    .dot {
-        width: 10px;
-        height: 3px;
-    }
-
-    .activeDot {
-        width: 20px;
     }
 }
 

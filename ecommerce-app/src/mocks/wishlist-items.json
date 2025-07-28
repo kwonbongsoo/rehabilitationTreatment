@@ -4,7 +4,7 @@
       "id": 1,
       "name": "스타일리시 원피스",
       "price": 89900,
-      "image": "https://www.kbs-cdn.shop/image/product-default.jpg",
+      "image": "https://static.kbs-cdn.shop/image/product-default.jpg",
       "inStock": true,
       "size": "M",
       "color": "블랙"
@@ -13,7 +13,7 @@
       "id": 2,
       "name": "클래식 셔츠",
       "price": 59900,
-      "image": "https://www.kbs-cdn.shop/image/product-default.jpg",
+      "image": "https://static.kbs-cdn.shop/image/product-default.jpg",
       "inStock": true,
       "size": "L",
       "color": "블루"
@@ -22,7 +22,7 @@
       "id": 3,
       "name": "레더 핸드백",
       "price": 199900,
-      "image": "https://www.kbs-cdn.shop/image/product-default.jpg",
+      "image": "https://static.kbs-cdn.shop/image/product-default.jpg",
       "inStock": false,
       "size": "L",
       "color": "블루"
@@ -31,7 +31,7 @@
       "id": 4,
       "name": "캐주얼 스니커즈",
       "price": 129900,
-      "image": "https://www.kbs-cdn.shop/image/product-default.jpg",
+      "image": "https://static.kbs-cdn.shop/image/product-default.jpg",
       "inStock": true,
       "size": "250",
       "color": "블랙"

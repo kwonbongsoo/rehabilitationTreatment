@@ -33,8 +33,6 @@ export default function CategoryPage({ params }: CategoryPageProps) {
   const [filterBy, setFilterBy] = useState('전체');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
-  console.log(category);
-
   // Mock products for the category - useMemo로 안정적인 참조 생성
   const mockProducts: Product[] = useMemo(
     () => [
@@ -43,7 +41,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
         name: 'White shirt',
         price: 69.0,
         originalPrice: 89.0,
-        image: 'https://www.kbs-cdn.shop/image/promotion.jpg',
+        image: 'https://static.kbs-cdn.shop/image/promotion.jpg',
         rating: 4.9,
         isNew: true,
         discount: 22,
@@ -52,7 +50,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
         id: 2,
         name: 'Black shirt',
         price: 70.0,
-        image: 'https://www.kbs-cdn.shop/image/promotion.jpg',
+        image: 'https://static.kbs-cdn.shop/image/promotion.jpg',
         rating: 4.9,
       },
       {
@@ -60,7 +58,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
         name: 'White shirt',
         price: 69.0,
         originalPrice: 89.0,
-        image: 'https://www.kbs-cdn.shop/image/promotion.jpg',
+        image: 'https://static.kbs-cdn.shop/image/promotion.jpg',
         rating: 4.9,
         discount: 22,
       },
@@ -68,7 +66,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
         id: 4,
         name: 'Black shirt',
         price: 70.0,
-        image: 'https://www.kbs-cdn.shop/image/promotion.jpg',
+        image: 'https://static.kbs-cdn.shop/image/promotion.jpg',
         rating: 4.9,
       },
     ],
@@ -113,10 +111,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
     return filtered;
   }, [sortBy, filterBy, mockProducts]);
 
-  const handleWishlistToggle = (productId: number) => {
-    console.log('Toggle wishlist for product:', productId);
-    // 위시리스트 토글 로직 구현
-  };
+  const handleWishlistToggle = (productId: number) => productId;
 
   const handleFilterChange = (filter: string) => {
     setFilterBy(filter);
@@ -151,7 +146,8 @@ export default function CategoryPage({ params }: CategoryPageProps) {
             key={product.id}
             product={product}
             onWishlistToggle={handleWishlistToggle}
-            className={styles.productCard || ''}
+            className={styles.productCard}
+            aria-label={`${category} - ${product.id}`}
           />
         ))}
       </div>

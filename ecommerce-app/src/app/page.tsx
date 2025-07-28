@@ -20,6 +20,7 @@ export default async function HomePage() {
   return (
     <div className={styles.homeContainer}>
       <main className={styles.main}>
+        <h1 className={styles.srOnly}>SHOP - 온라인 쇼핑몰</h1>
         <div className={styles.content}>
           {homeData?.components?.map((component: UIComponent, index: number) => (
             <UIComponentRenderer key={component.id} component={component} index={index} />

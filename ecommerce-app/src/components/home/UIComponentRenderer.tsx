@@ -34,7 +34,7 @@ export default function UIComponentRenderer({ component, index = 0 }: UIComponen
           title={component.title || '추천 상품'}
           products={component.data.products}
           viewAllLink="/products/featured"
-          isFirstSection={index <= 1}
+          isFirstSection={index === 0}
         />
       );
 
@@ -44,7 +44,7 @@ export default function UIComponentRenderer({ component, index = 0 }: UIComponen
           title={component.title || '신상품'}
           products={component.data.products}
           viewAllLink="/products/new"
-          isFirstSection={index <= 1}
+          isFirstSection={index === 0}
         />
       );
 

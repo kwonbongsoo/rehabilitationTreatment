@@ -31,9 +31,15 @@ export default function Skeleton({
 }
 
 // 텍스트 스켈레톤 헬퍼 컴포넌트
-export function TextSkeleton({ lines = 1, className }: { lines?: number; className?: string }) {
+export function TextSkeleton({
+  lines = 1,
+  className,
+}: {
+  lines?: number;
+  className?: string | undefined;
+}) {
   return (
-    <div className={className || ''}>
+    <div className={className}>
       {Array.from({ length: lines }, (_, index) => (
         <Skeleton
           key={index}
@@ -63,12 +69,12 @@ export function ImageSkeleton({
       width={width}
       height={height}
       borderRadius="8px"
-      className={className || ''}
+      className={className}
     />
   );
 }
 
 // 원형 아바타 스켈레톤
 export function AvatarSkeleton({ size = 40, className }: { size?: number; className?: string }) {
-  return <Skeleton variant="circular" width={size} height={size} className={className || ''} />;
+  return <Skeleton variant="circular" width={size} height={size} className={className} />;
 }

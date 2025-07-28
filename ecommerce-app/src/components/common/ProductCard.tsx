@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import OptimizedImage from './OptimizedImage';
+import OptimizedImageNext from './OptimizedImageNext';
 import styles from './ProductCard.module.css';
 
 export interface Product {
@@ -20,7 +20,7 @@ export interface Product {
 
 export interface ProductCardProps {
   product: Product;
-  className?: string;
+  className?: string | undefined;
   onWishlistToggle?: (productId: number) => void;
   isWishlisted?: boolean;
   priority?: boolean;
@@ -61,7 +61,7 @@ export default function ProductCard({
     <div className={`${styles.productCard} ${className}`}>
       <Link href={`/product/${product.id}`} className={styles.productLink}>
         <div className={styles.imageContainer}>
-          <OptimizedImage
+          <OptimizedImageNext
             src={product.image}
             alt={product.name}
             width={200}
@@ -80,7 +80,9 @@ export default function ProductCard({
 
           {/* 찜하기 버튼 */}
           <button
-            className={`${styles.wishlistButton} ${isWishlisted ? styles.wishlisted : ''}`}
+            className={[styles.wishlistButton, isWishlisted && styles.wishlisted]
+              .filter(Boolean)
+              .join(' ')}
             onClick={handleWishlistClick}
             aria-label="찜하기"
           >

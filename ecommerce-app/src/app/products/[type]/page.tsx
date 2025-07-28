@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 // import styles from './page.module.css';
-import OptimizedImage from '@/components/common/OptimizedImage';
+import OptimizedImageNext from '@/components/common/OptimizedImageNext';
 import { notFound } from 'next/navigation';
 
 interface ProductTypePageProps {
@@ -40,7 +40,7 @@ export default function ProductTypePage({ params }: ProductTypePageProps) {
       name: `${getTypeTitle(productType)} 1`,
       price: 59900,
       originalPrice: productType === 'sale' ? 89900 : undefined,
-      image: 'https://www.kbs-cdn.shop/image/product-default.jpg',
+      image: 'https://static.kbs-cdn.shop/image/product-default.jpg',
       rating: 4.5,
       isNew: productType === 'new',
       onSale: productType === 'sale',
@@ -50,7 +50,7 @@ export default function ProductTypePage({ params }: ProductTypePageProps) {
       name: `${getTypeTitle(productType)} 2`,
       price: 79900,
       originalPrice: productType === 'sale' ? 119900 : undefined,
-      image: 'https://www.kbs-cdn.shop/image/product-default.jpg',
+      image: 'https://static.kbs-cdn.shop/image/product-default.jpg',
       rating: 4.3,
       isNew: productType === 'new',
       onSale: productType === 'sale',
@@ -60,7 +60,7 @@ export default function ProductTypePage({ params }: ProductTypePageProps) {
       name: `${getTypeTitle(productType)} 3`,
       price: 99900,
       originalPrice: productType === 'sale' ? 149900 : undefined,
-      image: 'https://www.kbs-cdn.shop/image/product-default.jpg',
+      image: 'https://static.kbs-cdn.shop/image/product-default.jpg',
       rating: 4.7,
       isNew: productType === 'new',
       onSale: productType === 'sale',
@@ -138,7 +138,7 @@ export default function ProductTypePage({ params }: ProductTypePageProps) {
             }}
           >
             <div style={{ position: 'relative', width: '100%', aspectRatio: '1' }}>
-              <OptimizedImage
+              <OptimizedImageNext
                 src={product.image}
                 alt={product.name}
                 width={500}

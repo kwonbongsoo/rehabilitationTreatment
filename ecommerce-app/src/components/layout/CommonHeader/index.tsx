@@ -62,7 +62,7 @@ const CommonHeader: React.FC<CommonHeaderProps> = ({
 
       {isProductDetailPage && (
         <button
-          className={`${styles.wishlistButton} ${isWishlisted ? styles.wishlisted : ''}`}
+          className={[styles.wishlistButton, isWishlisted && styles.wishlisted].filter(Boolean).join(' ')}
           onClick={() => onWishlistToggle?.()}
           aria-label={isWishlisted ? '위시리스트에서 제거' : '위시리스트에 추가'}
           onKeyDown={(e) => {

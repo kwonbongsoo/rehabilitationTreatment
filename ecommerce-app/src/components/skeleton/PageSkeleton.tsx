@@ -7,7 +7,7 @@ export default function PageSkeleton() {
     <div className={styles.pageSkeleton}>
       <div className={styles.header}>
         <Skeleton width="200px" height="32px" />
-        <TextSkeleton lines={2} className={styles.description || ''} />
+        <TextSkeleton lines={2} className={styles.description} />
       </div>
       <div className={styles.content}>
         <div className={styles.contentGrid}>
@@ -16,7 +16,7 @@ export default function PageSkeleton() {
               <ImageSkeleton width="100%" height="160px" />
               <div className={styles.cardContent}>
                 <TextSkeleton lines={2} />
-                <Skeleton width="80px" height="20px" className={styles.price || ''} />
+                <Skeleton width="80px" height="20px" className={styles.price} />
               </div>
             </div>
           ))}
@@ -76,7 +76,7 @@ export function ProductDetailSkeleton() {
         </div>
         <div className={styles.productDetails}>
           <Skeleton width="300px" height="36px" />
-          <TextSkeleton lines={3} className={styles.productDescription || ''} />
+          <TextSkeleton lines={3} className={styles.productDescription} />
           <div className={styles.priceSection}>
             <Skeleton width="120px" height="32px" />
             <Skeleton width="80px" height="24px" />

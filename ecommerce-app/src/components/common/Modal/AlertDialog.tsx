@@ -29,7 +29,7 @@ export function AlertDialog({
   variant = 'info',
 }: AlertDialogProps) {
   return (
-    <BaseModal isOpen={isOpen} onClose={onClose} className={styles.dialog || ''}>
+    <BaseModal isOpen={isOpen} onClose={onClose} className={styles.dialog}>
       <div className={styles.dialogHeader}>
         <div className={`${styles.dialogIcon} ${styles[variant]}`}>
           {variant === 'success' && '✓'}

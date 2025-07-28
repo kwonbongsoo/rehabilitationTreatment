@@ -1,6 +1,6 @@
 'use client';
 
-import OptimizedImage from '@/components/common/OptimizedImage';
+import OptimizedImageNext from '@/components/common/OptimizedImageNext';
 import Link from 'next/link';
 import React from 'react';
 import { FiHeart, FiTrash2 } from 'react-icons/fi';
@@ -54,7 +54,7 @@ export default function WishlistPage() {
             {wishlistItems.map((item) => (
               <div key={item.id} className={styles.wishlistItem}>
                 <div className={styles.productImageContainer}>
-                  <OptimizedImage
+                  <OptimizedImageNext
                     src={item.image}
                     alt={item.name}
                     width={200}
@@ -68,28 +68,19 @@ export default function WishlistPage() {
                   >
                     <FiTrash2 size={16} />
                   </button>
-                  {!item.inStock && (
-                    <div className={styles.outOfStockBadge}>
-                      Out of Stock
-                    </div>
-                  )}
+                  {!item.inStock && <div className={styles.outOfStockBadge}>Out of Stock</div>}
                 </div>
-                
+
                 <div className={styles.productInfo}>
                   <h3 className={styles.productName}>{item.name}</h3>
                   <p className={styles.productPrice}>${item.price}</p>
-                  
+
                   {item.inStock ? (
-                    <button
-                      className={styles.addToCartButton}
-                      onClick={() => moveToCart(item.id)}
-                    >
+                    <button className={styles.addToCartButton} onClick={() => moveToCart(item.id)}>
                       Add to Cart
                     </button>
                   ) : (
-                    <button className={styles.notifyButton}>
-                      Notify When Available
-                    </button>
+                    <button className={styles.notifyButton}>Notify When Available</button>
                   )}
                 </div>
               </div>

@@ -15,12 +15,12 @@ const nextConfig: NextConfig = {
   // 빌드 최적화
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
     // React DevTools 관련 경고 억제
-    if (dev && !isServer) {
-      config.resolve.alias = {
-        ...config.resolve.alias,
-        'react-devtools-shared/src/backend/utils': false,
-      };
-    }
+    // if (dev && !isServer) {
+    //   config.resolve.alias = {
+    //     ...config.resolve.alias,
+    //     'react-devtools-shared/src/backend/utils': false,
+    //   };
+    // }
     // 서버 사이드에서 self 전역 변수 폴리필
     if (isServer) {
       config.resolve.fallback = {
@@ -88,13 +88,13 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'www.kbs-cdn.shop',
+        hostname: 'static.kbs-cdn.shop',
         port: '',
         pathname: '/**',
       },
       {
         protocol: 'https',
-        hostname: 'static.kbs-cdn.shop',
+        hostname: 'www.kbs-cdn.shop',
         port: '',
         pathname: '/**',
       },
@@ -111,13 +111,13 @@ const nextConfig: NextConfig = {
         pathname: '/_next/images/**',
       },
     ],
-    // formats: ['image/webp', 'image/avif'],
-    // minimumCacheTTL: 86400, // 24시간 캐싱
-    // deviceSizes: [640, 750, 828, 1080, 1200, 1920],
-    // imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
-    // // 이미지 품질과 성능 트레이드오프
-    // dangerouslyAllowSVG: false,
-    // // 이미지 최적화 프로세스 개수 제한 (메모리 사용량 감소)
+    formats: ['image/webp', 'image/avif'],
+    minimumCacheTTL: 86400, // 24시간 캐싱
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    // 이미지 품질과 성능 트레이드오프
+    dangerouslyAllowSVG: false,
+    // 이미지 최적화 프로세스 개수 제한 (메모리 사용량 감소)
     domains: [],
   },
 
@@ -148,6 +148,16 @@ const nextConfig: NextConfig = {
   // 정적 파일 캐싱
   async headers() {
     return [
+      // 메인 페이지들에 bfcache 허용 헤더 추가
+      {
+        source: '/((?!api|_next/static|_next/image|favicon.ico).*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=0, must-revalidate',
+          },
+        ],
+      },
       {
         source: '/api/:path*',
         headers: [
@@ -179,10 +189,10 @@ const nextConfig: NextConfig = {
             key: 'Cache-Control',
             value: 'public, max-age=31536000, immutable',
           },
-          // {
-          //   key: 'Link',
-          //   value: '</_next/static/css/:path*>; rel=preload; as=style',
-          // },
+          {
+            key: 'Link',
+            value: '</_next/static/css/:path*>; rel=preload; as=style',
+          },
         ],
       },
       // JavaScript preload 헤더

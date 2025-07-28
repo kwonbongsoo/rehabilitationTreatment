@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import OptimizedImage from '@/components/common/OptimizedImage';
+import OptimizedImageNext from '@/components/common/OptimizedImageNext';
 import { Button } from '@/components/common/Button';
 import styles from './page.module.css';
 import Link from 'next/link';
@@ -21,18 +21,18 @@ const mockProduct = {
   description:
     'A stylish and comfortable T-shirt made from high-quality fabric, ensuring all-day versatile look. Learn more',
   images: [
-    'https://www.kbs-cdn.shop/image/promotion.jpg',
-    'https://www.kbs-cdn.shop/image/promotion.jpg',
-    'https://www.kbs-cdn.shop/image/promotion.jpg',
-    'https://www.kbs-cdn.shop/image/promotion.jpg',
-    'https://www.kbs-cdn.shop/image/promotion.jpg',
+    'https://static.kbs-cdn.shop/image/promotion.jpg',
+    'https://static.kbs-cdn.shop/image/promotion.jpg',
+    'https://static.kbs-cdn.shop/image/promotion.jpg',
+    'https://static.kbs-cdn.shop/image/promotion.jpg',
+    'https://static.kbs-cdn.shop/image/promotion.jpg',
   ],
   colors: [
-    { id: 'green', name: 'Green', image: 'https://www.kbs-cdn.shop/image/promotion.jpg' },
-    { id: 'black', name: 'Black', image: 'https://www.kbs-cdn.shop/image/promotion.jpg' },
-    { id: 'red', name: 'Red', image: 'https://www.kbs-cdn.shop/image/promotion.jpg' },
-    { id: 'blue', name: 'Blue', image: 'https://www.kbs-cdn.shop/image/promotion.jpg' },
-    { id: 'pink', name: 'Pink', image: 'https://www.kbs-cdn.shop/image/promotion.jpg' },
+    { id: 'green', name: 'Green', image: 'https://static.kbs-cdn.shop/image/promotion.jpg' },
+    { id: 'black', name: 'Black', image: 'https://static.kbs-cdn.shop/image/promotion.jpg' },
+    { id: 'red', name: 'Red', image: 'https://static.kbs-cdn.shop/image/promotion.jpg' },
+    { id: 'blue', name: 'Blue', image: 'https://static.kbs-cdn.shop/image/promotion.jpg' },
+    { id: 'pink', name: 'Pink', image: 'https://static.kbs-cdn.shop/image/promotion.jpg' },
   ],
   sizes: ['S', 'M', 'L', 'XL', '2X'],
   rating: 4.9,
@@ -41,7 +41,6 @@ const mockProduct = {
 
 export default function ProductDetailPage({ params }: ProductDetailPageProps) {
   const { id } = params;
-  console.log('id', id);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [selectedColor, setSelectedColor] = useState(mockProduct.colors[0]);
   const [selectedSize, setSelectedSize] = useState('');
@@ -52,12 +51,6 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
       alert('사이즈를 선택해주세요.');
       return;
     }
-    console.log('Add to cart:', {
-      product: mockProduct,
-      color: selectedColor,
-      size: selectedSize,
-      quantity: 1, // 고정값 사용
-    });
   };
 
   const handleBuyNow = () => {
@@ -65,12 +58,6 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
       alert('사이즈를 선택해주세요.');
       return;
     }
-    console.log('Buy now:', {
-      product: mockProduct,
-      color: selectedColor,
-      size: selectedSize,
-      quantity: 1, // 고정값 사용
-    });
   };
 
   return (
@@ -78,7 +65,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
       {/* 상품 이미지 */}
       <div className={styles.imageSection}>
         <div className={styles.mainImageContainer}>
-          <OptimizedImage
+          <OptimizedImageNext
             src={mockProduct.images[selectedImageIndex] || ''}
             alt={mockProduct.name}
             width={400}
@@ -94,6 +81,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
               key={index}
               className={`${styles.indicator} ${selectedImageIndex === index ? styles.active : ''}`}
               onClick={() => setSelectedImageIndex(index)}
+              aria-label={`${id} - ${index}`}
             />
           ))}
         </div>
@@ -108,7 +96,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
               className={`${styles.colorOption} ${selectedColor?.id === color.id ? styles.selected : ''}`}
               onClick={() => setSelectedColor(color)}
             >
-              <OptimizedImage
+              <OptimizedImageNext
                 src={color.image}
                 alt={color.name}
                 width={50}

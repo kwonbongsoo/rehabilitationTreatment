@@ -4,8 +4,8 @@ import { createUIConfigurationService } from '@/services/uiConfigurationService'
 import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { ReactNode } from 'react';
+import React from 'react';
 import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import { AuthProvider } from './AuthProvider';
 
 interface AppProvidersProps {
@@ -27,8 +27,9 @@ const uiConfig = uiConfigService.createConfiguration();
 export function AppProviders({ children }: AppProvidersProps) {
   const { queryClient, toastConfig, devtoolsConfig } = uiConfig;
 
+
   return (
-    <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient}>      
       <AuthProvider>{children}</AuthProvider>
       <ToastContainer
         {...Object.fromEntries(

@@ -33,7 +33,7 @@ export function ConfirmDialog({
   variant = 'default',
 }: ConfirmDialogProps) {
   return (
-    <BaseModal isOpen={isOpen} onClose={onCancel} className={styles.dialog || ''}>
+    <BaseModal isOpen={isOpen} onClose={onCancel} className={styles.dialog}>
       <div className={styles.dialogHeader}>
         <h3 className={styles.dialogTitle}>{title}</h3>
       </div>

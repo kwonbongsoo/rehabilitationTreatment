@@ -109,7 +109,7 @@ export default function CategoriesClient({
             <ProductCard
               key={product.id}
               product={product}
-              onWishlistToggle={(productId) => console.log('Wishlist toggled:', productId)}
+              onWishlistToggle={(productId) => productId}
             />
           ))}
         </div>

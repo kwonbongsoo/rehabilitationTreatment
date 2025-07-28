@@ -27,12 +27,7 @@ export default function ProductSection({
   isFirstSection = false,
 }: ProductSectionProps) {
   const handleWishlistToggle = (productId: number) => {
-    if (onWishlistToggle) {
-      onWishlistToggle(productId);
-    } else {
-      console.log('Toggle wishlist for product:', productId);
-      // 기본 위시리스트 토글 로직
-    }
+    onWishlistToggle?.(productId);
   };
 
   if (!products || products.length === 0) {
@@ -52,11 +47,11 @@ export default function ProductSection({
 
       <div className={styles.productsGrid}>
         {products.map((product, index) => (
-          <ProductCard 
-            key={product.id} 
-            product={product} 
+          <ProductCard
+            key={product.id}
+            product={product}
             onWishlistToggle={handleWishlistToggle}
-            priority={isFirstSection && index < 2}
+            priority={isFirstSection && index < 4}
           />
         ))}
       </div>
