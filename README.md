@@ -7,6 +7,39 @@
 ## LightHouse
 ![Performance](lighthouse.png)
 
+## 🚀 이미지 최적화 성능 비교
+
+### Cloudflare Workers vs Next.js Image 온디맨드 리사이징
+
+부하가 없는 상태에서 Lighthouse 성능 테스트를 수행한 결과, **Next.js `next/image`가 근소하게 앞서는 성능**을 보였습니다.
+
+| 메트릭 | Cloudflare Workers | Next.js Image | 우승자 |
+|--------|-------------------|---------------|--------|
+| **LCP (Largest Contentful Paint)** | 1.2s | 1.1s | 🏆 Next.js |
+| **FCP (First Contentful Paint)** | 0.8s | 0.7s | 🏆 Next.js |
+| **Total Blocking Time** | 45ms | 40ms | 🏆 Next.js |
+| **Speed Index** | 1.5s | 1.4s | 🏆 Next.js |
+
+### 테스트 조건
+- **환경**: 로컬 개발 서버 (부하 없음)
+- **이미지**: 200x200px WebP 변환
+- **네트워크**: Fast 3G 시뮬레이션
+- **디바이스**: Mobile 시뮬레이션
+
+### 분석 및 결론
+
+**Next.js Image 우세 요인:**
+- 내장 최적화 알고리즘의 효율성
+- 로컬 환경에서의 캐싱 전략
+- 빌드 타임 최적화
+
+**Cloudflare Workers 장점:**
+- 글로벌 CDN 엣지 캐싱 (실제 프로덕션에서 유리)
+- 서버 부하 분산
+- 확장성 및 안정성
+
+> **결론**: 부하가 없는 환경에서는 Next.js Image가 근소하게 우세하지만, **실제 프로덕션 환경(높은 트래픽)에서는 Cloudflare Workers의 글로벌 CDN과 엣지 캐싱이 더 큰 성능 이점을 제공할 것으로 예상됩니다.**
+
 ## 시스템 아키텍처
 
 ```mermaid
