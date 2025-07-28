@@ -1,6 +1,6 @@
 'use server';
 
-import { HomePageResponse, HomePageActionResult } from '@/types/home';
+import { HomePageResponse, HomePageActionResult } from '../types';
 import { HeaderBuilderFactory } from '@/lib/server/headerBuilder';
 import { handleApiResponse, handleActionError } from '@/lib/server/errorHandler';
 

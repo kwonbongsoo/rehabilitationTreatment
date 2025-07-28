@@ -3,7 +3,7 @@ import { useState, useMemo } from 'react';
 import CategoryIconGrid from '@/components/common/CategoryIconGrid';
 import ProductCard from '@/components/common/ProductCard';
 import ProductFilters from '@/components/common/ProductFilters';
-import { CategoryWithProducts, FilterOption, Product } from '@/types/categories';
+import { CategoryWithProducts, FilterOption, Product } from '../types';
 import styles from './CategoriesClient.module.css';
 
 interface CategoriesClientProps {

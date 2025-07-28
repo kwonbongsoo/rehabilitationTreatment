@@ -1,6 +1,6 @@
 'use server';
 
-import { CategoryPageActionResult, CategoryDetailActionResult } from '@/types/categories';
+import { CategoryPageActionResult, CategoryDetailActionResult } from '../types';
 import { HeaderBuilderFactory } from '@/lib/server/headerBuilder';
 import { handleApiResponse, handleActionError } from '@/lib/server/errorHandler';
 

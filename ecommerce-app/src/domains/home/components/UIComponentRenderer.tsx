@@ -1,4 +1,4 @@
-import { UIComponent } from '@/types/home';
+import { UIComponent } from '../types';
 import Banner from './Banner';
 import Brands from './Brands';
 import Categories from './Categories';

@@ -1,5 +1,5 @@
-import CategoriesClient from '@/components/categories/CategoriesClient';
-import { getCategoriesAction } from '@/app/actions/categories';
+import { CategoriesClient } from '@/domains/category/components';
+import { getCategoriesAction } from '@/domains/category/services';
 
 export default async function CategoriesPage() {
   const data = await getCategoriesAction();

@@ -1,7 +1,7 @@
-import UIComponentRenderer from '@/components/home/UIComponentRenderer';
+import { UIComponentRenderer } from '@/domains/home/components';
 import styles from '@/styles/home/HomePage.module.css';
-import { UIComponent } from '@/types/home';
-import { getHomeDataAction } from './actions/home';
+import { UIComponent } from '@/domains/home/types';
+import { getHomeDataAction } from '@/domains/home/services';
 
 export default async function HomePage() {
   const data = await getHomeDataAction();

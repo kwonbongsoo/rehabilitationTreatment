@@ -2,7 +2,7 @@
 
 import React, { memo } from 'react';
 import { useRouter } from 'next/navigation';
-import MobileHeader from '@/components/home/MobileHeader';
+import { MobileHeader } from '@/domains/home/components';
 
 interface HomeLayoutProps {
   children: React.ReactNode;
