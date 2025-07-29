@@ -20,7 +20,7 @@
 | 서비스 | 평균 응답시간 | 성능 차이 |
 |--------|--------------|----------|
 | **Cloudflare Workers** | **0.181초** | 기준 |
-| **Next.js Image** | **0.001초** | **180배 빠름** 🏆 |
+| **Next.js Image** | **0.0038초** | **47배 빠름** 🏆 |
 
 #### 상세 측정 데이터
 
@@ -30,17 +30,19 @@
 평균: 0.181초
 ```
 
-**Next.js Image 응답시간:**
+**Next.js Image 응답시간 (공인 IP 접근):**
 ```
-0.0017s → 0.0017s → 0.0013s → 0.0014s → 0.0012s  
-평균: 0.0015초
+0.0040s → 0.0039s → 0.0037s → 0.0038s → 0.0040s  
+평균: 0.0038초
 ```
 
 #### 테스트 조건
-- **환경**: 로컬 개발 서버 
+- **환경**: 로컬 개발 서버 (공인 IP 포트포워딩)
 - **이미지**: `product-default.jpg` → 120x120px WebP 변환
 - **측정 도구**: curl with timing metrics
-- **네트워크**: 로컬 환경 (지연 없음)
+- **네트워크**: 외부 인터넷 접근 (공정한 비교를 위해 수정)
+
+> **테스트 개선**: 기존 `localhost:3000` 호출은 로컬 네트워크로 인해 불공정했습니다. 공인 IP를 통한 외부 접근으로 수정하여 Cloudflare Workers와 동일한 네트워크 조건에서 측정했습니다.
 
 #### 테스트 명령어
 
@@ -49,9 +51,9 @@
 curl -w "Total time: %{time_total}s\nDNS lookup: %{time_namelookup}s\nConnect: %{time_connect}s\nSSL handshake: %{time_appconnect}s\nTime to first byte: %{time_starttransfer}s\nDownload: %{time_download}s\nHTTP code: %{http_code}\nSize: %{size_download} bytes\n" -o /dev/null -s "https://image-resizer.star1231076.workers.dev/?url=https://static.kbs-cdn.shop/image/product-default.jpg&w=120&h=120&fit=cover&f=webp"
 ```
 
-**Next.js Image 최적화:**
+**Next.js Image 최적화 (공인 IP 접근):**
 ```bash
-curl -w "Total time: %{time_total}s\nDNS lookup: %{time_namelookup}s\nConnect: %{time_connect}s\nSSL handshake: %{time_appconnect}s\nTime to first byte: %{time_starttransfer}s\nDownload: %{time_download}s\nHTTP code: %{http_code}\nSize: %{size_download} bytes\n" -o /dev/null -s "http://localhost:3000/_next/image?url=https%3A%2F%2Fstatic.kbs-cdn.shop%2Fimage%2Fproduct-default.jpg&w=120&q=75"
+curl -w "Total time: %{time_total}s\nDNS lookup: %{time_namelookup}s\nConnect: %{time_connect}s\nSSL handshake: %{time_appconnect}s\nTime to first byte: %{time_starttransfer}s\nDownload: %{time_download}s\nHTTP code: %{http_code}\nSize: %{size_download} bytes\n" -o /dev/null -s "http://YOUR_PUBLIC_IP:3000/_next/image?url=https%3A%2F%2Fstatic.kbs-cdn.shop%2Fimage%2Fproduct-default.jpg&w=120&q=75"
 ```
 
 #### 분석 및 결론
@@ -74,7 +76,7 @@ curl -w "Total time: %{time_total}s\nDNS lookup: %{time_namelookup}s\nConnect: %
 
 #### 실제 프로덕션 환경 고려사항
 
-**로컬/개발 환경**: Next.js Image 압도적 우세 (180배 빠름)
+**공정한 테스트 환경**: Next.js Image 우세 (47배 빠름)
 
 **프로덕션 환경에서는 상황이 달라질 수 있음:**
 
@@ -88,7 +90,7 @@ curl -w "Total time: %{time_total}s\nDNS lookup: %{time_namelookup}s\nConnect: %
 - **서버 부하**: 이미지 처리로 인한 애플리케이션 서버 리소스 사용
 
 > **결론**: 
-> - **로컬/개발**: Next.js Image 압도적 우세 (180배 빠름)  
+> - **개발/테스트 환경**: Next.js Image 우세 (47배 빠름)  
 > - **글로벌 프로덕션**: Cloudflare Workers가 일관된 고성능 + 서버 부하 분산으로 유리
 > - **반복 요청**: Cloudflare Workers는 캐시 히트 시 Next.js와 동등하거나 더 빠른 성능 예상
 
