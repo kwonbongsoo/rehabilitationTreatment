@@ -106,22 +106,33 @@ class HomePageService {
   }
 
   private transformCategoryData(rawData: RawCategoryData[], rawProducts: RawProductData[]) {
+    const activeCategories = rawData
+      .filter((item) => item.isActive)
+      .filter((item) => rawProducts.some((product) => product.categoryId === item.id))
+      .sort((a, b) => a.order - b.order)
+      .map((item) => ({
+        id: item.id,
+        name: item.name,
+        icon: item.iconCode,
+        link: `/categories?category=${encodeURIComponent(item.id)}`,
+      }));
+
     return {
       id: 'categories-1',
       type: 'categories',
       title: '카테고리',
       visible: true,
       data: {
-        categories: rawData
-          .filter((item) => item.isActive)
-          .filter((item) => rawProducts.some((product) => product.categoryId === item.id))
-          .sort((a, b) => a.order - b.order)
-          .map((item) => ({
-            id: item.id,
-            name: item.name,
-            icon: item.iconCode,
-            link: `/categories?category=${encodeURIComponent(item.id)}`,
-          })),
+        categories: [
+          // "전체" 카테고리를 맨 앞에 추가
+          {
+            id: 0,
+            name: '전체',
+            icon: '👕',
+            link: '/categories',
+          },
+          ...activeCategories,
+        ],
       },
     };
   }

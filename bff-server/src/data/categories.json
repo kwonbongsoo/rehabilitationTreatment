@@ -1,5 +1,4 @@
 [
-    { "id": 0, "name": "전체", "slug": "", "iconCode": "👕", "order": 0, "isActive": true },
     { "id": 1, "name": "의류", "slug": "clothing", "iconCode": "👕", "order": 1, "isActive": true },
     { "id": 2, "name": "신발", "slug": "shoes", "iconCode": "👟", "order": 2, "isActive": true },
     { "id": 3, "name": "가방", "slug": "bags", "iconCode": "👜", "order": 3, "isActive": true },
