@@ -183,7 +183,7 @@ export default function memberRoutes(controller: MemberController) {
                 },
                 response: {
                     200: successResponseSchema,
-                    401: errorResponseSchema,
+                    422: errorResponseSchema,
                     404: errorResponseSchema
                 }
             },
@@ -212,7 +212,7 @@ export default function memberRoutes(controller: MemberController) {
                             error: { type: 'string' }
                         }
                     },
-                    401: errorResponseSchema
+                    422: errorResponseSchema
                 }
             },
             handler: controller.authenticateMember

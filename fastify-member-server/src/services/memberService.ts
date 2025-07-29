@@ -320,7 +320,7 @@ export class MemberService implements IMemberService {
     const isPasswordValid = await this.comparePasswords(password, member.password);
 
     if (!isPasswordValid) {
-      throw new AuthenticationError('Invalid credentials');
+      throw new AuthenticationError('Password is incorrect');
     }
 
     // 4. 안전한 멤버 정보 반환 (비밀번호 제외)

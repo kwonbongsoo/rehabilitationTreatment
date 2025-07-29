@@ -8,8 +8,8 @@ const nextConfig: NextConfig = {
 
   // 컴파일러 최적화
   compiler: {
-    removeConsole: process.env.NODE_ENV === 'production',
-    // removeConsole: false,
+    // removeConsole: process.env.NODE_ENV === 'production',
+    removeConsole: false,
   },
 
   // 빌드 최적화

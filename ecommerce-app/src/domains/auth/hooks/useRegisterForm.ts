@@ -75,7 +75,10 @@ export function useRegisterForm(): UseRegisterFormReturn {
           async (req, key) => {
             const result = await registerAction(req, key);
             if (!result.success) {
-              const error = new Error(result.error || '회원가입에 실패했습니다.');
+              const error = new Error(result.error || '회원가입에 실패했습니다.') as Error & {
+                statusCode?: number;
+              };
+              error.statusCode = result.statusCode ?? 500;
               throw error;
             }
           },

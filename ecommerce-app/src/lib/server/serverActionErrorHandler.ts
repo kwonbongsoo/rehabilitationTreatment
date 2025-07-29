@@ -109,52 +109,6 @@ export async function handleApiResponseForServerAction<T>(
         // JSON 파싱 실패 시 기본 메시지 사용
       }
 
-      // HTTP 상태 코드에 따른 에러 분류
-      if (response.status === 400) {
-        return {
-          success: false,
-          error: errorMessage,
-          statusCode: 400,
-          code: ErrorCode.VALIDATION_ERROR,
-        };
-      }
-
-      if (response.status === 401) {
-        return {
-          success: false,
-          error: '인증이 필요합니다.',
-          statusCode: 401,
-          code: ErrorCode.INVALID_CREDENTIALS,
-        };
-      }
-
-      if (response.status === 403) {
-        return {
-          success: false,
-          error: '접근 권한이 없습니다.',
-          statusCode: 403,
-          code: ErrorCode.INTERNAL_ERROR, // 403용 코드가 없어서 임시로 사용
-        };
-      }
-
-      if (response.status === 404) {
-        return {
-          success: false,
-          error: '요청한 리소스를 찾을 수 없습니다.',
-          statusCode: 404,
-          code: ErrorCode.RESOURCE_NOT_FOUND,
-        };
-      }
-
-      if (response.status >= 500) {
-        return {
-          success: false,
-          error: '서버 내부 오류가 발생했습니다.',
-          statusCode: response.status,
-          code: ErrorCode.INTERNAL_ERROR,
-        };
-      }
-
       return {
         success: false,
         error: errorMessage,

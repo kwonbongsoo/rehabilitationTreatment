@@ -17,6 +17,14 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
       timestamp: new Date().toISOString(),
     });
 
+    // 401 에러 감지 (에러 메시지나 스택에서 감지)
+    const errorText = (error.message + (error.stack || '')).toLowerCase();
+    if (errorText.includes('401') || 
+        errorText.includes('unauthorized') || 
+        errorText.includes('authentication')) {
+      window.location.reload();
+    }
+
     // 프로덕션에서는 외부 모니터링 서비스로 전송
     if (process.env.NODE_ENV === 'production') {
       // TODO: Sentry, LogRocket 등으로 전송

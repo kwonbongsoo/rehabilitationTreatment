@@ -37,9 +37,13 @@ export function useLogoutForm(): UseLogoutFormReturn {
     try {
       setIsLoading(true);
       const result = await logoutAction();
-      
+
       if (!result.success) {
-        throw new Error(result.error || '로그아웃에 실패했습니다.');
+        const error = new Error(result.error || '로그아웃에 실패했습니다.') as Error & {
+          statusCode?: number;
+        };
+        error.statusCode = result.statusCode ?? 500;
+        throw error;
       }
 
       NotificationManager.showSuccess('로그아웃되었습니다.');

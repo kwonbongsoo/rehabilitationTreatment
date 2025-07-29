@@ -129,7 +129,7 @@ export class DuplicateValueError extends BaseHttpError {
 }
 
 export class AuthenticationError extends BaseHttpError {
-  public readonly statusCode = 401;
+  public readonly statusCode = 422;
   public readonly errorCode = 'AUTHENTICATION_FAILED';
 
   constructor(message = 'Authentication failed') {

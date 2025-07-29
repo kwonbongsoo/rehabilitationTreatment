@@ -109,6 +109,7 @@ export function RegisterForm({
           onChange={(e) => form.updateField('password', e.target.value)}
           placeholder="Password"
           className="form-input"
+          autoComplete="new-password"
           required
         />
         {form.hasError && form.error.includes('비밀번호') && (
@@ -124,6 +125,7 @@ export function RegisterForm({
           onChange={(e) => form.updateField('confirmPassword', e.target.value)}
           placeholder="Confirm Password"
           className="form-input"
+          autoComplete="new-password"
           required
         />
         {form.hasError && form.error.includes('확인') && (

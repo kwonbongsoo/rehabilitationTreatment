@@ -23,9 +23,9 @@ export async function getSessionInfo(): Promise<SessionInfoActionResult> {
     });
 
     const result = await handleApiResponse(response, (json: SessionInfoResponse) => json.data);
-    return result as SessionInfoActionResult;
+    return result;
   } catch (error) {
-    return handleActionError(error) as SessionInfoActionResult;
+    return handleActionError(error);
   }
 }
 

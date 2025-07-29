@@ -215,3 +215,9 @@ export class ApiAuthenticationError extends ApiError {
     super(message, 401, service);
   }
 }
+
+export class ApiInvalidCredentialsError extends ApiError {
+  constructor(message: string = 'Invalid credentials provided', service: string = 'unknown') {
+    super(message, 422, service);
+  }
+}

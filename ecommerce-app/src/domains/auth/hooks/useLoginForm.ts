@@ -88,7 +88,7 @@ export function useLoginForm(): UseLoginFormReturn {
             const error = new Error(result.error || '로그인에 실패했습니다.') as Error & {
               statusCode?: number;
             };
-            error.statusCode = result.statusCode || 500; // 상태 코드 전달
+            error.statusCode = result.statusCode ?? 500;
             throw error;
           }
         },

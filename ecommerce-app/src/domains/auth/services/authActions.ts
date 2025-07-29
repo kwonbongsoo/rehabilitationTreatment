@@ -51,11 +51,7 @@ export async function login(credentials: LoginRequest): Promise<LoginActionResul
 
     const result = await handleApiResponseForServerAction(apiResponse, '로그인');
     if (!result.success) {
-      return {
-        success: false,
-        error: result.error || '로그인에 실패했습니다.',
-        statusCode: result.statusCode || 500,
-      };
+      return result as LoginActionResult;
     }
 
     const response = result.data;
@@ -104,13 +100,8 @@ export async function login(credentials: LoginRequest): Promise<LoginActionResul
     const result = await safeServerAction(async () => {
       throw error;
     }, '로그인');
-    
-    return {
-      success: result.success,
-      data: result.data,
-      error: result.error,
-      statusCode: result.statusCode || 500,
-    } as LoginActionResult;
+
+    return result as LoginActionResult;
   }
 }
 
@@ -140,7 +131,7 @@ export async function logout(): Promise<LogoutActionResult> {
 
       if (!apiResponse.ok && apiResponse.status !== 401) {
         const result = await handleApiResponseForServerAction(apiResponse, '로그아웃');
-        return result as LogoutActionResult;
+        return result;
       }
 
       const response = await apiResponse.json();
@@ -156,13 +147,7 @@ export async function logout(): Promise<LogoutActionResult> {
     }
   }, '로그아웃');
 
-  // ServerActionResult를 LogoutActionResult로 변환
-  return {
-    success: result.success,
-    data: result.data,
-    error: result.error,
-    statusCode: result.statusCode,
-  } as LogoutActionResult;
+  return result as LogoutActionResult;
 }
 
 /**
@@ -200,9 +185,12 @@ export async function register(
       cache: 'no-store',
     });
 
-    const result = await handleApiResponseForServerAction<RegisterResponse>(apiResponse, '회원가입');
+    const result = await handleApiResponseForServerAction<RegisterResponse>(
+      apiResponse,
+      '회원가입',
+    );
     if (!result.success) {
-      return result as RegisterActionResult;
+      return result;
     }
 
     return {
@@ -211,13 +199,7 @@ export async function register(
     };
   }, '회원가입');
 
-  // ServerActionResult를 RegisterActionResult로 변환
-  return {
-    success: result.success,
-    data: result.data,
-    error: result.error,
-    statusCode: result.statusCode,
-  } as RegisterActionResult;
+  return result as RegisterActionResult;
 }
 
 /**

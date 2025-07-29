@@ -25,7 +25,8 @@ export function normalizeError(error: unknown): {
 
   // 일반 Error 객체인 경우
   if (error instanceof Error) {
-    // 인증 관련 에러 감지
+
+    // 인증 관련 에러 감지 (401)
     if (
       error.message.toLowerCase().includes('auth') ||
       error.message.toLowerCase().includes('login') ||
@@ -86,6 +87,10 @@ export function getErrorActions(error: ReturnType<typeof normalizeError>) {
 
   // 인증 에러
   if (error.statusCode === 401) {
+    // 401 에러 시 즉시 새로고침
+    if (typeof window !== 'undefined') {
+      window.location.reload();
+    }
     actions.push({ label: '로그인', action: 'login', href: '/auth/login' });
   }
 

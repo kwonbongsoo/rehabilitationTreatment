@@ -47,6 +47,7 @@ export function LoginForm({ onSubmit, isLoading: externalLoading = false }: Logi
           onChange={(e) => form.updateField('id', e.target.value)}
           placeholder="Username"
           className="form-input"
+          autoComplete="username"
           required
         />
         {form.hasError && form.error.includes('아이디') && (
@@ -62,6 +63,7 @@ export function LoginForm({ onSubmit, isLoading: externalLoading = false }: Logi
           onChange={(e) => form.updateField('password', e.target.value)}
           placeholder="Password"
           className="form-input"
+          autoComplete="current-password"
           required
         />
         {form.hasError && form.error.includes('비밀번호') && (

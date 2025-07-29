@@ -10,6 +10,7 @@ import {
   ApiForbiddenError,
   ApiNotFoundError,
   ApiAuthenticationError,
+  ApiInvalidCredentialsError,
 } from '../middlewares/errorMiddleware';
 import { Config } from '../config/config';
 
@@ -147,7 +148,11 @@ export class MemberApiClient {
           return new ApiForbiddenError('권한이 없습니다', this.SERVICE_NAME);
         case 404:
           return new ApiNotFoundError('등록되지 않은 계정입니다', this.SERVICE_NAME);
-
+        case 422:
+          return new ApiInvalidCredentialsError(
+            '아이디 또는 비밀번호가 올바르지 않습니다',
+            this.SERVICE_NAME,
+          );
         // 서버 오류
         case 500:
         case 502:
