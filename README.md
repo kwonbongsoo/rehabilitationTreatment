@@ -13,7 +13,7 @@
 
 로컬 환경에서 동일한 이미지(120x120px WebP)에 대한 응답속도 측정 결과, **Next.js Image가 압도적으로 빠른 성능**을 보였습니다.
 
-> **참고**: Cloudflare Workers는 외부 무료 이미지 리사이저 API(`image-resizer.star1231076.workers.dev`)를 사용하여 구현되었으며, Next.js Image는 내장 최적화 엔진을 사용합니다.
+> **참고**: Cloudflare Workers는 직접 구현한 이미지 리사이저 API(`image-resizer.star1231076.workers.dev`)를 사용하여 구현되었으며, Next.js Image는 내장 최적화 엔진을 사용합니다.
 
 #### 응답속도 측정 결과 (5회 평균)
 
@@ -68,7 +68,7 @@ curl -w "Total time: %{time_total}s\nDNS lookup: %{time_namelookup}s\nConnect: %
 - **네트워크 RTT**: 왕복 네트워크 지연시간 포함
 
 **Cloudflare Workers 캐싱 전략:**
-- **강력한 캐싱**: `Cache-Control: public, max-age=31536000, immutable` (1년)
+- **강력한 캐싱**: `Cache-Control: public, max-age=86400, immutable` (24시간)
 - **엣지 캐싱**: 두 번째 요청부터는 CDN 엣지에서 즉시 응답
 - **글로벌 분산**: 전 세계 엣지 서버에서 캐시된 이미지 제공
 
@@ -79,7 +79,7 @@ curl -w "Total time: %{time_total}s\nDNS lookup: %{time_namelookup}s\nConnect: %
 **프로덕션 환경에서는 상황이 달라질 수 있음:**
 
 **Cloudflare Workers 장점:**
-- **첫 요청 후 즉시 캐싱**: 1년간 immutable 캐시로 극도로 빠른 재요청 응답
+- **첫 요청 후 즉시 캐싱**: 24시간 immutable 캐시로 극도로 빠른 재요청 응답
 - **글로벌 엣지 분산**: 전 세계 200+ 엣지 서버에서 동일한 성능
 - **지역별 일관성**: 사용자 위치와 관계없이 일관된 응답속도
 
@@ -480,26 +480,45 @@ cd ecommerce-app && npm install && cd ..
 # kong/.env
 KONG_DATABASE=off
 KONG_DECLARATIVE_CONFIG=/tmp/kong.yml
-KONG_PROXY_ACCESS_LOG=/dev/stdout
-KONG_ADMIN_ACCESS_LOG=/dev/stdout
-KONG_PROXY_ERROR_LOG=/dev/stderr
-KONG_ADMIN_ERROR_LOG=/dev/stderr
-KONG_ADMIN_LISTEN=0.0.0.0:8001
+KONG_PLUGINS=token-validator,idempotency
+
+# Kong 성능 최적화
+KONG_LOG_LEVEL=error
+KONG_NGINX_WORKER_PROCESSES=1
+KONG_NGINX_KEEPALIVE_REQUESTS=10000
+KONG_NGINX_KEEPALIVE_TIMEOUT=75s
+KONG_PROXY_ACCESS_LOG=off
+KONG_ADMIN_ACCESS_LOG=off
+KONG_PROXY_LISTEN=0.0.0.0:8000
+KONG_ADMIN_LISTEN=0.0.0.0:8001, 0.0.0.0:8444 ssl
 
 # Redis 설정 (클라우드 또는 로컬)
 REDIS_URL=your-redis-host
-REDIS_PORT=6379
+REDIS_PORT=12020
 REDIS_PASSWORD=your-redis-password
 REDIS_DB=0
-IDEMPOTENCY_TTL=3600
+IDEMPOTENCY_TTL=60
+
+# JWT 및 인증
+JWT_SECRET=your-long-jwt-secret-key
+TEST_TOKEN=your-test-token-for-warmup
 
 # 서비스 URL (정확한 포트)
-MEMBER_SERVER_URL=http://fastify-member-server:5000
 AUTH_SERVER_URL=http://koa-auth-server:4000
+MEMBER_SERVER_URL=http://fastify-member-server:5000
 BFF_SERVER_URL=http://bff-server:3001
+```
 
-# 활성 플러그인
-KONG_PLUGINS=token-validator,idempotency
+**Frontend 설정 (추가)**
+```bash
+# ecommerce-app/.env
+KONG_GATEWAY_URL=http://kong:8000
+AUTH_SERVICE_URL=http://koa-auth-server:4000
+AUTH_SERVICE_TIMEOUT=5000
+AUTH_BASIC_KEY=your-auth-basic-key
+NODE_ENV=development
+AUTH_PREFIX=/api/auth
+NEXT_PUBLIC_CDN_DOMAIN=https://your-cloudflare-workers-domain
 ```
 
 4. **Docker Compose 실행**
