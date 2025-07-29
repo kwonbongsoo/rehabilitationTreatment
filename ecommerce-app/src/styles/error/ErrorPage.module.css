@@ -1,0 +1,156 @@
+/* 에러 페이지 스타일 */
+.errorContainer {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-background);
+  padding: var(--spacing-lg) var(--spacing-md);
+}
+
+.errorContent {
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  background: var(--color-background);
+  border-radius: 12px;
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--color-border-light);
+}
+
+.iconContainer {
+  margin: 0 auto var(--spacing-lg);
+  width: 64px;
+  height: 64px;
+  background: var(--color-error-light);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-error);
+}
+
+.errorTitle {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-md);
+  line-height: 1.2;
+}
+
+.errorMessage {
+  font-size: var(--font-size-md);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-lg);
+  line-height: 1.5;
+}
+
+.developerInfo {
+  margin-top: var(--spacing-lg);
+  text-align: left;
+}
+
+.developerSummary {
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  background: none;
+  border: none;
+  padding: var(--spacing-sm);
+  border-radius: 4px;
+  transition: background-color var(--transition-fast);
+}
+
+.developerSummary:hover {
+  background: var(--color-background-hover);
+}
+
+.developerDetails {
+  margin-top: var(--spacing-sm);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  background: var(--color-background-secondary);
+  padding: var(--spacing-md);
+  border-radius: 8px;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: 'Courier New', monospace;
+  border: 1px solid var(--color-border);
+}
+
+.actionButtons {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-lg);
+}
+
+.actionButton {
+  width: 100%;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: var(--font-size-md);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border: none;
+  outline: none;
+}
+
+.actionButton:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.primaryButton {
+  background: var(--color-primary);
+  color: white;
+}
+
+.primaryButton:hover {
+  background: var(--color-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.secondaryButton {
+  background: var(--color-background);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
+}
+
+.secondaryButton:hover {
+  background: var(--color-background-hover);
+  border-color: var(--color-border-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+/* 반응형 */
+@media (max-width: 480px) {
+  .errorContainer {
+    padding: var(--spacing-md);
+  }
+  
+  .errorContent {
+    padding: var(--spacing-md);
+  }
+  
+  .errorTitle {
+    font-size: 1.5rem;
+  }
+  
+  .iconContainer {
+    width: 56px;
+    height: 56px;
+  }
+}
+
+/* 다크 모드 */
+@media (prefers-color-scheme: dark) {
+  .iconContainer {
+    background: rgba(239, 68, 68, 0.1);
+  }
+}
