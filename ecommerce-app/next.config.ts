@@ -6,6 +6,12 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   compress: true,
 
+  // 🚀 모던 브라우저 타겟팅으로 번들 크기 최적화
+  swcMinify: true, // SWC 미니파이어 사용 (더 빠르고 효율적)
+
+  // 모던 브라우저 타겟팅
+  transpilePackages: [], // 필요 시 특정 패키지만 트랜스파일
+
   // 컴파일러 최적화
   compiler: {
     // removeConsole: process.env.NODE_ENV === 'production',
@@ -163,6 +169,13 @@ const nextConfig: NextConfig = {
     serverActions: {
       bodySizeLimit: '10mb',
     },
+
+    // 🚀 모던 JavaScript 최적화
+    forceSwcTransforms: true, // SWC 강제 사용
+    swcTraceProfiling: false, // 프로파일링 비활성화로 성능 향상
+    // 번들 최적화
+    optimisticClientCache: true, // 클라이언트 캐시 최적화
+    scrollRestoration: true, // 스크롤 복원 최적화
   },
 
   // 정적 파일 캐싱

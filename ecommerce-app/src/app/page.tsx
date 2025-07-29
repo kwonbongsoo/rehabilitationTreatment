@@ -3,6 +3,9 @@ import styles from '@/styles/home/HomePage.module.css';
 import { UIComponent } from '@/domains/home/types';
 import { getHomeDataAction } from '@/domains/home/services';
 
+// 쿠키 사용으로 인해 동적 렌더링 강제
+export const dynamic = 'force-dynamic';
+
 export default async function HomePage() {
   const data = await getHomeDataAction();
   if (!data.success) {

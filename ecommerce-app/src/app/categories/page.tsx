@@ -1,6 +1,9 @@
 import { CategoriesClient } from '@/domains/category/components';
 import { getCategoriesAction } from '@/domains/category/services';
 
+// 쿠키 사용으로 인해 동적 렌더링 강제
+export const dynamic = 'force-dynamic';
+
 export default async function CategoriesPage({
   searchParams,
 }: {
