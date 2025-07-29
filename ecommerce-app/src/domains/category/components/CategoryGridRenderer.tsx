@@ -1,6 +1,6 @@
 'use client';
 
-import CategoryIconGrid from '../CategoryIconGrid';
+import CategoryIconGrid from '@/components/common/CategoryIconGrid';
 import { useCategoryContext } from '@/domains/category/context/CategoryContext';
 
 interface CategoryGridRendererProps {

@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import ProductCard from '../ProductCard';
+import ProductCard from '@/components/common/ProductCard';
 import { useCategoryContext } from '@/domains/category/context/CategoryContext';
 import styles from './ProductGridRenderer.module.css';
 

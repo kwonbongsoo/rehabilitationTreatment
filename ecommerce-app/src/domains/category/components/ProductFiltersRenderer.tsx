@@ -1,6 +1,6 @@
 'use client';
 
-import ProductFilters from '../ProductFilters';
+import ProductFilters from '@/components/common/ProductFilters';
 import { useCategoryContext } from '@/domains/category/context/CategoryContext';
 
 interface ProductFiltersRendererProps {
@@ -14,17 +14,17 @@ interface ProductFiltersRendererProps {
   }[];
 }
 
-export default function ProductFiltersRenderer({ 
-  filterOptions, 
-  sortOptions 
+export default function ProductFiltersRenderer({
+  filterOptions,
+  sortOptions,
 }: ProductFiltersRendererProps) {
-  const { 
-    currentFilter, 
-    currentSort, 
+  const {
+    currentFilter,
+    currentSort,
     viewMode,
-    handleFilterChange, 
-    handleSortChange, 
-    handleViewModeChange 
+    handleFilterChange,
+    handleSortChange,
+    handleViewModeChange,
   } = useCategoryContext();
 
   return (
