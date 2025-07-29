@@ -2,6 +2,7 @@ import Layout from '@/components/layout/Layout';
 import SessionProvider from '@/components/providers/SessionProvider';
 import SessionInitializer from '@/components/providers/SessionInitializer';
 import { AppProviders } from '@/providers/AppProviders';
+import ErrorBoundary from '@/components/errors/ErrorBoundary';
 import '@/styles/globals.css';
 import 'react-toastify/dist/ReactToastify.css';
 import { Metadata } from 'next';
@@ -48,12 +49,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ko">
       <body>
-        <AppProviders>
-          <SessionInitializer />
-          <SessionProvider>
-            <Layout>{children}</Layout>
-          </SessionProvider>
-        </AppProviders>
+        <ErrorBoundary level="critical">
+          <AppProviders>
+            <ErrorBoundary level="page">
+              <SessionInitializer />
+              <SessionProvider>
+                <Layout>
+                  <ErrorBoundary level="component">
+                    {children}
+                  </ErrorBoundary>
+                </Layout>
+              </SessionProvider>
+            </ErrorBoundary>
+          </AppProviders>
+        </ErrorBoundary>
       </body>
     </html>
   );

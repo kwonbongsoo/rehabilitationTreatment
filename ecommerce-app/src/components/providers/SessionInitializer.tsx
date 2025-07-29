@@ -1,7 +1,7 @@
 'use client';
 
 import { useAuth } from '@/domains/auth/stores';
-import { useCurrentUser } from '@/hooks/api';
+import { useCurrentUser } from '@/domains/auth/hooks';
 import { useEffect } from 'react';
 
 /**

@@ -1,6 +1,3 @@
-// API 서비스 레이어
-export { UserService } from './userService';
-
 // UI Layer (UI 설정 서비스)
 export {
   UIConfigurationService,

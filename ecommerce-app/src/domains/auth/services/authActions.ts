@@ -9,9 +9,14 @@ import {
   RegisterActionResult,
   ForgotPasswordRequest,
   LogoutActionResult,
+  ProxyLoginResponse,
 } from '@/domains/auth/types/auth';
 import { HeaderBuilderFactory } from '@/lib/server/headerBuilder';
-import { handleApiResponse, handleActionError } from '@/lib/server/errorHandler';
+import {
+  handleApiResponseForServerAction,
+  safeServerAction,
+} from '@/lib/server/serverActionErrorHandler';
+import { ValidationError, AuthenticationError } from '@ecommerce/common';
 
 const AUTH_SERVICE_URL = process.env.AUTH_SERVICE_URL;
 const KONG_GATEWAY_URL = process.env.KONG_GATEWAY_URL;
@@ -25,14 +30,17 @@ const KONG_GATEWAY_URL = process.env.KONG_GATEWAY_URL;
  */
 export async function login(credentials: LoginRequest): Promise<LoginActionResult> {
   try {
+    // 입력 검증
+    if (!credentials.id || !credentials.password) {
+      throw new ValidationError('아이디와 비밀번호를 입력해주세요.');
+    }
+
     const cookieStore = await cookies();
     const existingToken = cookieStore.get('access_token')?.value;
 
     const headers = await HeaderBuilderFactory.createForBasicAuth()
       .withPreviousToken(existingToken)
       .build();
-
-    console.log('Attempting login for:', credentials.id);
 
     const apiResponse = await fetch(`${AUTH_SERVICE_URL}/api/auth/login`, {
       method: 'POST',
@@ -41,9 +49,13 @@ export async function login(credentials: LoginRequest): Promise<LoginActionResul
       cache: 'no-store',
     });
 
-    const result = await handleApiResponse(apiResponse, (json) => json);
+    const result = await handleApiResponseForServerAction(apiResponse, '로그인');
     if (!result.success) {
-      return result as LoginActionResult;
+      return {
+        success: false,
+        error: result.error || '로그인에 실패했습니다.',
+        statusCode: result.statusCode || 500,
+      };
     }
 
     const response = result.data;
@@ -52,12 +64,9 @@ export async function login(credentials: LoginRequest): Promise<LoginActionResul
     const isProduction = process.env.NODE_ENV === 'production';
     // Ensure response matches expected structure
     if (!response || typeof response !== 'object' || !('data' in response)) {
-      return {
-        success: false,
-        error: '유효하지 않은 로그인 응답입니다.',
-      };
+      throw new AuthenticationError('유효하지 않은 로그인 응답입니다.');
     }
-    const { data } = response;
+    const { data } = response as ProxyLoginResponse;
 
     // 액세스 토큰 쿠키
     if (data?.access_token) {
@@ -85,14 +94,23 @@ export async function login(credentials: LoginRequest): Promise<LoginActionResul
     }
 
     // 3) 클라이언트로 필요한 정보만 반환
-    const { role, id, email, name, exp, iat } = data;
+    const { role, id = '', email = '', name = '', exp, iat } = data;
 
     return {
       success: true,
       data: { role, id, email, name, exp, iat },
     };
   } catch (error) {
-    return handleActionError(error) as LoginActionResult;
+    const result = await safeServerAction(async () => {
+      throw error;
+    }, '로그인');
+    
+    return {
+      success: result.success,
+      data: result.data,
+      error: result.error,
+      statusCode: result.statusCode || 500,
+    } as LoginActionResult;
   }
 }
 
@@ -104,30 +122,47 @@ export async function login(credentials: LoginRequest): Promise<LoginActionResul
  * 3. 추가 반환값은 없다.
  */
 export async function logout(): Promise<LogoutActionResult> {
-  // 1) 백엔드 로그아웃 호출 (실패해도 쿠키는 삭제)
-  const cookieStore = await cookies();
-  try {
-    const headers = await HeaderBuilderFactory.createForApiRequest().build();
+  const result = await safeServerAction(async () => {
+    const cookieStore = await cookies();
 
-    const apiResponse = await fetch(`${AUTH_SERVICE_URL}/api/auth/logout`, {
-      method: 'POST',
-      headers,
-      cache: 'no-store',
-    });
+    try {
+      const headers = await HeaderBuilderFactory.createForApiRequest().build();
 
-    cookieStore.delete('access_token');
-    cookieStore.delete('access_type');
+      const apiResponse = await fetch(`${AUTH_SERVICE_URL}/api/auth/logout`, {
+        method: 'POST',
+        headers,
+        cache: 'no-store',
+      });
 
-    if (!apiResponse.ok && apiResponse.status !== 401) {
-      const result = await handleApiResponse(apiResponse);
-      return result as LogoutActionResult;
+      // 로그아웃은 성공/실패 관계없이 쿠키 삭제
+      cookieStore.delete('access_token');
+      cookieStore.delete('access_type');
+
+      if (!apiResponse.ok && apiResponse.status !== 401) {
+        const result = await handleApiResponseForServerAction(apiResponse, '로그아웃');
+        return result as LogoutActionResult;
+      }
+
+      const response = await apiResponse.json();
+      return {
+        success: true,
+        data: response,
+      };
+    } catch (error) {
+      // 로그아웃 실패해도 쿠키는 삭제
+      cookieStore.delete('access_token');
+      cookieStore.delete('access_type');
+      throw error;
     }
+  }, '로그아웃');
 
-    const response = await apiResponse.json();
-    return response;
-  } catch (error) {
-    return handleActionError(error) as LogoutActionResult;
-  }
+  // ServerActionResult를 LogoutActionResult로 변환
+  return {
+    success: result.success,
+    data: result.data,
+    error: result.error,
+    statusCode: result.statusCode,
+  } as LogoutActionResult;
 }
 
 /**
@@ -137,7 +172,16 @@ export async function register(
   userData: RegisterRequest,
   idempotencyKey?: string,
 ): Promise<RegisterActionResult> {
-  try {
+  const result = await safeServerAction(async () => {
+    // 입력 검증
+    if (!userData.id || !userData.password || !userData.name || !userData.email) {
+      throw new ValidationError('모든 필수 정보를 입력해주세요.');
+    }
+
+    if (userData.password !== userData.confirmPassword) {
+      throw new ValidationError('비밀번호가 일치하지 않습니다.');
+    }
+
     // 멱등성 키가 없으면 서버에서 생성 (안전 장치)
     const key = idempotencyKey ?? `register_${Date.now()}_${crypto.randomUUID()}`;
 
@@ -156,7 +200,7 @@ export async function register(
       cache: 'no-store',
     });
 
-    const result = await handleApiResponse(apiResponse, (json) => json.data as RegisterResponse);
+    const result = await handleApiResponseForServerAction<RegisterResponse>(apiResponse, '회원가입');
     if (!result.success) {
       return result as RegisterActionResult;
     }
@@ -165,9 +209,15 @@ export async function register(
       success: true,
       data: result.data as RegisterResponse,
     };
-  } catch (error) {
-    return handleActionError(error) as RegisterActionResult;
-  }
+  }, '회원가입');
+
+  // ServerActionResult를 RegisterActionResult로 변환
+  return {
+    success: result.success,
+    data: result.data,
+    error: result.error,
+    statusCode: result.statusCode,
+  } as RegisterActionResult;
 }
 
 /**
@@ -177,5 +227,6 @@ export async function register(
  * 개발 단계에서 인지할 수 있도록 한다.
  */
 export async function forgotPassword(_request: ForgotPasswordRequest): Promise<void> {
-  throw new Error('Forgot password API is not implemented yet.');
+  // TODO: 실제 API 구현 시 safeServerAction으로 래핑 필요
+  throw new ValidationError('비밀번호 찾기 기능은 아직 구현되지 않았습니다.');
 }
