@@ -13,7 +13,12 @@
 
 로컬 환경에서 동일한 이미지(120x120px WebP)에 대한 응답속도 측정 결과, **Next.js Image가 압도적으로 빠른 성능**을 보였습니다.
 
-> **참고**: Cloudflare Workers는 직접 구현한 이미지 리사이저 API(`image-resizer.star1231076.workers.dev`)를 사용하여 구현되었으며, Next.js Image는 내장 최적화 엔진을 사용합니다.
+> **참고**: Cloudflare Workers는 직접 구현한 이미지 리사이저 API(`image-resizer.star1231076.workers.dev`)를 사용하며, 내부적으로 3개의 무료 이미지 리사이징 서비스를 순차적으로 시도합니다:
+> 1. **WSrv.nl** - 첫 번째 우선순위 서비스
+> 2. **Statically** - 백업 서비스 #1  
+> 3. **Images.weserv.nl** - 백업 서비스 #2
+> 
+> Next.js Image는 내장 최적화 엔진을 사용합니다.
 
 #### 응답속도 측정 결과 (5회 평균)
 
@@ -64,10 +69,11 @@ curl -w "Total time: %{time_total}s\nDNS lookup: %{time_namelookup}s\nConnect: %
 - **네트워크 지연 없음**: 로컬 서버에서 직접 처리
 
 **Cloudflare Workers 지연 요인 (첫 번째 요청):**
-- **외부 API 사용**: 무료 이미지 리사이저 API 서비스 호출
-- **외부 네트워크 호출**: 매번 Cloudflare 엣지 서버까지 요청
+- **외부 API 체인**: WSrv.nl → Statically → weserv.nl 순차 시도
+- **다중 네트워크 홉**: 사용자 → Cloudflare → 외부 리사이징 서비스 → 응답
+- **서비스 대기시간**: 첫 번째 서비스 실패 시 다음 서비스 시도까지의 지연
 - **온디맨드 처리**: 첫 요청 시에만 이미지 변환 처리  
-- **네트워크 RTT**: 왕복 네트워크 지연시간 포함
+- **네트워크 RTT**: 여러 서비스 간 왕복 지연시간 누적
 
 **Cloudflare Workers 캐싱 전략:**
 - **강력한 캐싱**: `Cache-Control: public, max-age=86400, immutable` (24시간)
