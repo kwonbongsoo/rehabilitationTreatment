@@ -63,7 +63,7 @@ class CategoryService {
     categories: CategoryRaw[],
     products: RawProductData[],
   ): CategoryWithProducts[] {
-    return categories
+    const categoriesWithProducts = categories
       .filter((cat) => cat.isActive)
       .map((category) => {
         const categoryProducts = products.filter((product) => product.categoryId === category.id);
@@ -91,6 +91,20 @@ class CategoryService {
         };
       })
       .filter((category) => category.products.length > 0);
+
+    // "전체" 카테고리를 맨 앞에 추가
+    return [
+      {
+        id: 0,
+        name: '전체',
+        slug: '',
+        iconCode: '👕',
+        order: 0,
+        isActive: true,
+        products: [],
+      },
+      ...categoriesWithProducts,
+    ];
   }
 
   // See All 페이지용 - 모든 카테고리와 상품 데이터
