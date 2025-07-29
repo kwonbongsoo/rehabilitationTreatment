@@ -1,5 +1,11 @@
 .categorySection {
+    padding: 1.5rem 1rem;
+}
+
+@media (min-width: 640px) {
+  .categorySection {
     padding: 2rem 1.5rem;
+  }
 }
 
 .sectionHeader {
