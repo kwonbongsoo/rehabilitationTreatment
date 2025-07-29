@@ -52,8 +52,9 @@ export default function OptimizedImageNext({
       style={style}
       priority={priority}
       loading={priority ? 'eager' : lazy ? 'lazy' : 'lazy'}
+      fetchPriority={priority ? 'high' : 'auto'}
       onError={handleError}
-      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+      sizes="(max-width: 768px) 50vw, 200px"
     />
   );
 }

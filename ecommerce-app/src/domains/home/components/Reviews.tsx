@@ -42,6 +42,7 @@ export default function Reviews({ title, reviews }: ReviewsProps) {
                       width={36}
                       height={36}
                       className={styles.avatar}
+                      lazy={true}
                     />
                   </div>
                 ) : (

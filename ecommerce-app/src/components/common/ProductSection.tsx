@@ -13,7 +13,8 @@ interface ProductSectionProps {
   viewAllLink?: string;
   className?: string;
   onWishlistToggle?: (productId: number) => void;
-  isFirstSection?: boolean;
+  eagerCount?: number; // eager 로딩할 상품 개수
+  allLazy?: boolean; // 모두 lazy 로딩할지 여부
 }
 
 export default function ProductSection({
@@ -24,7 +25,8 @@ export default function ProductSection({
   viewAllLink = '/products',
   className = '',
   onWishlistToggle,
-  isFirstSection = false,
+  eagerCount = 2,
+  allLazy = false,
 }: ProductSectionProps) {
   const handleWishlistToggle = (productId: number) => {
     onWishlistToggle?.(productId);
@@ -46,14 +48,20 @@ export default function ProductSection({
       </div>
 
       <div className={styles.productsGrid}>
-        {products.map((product, index) => (
-          <ProductCard
-            key={product.id}
-            product={product}
-            onWishlistToggle={handleWishlistToggle}
-            priority={isFirstSection && index < 4}
-          />
-        ))}
+        {products.map((product, index) => {
+          const shouldBeEager = !allLazy && index < eagerCount;
+          const shouldBeLazy = allLazy || index >= eagerCount;
+
+          return (
+            <ProductCard
+              key={product.id}
+              product={product}
+              onWishlistToggle={handleWishlistToggle}
+              priority={shouldBeEager}
+              lazy={shouldBeLazy}
+            />
+          );
+        })}
       </div>
     </section>
   );

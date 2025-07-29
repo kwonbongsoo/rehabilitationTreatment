@@ -24,6 +24,7 @@ export interface ProductCardProps {
   onWishlistToggle?: (productId: number) => void;
   isWishlisted?: boolean;
   priority?: boolean;
+  lazy?: boolean;
 }
 
 export default function ProductCard({
@@ -32,6 +33,7 @@ export default function ProductCard({
   onWishlistToggle,
   isWishlisted = false,
   priority = false,
+  lazy = false,
 }: ProductCardProps) {
   const handleWishlistClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -68,6 +70,7 @@ export default function ProductCard({
             height={200}
             className={styles.productImage}
             priority={priority}
+            lazy={lazy || !priority}
           />
 
           {/* 배지들 */}

@@ -11,7 +11,7 @@ interface UIComponentRendererProps {
   index?: number;
 }
 
-export default function UIComponentRenderer({ component, index = 0 }: UIComponentRendererProps) {
+export default function UIComponentRenderer({ component }: UIComponentRendererProps) {
   if (!component.visible) {
     return null;
   }
@@ -34,7 +34,8 @@ export default function UIComponentRenderer({ component, index = 0 }: UIComponen
           title={component.title || '추천 상품'}
           products={component.data.products}
           viewAllLink="/products/featured"
-          isFirstSection={index === 0}
+          eagerCount={2} // 처음 2개만 eager 로딩
+          allLazy={false}
         />
       );
 
@@ -44,7 +45,7 @@ export default function UIComponentRenderer({ component, index = 0 }: UIComponen
           title={component.title || '신상품'}
           products={component.data.products}
           viewAllLink="/products/new"
-          isFirstSection={index === 0}
+          allLazy={true} // 신상품은 모두 lazy 로딩
         />
       );
 

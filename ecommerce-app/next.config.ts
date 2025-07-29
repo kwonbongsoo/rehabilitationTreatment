@@ -8,19 +8,27 @@ const nextConfig: NextConfig = {
 
   // 컴파일러 최적화
   compiler: {
-    // removeConsole: process.env.NODE_ENV === 'production',
-    removeConsole: false,
+    removeConsole: process.env.NODE_ENV === 'production',
+    // removeConsole: false,
   },
 
   // 빌드 최적화
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
-    // React DevTools 관련 경고 억제
-    // if (dev && !isServer) {
-    //   config.resolve.alias = {
-    //     ...config.resolve.alias,
-    //     'react-devtools-shared/src/backend/utils': false,
-    //   };
-    // }
+    // React DevTools를 프로덕션에서 제외
+    if (!dev) {
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        'react-devtools-shared': false,
+        'react-devtools-core': false,
+        'react-devtools': false,
+      };
+
+      // React DevTools 관련 모듈을 완전히 제외
+      config.externals = config.externals || [];
+      if (!isServer) {
+        config.externals.push(/^react-devtools/, /chrome-extension:/);
+      }
+    }
     // 서버 사이드에서 self 전역 변수 폴리필
     if (isServer) {
       config.resolve.fallback = {
@@ -80,6 +88,18 @@ const nextConfig: NextConfig = {
     config.optimization.usedExports = true;
     config.optimization.sideEffects = true;
 
+    // 프로덕션에서 React DevTools 완전 제거
+    if (!dev) {
+      config.plugins.push(
+        new webpack.IgnorePlugin({
+          resourceRegExp: /^react-devtools/,
+        }),
+        new webpack.DefinePlugin({
+          'process.env.__REACT_DEVTOOLS_GLOBAL_HOOK__': 'undefined',
+        }),
+      );
+    }
+
     return config;
   },
 
@@ -114,7 +134,7 @@ const nextConfig: NextConfig = {
     formats: ['image/webp', 'image/avif'],
     minimumCacheTTL: 86400, // 24시간 캐싱
     deviceSizes: [640, 750, 828, 1080, 1200, 1920],
-    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    imageSizes: [16, 32, 48, 64, 96, 128, 200, 256, 384],
     // 이미지 품질과 성능 트레이드오프
     dangerouslyAllowSVG: false,
     // 이미지 최적화 프로세스 개수 제한 (메모리 사용량 감소)
