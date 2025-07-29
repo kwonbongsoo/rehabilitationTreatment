@@ -74,15 +74,6 @@ function SimpleRedisCacheHandler:access(conf)
     return
   end
   
-  -- 단순화: 컨텍스트 설정 제거 (OpenResty 기본값 사용)
-
-  -- Redis 연결 (풀에서 가져오기)
-  local red, err = get_redis_connection(conf)
-  if not red then
-    kong.log.err("Failed to get Redis connection: ", err)
-    return  -- 캐시 실패해도 원본 서비스로 진행
-  end
-  
   -- 캐시 키 생성: "cache:METHOD:PATH:QUERY" 형식
   local path = kong.request.get_path()
   local query = kong.request.get_raw_query()
@@ -92,7 +83,20 @@ function SimpleRedisCacheHandler:access(conf)
     cache_key = cache_key .. "?" .. query
   end
   
-  kong.log.info("Cache key: ", cache_key)
+  -- X-Cache-Refresh 헤더 확인 (warmup 요청 감지)
+  local cache_refresh = kong.request.get_header("X-Cache-Refresh")
+  if cache_refresh then
+    kong.ctx.shared.cache_key = cache_key
+    kong.ctx.shared.force_refresh = true
+    return
+  end
+
+  -- Redis 연결 (풀에서 가져오기)
+  local red, err = get_redis_connection(conf)
+  if not red then
+    kong.log.err("Failed to get Redis connection: ", err)
+    return  -- 캐시 실패해도 원본 서비스로 진행
+  end
   
   -- 캐시 조회
   local cached_response, err = red:get(cache_key)
@@ -104,7 +108,6 @@ function SimpleRedisCacheHandler:access(conf)
   
   -- 캐시 히트
   if cached_response and cached_response ~= ngx.null then
-    kong.log.info("Cache HIT: ", cache_key)
     
     local response_data = json.decode(cached_response)
     
@@ -128,7 +131,6 @@ function SimpleRedisCacheHandler:access(conf)
   end
   
   -- 캐시 미스: 캐시 키만 저장
-  kong.log.info("Cache MISS: ", cache_key)
   kong.ctx.shared.cache_key = cache_key
   
   -- 연결을 풀에 반환
@@ -232,7 +234,6 @@ function SimpleRedisCacheHandler:body_filter(conf)
   
   -- 응답 크기 체크
   if #body > (conf.max_body_size or 1024 * 1024) then
-    kong.log.info("Response too large to cache: ", #body, " bytes")
     return
   end
   
@@ -249,8 +250,6 @@ function SimpleRedisCacheHandler:body_filter(conf)
   local ok, err = ngx.timer.at(0, async_cache_store, kong.ctx.shared.cache_key, cache_data, conf)
   if not ok then
     kong.log.err("Failed to create background cache timer: ", err)
-  else
-    kong.log.debug("Background cache job scheduled for: ", kong.ctx.shared.cache_key)
   end
 end
 

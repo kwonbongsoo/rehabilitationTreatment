@@ -45,9 +45,10 @@ warm_up_cache() {
     
     echo "[$timestamp] Warming up cache for: $endpoint"
     
-    # 캐시 웜업 요청 (토큰 포함)
+    # 캐시 웜업 요청 (토큰 + 캐시 강제 갱신 헤더 포함)
     local response=$(curl -s -w "Status: %{http_code}, Time: %{time_total}s, Cache: %{header_x-cache-status}" \
         -H "Authorization: Bearer ${TEST_TOKEN}" \
+        -H "X-Cache-Refresh: true" \
         "$KONG_URL$endpoint" 2>/dev/null)
     
     if [ $? -eq 0 ]; then
