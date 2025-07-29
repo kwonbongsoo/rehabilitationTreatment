@@ -1,10 +1,12 @@
 import { UIComponent } from './types/ui-components';
 import Banner from './modules/Banner';
-import Brands from './modules/Brands';
 import Categories from './modules/Categories';
 import Promotion from './modules/Promotion';
 import Reviews from './modules/Reviews';
 import ProductSection from './ProductSection';
+import CategoryGridRenderer from '@/domains/category/components/CategoryGridRenderer';
+import ProductFiltersRenderer from '@/domains/category/components/ProductFiltersRenderer';
+import ProductGridRenderer from '@/domains/category/components/ProductGridRenderer';
 
 interface UIComponentRendererProps {
   component: UIComponent;
@@ -62,8 +64,19 @@ export default function UIComponentRenderer({ component }: UIComponentRendererPr
     case 'reviews':
       return <Reviews title={component.title || '고객 후기'} reviews={component.data.reviews} />;
 
-    case 'brands':
-      return <Brands title={component.title || '제휴 브랜드'} logos={component.data.logos} />;
+    case 'categoryGrid':
+      return <CategoryGridRenderer categories={component.data.categories} />;
+
+    case 'productFilters':
+      return (
+        <ProductFiltersRenderer
+          filterOptions={component.data.filterOptions}
+          sortOptions={component.data.sortOptions}
+        />
+      );
+
+    case 'productGrid':
+      return <ProductGridRenderer allProducts={component.data.allProducts} />;
 
     default:
       console.warn(`Unknown component type: ${(component as any).type}`);

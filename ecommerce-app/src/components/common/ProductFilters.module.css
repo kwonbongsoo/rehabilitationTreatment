@@ -88,7 +88,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.5rem;
+  padding: 0;
   background-color: white;
   border: none;
   color: #6b7280;
@@ -96,6 +96,15 @@
   transition: all 0.2s ease;
   width: 36px;
   height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+}
+
+.viewButton svg {
+  display: block;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
 }
 
 .viewButton:hover {

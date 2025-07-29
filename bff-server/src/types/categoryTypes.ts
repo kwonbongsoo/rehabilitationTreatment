@@ -43,17 +43,43 @@ export interface FilterOption {
   label: string;
 }
 
-export interface Pagination {
-  page: number;
-  limit: number;
-  total: number;
-  totalPages: number;
+// UI 컴포넌트 기본 인터페이스
+export interface BaseUIComponent {
+  id: string;
+  type: string;
+  title?: string;
+  visible: boolean;
 }
 
+// 카테고리 그리드 컴포넌트
+export interface CategoryGridComponent extends BaseUIComponent {
+  type: 'categoryGrid';
+  data: {
+    categories: CategoryWithProducts[];
+  };
+}
+
+// 상품 필터 컴포넌트 (필터와 정렬 옵션 통합)
+export interface ProductFiltersComponent extends BaseUIComponent {
+  type: 'productFilters';
+  data: {
+    filterOptions: FilterOption[];
+    sortOptions: FilterOption[];
+  };
+}
+
+// 상품 그리드 컴포넌트
+export interface ProductGridComponent extends BaseUIComponent {
+  type: 'productGrid';
+  data: {
+    allProducts: Product[];
+  };
+}
+
+// UI 컴포넌트 통합 타입
+export type UIComponent = CategoryGridComponent | ProductFiltersComponent | ProductGridComponent;
+
+// 새로운 CategoryPageData - components 배열 형태
 export interface CategoryPageData {
-  categories: CategoryWithProducts[];
-  allProducts: Product[];
-  filters: FilterOption[];
-  sortOptions: FilterOption[];
-  totalProducts: number;
+  components: UIComponent[];
 }

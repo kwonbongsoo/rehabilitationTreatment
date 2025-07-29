@@ -37,12 +37,11 @@ export interface FilterOption {
   label: string;
 }
 
+// UI 컴포넌트는 공통으로 이동된 타입 사용
+import type { UIComponent } from '@/components/common/types/ui-components';
+
 export interface CategoryPageData {
-  categories: CategoryWithProducts[];
-  allProducts: Product[];
-  filters: FilterOption[];
-  totalProducts: number;
-  sortOptions: FilterOption[];
+  components: UIComponent[];
 }
 
 export interface CategoryDetailData {

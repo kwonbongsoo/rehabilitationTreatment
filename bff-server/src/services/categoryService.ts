@@ -107,7 +107,7 @@ class CategoryService {
     ];
   }
 
-  // See All 페이지용 - 모든 카테고리와 상품 데이터
+  // See All 페이지용 - 컴포넌트 기반 구조로 반환
   async getCategoryPageData(): Promise<{ success: boolean; data: CategoryPageData }> {
     const { categories, products } = await this.loadJsonFiles();
 
@@ -115,16 +115,55 @@ class CategoryService {
     const allProducts = products;
     const filters = this.getDefaultFilters();
     const sortOptions = this.getDefaultSortOptions();
-    const totalProducts = products.length;
+
+    // 컴포넌트 배열 구성
+    const components = [
+      {
+        id: 'category-grid',
+        type: 'categoryGrid' as const,
+        visible: true,
+        data: {
+          categories: categoriesWithProducts,
+        },
+      },
+      {
+        id: 'product-filters',
+        type: 'productFilters' as const,
+        visible: true,
+        data: {
+          filterOptions: filters,
+          sortOptions: sortOptions,
+        },
+      },
+      {
+        id: 'product-grid',
+        type: 'productGrid' as const,
+        visible: true,
+        data: {
+          allProducts: allProducts.map((item) => ({
+            id: item.id,
+            name: item.name,
+            description: item.description,
+            price: item.price,
+            image: item.imageUrl,
+            rating: item.averageRating,
+            reviewCount: item.reviewCount,
+            isNew: item.isNew,
+            categoryId: item.categoryId,
+            // 할인이 있을 때만 discount 속성 추가
+            ...(item.discountPercentage > 0 && {
+              discount: item.discountPercentage,
+              originalPrice: Math.round(item.price / (1 - item.discountPercentage / 100)),
+            }),
+          })),
+        },
+      },
+    ];
 
     return {
       success: true,
       data: {
-        categories: categoriesWithProducts,
-        allProducts,
-        filters,
-        sortOptions,
-        totalProducts,
+        components,
       },
     };
   }

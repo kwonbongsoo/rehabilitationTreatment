@@ -149,24 +149,6 @@ export function ReviewsSkeleton() {
   );
 }
 
-// 브랜드 스켈레톤
-export function BrandsSkeleton() {
-  return (
-    <div className={styles.brandsSkeleton}>
-      <div className={styles.sectionTitle}>
-        <Skeleton width="140px" height="32px" />
-      </div>
-      <div className={styles.brandLogos}>
-        {Array.from({ length: 6 }, (_, index) => (
-          <div key={index} className={styles.brandLogo}>
-            <Skeleton width="100%" height="80px" borderRadius="8px" />
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 // 전체 홈 스켈레톤
 export default function HomeSkeleton() {
   return (
@@ -177,7 +159,6 @@ export default function HomeSkeleton() {
       <PromotionSkeleton />
       <NewArrivalsSkeleton />
       <ReviewsSkeleton />
-      <BrandsSkeleton />
     </div>
   );
 }
