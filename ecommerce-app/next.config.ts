@@ -133,7 +133,7 @@ const nextConfig: NextConfig = {
     ],
     formats: ['image/webp', 'image/avif'],
     minimumCacheTTL: 86400, // 24시간 캐싱
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+    deviceSizes: [640, 1200], // 모바일과 데스크톱만
     imageSizes: [16, 32, 48, 64, 96, 128, 200, 256, 384],
     // 이미지 품질과 성능 트레이드오프
     dangerouslyAllowSVG: false,

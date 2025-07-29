@@ -19,20 +19,8 @@ export interface RawCategoryData {
   isActive: boolean;
 }
 
-export interface RawProductData {
-  id: number;
-  name: string;
-  price: number;
-  discountPercentage: number;
-  imageUrl: string;
-  averageRating: number;
-  reviewCount: number;
-  category: string;
-  isNew: boolean;
-  isFeatured: boolean;
-  createdAt: string;
-  description: string;
-}
+// RawProductData는 common.ts에서 import
+export { RawProductData } from './common';
 
 export interface RawPromotionData {
   id: number;

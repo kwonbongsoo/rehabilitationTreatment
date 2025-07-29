@@ -1,7 +1,11 @@
 import { CategoriesClient } from '@/domains/category/components';
 import { getCategoriesAction } from '@/domains/category/services';
 
-export default async function CategoriesPage() {
+export default async function CategoriesPage({
+  searchParams,
+}: {
+  searchParams: { category?: string };
+}) {
   const data = await getCategoriesAction();
 
   if (!data.success) {
@@ -20,6 +24,7 @@ export default async function CategoriesPage() {
       allProducts={allProducts}
       filterOptions={filters}
       sortOptions={sortOptions}
+      initialCategoryFilter={searchParams.category || '0'}
     />
   );
 }

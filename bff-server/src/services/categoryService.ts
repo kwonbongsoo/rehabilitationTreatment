@@ -1,5 +1,6 @@
 import { readFile } from 'fs/promises';
 import { join } from 'path';
+import { RawProductData } from '../types/common';
 import {
   CategoryRaw,
   ProductRaw,
@@ -12,20 +13,20 @@ import {
 
 interface LoadedData {
   categories: CategoryRaw[];
-  products: ProductRaw[];
+  products: RawProductData[];
 }
 
 class CategoryService {
   private async loadJsonFiles(): Promise<LoadedData> {
     const categoriesPath = join(__dirname, '../data/categories.json');
-    const productsPath = join(__dirname, '../data/categoriesProduct.json');
+    const productsPath = join(__dirname, '../data/products.json');
 
     const [categoriesData, productsData] = await Promise.all([
       readFile(categoriesPath, 'utf-8').catch((err) => {
         throw new Error(`Failed to load categories.json: ${err.message}`);
       }),
       readFile(productsPath, 'utf-8').catch((err) => {
-        throw new Error(`Failed to load categoriesProduct.json: ${err.message}`);
+        throw new Error(`Failed to load products.json: ${err.message}`);
       }),
     ]);
 
@@ -62,7 +63,7 @@ class CategoryService {
 
   private groupProductsByCategory(
     categories: CategoryRaw[],
-    products: ProductRaw[],
+    products: RawProductData[],
   ): CategoryWithProducts[] {
     return categories
       .filter((cat) => cat.isActive)
@@ -71,9 +72,27 @@ class CategoryService {
 
         return {
           ...category,
-          products: categoryProducts,
+          products: categoryProducts.map((item) => {
+            return {
+              id: item.id,
+              name: item.name,
+              price: item.price,
+              image: item.imageUrl,
+              rating: item.averageRating,
+              reviewCount: item.reviewCount,
+              description: item.description,
+              // isNew 상태도 포함
+              isNew: item.isNew,
+              // 할인이 있을 때만 discount 속성 추가
+              ...(item.discountPercentage > 0 && {
+                discount: item.discountPercentage,
+                originalPrice: Math.round(item.price / (1 - item.discountPercentage / 100)),
+              }),
+            };
+          }),
         };
-      });
+      })
+      .filter((category) => category.products.length > 0);
   }
 
   // See All 페이지용 - 모든 카테고리와 상품 데이터

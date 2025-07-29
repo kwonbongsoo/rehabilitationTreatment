@@ -1,10 +1,10 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { BaseError, ErrorCode } from '@ecommerce/common';
+import { RawProductData } from '../types/common';
 import {
   RawBannerData,
   RawCategoryData,
-  RawProductData,
   RawPromotionData,
   RawReviewData,
   RawBrandData,
@@ -105,7 +105,7 @@ class HomePageService {
     };
   }
 
-  private transformCategoryData(rawData: RawCategoryData[]) {
+  private transformCategoryData(rawData: RawCategoryData[], rawProducts: RawProductData[]) {
     return {
       id: 'categories-1',
       type: 'categories',
@@ -114,12 +114,13 @@ class HomePageService {
       data: {
         categories: rawData
           .filter((item) => item.isActive)
+          .filter((item) => rawProducts.some((product) => product.categoryId === item.id))
           .sort((a, b) => a.order - b.order)
           .map((item) => ({
             id: item.id,
             name: item.name,
             icon: item.iconCode,
-            link: `/categories/${item.slug}`,
+            link: `/categories?category=${encodeURIComponent(item.id)}`,
           })),
       },
     };
@@ -237,7 +238,7 @@ class HomePageService {
       }
 
       // 카테고리 컴포넌트
-      const categoryComponent = this.transformCategoryData(rawCategories);
+      const categoryComponent = this.transformCategoryData(rawCategories, rawProducts);
       if (categoryComponent.data.categories.length > 0) {
         components.push(categoryComponent);
       }

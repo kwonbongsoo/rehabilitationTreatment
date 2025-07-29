@@ -10,20 +10,9 @@ export interface CategoryRaw {
   isActive: boolean;
 }
 
-export interface ProductRaw {
-  id: number;
-  categoryId: number;
-  name: string;
-  description: string;
-  price: number;
-  originalPrice?: number;
-  discount?: number;
-  image: string;
-  rating: number;
-  reviewCount: number;
-  isNew?: boolean;
-  tags?: string[];
-}
+// ProductRaw는 RawProductData와 동일하므로 common.ts에서 import
+import { RawProductData } from './common';
+export type ProductRaw = RawProductData;
 
 // API 응답용 변환된 타입
 export interface Product {

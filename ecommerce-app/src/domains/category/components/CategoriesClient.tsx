@@ -11,6 +11,7 @@ interface CategoriesClientProps {
   allProducts: Product[];
   filterOptions: FilterOption[];
   sortOptions: FilterOption[];
+  initialCategoryFilter?: string;
 }
 
 export default function CategoriesClient({
@@ -18,9 +19,17 @@ export default function CategoriesClient({
   allProducts,
   filterOptions,
   sortOptions,
+  initialCategoryFilter,
 }: CategoriesClientProps) {
-  const [selectedCategoryId, setSelectedCategoryId] = useState<number>(0);
+  // 초기 카테고리 ID 설정
+  const getInitialCategoryId = () => {
+    if (!initialCategoryFilter || initialCategoryFilter === '0') return 0;
+    return parseInt(initialCategoryFilter);
+  };
+
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number>(getInitialCategoryId());
   const [currentFilter, setCurrentFilter] = useState('전체');
+
   const [currentSort, setCurrentSort] = useState('popular');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
