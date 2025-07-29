@@ -74,14 +74,9 @@ function SimpleRedisCacheHandler:access(conf)
     return
   end
   
-  -- 캐시 키 생성: "cache:METHOD:PATH:QUERY" 형식
+  -- 캐시 키 생성: "cache:METHOD:PATH" 형식 (쿼리 파라미터 제외)
   local path = kong.request.get_path()
-  local query = kong.request.get_raw_query()
   local cache_key = "cache:" .. method .. ":" .. path
-  
-  if query and query ~= "" then
-    cache_key = cache_key .. "?" .. query
-  end
   
   -- X-Cache-Refresh 헤더 확인 (warmup 요청 감지)
   local cache_refresh = kong.request.get_header("X-Cache-Refresh")
