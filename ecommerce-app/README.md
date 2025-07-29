@@ -200,6 +200,34 @@ src/
 - Safari (최신 2개 버전)
 - Edge (최신 2개 버전)
 
+## 에러 처리 시스템
+
+### Next.js App Router 에러 파일
+- **error.tsx**: 페이지 레벨 에러 처리
+- **global-error.tsx**: 애플리케이션 전체 에러 처리  
+- **not-found.tsx**: 404 에러 페이지
+
+### 3-tier ErrorBoundary 시스템
+```
+ErrorBoundary (critical)
+└── ErrorBoundary (page)
+    └── ErrorBoundary (component)
+```
+
+- **Critical Level**: 애플리케이션 전체에 영향을 주는 심각한 에러
+- **Page Level**: 특정 페이지의 에러
+- **Component Level**: 개별 컴포넌트의 에러
+
+### Common 패키지 BaseError 활용
+- `BaseError`, `ValidationError`, `AuthenticationError` 클래스 사용
+- 표준화된 에러 코드 및 메시지 처리
+- 사용자 친화적 에러 메시지 변환
+
+### Server Actions 에러 핸들링
+- `safeServerAction` 래퍼를 통한 일관된 에러 처리
+- API 응답 에러를 표준 형식으로 변환
+- 클라이언트에서 구체적인 에러 메시지 수신 가능
+
 ## 성능 최적화
 
 - 이미지 최적화
