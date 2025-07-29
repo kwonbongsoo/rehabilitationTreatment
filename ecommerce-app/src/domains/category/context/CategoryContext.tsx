@@ -67,57 +67,33 @@ export function CategoryProvider({ children, initialCategoryFilter }: CategoryPr
     [router, searchParams],
   );
 
-  // 이벤트 핸들러들
+  // 이벤트 핸들러들 - URL 업데이트 제거하고 클라이언트 상태만 관리
   const handleCategoryClick = useCallback(
     (categoryId: number) => {
       setSelectedCategoryId(categoryId);
-      updateURL({
-        category: categoryId.toString(),
-        filter: currentFilter,
-        sort: currentSort,
-        view: viewMode,
-      });
     },
-    [updateURL, currentFilter, currentSort, viewMode],
+    [],
   );
 
   const handleFilterChange = useCallback(
     (filter: string) => {
       setCurrentFilter(filter);
-      updateURL({
-        category: selectedCategoryId.toString(),
-        filter: filter,
-        sort: currentSort,
-        view: viewMode,
-      });
     },
-    [updateURL, selectedCategoryId, currentSort, viewMode],
+    [],
   );
 
   const handleSortChange = useCallback(
     (sort: string) => {
       setCurrentSort(sort);
-      updateURL({
-        category: selectedCategoryId.toString(),
-        filter: currentFilter,
-        sort: sort,
-        view: viewMode,
-      });
     },
-    [updateURL, selectedCategoryId, currentFilter, viewMode],
+    [],
   );
 
   const handleViewModeChange = useCallback(
     (mode: 'grid' | 'list') => {
       setViewMode(mode);
-      updateURL({
-        category: selectedCategoryId.toString(),
-        filter: currentFilter,
-        sort: currentSort,
-        view: mode,
-      });
     },
-    [updateURL, selectedCategoryId, currentFilter, currentSort],
+    [],
   );
 
   const value: CategoryContextType = {
