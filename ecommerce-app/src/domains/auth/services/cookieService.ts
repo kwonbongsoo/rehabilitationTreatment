@@ -110,9 +110,11 @@ export class CookieService {
     if (tokenResult.data.iat) {
       const tokenLifetime = tokenResult.data.exp - tokenResult.data.iat;
       const elapsedTime = currentTimeInSeconds - tokenResult.data.iat;
-      maxAge = Math.max(0, tokenLifetime - elapsedTime);
+      const remainingTime = Math.max(0, tokenLifetime - elapsedTime);
+      maxAge = Math.max(0, remainingTime - 60); // 1분(60초) 일찍 만료
     } else {
-      maxAge = tokenResult.data.exp - currentTimeInSeconds;
+      const remainingTime = tokenResult.data.exp - currentTimeInSeconds;
+      maxAge = Math.max(0, remainingTime - 60); // 1분(60초) 일찍 만료
     }
 
     if (maxAge <= 0) {

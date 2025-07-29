@@ -34,9 +34,8 @@ export class SessionService {
       const sessionKey = `token:${token}`;
       const sessionData = JSON.stringify(data);
 
-      // await this.redisClient.set(sessionKey, sessionData, ttlSeconds);
-      const ttl = ttlSeconds ? Math.max(0, ttlSeconds - Math.floor(Date.now() / 1000)) : undefined;
-      await this.redisClient.set(sessionKey, sessionData, ttl);
+      // TTL이 이미 계산된 값이므로 그대로 사용
+      await this.redisClient.set(sessionKey, sessionData, ttlSeconds);
       return data;
     } catch (error) {
       throw new BaseError(ErrorCode.INTERNAL_ERROR, 'Failed to store user session', undefined, 500);

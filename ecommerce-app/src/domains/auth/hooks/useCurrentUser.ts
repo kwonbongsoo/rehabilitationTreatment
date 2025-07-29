@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
 import { getCurrentUser } from '../services';
-import { isApiError } from '@/lib/api';
 
 /**
  * 현재 사용자 정보 조회 훅
@@ -8,17 +7,34 @@ import { isApiError } from '@/lib/api';
 export function useCurrentUser() {
   return useQuery({
     queryKey: ['auth', 'current-user'],
-    queryFn: getCurrentUser,
+    queryFn: async () => {
+      try {
+        const result = await getCurrentUser();
+
+        if (result && !result.success) {
+          const error = new Error(result.error || '사용자 정보 조회에 실패했습니다.') as Error & {
+            statusCode?: number;
+          };
+          error.statusCode = result.statusCode ?? 500;
+          throw error;
+        }
+
+        return result.data;
+      } catch (error) {
+        // 이미 처리된 에러는 그대로 전달
+        if (error instanceof Error && 'statusCode' in error) {
+          throw error;
+        }
+
+        // 예상치 못한 에러 처리
+        const wrappedError = new Error('사용자 정보 조회 중 오류가 발생했습니다.') as Error & {
+          statusCode?: number;
+        };
+        wrappedError.statusCode = 500;
+        throw wrappedError;
+      }
+    },
     staleTime: 5 * 60 * 1000, // 5분간 fresh
     gcTime: 10 * 60 * 1000, // 10분간 캐시 유지
-    retry: (failureCount, error) => {
-      // 인증 에러는 재시도하지 않음
-      if (isApiError(error) && (error.statusCode === 401 || error.statusCode === 403)) {
-        window.location.reload();
-      }
-      return failureCount < 2;
-    },
-    refetchOnWindowFocus: true,
-    enabled: typeof window !== 'undefined', // 클라이언트에서만 실행
   });
 }

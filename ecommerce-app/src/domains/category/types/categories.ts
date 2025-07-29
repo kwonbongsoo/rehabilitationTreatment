@@ -64,4 +64,3 @@ export interface ActionResult<T> extends ApiResponse<T> {
 }
 
 export type CategoryPageActionResult = ActionResult<CategoryPageData>;
-export type CategoryDetailActionResult = ActionResult<CategoryDetailData>;

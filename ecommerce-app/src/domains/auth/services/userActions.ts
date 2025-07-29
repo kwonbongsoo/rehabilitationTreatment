@@ -1,6 +1,6 @@
 'use server';
 
-import { SessionInfoResponse, UserResponse, SessionInfoActionResult } from '@/domains/auth/types/auth';
+import { SessionInfoResponse, SessionInfoActionResult } from '@/domains/auth/types/auth';
 import { HeaderBuilderFactory } from '@/lib/server/headerBuilder';
 import { handleApiResponse, handleActionError } from '@/lib/server/errorHandler';
 
@@ -34,7 +34,27 @@ export async function getSessionInfo(): Promise<SessionInfoActionResult> {
  * - React Query에서 호출 가능
  * - 서버에서 실행되어 쿠키 접근 가능
  */
-export async function getCurrentUser(): Promise<UserResponse | null> {
+export async function getCurrentUser(): Promise<SessionInfoActionResult> {
   const sessionResult = await getSessionInfo();
-  return sessionResult.success ? sessionResult.data || null : null;
+
+  if (!sessionResult.success) {
+    return {
+      success: false,
+      error: sessionResult.error || '사용자 정보 조회에 실패했습니다.',
+      statusCode: sessionResult.statusCode || 500,
+    };
+  }
+
+  if (!sessionResult.data) {
+    return {
+      success: false,
+      error: '사용자 세션 정보를 찾을 수 없습니다.',
+      statusCode: 404,
+    };
+  }
+
+  return {
+    success: true,
+    data: sessionResult.data,
+  };
 }

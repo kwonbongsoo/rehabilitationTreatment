@@ -57,8 +57,3 @@ export interface CategoryPageData {
   sortOptions: FilterOption[];
   totalProducts: number;
 }
-
-export interface CategoryDetailData {
-  category: CategoryWithProducts;
-  filters: FilterOption[];
-}

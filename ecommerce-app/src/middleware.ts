@@ -96,7 +96,8 @@ async function issueGuestToken(): Promise<{
     const currentTime = Math.floor(Date.now() / 1000);
     const tokenLifetime = data.data.exp - data.data.iat;
     const elapsedTime = currentTime - data.data.iat;
-    const maxAge = Math.max(0, tokenLifetime - elapsedTime);
+    const remainingTime = Math.max(0, tokenLifetime - elapsedTime);
+    const maxAge = Math.max(0, remainingTime - 60); // 1분(60초) 일찍 만료
 
     return {
       access_token: data.data.access_token,

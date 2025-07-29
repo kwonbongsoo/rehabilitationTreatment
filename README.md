@@ -302,12 +302,19 @@ graph TD
 현재 활성 플러그인:
   - token-validator: JWT 토큰 검증
   - idempotency: 중복 요청 방지
+  - simple-redis-cache: Redis 기반 응답 캐싱 (GET 요청)
 
-웜업 엔드포인트:
-  - /health: Kong 자체 상태 확인
-  - /api/auth/health: Auth 서비스 웜업
-  - /api/members/health: Members 서비스 웜업 (토큰 필요)
-  - /api/home: BFF 서비스 웜업 (토큰 필요)
+캐싱 전략:
+  - 대상 엔드포인트: /api/home, /api/categories
+  - TTL: 5분 (300초)
+  - 캐시 상태 코드: 200, 301, 302 (404 제외)
+  - Cache-Control 헤더 존중 (no-cache, no-store, private 시 캐시 안함)
+  - 최대 응답 크기: 2MB (/api/home), 1MB (/api/categories)
+
+웜업 시스템:
+  - warm-up.sh: 4분 30초마다 캐시 웜업 실행
+  - 대상 엔드포인트: /api/home, /api/categories
+  - 캐시 상태 모니터링 (X-Cache-Status 헤더)
 ```
 
 ### BFF Server (:3001)
@@ -488,7 +495,7 @@ cd ecommerce-app && npm install && cd ..
 # kong/.env
 KONG_DATABASE=off
 KONG_DECLARATIVE_CONFIG=/tmp/kong.yml
-KONG_PLUGINS=token-validator,idempotency
+KONG_PLUGINS=token-validator,idempotency,simple-redis-cache
 
 # Kong 성능 최적화
 KONG_LOG_LEVEL=error
@@ -659,7 +666,7 @@ export class BFFService {
 - [x] **웜업 시스템**: 컨테이너 시작 시 자동 웜업으로 초기 응답 속도 개선
 - [x] **SSR 전환**: 홈페이지 서버사이드 렌더링으로 초기 로딩 속도 향상
 - [x] **CDN 이미지 최적화**: Cloudflare Workers 기반 이미지 리사이징 및 WebP 변환
-- [ ] **Kong 캐싱**: 엔드포인트별 캐싱 전략
+- [x] **Kong 캐싱**: Redis 기반 엔드포인트별 캐싱 전략 (simple-redis-cache 플러그인)
 - [ ] **BFF 응답 캐싱**: 집계된 데이터 캐싱
 
 ### Phase 4: 모니터링 & 관찰성

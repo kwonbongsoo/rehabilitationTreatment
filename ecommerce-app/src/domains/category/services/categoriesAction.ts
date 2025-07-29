@@ -1,6 +1,6 @@
 'use server';
 
-import { CategoryPageActionResult, CategoryDetailActionResult } from '../types';
+import { CategoryPageActionResult } from '../types';
 import { HeaderBuilderFactory } from '@/lib/server/headerBuilder';
 import { handleApiResponse, handleActionError } from '@/lib/server/errorHandler';
 
@@ -20,7 +20,7 @@ export async function getCategoriesAction(): Promise<CategoryPageActionResult> {
     const response = await fetch(`${KONG_GATEWAY_URL}/api/categories`, {
       method: 'GET',
       headers,
-      next: { revalidate: 300 }, // 5분 캐시
+      next: { revalidate: 60 }, // 1분 캐시
     });
 
     const result = await handleApiResponse(response, (json) => {
@@ -34,31 +34,5 @@ export async function getCategoriesAction(): Promise<CategoryPageActionResult> {
   } catch (error) {
     console.error('[서버액션] 카테고리 조회 에러:', error);
     return handleActionError(error) as CategoryPageActionResult;
-  }
-}
-
-/**
- * 특정 카테고리 상세 데이터 조회 서버 액션
- */
-export async function getCategoryDetailAction(slug: string): Promise<CategoryDetailActionResult> {
-  try {
-    const headers = await HeaderBuilderFactory.createForApiRequest().build();
-    const response = await fetch(`${KONG_GATEWAY_URL}/api/categories/${slug}`, {
-      method: 'GET',
-      headers,
-      next: { revalidate: 300 }, // 5분 캐시
-    });
-
-    const result = await handleApiResponse(response, (json) => {
-      if (!json.success || !json.data) {
-        throw new Error('Invalid response format');
-      }
-      return json.data;
-    });
-
-    return result as CategoryDetailActionResult;
-  } catch (error) {
-    console.error('[서버액션] 카테고리 상세 조회 에러:', error);
-    return handleActionError(error) as CategoryDetailActionResult;
   }
 }

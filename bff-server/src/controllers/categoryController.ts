@@ -29,30 +29,6 @@ class CategoryController {
       }
     }
   }
-
-  // 특정 카테고리 상세 조회
-  async getCategoryDetail(request: FastifyRequest<{ Params: CategoryDetailParams }>, reply: FastifyReply) {
-    try {
-      const { slug } = request.params;
-      const result = await categoryService.getCategoryDetailData(slug);
-      return reply.code(200).send(result);
-    } catch (error) {
-      console.error('CategoryController: error occurred in getCategoryDetail', error);
-      if (error instanceof BaseError) {
-        const errorResponse = error.toResponse();
-        return reply.code(error.statusCode).send(errorResponse);
-      } else {
-        const internalError = new BaseError(
-          ErrorCode.INTERNAL_ERROR,
-          'Failed to fetch category detail',
-          { context: error instanceof Error ? error.message : 'Unknown error' },
-          500,
-        );
-        const errorResponse = internalError.toResponse();
-        return reply.code(500).send(errorResponse);
-      }
-    }
-  }
 }
 
 export default new CategoryController();

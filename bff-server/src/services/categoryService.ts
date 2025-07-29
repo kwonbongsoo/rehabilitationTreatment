@@ -4,10 +4,8 @@ import { RawProductData } from '../types/common';
 import {
   CategoryRaw,
   ProductRaw,
-  Product,
   CategoryWithProducts,
   CategoryPageData,
-  CategoryDetailData,
   FilterOption,
 } from '../types/categoryTypes';
 
@@ -113,35 +111,6 @@ class CategoryService {
         filters,
         sortOptions,
         totalProducts,
-      },
-    };
-  }
-
-  // 특정 카테고리 상세 페이지용
-  async getCategoryDetailData(
-    slug: string,
-  ): Promise<{ success: boolean; data: CategoryDetailData }> {
-    const { categories, products } = await this.loadJsonFiles();
-
-    const category = categories.find((cat) => cat.slug === slug);
-    if (!category) {
-      throw new Error('Category not found');
-    }
-
-    const categoryProducts = products.filter((product) => product.categoryId === category.id);
-
-    const categoryWithProducts: CategoryWithProducts = {
-      ...category,
-      products: categoryProducts,
-    };
-
-    const filters: FilterOption[] = this.getDefaultFilters();
-
-    return {
-      success: true,
-      data: {
-        category: categoryWithProducts,
-        filters,
       },
     };
   }
