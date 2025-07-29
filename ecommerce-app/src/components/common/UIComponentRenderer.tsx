@@ -1,10 +1,10 @@
-import { UIComponent } from '../types';
-import Banner from './Banner';
-import Brands from './Brands';
-import Categories from './Categories';
-import Promotion from './Promotion';
-import Reviews from './Reviews';
-import ProductSection from '@/components/common/ProductSection';
+import { UIComponent } from './types/ui-components';
+import Banner from './modules/Banner';
+import Brands from './modules/Brands';
+import Categories from './modules/Categories';
+import Promotion from './modules/Promotion';
+import Reviews from './modules/Reviews';
+import ProductSection from './ProductSection';
 
 interface UIComponentRendererProps {
   component: UIComponent;

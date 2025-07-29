@@ -6,9 +6,6 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   compress: true,
 
-  // 🚀 모던 브라우저 타겟팅으로 번들 크기 최적화
-  swcMinify: true, // SWC 미니파이어 사용 (더 빠르고 효율적)
-
   // 모던 브라우저 타겟팅
   transpilePackages: [], // 필요 시 특정 패키지만 트랜스파일
 

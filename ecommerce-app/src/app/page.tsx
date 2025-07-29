@@ -1,6 +1,6 @@
-import { UIComponentRenderer } from '@/domains/home/components';
+import UIComponentRenderer from '@/components/common/UIComponentRenderer';
 import styles from '@/styles/home/HomePage.module.css';
-import { UIComponent } from '@/domains/home/types';
+import { UIComponent } from '@/components/common/types/ui-components';
 import { getHomeDataAction } from '@/domains/home/services';
 
 // 쿠키 사용으로 인해 동적 렌더링 강제
