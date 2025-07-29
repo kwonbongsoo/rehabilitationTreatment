@@ -8,7 +8,7 @@
 
 import { ErrorHandler } from '@/utils/errorHandling';
 import { NotificationManager } from '@/utils/notifications';
-import { logout as logoutAction } from '@/app/actions/auth';
+import { logout as logoutAction } from '@/domains/auth/services';
 import { useRouter } from 'next/navigation';
 import { useCallback, useRef, useEffect, useState } from 'react';
 

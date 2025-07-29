@@ -8,7 +8,7 @@ import { useState } from 'react';
 import { authValidationService } from '@/domains/auth/services';
 import { ErrorHandler } from '@/utils/errorHandling';
 import { useCallback } from 'react';
-import { forgotPassword as forgotPasswordAction } from '@/app/actions/auth';
+import { forgotPassword as forgotPasswordAction } from '@/domains/auth/services';
 import { ForgotPasswordRequest } from '@/domains/auth/types/auth';
 
 /**

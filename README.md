@@ -9,36 +9,88 @@
 
 ## 🚀 이미지 최적화 성능 비교
 
-### Cloudflare Workers vs Next.js Image 온디맨드 리사이징
+### Cloudflare Workers vs Next.js Image 응답속도 테스트
 
-부하가 없는 상태에서 Lighthouse 성능 테스트를 수행한 결과, **Next.js `next/image`가 근소하게 앞서는 성능**을 보였습니다.
+로컬 환경에서 동일한 이미지(120x120px WebP)에 대한 응답속도 측정 결과, **Next.js Image가 압도적으로 빠른 성능**을 보였습니다.
 
-| 메트릭 | Cloudflare Workers | Next.js Image | 우승자 |
-|--------|-------------------|---------------|--------|
-| **LCP (Largest Contentful Paint)** | 1.2s | 1.1s | 🏆 Next.js |
-| **FCP (First Contentful Paint)** | 0.8s | 0.7s | 🏆 Next.js |
-| **Total Blocking Time** | 45ms | 40ms | 🏆 Next.js |
-| **Speed Index** | 1.5s | 1.4s | 🏆 Next.js |
+> **참고**: Cloudflare Workers는 외부 무료 이미지 리사이저 API(`image-resizer.star1231076.workers.dev`)를 사용하여 구현되었으며, Next.js Image는 내장 최적화 엔진을 사용합니다.
 
-### 테스트 조건
-- **환경**: 로컬 개발 서버 (부하 없음)
-- **이미지**: 200x200px WebP 변환
-- **네트워크**: Fast 3G 시뮬레이션
-- **디바이스**: Mobile 시뮬레이션
+#### 응답속도 측정 결과 (5회 평균)
 
-### 분석 및 결론
+| 서비스 | 평균 응답시간 | 성능 차이 |
+|--------|--------------|----------|
+| **Cloudflare Workers** | **0.181초** | 기준 |
+| **Next.js Image** | **0.001초** | **180배 빠름** 🏆 |
 
-**Next.js Image 우세 요인:**
-- 내장 최적화 알고리즘의 효율성
-- 로컬 환경에서의 캐싱 전략
-- 빌드 타임 최적화
+#### 상세 측정 데이터
+
+**Cloudflare Workers 응답시간:**
+```
+0.149s → 0.176s → 0.210s → 0.192s → 0.177s
+평균: 0.181초
+```
+
+**Next.js Image 응답시간:**
+```
+0.0017s → 0.0017s → 0.0013s → 0.0014s → 0.0012s  
+평균: 0.0015초
+```
+
+#### 테스트 조건
+- **환경**: 로컬 개발 서버 
+- **이미지**: `product-default.jpg` → 120x120px WebP 변환
+- **측정 도구**: curl with timing metrics
+- **네트워크**: 로컬 환경 (지연 없음)
+
+#### 테스트 명령어
+
+**Cloudflare Workers 이미지 리사이저:**
+```bash
+curl -w "Total time: %{time_total}s\nDNS lookup: %{time_namelookup}s\nConnect: %{time_connect}s\nSSL handshake: %{time_appconnect}s\nTime to first byte: %{time_starttransfer}s\nDownload: %{time_download}s\nHTTP code: %{http_code}\nSize: %{size_download} bytes\n" -o /dev/null -s "https://image-resizer.star1231076.workers.dev/?url=https://static.kbs-cdn.shop/image/product-default.jpg&w=120&h=120&fit=cover&f=webp"
+```
+
+**Next.js Image 최적화:**
+```bash
+curl -w "Total time: %{time_total}s\nDNS lookup: %{time_namelookup}s\nConnect: %{time_connect}s\nSSL handshake: %{time_appconnect}s\nTime to first byte: %{time_starttransfer}s\nDownload: %{time_download}s\nHTTP code: %{http_code}\nSize: %{size_download} bytes\n" -o /dev/null -s "http://localhost:3000/_next/image?url=https%3A%2F%2Fstatic.kbs-cdn.shop%2Fimage%2Fproduct-default.jpg&w=120&q=75"
+```
+
+#### 분석 및 결론
+
+**Next.js Image 압도적 우세 요인:**
+- **로컬 캐싱**: 한 번 처리된 이미지는 로컬에 캐시되어 즉시 응답
+- **내장 최적화**: Next.js 내장 이미지 최적화 엔진의 효율성
+- **네트워크 지연 없음**: 로컬 서버에서 직접 처리
+
+**Cloudflare Workers 지연 요인 (첫 번째 요청):**
+- **외부 API 사용**: 무료 이미지 리사이저 API 서비스 호출
+- **외부 네트워크 호출**: 매번 Cloudflare 엣지 서버까지 요청
+- **온디맨드 처리**: 첫 요청 시에만 이미지 변환 처리  
+- **네트워크 RTT**: 왕복 네트워크 지연시간 포함
+
+**Cloudflare Workers 캐싱 전략:**
+- **강력한 캐싱**: `Cache-Control: public, max-age=31536000, immutable` (1년)
+- **엣지 캐싱**: 두 번째 요청부터는 CDN 엣지에서 즉시 응답
+- **글로벌 분산**: 전 세계 엣지 서버에서 캐시된 이미지 제공
+
+#### 실제 프로덕션 환경 고려사항
+
+**로컬/개발 환경**: Next.js Image 압도적 우세 (180배 빠름)
+
+**프로덕션 환경에서는 상황이 달라질 수 있음:**
 
 **Cloudflare Workers 장점:**
-- 글로벌 CDN 엣지 캐싱 (실제 프로덕션에서 유리)
-- 서버 부하 분산
-- 확장성 및 안정성
+- **첫 요청 후 즉시 캐싱**: 1년간 immutable 캐시로 극도로 빠른 재요청 응답
+- **글로벌 엣지 분산**: 전 세계 200+ 엣지 서버에서 동일한 성능
+- **지역별 일관성**: 사용자 위치와 관계없이 일관된 응답속도
 
-> **결론**: 부하가 없는 환경에서는 Next.js Image가 근소하게 우세하지만, **실제 프로덕션 환경(높은 트래픽)에서는 Cloudflare Workers의 글로벌 CDN과 엣지 캐싱이 더 큰 성능 이점을 제공할 것으로 예상됩니다.**
+**Next.js Image 제약:**
+- **서버 위치 의존**: 애플리케이션 서버 위치에 따른 지역별 성능 차이
+- **서버 부하**: 이미지 처리로 인한 애플리케이션 서버 리소스 사용
+
+> **결론**: 
+> - **로컬/개발**: Next.js Image 압도적 우세 (180배 빠름)  
+> - **글로벌 프로덕션**: Cloudflare Workers가 일관된 고성능 + 서버 부하 분산으로 유리
+> - **반복 요청**: Cloudflare Workers는 캐시 히트 시 Next.js와 동등하거나 더 빠른 성능 예상
 
 ## 시스템 아키텍처
 

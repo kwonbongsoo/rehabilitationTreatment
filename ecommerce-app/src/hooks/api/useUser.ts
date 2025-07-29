@@ -7,7 +7,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { UserService } from '@/services';
-import { getCurrentUser } from '@/app/actions/user';
+import { getCurrentUser } from '@/domains/auth/services';
 import type {
   // UserResponse,
   RegisterRequest,

@@ -9,7 +9,7 @@ import { authValidationService } from '@/domains/auth/services';
 import { ErrorHandler } from '@/utils/errorHandling';
 import { NotificationManager } from '@/utils/notifications';
 import { useCallback, useMemo } from 'react';
-import { login as loginAction } from '@/app/actions/auth';
+import { login as loginAction } from '@/domains/auth/services';
 import { useIdempotentMutation } from '@/hooks/useIdempotentMutation';
 
 /**
