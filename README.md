@@ -313,8 +313,71 @@ graph TD
 
 웜업 시스템:
   - warm-up.sh: 4분 30초마다 캐시 웜업 실행
-  - 대상 엔드포인트: /api/home, /api/categories
+  - X-Cache-Refresh 헤더로 강제 캐시 갱신
+  - 일반 요청: 캐시 HIT 시 즉시 응답
+  - 웜업 요청: 기존 캐시 무시하고 새로운 캐시 생성
   - 캐시 상태 모니터링 (X-Cache-Status 헤더)
+
+## Kong BFF 서버 엔드포인트별 캐싱
+
+### 캐시 구성
+
+| 엔드포인트 | 캐시 TTL | 최대 크기 | 웜업 주기 | 설명 |
+|------------|----------|-----------|-----------|------|
+| `/api/home` | 5분 | 2MB | 4분 30초 | 홈페이지 컴포넌트 데이터 |
+| `/api/categories` | 5분 | 1MB | 4분 30초 | 카테고리 및 상품 목록 |
+
+### 캐시 동작 방식
+
+#### 일반 요청 (X-Cache-Refresh 없음)
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Kong
+    participant Redis
+    participant BFF
+
+    Client->>Kong: GET /api/home
+    Kong->>Redis: 캐시 조회
+    alt 캐시 HIT
+        Redis-->>Kong: 캐시된 데이터 반환
+        Kong-->>Client: 즉시 응답 (X-Cache-Status: HIT)
+    else 캐시 MISS
+        Kong->>BFF: 원본 데이터 요청
+        BFF-->>Kong: 응답 데이터
+        Kong->>Redis: 비동기 캐시 저장 (TTL: 300s)
+        Kong-->>Client: 응답 (X-Cache-Status: MISS)
+    end
+```
+
+#### 웜업 요청 (X-Cache-Refresh: true)
+```mermaid
+sequenceDiagram
+    participant WarmUp
+    participant Kong
+    participant Redis
+    participant BFF
+
+    WarmUp->>Kong: GET /api/home<br/>X-Cache-Refresh: true
+    Note over Kong: 캐시 조회 건너뛰기
+    Kong->>BFF: 원본 데이터 요청
+    BFF-->>Kong: 최신 응답 데이터
+    Kong->>Redis: 새로운 캐시 저장 (TTL: 300s)
+    Kong-->>WarmUp: 응답 (X-Cache-Status: MISS)
+```
+
+### 캐시 키 구조
+```
+cache:GET:/api/home
+cache:GET:/api/categories
+cache:GET:/api/categories?category=1
+```
+
+### 모니터링 헤더
+- `X-Cache-Status`: HIT | MISS
+- `X-Cache-Key`: 실제 캐시 키
+- `X-Cache-Age`: 캐시 생성 후 경과 시간 (초)
+- `X-Cache-TTL`: 캐시 TTL 설정값 (초)
 ```
 
 ### BFF Server (:3001)
