@@ -61,7 +61,7 @@ export default function ProductCard({
 
   return (
     <div className={`${styles.productCard} ${className}`}>
-      <Link href={`/product/${product.id}`} className={styles.productLink}>
+      <Link href={`/product/${product.id}`} className={styles.productLink} prefetch={false}>
         <div className={styles.imageContainer}>
           <OptimizedImageNext
             src={product.image}

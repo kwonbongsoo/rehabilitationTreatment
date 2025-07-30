@@ -93,13 +93,13 @@ export default function CategoryIconGrid({
       {showHeader && (
         <div className={styles.sectionHeader}>
           <h2 className={styles.sectionTitle}>{headerTitle}</h2>
-          <Link href={seeAllLink} className={styles.seeAllLink}>
+          <Link href={seeAllLink} className={styles.seeAllLink} prefetch={false}>
             {seeAllText}
           </Link>
         </div>
       )}
       <div className={styles.categoriesWrapper}>
-        <div 
+        <div
           className={styles.categories}
           ref={scrollRef}
           onMouseDown={handleMouseDown}
@@ -134,7 +134,7 @@ export default function CategoryIconGrid({
             }
 
             return (
-              <Link href={href} key={category.id}>
+              <Link href={href} key={category.id} prefetch={false}>
                 {categoryElement}
               </Link>
             );

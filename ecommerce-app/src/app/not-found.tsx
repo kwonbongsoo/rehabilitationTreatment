@@ -18,13 +18,11 @@ export default function NotFound() {
             />
           </svg>
         </div>
-        
+
         <h1 className={styles.errorCode}>404</h1>
-        
-        <h2 className={styles.errorTitle}>
-          페이지를 찾을 수 없습니다
-        </h2>
-        
+
+        <h2 className={styles.errorTitle}>페이지를 찾을 수 없습니다</h2>
+
         <p className={styles.errorMessage}>
           요청하신 페이지가 존재하지 않거나 이동되었을 수 있습니다.
         </p>
@@ -44,7 +42,7 @@ export default function NotFound() {
         <div className={styles.suggestions}>
           <h3 className={styles.suggestionsTitle}>대신 이런 페이지는 어떤가요?</h3>
           <div className={styles.suggestionsList}>
-            <Link href="/categories" className={styles.suggestionLink}>
+            <Link href="/categories" className={styles.suggestionLink} prefetch={false}>
               📂 전체 카테고리 보기
             </Link>
             <Link href="/products" className={styles.suggestionLink}>

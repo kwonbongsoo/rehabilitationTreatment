@@ -1,12 +1,10 @@
 /**
- * Next.js 미들웨어 - 토큰 관리 및 인증 처리
+ * Next.js 미들웨어 - 인증 처리
  *
  * Edge Runtime에서 실행되어 빠른 성능 제공
- * 조건부 게스트 토큰 발급 및 인증 검증
+ * 게스트 토큰 발급은 Bun 프록시 서버에서 자동 처리
  */
-import { setTokenCookiesEdge } from '@/domains/auth/services';
 import { NextRequest, NextResponse } from 'next/server';
-import { HeaderBuilderFactory } from '@/lib/server/headerBuilder';
 
 /**
  * 토큰 확인을 건너뛸 경로들 - API 요청, JSON 파일, 정적 파일 접근
@@ -57,58 +55,6 @@ function isAuthenticatedUser(request: NextRequest): boolean {
   return Boolean(token && role && role !== 'guest');
 }
 
-/**
- * 게스트 토큰 발급 API 호출
- */
-async function issueGuestToken(): Promise<{
-  access_token: string;
-  role: string;
-  maxAge: number;
-} | null> {
-  const authServiceUrl = process.env.AUTH_SERVICE_URL;
-  const authPrefix = process.env.AUTH_PREFIX;
-  const authBasicKey = process.env.AUTH_BASIC_KEY;
-
-  if (!authServiceUrl || !authPrefix || !authBasicKey) {
-    throw new Error('Auth service configuration is missing');
-  }
-
-  try {
-    const requestUrl = `${authServiceUrl}${authPrefix}/guest-token`;
-    const headers = await HeaderBuilderFactory
-      .createForMiddlewareBasicAuth()
-      .build();
-
-    const response = await fetch(requestUrl, {
-      method: 'POST',
-      headers,
-    });
-
-    if (!response.ok) {
-      throw new Error(`Guest token API failed: ${response.status} ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    if (!data.success || !data.data?.access_token) {
-      throw new Error('Invalid auth service response');
-    }
-
-    const currentTime = Math.floor(Date.now() / 1000);
-    const tokenLifetime = data.data.exp - data.data.iat;
-    const elapsedTime = currentTime - data.data.iat;
-    const remainingTime = Math.max(0, tokenLifetime - elapsedTime);
-    const maxAge = Math.max(0, remainingTime - 60); // 1분(60초) 일찍 만료
-
-    return {
-      access_token: data.data.access_token,
-      role: data.data.role || 'guest',
-      maxAge,
-    };
-  } catch {
-    throw new Error('Failed to issue guest token');
-  }
-}
-
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const isPrefetch = request.headers.get('x-nextjs-data') === '1';
@@ -125,18 +71,10 @@ export async function middleware(request: NextRequest) {
       }
     }
 
-    const token = getTokenFromCookies(request);
-
-    if (!token) {
-      const tokenData = await issueGuestToken();
-      if (tokenData) {
-        const response = NextResponse.next();
-        setTokenCookiesEdge(response, tokenData);
-        return response;
-      }
-    }
+    // 게스트 토큰 발급은 Bun 프록시 서버에서 자동으로 처리됨
     return NextResponse.next();
-  } catch {
+  } catch (error) {
+    console.error('❌ Middleware error:', error);
     return NextResponse.next();
   }
 }

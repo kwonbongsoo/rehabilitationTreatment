@@ -20,7 +20,7 @@ export async function getHomeDataAction(): Promise<HomePageActionResult> {
     const response = await fetch(`${KONG_GATEWAY_URL}/api/home`, {
       method: 'GET',
       headers,
-      next: { revalidate: 60 }, // 60초 캐시
+      next: { revalidate: 60 }, // 1분 캐시
     });
 
     const result = (await handleApiResponse(response, (json) => {

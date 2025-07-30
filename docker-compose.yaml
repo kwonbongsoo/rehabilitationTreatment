@@ -54,6 +54,23 @@ services:
     networks:
       - app-network
 
+  # Bun Proxy Server
+  proxy-server:
+    build:
+      context: ./proxy-server
+    container_name: proxy-server
+    env_file:
+      - ./proxy-server/.env
+    environment:
+      - NEXT_SERVER=http://ecommerce-app:3000
+    ports:
+      - '9000:9000'
+    depends_on:
+      - ecommerce-app
+    restart: unless-stopped
+    networks:
+      - app-network
+
   ecommerce-app:
     build:
       context: .
@@ -61,6 +78,7 @@ services:
     container_name: ecommerce-app
     env_file:
       - ./ecommerce-app/.env
+    # 외부 포트 제거 - 프록시를 통해서만 접근
     ports:
       - '3000:3000'
     depends_on:
