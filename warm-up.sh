@@ -46,15 +46,15 @@ warm_up_cache() {
     echo "[$timestamp] Warming up cache for: $endpoint"
     
     # 캐시 웜업 요청 (토큰 + 캐시 강제 갱신 헤더 포함)
-    local response=$(curl -s -w "Status: %{http_code}, Time: %{time_total}s, Cache: %{header_x-cache-status}" \
+    local status_code=$(curl -s -w "%{http_code}" -o /dev/null \
         -H "Authorization: Bearer ${TEST_TOKEN}" \
         -H "X-Cache-Refresh: true" \
         "$KONG_URL$endpoint" 2>/dev/null)
     
-    if [ $? -eq 0 ]; then
-        echo "  ✓ $response"
+    if [ "$status_code" = "200" ]; then
+        echo "  ✓ Cache warmed up successfully (HTTP $status_code)"
     else
-        echo "  ⚠ Failed to warm up $endpoint"
+        echo "  ⚠ Failed to warm up $endpoint (HTTP $status_code)"
     fi
 }
 
