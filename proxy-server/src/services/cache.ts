@@ -13,18 +13,21 @@ export class HtmlCacheService {
 
   /**
    * URL에서 파라미터를 제거하고 캐시 키를 생성
+   * 어드민에서 데이터를 등록 하면 데이터가 변경 되지만
+   * 파라미터와 상관없이 데이터가 일치한 경우에만 캐시키를 생성
    */
-  private generateCacheKey(url: string, skipParams: boolean = true): string {
+  private generateCacheKey(url: string, skipParams: boolean = true, contentType?: string): string {
     const urlObj = new URL(url);
+    const prefix = this.CACHE_PREFIX;
 
     if (skipParams) {
-      // 파라미터 제거하고 경로만 사용
       const cleanPath = urlObj.pathname === '/' ? '/' : urlObj.pathname.replace(/\/$/, '');
-      return `${this.CACHE_PREFIX}${urlObj.host}${cleanPath}`;
+      // HTML의 경우 모든 파라미터 제거
+      return `${prefix}${urlObj.host}${cleanPath}`;
     }
 
     // 파라미터 포함한 전체 URL 사용
-    return `${this.CACHE_PREFIX}${urlObj.host}${urlObj.pathname}${urlObj.search}`;
+    return `${prefix}${urlObj.host}${urlObj.pathname}${urlObj.search}`;
   }
 
   /**
@@ -48,7 +51,7 @@ export class HtmlCacheService {
   /**
    * HTML 콘텐츠를 캐시에서 가져오기
    */
-  async get(url: string, options: CacheOptions = {}): Promise<string | null> {
+  async get(url: string, options: CacheOptions = {}, contentType?: string): Promise<string | null> {
     if (!this.shouldCache(url)) {
       return null;
     }
@@ -59,7 +62,7 @@ export class HtmlCacheService {
     }
 
     try {
-      const cacheKey = this.generateCacheKey(url, options.skipParams ?? true);
+      const cacheKey = this.generateCacheKey(url, options.skipParams ?? true, contentType);
       const cachedContent = await redisClient.get(cacheKey);
 
       if (cachedContent) {
@@ -78,7 +81,12 @@ export class HtmlCacheService {
   /**
    * HTML 콘텐츠를 캐시에 저장
    */
-  async set(url: string, content: string, options: CacheOptions = {}): Promise<boolean> {
+  async set(
+    url: string,
+    content: string,
+    options: CacheOptions = {},
+    contentType?: string,
+  ): Promise<boolean> {
     if (!this.shouldCache(url)) {
       return false;
     }
@@ -89,7 +97,7 @@ export class HtmlCacheService {
     }
 
     try {
-      const cacheKey = this.generateCacheKey(url, options.skipParams ?? true);
+      const cacheKey = this.generateCacheKey(url, options.skipParams ?? true, contentType);
       const ttl = options.ttl || this.DEFAULT_TTL;
 
       // 분산 락을 사용하여 캐시 저장

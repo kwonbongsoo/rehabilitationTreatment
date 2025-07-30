@@ -13,11 +13,14 @@ export class NextJsHandler extends BaseProxyHandler {
     const url = new URL(req.url);
     const targetUrl = `${config.nextServer}${url.pathname}${url.search}`;
 
-    // GET 요청이고 캐시 가능한 경로인 경우 캐시 확인
-    if (req.method === 'GET' && cacheMiddleware.isCacheable(targetUrl)) {
-      const cachedContent = await cacheMiddleware.checkCache(targetUrl);
+    // RSC 요청인지 확인
+    const isRSCRequest = url.searchParams.has('_rsc');
+
+    // HTML 요청이고 캐시 가능한 경우에만 캐시 확인
+    if (!isRSCRequest && req.method === 'GET' && cacheMiddleware.isCacheable(targetUrl)) {
+      const cachedContent = await cacheMiddleware.checkCache(targetUrl, 'text/html');
       if (cachedContent) {
-        return cacheMiddleware.createCachedResponse(cachedContent);
+        return cacheMiddleware.createCachedResponse(cachedContent, undefined, 'text/html');
       }
     }
 
@@ -39,8 +42,8 @@ export class NextJsHandler extends BaseProxyHandler {
     // 실제 요청 프록시
     const response = await this.proxyRequest(modifiedRequest, targetUrl);
 
-    // GET 요청이고 캐시 가능한 경우 응답을 캐시에 저장
-    if (req.method === 'GET' && cacheMiddleware.isCacheable(targetUrl)) {
+    // HTML 요청이고 캐시 가능한 경우에만 응답을 캐시에 저장
+    if (!isRSCRequest && req.method === 'GET' && cacheMiddleware.isCacheable(targetUrl)) {
       return await cacheMiddleware.cacheResponse(targetUrl, response);
     }
 

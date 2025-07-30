@@ -2,18 +2,7 @@
 
 import CategoryIconGrid from '@/components/common/CategoryIconGrid';
 import { useCategoryContext } from '@/domains/category/context/CategoryContext';
-
-interface CategoryGridRendererProps {
-  categories: {
-    id: number;
-    name: string;
-    slug: string;
-    iconCode: string;
-    order: number;
-    isActive: boolean;
-    products: any[];
-  }[];
-}
+import { CategoryGridRendererProps } from '@/domains/category/types/categories';
 
 export default function CategoryGridRenderer({ categories }: CategoryGridRendererProps) {
   const { selectedCategoryId, handleCategoryClick } = useCategoryContext();

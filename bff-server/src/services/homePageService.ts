@@ -111,9 +111,7 @@ class HomePageService {
       .filter((item) => rawProducts.some((product) => product.categoryId === item.id))
       .sort((a, b) => a.order - b.order)
       .map((item) => ({
-        id: item.id,
-        name: item.name,
-        icon: item.iconCode,
+        ...item,
         link: `/categories?category=${encodeURIComponent(item.id)}`,
       }));
 
@@ -128,7 +126,11 @@ class HomePageService {
           {
             id: 0,
             name: '전체',
-            icon: '👕',
+            slug: 'all',
+            iconCode: '👕',
+            order: 0,
+            isActive: true,
+            products: [],
             link: '/categories',
           },
           ...activeCategories,

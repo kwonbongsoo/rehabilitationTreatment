@@ -1,18 +1,14 @@
 import CategoryIconGrid from '@/components/common/CategoryIconGrid';
+import { CategoryI } from '@/domains/category/types/categories';
 
 interface CategoriesProps {
-  title?: string; // 선택적 prop으로 정의
-  categories: {
-    id: number;
-    name: string;
-    icon: string;
-    link: string;
-  }[];
+  title?: string;
+  categories: CategoryI[];
 }
 
 export default function Categories({ title: _title, categories }: CategoriesProps) {
   return (
-    <CategoryIconGrid 
+    <CategoryIconGrid
       categories={categories}
       showHeader={true}
       headerTitle="Category"

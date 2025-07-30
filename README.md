@@ -1,6 +1,6 @@
 # E-Commerce 플랫폼
 
-마이크로서비스 아키텍처 기반의 이커머스 플랫폼으로, Kong API Gateway와 BFF(Backend for Frontend) 패턴을 적용한 현대적인 웹 애플리케이션입니다.
+마이크로서비스 아키텍처 기반의 이커머스 플랫폼으로, Kong API Gateway, BFF(Backend for Frontend) 패턴, 그리고 Redis 기반 HTML 캐싱 프록시 서버를 적용한 현대적인 웹 애플리케이션입니다.
 ## UI
 ![UI](커머스.png)
 
@@ -108,6 +108,10 @@ graph TB
         Client[클라이언트 브라우저/앱]
     end
 
+    subgraph "Proxy Layer"
+        Proxy[Bun Proxy Server<br/>Port 9000<br/>HTML 캐싱 (Redis)<br/>RSC 직접 프록시]
+    end
+
     subgraph "Frontend Layer"
         Frontend[Next.js E-Commerce App<br/>Port 3000<br/>API Routes /api/*<br/>쿠키 to Bearer 토큰 변환]
     end
@@ -137,8 +141,11 @@ graph TB
     end
 
     %% External connections
-    Client -->|HTTP 요청| Frontend
-    Frontend -->|HTTP 응답| Client
+    Client -->|HTTP 요청| Proxy
+    Proxy -->|캐시 HIT| Client
+    Proxy -->|HTML/RSC 요청| Frontend
+    Frontend -->|응답| Proxy
+    Proxy -->|응답| Client
 
     %% Frontend to internal services
     Frontend -->|API Routes /api/*| Kong
@@ -159,6 +166,7 @@ graph TB
 
     %% Styling
     style Client fill:#e3f2fd
+    style Proxy fill:#f0f4ff
     style Frontend fill:#f3e5f5
     style Kong fill:#e8f5e8
     style Auth fill:#fff3e0
@@ -281,6 +289,28 @@ graph TD
 - **Backend for Frontend**: 클라이언트 최적화
 
 ## 서비스 구성
+
+### Proxy Server (:9000)
+```yaml
+역할: Next.js 앞단 캐싱 및 라우팅
+기술 스택: Bun + TypeScript
+주요 기능:
+  - HTML 페이지 Redis 캐싱 (/, /categories)
+  - RSC 요청 직접 프록시 (캐시 우회)
+  - 분산 락 기반 캐시 일관성 보장
+  - URL 파라미터 정규화로 캐시 효율성 극대화
+  - 자동 TTL 관리 (기본 1분)
+
+캐싱 전략:
+  - HTML 요청: Redis 캐시 적용 (새로고침, 직접 URL 접근)
+  - RSC 요청: Next.js 직접 프록시 (Link 클릭, router.push)
+  - 캐시 키: html_cache:{host}{path} (파라미터 제거)
+  - 성능: 캐시 HIT 시 밀리초 단위 응답
+
+인증 처리:
+  - Kong Gateway에서 발급된 토큰 프록시
+  - Authorization 헤더 투명 전달
+```
 
 ### Kong API Gateway (:8000)
 ```yaml
@@ -458,7 +488,8 @@ cache:GET:/api/categories
   - CDN 이미지 최적화 (Cloudflare Workers)
 
 성능 최적화:
-  - 홈페이지 SSR 전환으로 초기 로딩 속도 향상
+  - 프록시 서버를 통한 HTML 캐싱으로 초기 로딩 속도 향상
+  - RSC 최적화로 클라이언트 네비게이션 성능 개선
   - 이미지 WebP 변환 및 리사이징 자동화
   - Next.js Image 최적화 설정 개선
     - next/image로 인한 부하 책임 CDN으로 위임.
@@ -479,6 +510,10 @@ graph LR
     end
 
     subgraph "Docker Network: app-network"
+        subgraph "Proxy Layer"
+            Proxy[Bun Proxy Server<br/>Port 9000<br/>HTML 캐싱]
+        end
+
         subgraph "Frontend"
             NextJS[Next.js<br/>Port 3000]
         end
@@ -501,7 +536,8 @@ graph LR
 
     %% External connections
     Internet --> Client
-    Client -->|HTTP Port 3000| NextJS
+    Client -->|HTTP Port 9000| Proxy
+    Proxy -->|HTML/RSC| NextJS
 
     %% Internal network connections
     NextJS -.->|Direct Auth| Auth
@@ -518,11 +554,13 @@ graph LR
     Auth --> Redis
     Member --> PostgreSQL
     Kong --> Redis
+    Proxy --> Redis
 
     %% Port exposure
-    NextJS -.->|Exposed| Internet
+    Proxy -.->|Exposed| Internet
     Kong -.->|Exposed| Internet
 
+    style Proxy fill:#f0f4ff
     style Kong fill:#e8f5e8
     style BFF fill:#e1f5fe
     style Redis fill:#ffebee
@@ -620,6 +658,7 @@ docker-compose up --build
 
 | 서비스 | 포트 | URL | 설명 |
 |--------|------|-----|------|
+| Proxy Server | 9000 | http://localhost:9000 | HTML 캐싱 프록시 |
 | Kong Gateway | 8000 | http://localhost:8000 | API Gateway 프록시 |
 | BFF Server | 3001 | http://localhost:3001 | Backend for Frontend |
 | Auth Server | 4000 | http://localhost:4000 | 인증 서비스 |

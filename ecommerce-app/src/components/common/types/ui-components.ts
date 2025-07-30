@@ -34,16 +34,13 @@ export interface BannerComponent extends BaseUIComponent {
   };
 }
 
+import { CategoryI } from '@/domains/category/types/categories';
+
 // 카테고리 컴포넌트 타입
 export interface CategoriesComponent extends BaseUIComponent {
   type: 'categories';
   data: {
-    categories: {
-      id: number;
-      name: string;
-      icon: string;
-      link: string;
-    }[];
+    categories: CategoryI[];
   };
 }
 
@@ -120,6 +117,7 @@ export interface CategoryGridComponent extends BaseUIComponent {
   data: {
     categories: {
       id: number;
+      link: string;
       name: string;
       slug: string;
       iconCode: string;

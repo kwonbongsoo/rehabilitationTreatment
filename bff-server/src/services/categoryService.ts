@@ -69,6 +69,7 @@ class CategoryService {
         const categoryProducts = products.filter((product) => product.categoryId === category.id);
 
         return {
+          link: `/categories?category=${encodeURIComponent(category.id)}`,
           ...category,
           products: categoryProducts.map((item) => {
             return {
@@ -101,6 +102,7 @@ class CategoryService {
         iconCode: '👕',
         order: 0,
         isActive: true,
+        link: '/categories',
         products: [],
       },
       ...categoriesWithProducts,

@@ -9,9 +9,9 @@ export class CacheMiddleware {
   /**
    * 캐시에서 HTML 콘텐츠 조회
    */
-  async checkCache(url: string): Promise<string | null> {
+  async checkCache(url: string, contentType?: string): Promise<string | null> {
     try {
-      return await htmlCacheService.get(url);
+      return await htmlCacheService.get(url, {}, contentType);
     } catch (error) {
       console.error('Cache check error:', error);
       return null;
@@ -29,7 +29,9 @@ export class CacheMiddleware {
     try {
       // HTML 응답만 캐시
       const contentType = response.headers.get('content-type') || '';
-      if (!contentType.includes('text/html')) {
+      const isHTML = contentType.includes('text/html');
+      
+      if (!isHTML) {
         return response;
       }
 
@@ -41,8 +43,8 @@ export class CacheMiddleware {
       // 응답 본문 읽기
       const responseText = await response.text();
 
-      // 캐시에 저장
-      await htmlCacheService.set(url, responseText, { ttl: options.ttl });
+      // 캐시에 저장 (content-type 정보 포함)
+      await htmlCacheService.set(url, responseText, { ttl: options.ttl }, contentType);
 
       // 새로운 Response 객체 반환 (원본 Response는 이미 소비됨)
       return new Response(responseText, {
@@ -61,11 +63,14 @@ export class CacheMiddleware {
   }
 
   /**
-   * 캐시된 콘텐츠로 Response 생성
+   * 캐시된 HTML 콘텐츠로 Response 생성
    */
-  createCachedResponse(content: string, originalHeaders?: Headers): Response {
+  createCachedResponse(content: string, originalHeaders?: Headers, contentType?: string): Response {
+    // HTML Content-Type 설정
+    const defaultContentType = 'text/html; charset=utf-8';
+
     const headers: Record<string, string> = {
-      'Content-Type': 'text/html; charset=utf-8',
+      'Content-Type': defaultContentType,
       'X-Cache': 'HIT',
       'Cache-Control': 'public, max-age=3600',
     };
