@@ -21,11 +21,11 @@ class RedisClient {
           lazyConnect: true,
           reconnectStrategy: (retries) => {
             if (retries > this.maxReconnectAttempts) {
-              console.error(`❌ Redis reconnection failed after ${retries} attempts`);
+              console.error(`Redis reconnection failed after ${retries} attempts`);
               return false;
             }
             const delay = Math.min(retries * this.reconnectDelay, 5000);
-            console.log(`🔄 Redis reconnecting in ${delay}ms (attempt ${retries})`);
+            console.log(`Redis reconnecting in ${delay}ms (attempt ${retries})`);
             return delay;
           },
         },
@@ -33,28 +33,28 @@ class RedisClient {
 
       // 에러 핸들링
       this.client.on('error', (error: Error) => {
-        console.error('🔥 Redis error:', error.message);
+        console.error('Redis error:', error.message);
         this.isConnected = false;
       });
 
       this.client.on('connect', () => {
-        console.log('✅ Redis connected');
+        console.log('Redis connected');
         this.isConnected = true;
         this.reconnectAttempts = 0;
       });
 
       this.client.on('ready', () => {
-        console.log('🚀 Redis ready');
+        console.log('Redis ready');
         this.isConnected = true;
       });
 
       this.client.on('disconnect', () => {
-        console.log('❌ Redis disconnected');
+        console.log('Redis disconnected');
         this.isConnected = false;
       });
 
       this.client.on('reconnecting', () => {
-        console.log('🔄 Redis reconnecting...');
+        console.log('Redis reconnecting...');
         this.reconnectAttempts++;
       });
 
@@ -62,7 +62,7 @@ class RedisClient {
       await this.client.connect();
       
     } catch (error) {
-      console.error('❌ Failed to connect to Redis:', error);
+      console.error('Failed to connect to Redis:', error);
       this.isConnected = false;
       throw error;
     }
@@ -224,7 +224,7 @@ class RedisClient {
 
   private handleConnectionError(): void {
     this.isConnected = false;
-    console.log('🔄 Connection error detected, attempting reconnect...');
+    console.log('Connection error detected, attempting reconnect...');
   }
 
   async disconnect(): Promise<void> {

@@ -63,10 +63,10 @@ export class HtmlCacheService {
       const cachedContent = await redisClient.get(cacheKey);
 
       if (cachedContent) {
-        console.log(`📦 Cache HIT: ${cacheKey}`);
+        console.log(`Cache HIT: ${cacheKey}`);
         return cachedContent;
       } else {
-        console.log(`📭 Cache MISS: ${cacheKey}`);
+        console.log(`Cache MISS: ${cacheKey}`);
         return null;
       }
     } catch (error) {
@@ -96,9 +96,9 @@ export class HtmlCacheService {
       const success = await redisClient.setWithLock(cacheKey, content, ttl);
 
       if (success) {
-        console.log(`💾 Cache SET with lock: ${cacheKey} (TTL: ${ttl}s)`);
+        console.log(`Cache SET with lock: ${cacheKey} (TTL: ${ttl}s)`);
       } else {
-        console.error(`❌ Cache SET with lock failed: ${cacheKey}`);
+        console.error(`Cache SET with lock failed: ${cacheKey}`);
       }
 
       return success;
@@ -122,7 +122,7 @@ export class HtmlCacheService {
       const success = await redisClient.del(cacheKey);
 
       if (success) {
-        console.log(`🗑️ Cache DELETE: ${cacheKey}`);
+        console.log(`Cache DELETE: ${cacheKey}`);
       }
 
       return success;

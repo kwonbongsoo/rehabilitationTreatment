@@ -36,5 +36,5 @@ export function logConfig(): void {
   console.log(`   - Kong Gateway: ${config.kongGatewayUrl}`);
   console.log(`   - Request Logging: ${config.enableRequestLogging}`);
   console.log(`   - Log Level: ${config.logLevel}`);
-  console.log(`   - Auth Service: ${config.authServiceUrl ? '✅ Configured' : '❌ Missing'}`);
+  console.log(`   - Auth Service: ${config.authServiceUrl ? 'Configured' : 'Missing'}`);
 }

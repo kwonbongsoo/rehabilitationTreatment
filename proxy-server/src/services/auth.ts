@@ -37,7 +37,7 @@ export class AuthService {
         maxAge,
       };
     } catch (error) {
-      console.error('❌ Failed to issue guest token:', error);
+      console.error('Failed to issue guest token:', error);
       return null;
     }
   }

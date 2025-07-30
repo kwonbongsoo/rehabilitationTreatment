@@ -19,7 +19,7 @@ export abstract class BaseProxyHandler {
 
       return this.createProxyResponse(response);
     } catch (error) {
-      console.error(`❌ ${this.getTargetName()} proxy error:`, error);
+      console.error(`${this.getTargetName()} proxy error:`, error);
       return this.createErrorResponse();
     }
   }

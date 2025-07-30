@@ -33,9 +33,9 @@ export class LoggingUtils {
     if (hasToken && !isNewToken) {
       console.log('🔑 Found existing access token');
     } else if (hasToken && isNewToken) {
-      console.log('✅ Guest token issued successfully');
+      console.log('Guest token issued successfully');
     } else if (!hasToken && isNewToken) {
-      console.log('❌ Failed to issue guest token');
+      console.log('Failed to issue guest token');
     } else {
       console.log('🔑 No access token found, issuing guest token...');
     }

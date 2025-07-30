@@ -3,14 +3,14 @@ import { config, validateConfig, logConfig } from './config';
 import { proxyHandler } from './handlers/proxy';
 import { redisClient } from './services/redis';
 
-console.log('🚀 Proxy Server starting...');
+console.log('Proxy Server starting...');
 
 // 설정 검증 및 로깅
 try {
   validateConfig();
   logConfig();
 } catch (error) {
-  console.error('❌ Configuration error:', error);
+console.error('Configuration error:', error);
   process.exit(1);
 }
 
@@ -18,9 +18,9 @@ try {
 async function initializeRedis() {
   try {
     await redisClient.connect();
-    console.log('📦 Redis cache service ready');
+    console.log('Redis cache service ready');
   } catch (error) {
-    console.warn('⚠️ Redis connection failed, caching disabled:', error);
+    console.warn('Redis connection failed, caching disabled:', error);
   }
 }
 
@@ -33,7 +33,7 @@ const server = Bun.serve({
     // 요청 로깅
     if (config.enableRequestLogging) {
       const url = new URL(req.url);
-      console.log(`📥 [${new Date().toISOString()}] ${req.method} ${url.pathname}`);
+      console.log(`[${new Date().toISOString()}] ${req.method} ${url.pathname}`);
     }
 
     // 모든 요청을 프록시 핸들러로 처리 (토큰 검증 포함)
@@ -42,13 +42,13 @@ const server = Bun.serve({
 
   // 에러 핸들링
   error(error) {
-    console.error('🔥 Server error:', error);
+    console.error('Server error:', error);
     return new Response('Internal Server Error', { status: 500 });
   },
 });
 
 console.log(`✨ Proxy server running on http://localhost:${config.port}`);
-console.log(`🎯 Proxying to: ${config.nextServer}`);
+console.log(`Proxying to: ${config.nextServer}`);
 console.log(`📊 Ready to handle requests!`);
 
 // Graceful shutdown

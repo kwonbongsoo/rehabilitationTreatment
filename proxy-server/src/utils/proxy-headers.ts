@@ -59,10 +59,10 @@ export class ProxyHeaderUtils {
   static logAuthorizationHeader(token?: string, target: string = 'target'): void {
     if (token) {
       console.log(
-        `🔐 Added Authorization header for ${target}: Bearer ${token.substring(0, 20)}...`,
+        `Added Authorization header for ${target}: Bearer ${token.substring(0, 20)}...`,
       );
     } else {
-      console.log(`⚠️  No access token available for ${target} request`);
+      console.log(`No access token available for ${target} request`);
     }
   }
 }
