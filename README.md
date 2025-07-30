@@ -109,7 +109,7 @@ graph TB
     end
 
     subgraph "Proxy Layer"
-        Proxy["Bun Proxy Server<br/>Port 9000<br/>HTML 캐싱 Redis<br/>RSC 직접 프록시"]
+        Proxy["Bun Proxy Server<br/>Port 9000<br/>HTML 캐싱 Redis<br/>RSC 직접 프록시<br/>게스트 토큰 발급"]
     end
 
     subgraph "Frontend Layer"
@@ -292,11 +292,12 @@ graph TD
 
 ### Proxy Server (:9000)
 ```yaml
-역할: Next.js 앞단 캐싱 및 라우팅
+역할: Next.js 앞단 캐싱 및 라우팅, 게스트 인증 관리
 기술 스택: Bun + TypeScript
 주요 기능:
   - HTML 페이지 Redis 캐싱 (/, /categories)
   - RSC 요청 직접 프록시 (캐시 우회)
+  - 게스트 토큰 발급 및 관리 (인증되지 않은 사용자)
   - 분산 락 기반 캐시 일관성 보장
   - URL 파라미터 정규화로 캐시 효율성 극대화
   - 자동 TTL 관리 (기본 1분)
@@ -308,7 +309,8 @@ graph TD
   - 성능: 캐시 HIT 시 밀리초 단위 응답
 
 인증 처리:
-  - Kong Gateway에서 발급된 토큰 프록시
+  - 로그인 사용자: Kong Gateway 토큰 프록시
+  - 게스트 사용자: 임시 게스트 토큰 자동 발급
   - Authorization 헤더 투명 전달
 ```
 
