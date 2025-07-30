@@ -1,4 +1,5 @@
 import { config } from '../config';
+import { ProxyRequestError, createErrorContext } from '../middleware/errorHandler';
 
 export abstract class BaseProxyHandler {
   protected abstract getTargetName(): string;
@@ -20,7 +21,12 @@ export abstract class BaseProxyHandler {
       return this.createProxyResponse(response);
     } catch (error) {
       console.error(`${this.getTargetName()} proxy error:`, error);
-      return this.createErrorResponse();
+      const context = createErrorContext(req);
+      throw new ProxyRequestError(
+        `Failed to connect to ${this.getTargetName()}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        context,
+        error instanceof TypeError && error.message.includes('fetch') ? 503 : 502
+      );
     }
   }
 
@@ -38,20 +44,4 @@ export abstract class BaseProxyHandler {
     });
   }
 
-  protected createErrorResponse(): Response {
-    return new Response(
-      JSON.stringify({
-        error: `${this.getTargetName()} Proxy Error`,
-        message: `Failed to connect to ${this.getTargetName()}`,
-        timestamp: new Date().toISOString(),
-      }),
-      {
-        status: 502,
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Proxy-Error': this.getTargetName().toLowerCase(),
-        },
-      },
-    );
-  }
 }

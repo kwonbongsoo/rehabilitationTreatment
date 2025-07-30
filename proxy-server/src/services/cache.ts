@@ -1,4 +1,5 @@
 import { redisClient } from './redis';
+import { CacheError } from '../middleware/errorHandler';
 
 export interface CacheOptions {
   ttl?: number; // TTL in seconds
@@ -74,7 +75,7 @@ export class HtmlCacheService {
       }
     } catch (error) {
       console.error('Cache get error:', error);
-      return null;
+      throw new CacheError(`Failed to get cache for ${url}: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -112,7 +113,7 @@ export class HtmlCacheService {
       return success;
     } catch (error) {
       console.error('Cache set error:', error);
-      return false;
+      throw new CacheError(`Failed to set cache for ${url}: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -136,7 +137,7 @@ export class HtmlCacheService {
       return success;
     } catch (error) {
       console.error('Cache delete error:', error);
-      return false;
+      throw new CacheError(`Failed to delete cache for ${url}: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 

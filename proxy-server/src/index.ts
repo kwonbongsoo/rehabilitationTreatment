@@ -2,6 +2,7 @@
 import { config, validateConfig, logConfig } from './config';
 import { proxyHandler } from './handlers/proxy';
 import { redisClient } from './services/redis';
+import { withErrorHandling } from './middleware/errorHandler';
 
 console.log('Proxy Server starting...');
 
@@ -10,7 +11,7 @@ try {
   validateConfig();
   logConfig();
 } catch (error) {
-console.error('Configuration error:', error);
+  console.error('Configuration error:', error);
   process.exit(1);
 }
 
@@ -31,13 +32,13 @@ const server = Bun.serve({
   port: config.port,
   async fetch(req: Request): Promise<Response> {
     // 요청 로깅
-    if (config.enableRequestLogging) {
-      const url = new URL(req.url);
-      console.log(`[${new Date().toISOString()}] ${req.method} ${url.pathname}`);
-    }
+    // if (config.enableRequestLogging) {
+    //   const url = new URL(req.url);
+    //   console.log(`[${new Date().toISOString()}] ${req.method} ${url.pathname}`);
+    // }
 
     // 모든 요청을 프록시 핸들러로 처리 (토큰 검증 포함)
-    return proxyHandler.handleRequest(req);
+    return await withErrorHandling(proxyHandler.handleRequest.bind(proxyHandler))(req);
   },
 
   // 에러 핸들링

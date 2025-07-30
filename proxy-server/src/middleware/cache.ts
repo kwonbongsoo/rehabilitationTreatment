@@ -14,6 +14,7 @@ export class CacheMiddleware {
       return await htmlCacheService.get(url, {}, contentType);
     } catch (error) {
       console.error('Cache check error:', error);
+      // 캐시 에러는 치명적이지 않으므로 null 반환하여 원본 요청 처리
       return null;
     }
   }
@@ -58,6 +59,7 @@ export class CacheMiddleware {
       });
     } catch (error) {
       console.error('Cache response error:', error);
+      // 캐시 저장 실패는 치명적이지 않으므로 원본 응답 반환
       return response;
     }
   }
