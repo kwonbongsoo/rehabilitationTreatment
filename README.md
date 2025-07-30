@@ -109,7 +109,7 @@ graph TB
     end
 
     subgraph "Proxy Layer"
-        Proxy[Bun Proxy Server<br/>Port 9000<br/>HTML 캐싱 (Redis)<br/>RSC 직접 프록시]
+        Proxy["Bun Proxy Server<br/>Port 9000<br/>HTML 캐싱 Redis<br/>RSC 직접 프록시"]
     end
 
     subgraph "Frontend Layer"
