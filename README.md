@@ -801,14 +801,14 @@ done
 ```mermaid
 graph LR
     subgraph "프록시 경유 (포트 9000)"
-        Client1[클라이언트] --> Proxy[프록시 서버<br/>Redis 캐시 조회]
-        Proxy --> NextJS1[Next.js<br/>ISR 캐시(1분)]
+        Client1["클라이언트"] --> Proxy["프록시 서버<br/>Redis 캐시 조회"]
+        Proxy --> NextJS1["Next.js<br/>ISR 캐시(1분)"]
         NextJS1 --> Proxy
         Proxy --> Client1
     end
 
     subgraph "직접 접속 (포트 3000)"
-        Client2[클라이언트] --> NextJS2[Next.js<br/>ISR 캐시(1분)]
+        Client2["클라이언트"] --> NextJS2["Next.js<br/>ISR 캐시(1분)"]
         NextJS2 --> Client2
     end
 
@@ -836,14 +836,14 @@ graph LR
 ```mermaid
 graph LR
     subgraph "프록시 경유 (포트 9000)"
-        Client3[클라이언트] --> Proxy2[프록시 서버<br/>Redis 캐시 조회]
-        Proxy2 --> NextJS3[Next.js<br/>실시간 렌더링]
+        Client3["클라이언트"] --> Proxy2["프록시 서버<br/>Redis 캐시 조회"]
+        Proxy2 --> NextJS3["Next.js<br/>실시간 렌더링"]
         NextJS3 --> Proxy2
         Proxy2 --> Client3
     end
 
     subgraph "직접 접속 (포트 3000)"
-        Client4[클라이언트] --> NextJS4[Next.js<br/>실시간 렌더링]
+        Client4["클라이언트"] --> NextJS4["Next.js<br/>실시간 렌더링"]
         NextJS4 --> Client4
     end
 
