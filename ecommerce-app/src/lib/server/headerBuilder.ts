@@ -67,7 +67,6 @@ class HttpHeaderBuilder implements HeaderBuilder {
 
   private async resolveAuthToken(): Promise<string | undefined> {
     if (this.authValue) {
-      console.log('🔐 Using provided auth value');
       return this.authValue;
     }
 
@@ -76,43 +75,19 @@ class HttpHeaderBuilder implements HeaderBuilder {
       const { headers } = await import('next/headers');
       const headersList = await headers();
       const authHeader = headersList.get('authorization');
-      
+
       if (authHeader && authHeader.startsWith('Bearer ')) {
         const token = authHeader.substring(7); // "Bearer " 제거
-        console.log(`🔑 Found Authorization header: Bearer ${token.substring(0, 20)}...`);
         return token;
-      } else if (authHeader) {
-        console.log(`⚠️  Invalid Authorization header format: ${authHeader}`);
-      } else {
-        console.log('⚠️  No Authorization header found!');
       }
     } catch (error) {
-      console.log('❌ Error reading headers:', error);
+      console.error('Error reading headers:', error);
     }
 
     // Authorization 헤더가 없으면 쿠키에서 토큰 추출 (fallback)
     const cookieStore = await cookies();
     const token = cookieStore.get('access_token')?.value;
-    
-    if (token) {
-      console.log(`🔑 Fallback: Found access_token in cookies: ${token.substring(0, 20)}...`);
-    } else {
-      console.log('⚠️  No access_token found in cookies either!');
-      // 디버깅을 위해 모든 헤더와 쿠키 출력
-      try {
-        const { headers } = await import('next/headers');
-        const headersList = await headers();
-        console.log('📋 Available headers:');
-        headersList.forEach((value, key) => {
-          if (key.toLowerCase().includes('auth') || key.toLowerCase().includes('cookie')) {
-            console.log(`   ${key}: ${value.substring(0, 50)}...`);
-          }
-        });
-      } catch (e) {
-        console.log('Failed to read headers for debugging');
-      }
-    }
-    
+
     return token;
   }
 
