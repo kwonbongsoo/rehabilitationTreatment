@@ -113,30 +113,30 @@ graph TB
     end
 
     subgraph "Frontend Layer"
-        Frontend[Next.js E-Commerce App<br/>Port 3000<br/>API Routes /api/*<br/>쿠키 to Bearer 토큰 변환]
+        Frontend["Next.js E-Commerce App<br/>Port 3000<br/>API Routes /api/*<br/>쿠키 to Bearer 토큰 변환"]
     end
 
     subgraph "Internal Docker Network"
         subgraph "API Gateway"
-            Kong[Kong API Gateway<br/>Port 8000<br/>API 프록시<br/>JWT 토큰 검증<br/>멱등성 처리<br/>라우팅]
+            Kong["Kong API Gateway<br/>Port 8000<br/>API 프록시<br/>JWT 토큰 검증<br/>멱등성 처리<br/>라우팅"]
         end
 
         subgraph "Authentication Layer"
-            Auth[Auth 서비스<br/>Koa.js Port 4000<br/>JWT 발급/검증<br/>사용자 인증<br/>세션 관리]
+            Auth["Auth 서비스<br/>Koa.js Port 4000<br/>JWT 발급/검증<br/>사용자 인증<br/>세션 관리"]
         end
 
         subgraph "BFF Layer"
-            BFF[BFF Server<br/>Fastify Port 3001<br/>UI 최적화 변환<br/>비즈니스 로직 조합]
+            BFF["BFF Server<br/>Fastify Port 3001<br/>UI 최적화 변환<br/>비즈니스 로직 조합"]
         end
 
         subgraph "Business Services"
-            Member[Member 서비스<br/>Fastify Port 5000<br/>회원 관리<br/>CRUD 연산]
-            Other[기타 비즈니스 서비스<br/>미구현 상태<br/>Product Order Payment]
+            Member["Member 서비스<br/>Fastify Port 5000<br/>회원 관리<br/>CRUD 연산"]
+            Other["기타 비즈니스 서비스<br/>미구현 상태<br/>Product Order Payment"]
         end
 
         subgraph "Data Layer"
-            Redis[(Redis<br/>토큰 저장<br/>세션 관리<br/>멱등성 캐시)]
-            PostgreSQL[(PostgreSQL Database<br/>회원 데이터)]
+            Redis[("Redis<br/>토큰 저장<br/>세션 관리<br/>멱등성 캐시")]
+            PostgreSQL[("PostgreSQL Database<br/>회원 데이터")]
         end
     end
 
