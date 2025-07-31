@@ -90,7 +90,7 @@ export class CacheMiddleware {
   }
 
   /**
-   * 캐시된 HTML 콘텐츠로 Response 생성 (gzip 압축 적용)
+   * 캐시된 HTML 콘텐츠로 Response 생성 (압축 없이 단순 전달)
    */
   createCachedResponse(content: string, cachedHeaders?: Record<string, string>): Response {
     const headers: Record<string, string> = {
@@ -104,34 +104,18 @@ export class CacheMiddleware {
     // 캐시된 헤더 정보 추가
     if (cachedHeaders) {
       Object.entries(cachedHeaders).forEach(([key, value]) => {
-        if (key !== 'content-type' && key !== 'content-encoding') {
+        if (key !== 'content-type') {
           headers[key] = value;
         }
       });
     }
 
-    try {
-      // HTML 콘텐츠 gzip 압축
-      const compressed = Bun.gzipSync(new TextEncoder().encode(content));
-
-      // 압축 헤더 설정
-      headers['Content-Encoding'] = 'gzip';
-      headers['Vary'] = 'Accept-Encoding';
-      headers['Content-Length'] = compressed.length.toString();
-
-      return new Response(compressed, {
-        status: 200,
-        statusText: 'OK',
-        headers,
-      });
-    } catch (error) {
-      // 압축 실패 시 원본 반환
-      return new Response(content, {
-        status: 200,
-        statusText: 'OK',
-        headers,
-      });
-    }
+    // 압축 없이 원본 콘텐츠 그대로 반환 (CPU 절약)
+    return new Response(content, {
+      status: 200,
+      statusText: 'OK',
+      headers,
+    });
   }
 
   /**

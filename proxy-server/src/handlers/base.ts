@@ -40,79 +40,14 @@ export abstract class BaseProxyHandler {
   }
 
   protected async createProxyResponse(response: Response, req: Request): Promise<Response> {
+    // Pass-through: 원본 헤더와 본문을 그대로 전달 (CPU 절약)
     const headers = new Headers(response.headers);
+    
+    // 안전한 메타데이터 헤더만 추가 (크기/압축 관련 헤더는 건드리지 않음)
     headers.set('X-Proxy-Server', 'bun-proxy');
     headers.set('X-Proxy-Target', this.getTargetName().toLowerCase());
 
-    const contentType = headers.get('content-type') || '';
-    const originalEncoding = response.headers.get('content-encoding');
-
-    // 이미 압축된 응답이면 압축 헤더를 제거하고 압축 해제된 데이터 전송
-    if (originalEncoding === 'gzip' && this.isCompressibleContent(contentType)) {
-      // 압축 헤더 제거 (브라우저가 압축 해제를 시도하지 않도록)
-      headers.delete('content-encoding');
-      headers.delete('vary');
-      headers.delete('content-length');
-
-      try {
-        // response.text()나 response.arrayBuffer()는 자동으로 압축 해제
-        const decompressedData = await response.text();
-
-        return new Response(decompressedData, {
-          status: response.status,
-          statusText: response.statusText,
-          headers,
-        });
-      } catch (error) {
-        console.error('Decompression failed:', error);
-        // 실패 시 원본 body 그대로 (압축 헤더 제거 상태)
-        return new Response(response.body, {
-          status: response.status,
-          statusText: response.statusText,
-          headers,
-        });
-      }
-    }
-
-    // 압축되지 않은 압축 가능한 콘텐츠만 압축
-    if (!originalEncoding && this.isCompressibleContent(contentType)) {
-      try {
-        // 응답 본문을 텍스트로 읽기 (자동 압축 해제)
-        const text = await response.text();
-
-        // gzip 압축
-        const compressed = Bun.gzipSync(new TextEncoder().encode(text));
-
-        // 압축 헤더 설정
-        headers.set('Content-Encoding', 'gzip');
-        headers.set('Vary', 'Accept-Encoding');
-        headers.set('Content-Length', compressed.length.toString());
-
-        return new Response(compressed, {
-          status: response.status,
-          statusText: response.statusText,
-          headers,
-        });
-      } catch (error) {
-        console.error('Compression failed:', error);
-        // 압축 실패 시 원본 응답 반환
-        headers.delete('content-encoding');
-        headers.delete('content-length');
-        headers.delete('vary');
-
-        return new Response(response.body, {
-          status: response.status,
-          statusText: response.statusText,
-          headers,
-        });
-      }
-    }
-
-    // 압축 불가능하거나 이미 다른 방식으로 압축된 경우 원본 반환
-    headers.delete('content-encoding');
-    headers.delete('content-length');
-    headers.delete('vary');
-
+    // 원본 응답 그대로 전달 (압축 상태 유지)
     return new Response(response.body, {
       status: response.status,
       statusText: response.statusText,
