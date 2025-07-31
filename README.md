@@ -113,7 +113,7 @@ graph TB
     end
 
     subgraph "Frontend Layer"
-        Frontend["Next.js E-Commerce App<br/>Port 3000<br/>API Routes /api/*<br/>쿠키 to Bearer 토큰 변환"]
+        Frontend["Next.js E-Commerce App<br/>Port 3000<br/>쿠키 to Bearer 토큰 변환"]
     end
 
     subgraph "Internal Docker Network"
@@ -147,8 +147,8 @@ graph TB
     Frontend -->|응답| Proxy
     Proxy -->|응답| Client
 
-    %% Frontend to internal services
-    Frontend -->|API Routes /api/*| Kong
+    %% Proxy to internal services
+    Proxy -->|/api/* 요청| Kong
     Frontend -.->|직접 인증| Auth
 
     %% Kong routing

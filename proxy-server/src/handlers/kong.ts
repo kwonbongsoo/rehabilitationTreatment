@@ -14,9 +14,6 @@ export class KongHandler extends BaseProxyHandler {
     // 프록시 헤더 구성 (Authorization 포함)
     const headers = ProxyHeaderUtils.createProxyHeaders(req, accessToken);
 
-    // 토큰 로깅
-    // ProxyHeaderUtils.logAuthorizationHeader(accessToken, 'Kong');
-
     // 수정된 요청 생성
     const modifiedRequest = new Request(req.url, {
       method: req.method,

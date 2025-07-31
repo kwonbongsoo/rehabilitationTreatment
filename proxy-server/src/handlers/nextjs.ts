@@ -27,9 +27,6 @@ export class NextJsHandler extends BaseProxyHandler {
     // 프록시 헤더 구성 (Authorization 포함)
     const headers = ProxyHeaderUtils.createProxyHeaders(req, accessToken);
 
-    // 토큰 로깅
-    // ProxyHeaderUtils.logAuthorizationHeader(accessToken, 'Next.js');
-
     // 헤더 로깅 (디버깅용)
     const modifiedRequest = new Request(req.url, {
       method: req.method,
