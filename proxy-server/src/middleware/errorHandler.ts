@@ -1,4 +1,4 @@
-import { BaseError, ErrorCode } from '@ecommerce/common';
+import { BaseError, ErrorCode, ErrorDetails, ErrorResponse } from '../common/errors';
 
 export interface ErrorContext {
   url: string;
@@ -13,7 +13,7 @@ export class ProxyError extends BaseError {
     code: ErrorCode,
     message: string,
     public readonly context?: ErrorContext,
-    statusCode: number = 500
+    statusCode: number = 500,
   ) {
     super(code, message, { context }, statusCode);
   }
@@ -42,18 +42,16 @@ export function createErrorContext(request: Request): ErrorContext {
     url: request.url,
     method: request.method,
     userAgent: request.headers.get('user-agent') || undefined,
-    ip: request.headers.get('x-forwarded-for') || 
-        request.headers.get('x-real-ip') || 
-        'unknown',
+    ip: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown',
     timestamp: new Date().toISOString(),
   };
 }
 
 export function handleError(error: unknown, request: Request): Response {
   const context = createErrorContext(request);
-  
+
   let proxyError: BaseError;
-  
+
   if (error instanceof BaseError) {
     // 이미 구조화된 에러인 경우
     proxyError = error;
@@ -64,28 +62,18 @@ export function handleError(error: unknown, request: Request): Response {
       stack: error.stack,
       context,
     });
-    
-    proxyError = new ProxyError(
-      ErrorCode.INTERNAL_ERROR,
-      'Internal server error',
-      context,
-      500
-    );
+
+    proxyError = new ProxyError(ErrorCode.INTERNAL_ERROR, 'Internal server error', context, 500);
   } else {
     // 알 수 없는 에러인 경우
     console.error('Unknown error in proxy server:', {
       error,
       context,
     });
-    
-    proxyError = new ProxyError(
-      ErrorCode.INTERNAL_ERROR,
-      'Unknown error occurred',
-      context,
-      500
-    );
+
+    proxyError = new ProxyError(ErrorCode.INTERNAL_ERROR, 'Unknown error occurred', context, 500);
   }
-  
+
   // 에러 로깅
   console.error('Proxy Error:', {
     code: proxyError.code,
@@ -94,10 +82,10 @@ export function handleError(error: unknown, request: Request): Response {
     context,
     stack: proxyError.stack,
   });
-  
+
   // 에러 응답 생성
   const errorResponse = proxyError.toResponse();
-  
+
   return new Response(JSON.stringify(errorResponse), {
     status: proxyError.statusCode,
     headers: {
@@ -109,7 +97,7 @@ export function handleError(error: unknown, request: Request): Response {
 }
 
 export function withErrorHandling(
-  handler: (request: Request) => Promise<Response>
+  handler: (request: Request) => Promise<Response>,
 ): (request: Request) => Promise<Response> {
   return async (request: Request): Promise<Response> => {
     try {

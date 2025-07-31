@@ -11,7 +11,6 @@
     "docker:logs": "docker logs proxy-server -f"
   },
   "dependencies": {
-    "@ecommerce/common": "workspace:*",
     "bun": "latest",
     "redis": "^5.6.1"
   },

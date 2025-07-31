@@ -57,7 +57,8 @@ services:
   # Bun Proxy Server
   proxy-server:
     build:
-      context: ./proxy-server
+      context: .
+      dockerfile: ./proxy-server/Dockerfile
     container_name: proxy-server
     env_file:
       - ./proxy-server/.env

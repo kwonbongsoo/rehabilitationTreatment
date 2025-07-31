@@ -72,9 +72,14 @@ export default function ProductGridRenderer({ allProducts }: ProductGridRenderer
     return products;
   }, [allProducts, selectedCategoryId, currentFilter, currentSort]);
 
+  const gridClasses = `${styles.productGrid} ${viewMode === 'list' ? styles.listView : ''}`;
+
   return (
-    <div style={{ backgroundColor: '#f8f9fa' }}>
-      <div className={`${styles.productGrid} ${viewMode === 'list' ? styles.listView : ''}`}>
+    <div>
+      <div 
+        className={gridClasses} 
+        data-view-mode={viewMode}
+      >
         {filteredAndSortedProducts.map((product) => (
           <ProductCard
             key={product.id}
