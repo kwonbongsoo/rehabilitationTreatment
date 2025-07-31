@@ -2,18 +2,10 @@
 import Link from 'next/link';
 import styles from './CategoryIconGrid.module.css';
 import React, { useRef, useState } from 'react';
-
-interface Category {
-  id: number;
-  name: string;
-  icon?: string;
-  iconCode?: string;
-  link?: string;
-  slug?: string;
-}
+import { CategoryI } from '@/domains/category/types/categories';
 
 interface CategoryIconGridProps {
-  categories: Category[];
+  categories: CategoryI[];
   showHeader?: boolean;
   headerTitle?: string;
   seeAllLink?: string;
@@ -40,7 +32,7 @@ export default function CategoryIconGrid({
 
   if (categories.length === 0) return null;
 
-  const handleCategoryClick = (category: Category, e: React.MouseEvent) => {
+  const handleCategoryClick = (category: CategoryI, e: React.MouseEvent) => {
     if (isDragging) {
       e.preventDefault();
       return;
@@ -99,7 +91,7 @@ export default function CategoryIconGrid({
         </div>
       )}
       <div className={styles.categoriesWrapper}>
-        <div 
+        <div
           className={styles.categories}
           ref={scrollRef}
           onMouseDown={handleMouseDown}
@@ -111,10 +103,8 @@ export default function CategoryIconGrid({
           onTouchEnd={handleTouchEnd}
         >
           {categories.map((category) => {
-            const icon = category.icon || category.iconCode || '📦';
-            const href = disableNavigation
-              ? '#'
-              : category.link || `/categories?category=${encodeURIComponent(category.name)}`;
+            const icon = category.iconCode;
+            const href = disableNavigation ? '#' : category.link;
             const isSelected = selectedCategoryId === category.id;
 
             const categoryElement = (

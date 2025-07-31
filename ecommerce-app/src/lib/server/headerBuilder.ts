@@ -70,9 +70,25 @@ class HttpHeaderBuilder implements HeaderBuilder {
       return this.authValue;
     }
 
-    // 쿠키에서 토큰 추출
+    // 먼저 요청 헤더에서 Authorization 토큰 확인 (프록시에서 전달된 것)
+    try {
+      const { headers } = await import('next/headers');
+      const headersList = await headers();
+      const authHeader = headersList.get('authorization');
+
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        const token = authHeader.substring(7); // "Bearer " 제거
+        return token;
+      }
+    } catch (error) {
+      console.error('Error reading headers:', error);
+    }
+
+    // Authorization 헤더가 없으면 쿠키에서 토큰 추출 (fallback)
     const cookieStore = await cookies();
-    return cookieStore.get('access_token')?.value;
+    const token = cookieStore.get('access_token')?.value;
+
+    return token;
   }
 
   private formatAuthHeader(token: string): string {

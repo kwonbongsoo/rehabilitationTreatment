@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 
 interface CategoryContextType {
   selectedCategoryId: number;
@@ -26,7 +26,6 @@ interface CategoryProviderProps {
 }
 
 export function CategoryProvider({ children, initialCategoryFilter }: CategoryProviderProps) {
-  const router = useRouter();
   const searchParams = useSearchParams();
 
   // URL 기반 상태 초기화
@@ -46,55 +45,22 @@ export function CategoryProvider({ children, initialCategoryFilter }: CategoryPr
     return (searchParams.get('view') as 'grid' | 'list') || 'grid';
   });
 
-  // URL 업데이트 헬퍼
-  const updateURL = useCallback(
-    (params: Record<string, string>) => {
-      const current = new URLSearchParams(searchParams.toString());
-
-      Object.entries(params).forEach(([key, value]) => {
-        if (value && value !== '0' && value !== '전체' && value !== 'popular' && value !== 'grid') {
-          current.set(key, value);
-        } else {
-          current.delete(key);
-        }
-      });
-
-      const queryString = current.toString();
-      const newURL = `/categories${queryString ? `?${queryString}` : ''}`;
-
-      router.push(newURL, { scroll: false });
-    },
-    [router, searchParams],
-  );
-
   // 이벤트 핸들러들 - URL 업데이트 제거하고 클라이언트 상태만 관리
-  const handleCategoryClick = useCallback(
-    (categoryId: number) => {
-      setSelectedCategoryId(categoryId);
-    },
-    [],
-  );
+  const handleCategoryClick = useCallback((categoryId: number) => {
+    setSelectedCategoryId(categoryId);
+  }, []);
 
-  const handleFilterChange = useCallback(
-    (filter: string) => {
-      setCurrentFilter(filter);
-    },
-    [],
-  );
+  const handleFilterChange = useCallback((filter: string) => {
+    setCurrentFilter(filter);
+  }, []);
 
-  const handleSortChange = useCallback(
-    (sort: string) => {
-      setCurrentSort(sort);
-    },
-    [],
-  );
+  const handleSortChange = useCallback((sort: string) => {
+    setCurrentSort(sort);
+  }, []);
 
-  const handleViewModeChange = useCallback(
-    (mode: 'grid' | 'list') => {
-      setViewMode(mode);
-    },
-    [],
-  );
+  const handleViewModeChange = useCallback((mode: 'grid' | 'list') => {
+    setViewMode(mode);
+  }, []);
 
   const value: CategoryContextType = {
     selectedCategoryId,

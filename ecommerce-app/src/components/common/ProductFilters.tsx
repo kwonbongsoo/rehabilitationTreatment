@@ -50,7 +50,6 @@ export default function ProductFilters({
 }: ProductFiltersProps) {
   const [filterBy, setFilterBy] = useState(defaultFilter);
   const [sortBy, setSortBy] = useState(defaultSort);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>(defaultViewMode);
 
   const handleFilterChange = (filter: string) => {
     setFilterBy(filter);
@@ -63,7 +62,6 @@ export default function ProductFilters({
   };
 
   const handleViewModeChange = (mode: 'grid' | 'list') => {
-    setViewMode(mode);
     onViewModeChange?.(mode);
   };
 
@@ -86,7 +84,7 @@ export default function ProductFilters({
 
           <div className={styles.viewToggle}>
             <button
-              className={`${styles.viewButton} ${viewMode === 'grid' ? styles.active : ''}`}
+              className={`${styles.viewButton} ${defaultViewMode === 'grid' ? styles.active : ''}`}
               onClick={() => handleViewModeChange('grid')}
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -97,7 +95,7 @@ export default function ProductFilters({
               </svg>
             </button>
             <button
-              className={`${styles.viewButton} ${viewMode === 'list' ? styles.active : ''}`}
+              className={`${styles.viewButton} ${defaultViewMode === 'list' ? styles.active : ''}`}
               onClick={() => handleViewModeChange('list')}
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none">

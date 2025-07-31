@@ -1,6 +1,6 @@
 # E-Commerce 플랫폼
 
-마이크로서비스 아키텍처 기반의 이커머스 플랫폼으로, Kong API Gateway와 BFF(Backend for Frontend) 패턴을 적용한 현대적인 웹 애플리케이션입니다.
+마이크로서비스 아키텍처 기반의 이커머스 플랫폼으로, Kong API Gateway, BFF(Backend for Frontend) 패턴, 그리고 Redis 기반 HTML 캐싱 프록시 서버를 적용한 현대적인 웹 애플리케이션입니다.
 ## UI
 ![UI](커머스.png)
 
@@ -108,6 +108,10 @@ graph TB
         Client[클라이언트 브라우저/앱]
     end
 
+    subgraph "Proxy Layer"
+        Proxy["Bun Proxy Server<br/>Port 9000<br/>HTML 캐싱 Redis<br/>RSC 직접 프록시<br/>게스트 토큰 발급"]
+    end
+
     subgraph "Frontend Layer"
         Frontend[Next.js E-Commerce App<br/>Port 3000<br/>API Routes /api/*<br/>쿠키 to Bearer 토큰 변환]
     end
@@ -137,8 +141,11 @@ graph TB
     end
 
     %% External connections
-    Client -->|HTTP 요청| Frontend
-    Frontend -->|HTTP 응답| Client
+    Client -->|HTTP 요청| Proxy
+    Proxy -->|캐시 HIT| Client
+    Proxy -->|HTML/RSC 요청| Frontend
+    Frontend -->|응답| Proxy
+    Proxy -->|응답| Client
 
     %% Frontend to internal services
     Frontend -->|API Routes /api/*| Kong
@@ -159,6 +166,7 @@ graph TB
 
     %% Styling
     style Client fill:#e3f2fd
+    style Proxy fill:#f0f4ff
     style Frontend fill:#f3e5f5
     style Kong fill:#e8f5e8
     style Auth fill:#fff3e0
@@ -281,6 +289,30 @@ graph TD
 - **Backend for Frontend**: 클라이언트 최적화
 
 ## 서비스 구성
+
+### Proxy Server (:9000)
+```yaml
+역할: Next.js 앞단 캐싱 및 라우팅, 게스트 인증 관리
+기술 스택: Bun + TypeScript
+주요 기능:
+  - HTML 페이지 Redis 캐싱 (/, /categories)
+  - RSC 요청 직접 프록시 (캐시 우회)
+  - 게스트 토큰 발급 및 관리 (인증되지 않은 사용자)
+  - 분산 락 기반 캐시 일관성 보장
+  - URL 파라미터 정규화로 캐시 효율성 극대화
+  - 자동 TTL 관리 (기본 1분)
+
+캐싱 전략:
+  - HTML 요청: Redis 캐시 적용 (새로고침, 직접 URL 접근)
+  - RSC 요청: Next.js 직접 프록시 (Link 클릭, router.push)
+  - 캐시 키: html_cache:{host}{path} (파라미터 제거)
+  - 성능: 캐시 HIT 시 밀리초 단위 응답
+
+인증 처리:
+  - 로그인 사용자: Kong Gateway 토큰 프록시
+  - 게스트 사용자: 임시 게스트 토큰 자동 발급
+  - Authorization 헤더 투명 전달
+```
 
 ### Kong API Gateway (:8000)
 ```yaml
@@ -458,7 +490,8 @@ cache:GET:/api/categories
   - CDN 이미지 최적화 (Cloudflare Workers)
 
 성능 최적화:
-  - 홈페이지 SSR 전환으로 초기 로딩 속도 향상
+  - 프록시 서버를 통한 HTML 캐싱으로 초기 로딩 속도 향상
+  - RSC 최적화로 클라이언트 네비게이션 성능 개선
   - 이미지 WebP 변환 및 리사이징 자동화
   - Next.js Image 최적화 설정 개선
     - next/image로 인한 부하 책임 CDN으로 위임.
@@ -479,6 +512,10 @@ graph LR
     end
 
     subgraph "Docker Network: app-network"
+        subgraph "Proxy Layer"
+            Proxy[Bun Proxy Server<br/>Port 9000<br/>HTML 캐싱]
+        end
+
         subgraph "Frontend"
             NextJS[Next.js<br/>Port 3000]
         end
@@ -501,7 +538,8 @@ graph LR
 
     %% External connections
     Internet --> Client
-    Client -->|HTTP Port 3000| NextJS
+    Client -->|HTTP Port 9000| Proxy
+    Proxy -->|HTML/RSC| NextJS
 
     %% Internal network connections
     NextJS -.->|Direct Auth| Auth
@@ -518,11 +556,13 @@ graph LR
     Auth --> Redis
     Member --> PostgreSQL
     Kong --> Redis
+    Proxy --> Redis
 
     %% Port exposure
-    NextJS -.->|Exposed| Internet
+    Proxy -.->|Exposed| Internet
     Kong -.->|Exposed| Internet
 
+    style Proxy fill:#f0f4ff
     style Kong fill:#e8f5e8
     style BFF fill:#e1f5fe
     style Redis fill:#ffebee
@@ -620,6 +660,7 @@ docker-compose up --build
 
 | 서비스 | 포트 | URL | 설명 |
 |--------|------|-----|------|
+| Proxy Server | 9000 | http://localhost:9000 | HTML 캐싱 프록시 |
 | Kong Gateway | 8000 | http://localhost:8000 | API Gateway 프록시 |
 | BFF Server | 3001 | http://localhost:3001 | Backend for Frontend |
 | Auth Server | 4000 | http://localhost:4000 | 인증 서비스 |
@@ -722,6 +763,140 @@ export class BFFService {
   ) {}
 }
 ```
+
+## 🚀 프록시 서버 성능 테스트 결과
+
+### 테스트 환경
+- **네트워크**: 공인 IP 접근 (동일한 네트워크 조건)
+- **인증**: JWT Bearer 토큰 포함
+- **측정 횟수**: 각 시나리오당 10회
+- **측정 도구**: curl with timing metrics
+
+### 테스트 명령어
+```bash
+TOKEN="YOUR_JWT_TOKEN"
+PUBLIC_IP="YOUR_PUBLIC_IP"
+
+for i in {1..10}; do
+    echo "Test $i:"
+    curl -w "9000: %{time_total}s  " -o /dev/null -sS \
+         -H "Authorization: Bearer $TOKEN" \
+         -H "Content-Type: application/json" \
+         -H "User-Agent: Performance-Test" \
+         "http://$PUBLIC_IP:9000/" 2>/dev/null || echo "9000: 연결실패  "
+    curl -w "3000: %{time_total}s\n" -o /dev/null -sS \
+         -H "Authorization: Bearer $TOKEN" \
+         -H "Content-Type: application/json" \
+         -H "User-Agent: Performance-Test" \
+         "http://$PUBLIC_IP:3000/" 2>/dev/null || echo "3000: 연결실패"
+done
+```
+
+### 저트래픽 환경 성능 비교
+
+#### 시나리오 1: ISR 캐시 활성화 (Next.js 1분 캐싱)
+
+**요청 흐름도:**
+
+```mermaid
+graph LR
+    subgraph "프록시 경유 (포트 9000)"
+        Client1[클라이언트] --> Proxy[프록시 서버<br/>Redis 캐시 조회]
+        Proxy --> NextJS1[Next.js<br/>ISR 캐시(1분)]
+        NextJS1 --> Proxy
+        Proxy --> Client1
+    end
+
+    subgraph "직접 접속 (포트 3000)"
+        Client2[클라이언트] --> NextJS2[Next.js<br/>ISR 캐시(1분)]
+        NextJS2 --> Client2
+    end
+
+    style Proxy fill:#f9f2ff
+    style NextJS1 fill:#e8f5e8
+    style NextJS2 fill:#e8f5e8
+```
+
+**성능 비교:**
+```
+포트 9000: 클라이언트 → 프록시 서버 → Next.js ISR(1분)
+포트 3000: 클라이언트 → Next.js ISR(1분)
+```
+
+| 테스트 | 프록시 경유 (9000) | 직접 접속 (3000) | 성능 차이 |
+|--------|-------------------|------------------|----------|
+| 평균 응답시간 | **0.555초** | **0.013초** | **42배 느림** |
+| 최소값 | 0.371초 | 0.011초 | 34배 느림 |
+| 최대값 | 0.739초 | 0.018초 | 41배 느림 |
+
+#### 시나리오 2: ISR 캐시 비활성화 (실시간 렌더링)
+
+**요청 흐름도:**
+
+```mermaid
+graph LR
+    subgraph "프록시 경유 (포트 9000)"
+        Client3[클라이언트] --> Proxy2[프록시 서버<br/>Redis 캐시 조회]
+        Proxy2 --> NextJS3[Next.js<br/>실시간 렌더링]
+        NextJS3 --> Proxy2
+        Proxy2 --> Client3
+    end
+
+    subgraph "직접 접속 (포트 3000)"
+        Client4[클라이언트] --> NextJS4[Next.js<br/>실시간 렌더링]
+        NextJS4 --> Client4
+    end
+
+    style Proxy2 fill:#f9f2ff
+    style NextJS3 fill:#ffe8e8
+    style NextJS4 fill:#ffe8e8
+```
+
+**성능 비교:**
+```
+포트 9000: 클라이언트 → 프록시 서버 → Next.js 실시간 렌더링
+포트 3000: 클라이언트 → Next.js 실시간 렌더링
+```
+
+| 테스트 | 프록시 경유 (9000) | 직접 접속 (3000) | 성능 차이 |
+|--------|-------------------|------------------|----------|
+| 평균 응답시간 | **0.711초** | **0.558초** | **1.3배 느림** |
+| 최소값 | 0.708초 | 0.548초 | 1.3배 느림 |
+| 최대값 | 0.715초 | 0.740초 | 거의 동일 |
+
+### 분석 결과
+
+#### 🔍 핵심 발견사항
+
+1. **ISR 캐시 유무에 따른 극명한 차이**
+   - ISR 활성화 시: 프록시가 **42배 느림**
+   - ISR 비활성화 시: 프록시가 **1.3배 느림** (거의 동일)
+
+2. **프록시 오버헤드는 미미함**
+   - 실제 프록시 처리 시간: **약 0.15초**
+   - ISR 비활성화 시 차이가 거의 없음을 통해 확인
+
+3. **Redis 클라우드의 영향**
+   - 캐시 조회/저장 시간이 상당 부분 차지
+   - 로컬 Redis 사용 시 성능 개선 예상
+
+#### 💡 결론
+
+**현재 저트래픽 환경에서는:**
+- **직접 접속이 압도적으로 유리** (ISR 캐시 활용 시)
+- **프록시 자체 오버헤드는 미미함** (0.15초 수준)
+- **Redis 클라우드 지연이 주요 원인**
+
+**고트래픽 환경에서는 상황 반전 예상:**
+- 프록시 Redis 캐시 효과로 성능 역전 가능
+- Next.js 서버 부하 분산 효과
+- 동시 요청 처리 능력 차이
+
+### 향후 테스트 계획
+- [ ] **고트래픽 테스트**: 동시 요청 100-1000개 상황에서의 성능 비교
+- [ ] **Redis 로컬 vs 클라우드**: 캐시 백엔드별 성능 영향 측정
+- [ ] **캐시 히트율 테스트**: 반복 요청 시 프록시 캐시 효과 검증
+- [ ] **부하 테스트**: Apache Bench, wrk 등을 활용한 정밀 부하 테스트
 
 ## 향후 계획
 

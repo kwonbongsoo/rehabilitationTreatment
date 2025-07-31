@@ -62,4 +62,19 @@ export interface ActionResult<T> extends ApiResponse<T> {
   statusCode?: number;
 }
 
+export interface CategoryGridRendererProps {
+  categories: CategoryI[];
+}
+
+export interface CategoryI {
+  id: number;
+  name: string;
+  slug: string;
+  iconCode: string;
+  order: number;
+  isActive: boolean;
+  products: Product[];
+  link: string;
+}
+
 export type CategoryPageActionResult = ActionResult<CategoryPageData>;

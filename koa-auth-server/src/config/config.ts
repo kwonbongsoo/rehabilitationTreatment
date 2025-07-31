@@ -26,6 +26,8 @@ export class Config {
    */
   public getJwtExpiresIn(): number {
     return parseInt(process.env.JWT_EXPIRES_IN || '3600', 10);
+    // 테스트용
+    // return parseInt(process.env.JWT_EXPIRES_IN || '60', 10);
   }
 
   /**

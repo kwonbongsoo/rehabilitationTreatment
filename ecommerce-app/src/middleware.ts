@@ -75,9 +75,7 @@ async function issueGuestToken(): Promise<{
 
   try {
     const requestUrl = `${authServiceUrl}${authPrefix}/guest-token`;
-    const headers = await HeaderBuilderFactory
-      .createForMiddlewareBasicAuth()
-      .build();
+    const headers = await HeaderBuilderFactory.createForMiddlewareBasicAuth().build();
 
     const response = await fetch(requestUrl, {
       method: 'POST',

@@ -126,6 +126,7 @@ export default function ProductTypePage({ params }: ProductTypePageProps) {
           <Link
             href={`/product/2`}
             key={product.id}
+            prefetch={false}
             style={{
               display: 'block',
               background: 'white',
