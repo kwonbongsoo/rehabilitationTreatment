@@ -15,21 +15,49 @@ try {
   process.exit(1);
 }
 
-// Redis 연결 초기화
-async function initializeRedis() {
+// Redis 연결 초기화 및 웜업
+async function initializeServices() {
   try {
+    // Redis 연결
     await redisClient.connect();
-    console.log('Redis cache service ready');
+    console.log('✅ Redis cache service ready');
+    
+    // Redis 연결 테스트
+    const pingResult = await redisClient.ping();
+    console.log(`✅ Redis ping: ${pingResult ? 'SUCCESS' : 'FAILED'}`);
+    
+    // 컨테이너 웜업 - 내부 요청으로 JIT 최적화
+    console.log('🔥 Warming up proxy server...');
+    setTimeout(async () => {
+      try {
+        // 더미 요청으로 모든 코드 패스 웜업
+        const warmupResponse = await fetch(`http://localhost:${config.port}/`, {
+          method: 'GET',
+          headers: {
+            'User-Agent': 'Warmup-Request',
+            'Authorization': 'Bearer warmup'
+          }
+        }).catch(() => null);
+        console.log('🔥 Server warmup completed');
+      } catch (error) {
+        console.log('⚠️ Server warmup failed (expected):', error.message);
+      }
+    }, 1000); // 1초 후 웜업
+    
   } catch (error) {
-    console.warn('Redis connection failed, caching disabled:', error);
+    console.warn('⚠️ Redis connection failed, caching disabled:', error);
   }
 }
 
-// Redis 초기화 실행
-initializeRedis();
+// 서비스 초기화 실행
+initializeServices();
 
 const server = Bun.serve({
   port: config.port,
+  // Keep-alive 및 성능 최적화 설정
+  development: false,
+  maxRequestBodySize: 256 * 1024 * 1024, // 256MB
+  
   async fetch(req: Request): Promise<Response> {
     // 요청 로깅
     // if (config.enableRequestLogging) {
@@ -38,13 +66,29 @@ const server = Bun.serve({
     // }
 
     // 모든 요청을 프록시 핸들러로 처리 (토큰 검증 포함)
-    return await withErrorHandling(proxyHandler.handleRequest.bind(proxyHandler))(req);
+    const response = await withErrorHandling(proxyHandler.handleRequest.bind(proxyHandler))(req);
+    
+    // Keep-alive 헤더 추가
+    const headers = new Headers(response.headers);
+    headers.set('Connection', 'keep-alive');
+    headers.set('Keep-Alive', 'timeout=60, max=1000');
+    
+    return new Response(response.body, {
+      status: response.status,
+      statusText: response.statusText,
+      headers
+    });
   },
 
   // 에러 핸들링
   error(error) {
     console.error('Server error:', error);
-    return new Response('Internal Server Error', { status: 500 });
+    return new Response('Internal Server Error', { 
+      status: 500,
+      headers: {
+        'Connection': 'close'
+      }
+    });
   },
 });
 

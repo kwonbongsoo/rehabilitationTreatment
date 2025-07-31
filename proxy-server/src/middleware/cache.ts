@@ -9,12 +9,32 @@ export class CacheMiddleware {
   /**
    * 캐시에서 HTML 콘텐츠 조회
    */
-  async checkCache(url: string, contentType?: string): Promise<string | null> {
+  async checkCache(
+    url: string,
+    contentType?: string,
+  ): Promise<{ content: string; headers: Record<string, string> } | null> {
     try {
-      return await htmlCacheService.get(url, {}, contentType);
+      const cachedData = await htmlCacheService.get(url, {}, contentType);
+      if (!cachedData) return null;
+
+      try {
+        const parsed = JSON.parse(cachedData);
+        return {
+          content: parsed.content,
+          headers: {
+            'content-type': parsed.contentType || 'text/html; charset=utf-8',
+            ...(parsed.etag && { etag: parsed.etag }),
+            ...(parsed.contentLanguage && { 'content-language': parsed.contentLanguage }),
+          },
+        };
+      } catch {
+        // 기존 캐시 형태 (문자열)인 경우 호환성 유지
+        return {
+          content: cachedData,
+          headers: { 'content-type': 'text/html; charset=utf-8' },
+        };
+      }
     } catch (error) {
-      console.error('Cache check error:', error);
-      // 캐시 에러는 치명적이지 않으므로 null 반환하여 원본 요청 처리
       return null;
     }
   }
@@ -31,7 +51,7 @@ export class CacheMiddleware {
       // HTML 응답만 캐시
       const contentType = response.headers.get('content-type') || '';
       const isHTML = contentType.includes('text/html');
-      
+
       if (!isHTML) {
         return response;
       }
@@ -44,10 +64,17 @@ export class CacheMiddleware {
       // 응답 본문 읽기
       const responseText = await response.text();
 
-      // 캐시에 저장 (content-type 정보 포함)
-      await htmlCacheService.set(url, responseText, { ttl: options.ttl }, contentType);
+      // 캐시 데이터 구성
+      const cacheData = {
+        content: responseText,
+        contentType,
+        etag: response.headers.get('etag'),
+        contentLanguage: response.headers.get('content-language'),
+      };
 
-      // 새로운 Response 객체 반환 (원본 Response는 이미 소비됨)
+      await htmlCacheService.set(url, JSON.stringify(cacheData), { ttl: options.ttl }, contentType);
+
+      // 새로운 Response 객체 반환
       return new Response(responseText, {
         status: response.status,
         statusText: response.statusText,
@@ -58,42 +85,53 @@ export class CacheMiddleware {
         },
       });
     } catch (error) {
-      console.error('Cache response error:', error);
-      // 캐시 저장 실패는 치명적이지 않으므로 원본 응답 반환
       return response;
     }
   }
 
   /**
-   * 캐시된 HTML 콘텐츠로 Response 생성
+   * 캐시된 HTML 콘텐츠로 Response 생성 (gzip 압축 적용)
    */
-  createCachedResponse(content: string, originalHeaders?: Headers, contentType?: string): Response {
-    // HTML Content-Type 설정
-    const defaultContentType = 'text/html; charset=utf-8';
-
+  createCachedResponse(content: string, cachedHeaders?: Record<string, string>): Response {
     const headers: Record<string, string> = {
-      'Content-Type': defaultContentType,
+      'Content-Type': cachedHeaders?.['content-type'] || 'text/html; charset=utf-8',
       'X-Cache': 'HIT',
       'Cache-Control': 'public, max-age=3600',
+      Connection: 'keep-alive',
+      'Keep-Alive': 'timeout=60, max=1000',
     };
 
-    // 원본 헤더에서 일부 복사
-    if (originalHeaders) {
-      const copyHeaders = ['content-encoding', 'content-language', 'vary', 'etag'];
-
-      copyHeaders.forEach((headerName) => {
-        const value = originalHeaders.get(headerName);
-        if (value) {
-          headers[headerName] = value;
+    // 캐시된 헤더 정보 추가
+    if (cachedHeaders) {
+      Object.entries(cachedHeaders).forEach(([key, value]) => {
+        if (key !== 'content-type' && key !== 'content-encoding') {
+          headers[key] = value;
         }
       });
     }
 
-    return new Response(content, {
-      status: 200,
-      statusText: 'OK',
-      headers,
-    });
+    try {
+      // HTML 콘텐츠 gzip 압축
+      const compressed = Bun.gzipSync(new TextEncoder().encode(content));
+
+      // 압축 헤더 설정
+      headers['Content-Encoding'] = 'gzip';
+      headers['Vary'] = 'Accept-Encoding';
+      headers['Content-Length'] = compressed.length.toString();
+
+      return new Response(compressed, {
+        status: 200,
+        statusText: 'OK',
+        headers,
+      });
+    } catch (error) {
+      // 압축 실패 시 원본 반환
+      return new Response(content, {
+        status: 200,
+        statusText: 'OK',
+        headers,
+      });
+    }
   }
 
   /**

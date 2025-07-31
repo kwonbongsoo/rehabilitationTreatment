@@ -18,9 +18,9 @@ export class NextJsHandler extends BaseProxyHandler {
 
     // HTML 요청이고 캐시 가능한 경우에만 캐시 확인
     if (!isRSCRequest && req.method === 'GET' && cacheMiddleware.isCacheable(targetUrl)) {
-      const cachedContent = await cacheMiddleware.checkCache(targetUrl, 'text/html');
-      if (cachedContent) {
-        return cacheMiddleware.createCachedResponse(cachedContent, undefined, 'text/html');
+      const cachedData = await cacheMiddleware.checkCache(targetUrl, 'text/html');
+      if (cachedData) {
+        return cacheMiddleware.createCachedResponse(cachedData.content, cachedData.headers);
       }
     }
 
