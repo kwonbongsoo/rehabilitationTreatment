@@ -40,14 +40,39 @@ export abstract class BaseProxyHandler {
   }
 
   protected async createProxyResponse(response: Response, req: Request): Promise<Response> {
-    // Pass-through: 원본 헤더와 본문을 그대로 전달 (CPU 절약)
     const headers = new Headers(response.headers);
     
-    // 안전한 메타데이터 헤더만 추가 (크기/압축 관련 헤더는 건드리지 않음)
+    // 메타데이터 헤더 추가
     headers.set('X-Proxy-Server', 'bun-proxy');
     headers.set('X-Proxy-Target', this.getTargetName().toLowerCase());
 
-    // 원본 응답 그대로 전달 (압축 상태 유지)
+    // 압축 관련 헤더 제거로 브라우저 디코딩 오류 방지
+    const originalEncoding = response.headers.get('content-encoding');
+    if (originalEncoding === 'gzip') {
+      headers.delete('content-encoding');
+      headers.delete('content-length');
+      headers.delete('vary');
+      
+      try {
+        // 압축된 응답을 텍스트로 읽기 (자동 해제)
+        const decompressedData = await response.text();
+        
+        return new Response(decompressedData, {
+          status: response.status,
+          statusText: response.statusText,
+          headers,
+        });
+      } catch (error) {
+        console.error('Decompression failed:', error);
+        return new Response(response.body, {
+          status: response.status,
+          statusText: response.statusText,
+          headers,
+        });
+      }
+    }
+
+    // 압축되지 않은 경우 그대로 전달
     return new Response(response.body, {
       status: response.status,
       statusText: response.statusText,

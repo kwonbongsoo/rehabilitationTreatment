@@ -19,6 +19,7 @@ export enum ErrorCode {
   INVALID_TOKEN = 'AUTH_1001',
   TOKEN_EXPIRED = 'AUTH_1002',
   INVALID_CREDENTIALS = 'AUTH_1003',
+  FORBIDDEN = 'AUTH_1004',
 
   // 유효성 검사 관련 (2xxx)
   VALIDATION_ERROR = 'VAL_2001',

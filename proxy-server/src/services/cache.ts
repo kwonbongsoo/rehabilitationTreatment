@@ -60,15 +60,22 @@ export class HtmlCacheService {
     const urlObj = new URL(url);
     const path = urlObj.pathname;
 
+    // RSC 요청은 절대 캐시하지 않음
+    if (urlObj.searchParams.has('_rsc')) {
+      return false;
+    }
+
     // 캐시 대상 경로들
     const cacheablePaths = ['/', '/categories'];
 
-    return cacheablePaths.some((cachePath) => {
+    const shouldCacheResult = cacheablePaths.some((cachePath) => {
       if (cachePath === '/') {
         return path === '/';
       }
       return path.startsWith(cachePath);
     });
+
+    return shouldCacheResult;
   }
 
   /**
