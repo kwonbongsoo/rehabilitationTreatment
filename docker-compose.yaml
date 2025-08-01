@@ -1,4 +1,35 @@
 services:
+  # Redis Service (Local)
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    env_file:
+      - ./redis/.env
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  # Redis 초기화 서비스
+  redis-init:
+    image: redis:alpine
+    container_name: redis-init
+    depends_on:
+      - redis
+    volumes:
+      - ./redis-init.sh:/redis-init.sh:ro
+    env_file:
+      - ./redis/.env
+      - ./redis-init/.env
+    command: /bin/sh /redis-init.sh
+    networks:
+      - app-network
+    restart: "no"
+
   db:
     image: postgres:16
     container_name: postgres
@@ -23,6 +54,7 @@ services:
       - ./fastify-member-server/.env
     depends_on:
       - db
+      - redis
     restart: unless-stopped
     networks:
       - app-network
@@ -36,6 +68,7 @@ services:
       - ./koa-auth-server/.env
     depends_on:
       - db
+      - redis
     restart: unless-stopped
     networks:
       - app-network
@@ -68,6 +101,7 @@ services:
       - '9000:9000'
     depends_on:
       - ecommerce-app
+      - redis
     restart: unless-stopped
     networks:
       - app-network
@@ -79,7 +113,7 @@ services:
     container_name: ecommerce-app
     env_file:
       - ./ecommerce-app/.env
-    # 외부 포트 제거 - 프록시를 통해서만 접근
+    # Next.js 정적 자산 직접 접근을 위해 포트 노출
     ports:
       - '3000:3000'
     depends_on:
@@ -103,6 +137,8 @@ services:
         chmod +x /tmp/init-kong.sh &&
         /tmp/init-kong.sh &&
         kong start"
+    depends_on:
+      - redis
     networks:
       - app-network
 
@@ -123,6 +159,9 @@ services:
     networks:
       - app-network
     restart: "no"
+
+volumes:
+  redis_data:
 
 networks:
   app-network:

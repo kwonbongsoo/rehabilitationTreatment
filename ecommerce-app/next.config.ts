@@ -6,6 +6,9 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   compress: true,
 
+  // 정적 자산(JS, CSS)을 직접 Next.js에서 서빙
+  assetPrefix: process.env.NEXT_PUBLIC_STATIC_URL || '',
+
   // 모던 브라우저 타겟팅
   transpilePackages: [], // 필요 시 특정 패키지만 트랜스파일
 
@@ -142,6 +145,8 @@ const nextConfig: NextConfig = {
     dangerouslyAllowSVG: false,
     // 이미지 최적화 프로세스 개수 제한 (메모리 사용량 감소)
     domains: [],
+    // 이미지 URL을 직접 Next.js로 라우팅
+    path: `${process.env.NEXT_PUBLIC_STATIC_URL}/_next/image`,
   },
 
   // 실험적 기능

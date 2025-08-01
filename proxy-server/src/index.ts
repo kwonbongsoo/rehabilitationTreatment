@@ -26,16 +26,16 @@ async function initializeServices() {
     const pingResult = await redisClient.ping();
     console.log(`✅ Redis ping: ${pingResult ? 'SUCCESS' : 'FAILED'}`);
     
-    // 컨테이너 웜업 - 내부 요청으로 JIT 최적화
+    // 컨테이너 웜업 - 유효한 테스트 토큰으로 JIT 최적화
     console.log('🔥 Warming up proxy server...');
     setTimeout(async () => {
       try {
-        // 더미 요청으로 모든 코드 패스 웜업
+        // 유효한 테스트 토큰으로 웜업
         const warmupResponse = await fetch(`http://localhost:${config.port}/`, {
           method: 'GET',
           headers: {
             'User-Agent': 'Warmup-Request',
-            'Authorization': 'Bearer warmup'
+            'Authorization': `Bearer ${config.warmupToken}`
           }
         }).catch(() => null);
         console.log('🔥 Server warmup completed');

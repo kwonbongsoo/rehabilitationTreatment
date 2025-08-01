@@ -14,16 +14,22 @@ export class CookieUtils {
       ...(this.isProduction() ? ['Secure'] : []),
       `Max-Age=${maxAge}`,
     ];
-    
+
     return options.join('; ');
   }
 
   setTokenCookies(response: Response, tokenData: TokenData): Response {
     const cookieOptions = this.getCookieOptions(tokenData.maxAge);
-    
+
     const headers = new Headers(response.headers);
-    headers.append('Set-Cookie', `access_token=${encodeURIComponent(tokenData.access_token)}; ${cookieOptions}`);
-    headers.append('Set-Cookie', `access_type=${encodeURIComponent(tokenData.role)}; ${cookieOptions}`);
+    headers.append(
+      'Set-Cookie',
+      `access_token=${encodeURIComponent(tokenData.access_token)}; ${cookieOptions}`,
+    );
+    headers.append(
+      'Set-Cookie',
+      `access_type=${encodeURIComponent(tokenData.role)}; ${cookieOptions}`,
+    );
 
     return new Response(response.body, {
       status: response.status,

@@ -34,8 +34,11 @@ COPY ecommerce-app/public ./public
 COPY ecommerce-app/src ./src
 COPY ecommerce-app/next.config.ts ./
 COPY ecommerce-app/tsconfig.json ./
+COPY ecommerce-app/.env ./
 
-# 필요하다면 기타 설정 파일도 추가 (예: .babelrc, .eslintrc.js 등)
+# 빌드 시 환경변수 설정
+ARG NEXT_PUBLIC_STATIC_URL=http://localhost:3000
+ENV NEXT_PUBLIC_STATIC_URL=$NEXT_PUBLIC_STATIC_URL
 
 # 빌드 (생략 가능, 필요시 추가)
 RUN npm run build

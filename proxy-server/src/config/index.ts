@@ -5,11 +5,11 @@ export const config: ProxyConfig = {
   nextServer: process.env.NEXT_SERVER || 'http://localhost:3000',
   kongGatewayUrl: process.env.KONG_GATEWAY_URL || 'http://localhost:8000',
   nodeEnv: process.env.NODE_ENV || 'development',
-  enableRequestLogging: process.env.ENABLE_REQUEST_LOGGING === 'true' || process.env.NODE_ENV === 'development',
+  enableRequestLogging:
+    process.env.ENABLE_REQUEST_LOGGING === 'true' || process.env.NODE_ENV === 'development',
   logLevel: process.env.LOG_LEVEL || 'info',
   authServiceUrl: process.env.AUTH_SERVICE_URL || '',
-  authPrefix: process.env.AUTH_PREFIX || '',
-  authBasicKey: process.env.AUTH_BASIC_KEY || '',
+  warmupToken: process.env.WARMUP_TOKEN || '',
   redis: {
     url: process.env.REDIS_URL || 'localhost',
     port: parseInt(process.env.REDIS_PORT || '6379'),
@@ -19,8 +19,8 @@ export const config: ProxyConfig = {
 };
 
 export function validateConfig(): void {
-  const requiredFields = ['authServiceUrl', 'authPrefix', 'authBasicKey'] as const;
-  
+  const requiredFields = ['authServiceUrl'] as const;
+
   for (const field of requiredFields) {
     if (!config[field]) {
       throw new Error(`Missing required environment variable: ${field.toUpperCase()}`);

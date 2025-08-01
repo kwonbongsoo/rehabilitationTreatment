@@ -590,6 +590,9 @@ cd [repository-name]
 # 공통 모듈
 cd common && npm install && cd ..
 
+# 프록시 서버
+cd proxy-server && bun install && cd ..
+
 # BFF 서버
 cd bff-server && npm install && cd ..
 
@@ -605,9 +608,41 @@ cd ecommerce-app && npm install && cd ..
 
 3. **환경 변수 설정**
 
-**Kong 설정**
+각 서비스별로 `.env` 파일을 생성하고 다음 설정을 추가하세요:
+
+**Root 프로젝트 설정**
+```bash
+# .env
+# Kong Redis Configuration (for idempotency plugin)
+REDIS_URL=your-redis-host
+REDIS_PORT=12020
+REDIS_DB=0
+REDIS_PASSWORD=your-redis-password
+IDEMPOTENCY_TTL=60
+```
+
+**Proxy Server 설정**
+```bash
+# proxy-server/.env
+PORT=9000
+NODE_ENV=development
+NEXT_SERVER=http://ecommerce-app:3000
+KONG_GATEWAY_URL=http://kong:8000
+LOG_LEVEL=info
+ENABLE_REQUEST_LOGGING=true
+AUTH_SERVICE_URL=http://koa-auth-server:4000
+AUTH_SERVICE_TIMEOUT=5000
+WARMUP_TOKEN=your-test-token-for-warmup
+REDIS_URL=your-redis-host
+REDIS_PORT=6379
+REDIS_DB=0
+REDIS_PASSWORD=your-redis-password
+```
+
+**Kong Gateway 설정**
 ```bash
 # kong/.env
+# Kong Database Configuration
 KONG_DATABASE=off
 KONG_DECLARATIVE_CONFIG=/tmp/kong.yml
 KONG_PLUGINS=token-validator,idempotency,simple-redis-cache
@@ -622,24 +657,67 @@ KONG_ADMIN_ACCESS_LOG=off
 KONG_PROXY_LISTEN=0.0.0.0:8000
 KONG_ADMIN_LISTEN=0.0.0.0:8001, 0.0.0.0:8444 ssl
 
-# Redis 설정 (클라우드 또는 로컬)
+# Redis 설정
 REDIS_URL=your-redis-host
 REDIS_PORT=12020
-REDIS_PASSWORD=your-redis-password
 REDIS_DB=0
+REDIS_PASSWORD=your-redis-password
 IDEMPOTENCY_TTL=60
 
 # JWT 및 인증
 JWT_SECRET=your-long-jwt-secret-key
 TEST_TOKEN=your-test-token-for-warmup
 
-# 서비스 URL (정확한 포트)
+# 서비스 URL
 AUTH_SERVER_URL=http://koa-auth-server:4000
 MEMBER_SERVER_URL=http://fastify-member-server:5000
 BFF_SERVER_URL=http://bff-server:3001
 ```
 
-**Frontend 설정 (추가)**
+**BFF Server 설정**
+```bash
+# bff-server/.env
+PORT=3001
+HOST=0.0.0.0
+NODE_ENV=production
+AUTH_SERVICE_URL=http://koa-auth-server:4000
+MEMBER_SERVICE_URL=http://fastify-member-server:5000
+CORS_ORIGIN=*
+REQUEST_TIMEOUT=5000
+LOG_LEVEL=info
+```
+
+**Auth Server 설정**
+```bash
+# koa-auth-server/.env
+JWT_SECRET=your-long-jwt-secret-key
+JWT_EXPIRES_IN=3600
+REDIS_URL=your-redis-host
+REDIS_PORT=12020
+REDIS_PASSWORD=your-redis-password
+REDIS_DB=1
+AUTH_PORT=4000
+MEMBER_SERVICE_URL=http://fastify-member-server:5000
+MEMBER_SERVICE_TIMEOUT=5000
+AUTH_BASIC_KEY=your-auth-basic-key
+NODE_ENV=development
+```
+
+**Member Server 설정**
+```bash
+# fastify-member-server/.env
+POSTGRES_PASSWORD=your-postgres-password
+POSTGRES_DB=fastify_member_db
+TZ=Asia/Seoul
+NODE_ENV=production
+DATABASE_URL=postgresql://postgres:your-postgres-password@db:5432/fastify_member_db
+REDIS_URL=your-redis-host
+REDIS_PORT=12020
+REDIS_PASSWORD=your-redis-password
+REDIS_DB=0
+```
+
+**Frontend 설정**
 ```bash
 # ecommerce-app/.env
 KONG_GATEWAY_URL=http://kong:8000
@@ -647,8 +725,11 @@ AUTH_SERVICE_URL=http://koa-auth-server:4000
 AUTH_SERVICE_TIMEOUT=5000
 AUTH_BASIC_KEY=your-auth-basic-key
 NODE_ENV=development
+BYPASS_AUTH=true
 AUTH_PREFIX=/api/auth
 NEXT_PUBLIC_CDN_DOMAIN=https://your-cloudflare-workers-domain
+PROXY_SERVER_URL=http://localhost:9000
+NEXT_PUBLIC_STATIC_URL=http://localhost:3000
 ```
 
 4. **Docker Compose 실행**
@@ -892,9 +973,166 @@ graph LR
 - Next.js 서버 부하 분산 효과
 - 동시 요청 처리 능력 차이
 
+### 🚀 Redis 로컬화 성능 개선 결과
+
+#### Redis Cloud → Local Redis 전환 후 성능 측정
+
+**테스트 환경:**
+- **변경사항**: Redis Cloud → Docker Local Redis
+- **측정 조건**: 동일한 공인 IP 환경, JWT 토큰 인증 포함
+- **측정 횟수**: 10회 연속 측정
+
+**성능 측정 결과:**
+
+```
+Test 1:  9000: 0.008982s  3000: 0.014694s
+Test 2:  9000: 0.006319s  3000: 0.014091s
+Test 3:  9000: 0.006187s  3000: 0.011740s
+Test 4:  9000: 0.005856s  3000: 0.012601s
+Test 5:  9000: 0.006728s  3000: 0.013861s
+Test 6:  9000: 0.005395s  3000: 0.010448s
+Test 7:  9000: 0.006941s  3000: 0.010936s
+Test 8:  9000: 0.005963s  3000: 0.010998s
+Test 9:  9000: 0.014150s  3000: 0.013027s
+Test 10: 9000: 0.006138s  3000: 0.010666s
+```
+
+#### 성능 비교 분석
+
+| 구분 | Redis Cloud 시절 | Local Redis (현재) | 성능 개선 |
+|------|------------------|-------------------|----------|
+| **프록시 경유 (9000)** | **0.555초** | **0.007초** | **79배 빠름** 🚀 |
+| **직접 접속 (3000)** | **0.013초** | **0.012초** | **거의 동일** |
+
+#### 🎯 핵심 발견사항
+
+1. **프록시 서버 성능 혁신**
+   - **79배 성능 향상**: 0.555초 → 0.007초
+   - Redis 캐시 조회 시간: ~150ms → ~1ms 미만
+   - 프록시의 진정한 가치 실현
+
+2. **Next.js 직접 접속은 변화 없음**
+   - 여전히 ~0.012초 수준 유지
+   - ISR 캐시 성능은 Redis와 무관
+
+3. **프록시 vs 직접 접속 역전**
+   - **이전**: 직접 접속이 42배 빠름
+   - **현재**: 프록시가 1.7배 빠름 ⚡
+
+#### 🔥 Redis 로컬화의 임팩트
+
+**기술적 개선:**
+- **네트워크 지연 제거**: 미국 동부 Redis Cloud → 로컬 Docker 네트워크
+- **캐시 응답 시간**: ~150ms → ~1ms (150배 개선)
+- **컨테이너 간 통신**: 같은 Docker 네트워크 내 극저지연 통신
+- **리소스 전용화**: 클라우드 공유 → 로컬 전용 리소스
+
+**사용자 경험:**
+- **초기 페이지 로딩**: 대폭 개선된 응답 속도
+- **캐시 효율성**: HTML 캐싱이 이제 의미 있는 성능 향상 제공
+- **일관된 성능**: 네트워크 변동 없는 안정적 응답시간
+
+#### 결론
+
+Redis 로컬화를 통해 **프록시 서버가 진정한 성능 우위**를 확보했습니다. 이제 프록시 서버는 단순한 캐싱 레이어가 아닌, **실질적인 성능 가속기**로 작동합니다.
+
+### 🚀 정적 자산 최적화 (Static Assets Optimization)
+
+#### 프록시 부하 분산 및 성능 최적화
+
+**기존 문제점:**
+- 모든 요청(HTML, JS, CSS, 이미지)이 프록시를 경유
+- 정적 자산까지 프록시 처리로 인한 불필요한 오버헤드
+- 프록시 서버 부하 증가
+
+**최적화 방안:**
+```mermaid
+graph LR
+    subgraph "최적화 후"
+        Client[브라우저]
+        Client -->|HTML 캐시| Proxy[프록시:9000]
+        Client -->|JS/CSS 직접| NextJS[Next.js:3000]
+        Client -->|이미지 직접| NextJS
+        Client -->|API| Proxy
+        Proxy -->|HTML| NextJS
+        Proxy -->|API| Kong[Kong:8000]
+    end
+```
+
+**구현된 최적화:**
+
+1. **assetPrefix 설정** - Next.js 정적 자산 직접 라우팅
+```typescript
+// ecommerce-app/next.config.ts
+assetPrefix: process.env.NEXT_PUBLIC_STATIC_URL, // http://localhost:3000
+```
+
+2. **이미지 직접 접근** - Next.js Image 최적화 활용
+```typescript
+// ecommerce-app/next.config.ts
+images: {
+  path: `${process.env.NEXT_PUBLIC_STATIC_URL}/_next/image`,
+}
+```
+
+3. **환경변수 설정**
+```bash
+# ecommerce-app/.env
+NEXT_PUBLIC_STATIC_URL=http://localhost:3000
+```
+
+**최적화 결과:**
+
+| 리소스 타입 | 기존 경로 | 최적화 후 | 성능 개선 |
+|------------|----------|-----------|----------|
+| **HTML** | 프록시(9000) → Next.js | 프록시(9000) → Next.js | 캐시 HIT 시 ~7ms |
+| **JS/CSS** | 프록시(9000) → Next.js | **직접** Next.js(3000) | **프록시 오버헤드 제거** |
+| **이미지** | 프록시(9000) → Next.js | **직접** Next.js(3000) | **프록시 오버헤드 제거** |
+| **API** | 프록시(9000) → Kong | 프록시(9000) → Kong | 인증 처리 유지 |
+
+**핵심 장점:**
+- **프록시 집중화**: HTML 캐싱과 API 라우팅에만 집중
+- **정적 자산 최고 속도**: 프록시 우회로 Direct Access
+- **부하 분산**: 정적 자산 트래픽을 Next.js로 분리
+- **보안 유지**: 인증이 필요한 HTML/API는 여전히 프록시 경유
+
+### Health Check 최적화
+
+**문제점:**
+- Health check 요청에서도 불필요한 토큰 생성 및 인증 처리
+- 모니터링 도구의 빈번한 요청으로 인한 리소스 낭비
+
+**해결방안:**
+```typescript
+// proxy-server/src/handlers/proxy.ts
+private isHealthCheckRequest(req: Request, url: URL): boolean {
+  const userAgent = req.headers.get('User-Agent') || '';
+  
+  const healthCheckPatterns = [
+    'health', 'ping', 'monitor', 'check', 'probe',
+    'ELB-HealthChecker', 'GoogleHC', 'kube-probe', 'Warmup-Request'
+  ];
+
+  const isHealthPath = url.pathname === '/health' || 
+                      url.pathname === '/ping' || 
+                      url.pathname === '/_health';
+
+  const isHealthUserAgent = healthCheckPatterns.some(pattern => 
+    userAgent.toLowerCase().includes(pattern.toLowerCase())
+  );
+
+  return isHealthPath || isHealthUserAgent;
+}
+```
+
+**최적화 결과:**
+- Health check 요청 시 토큰 생성 및 인증 과정 스킵
+- 모니터링 도구 요청에 대한 리소스 절약
+- 실제 사용자 요청에 대해서만 인증 처리 집중
+
 ### 향후 테스트 계획
+- [x] **Redis 로컬 vs 클라우드**: 캐시 백엔드별 성능 영향 측정 ✅
 - [ ] **고트래픽 테스트**: 동시 요청 100-1000개 상황에서의 성능 비교
-- [ ] **Redis 로컬 vs 클라우드**: 캐시 백엔드별 성능 영향 측정
 - [ ] **캐시 히트율 테스트**: 반복 요청 시 프록시 캐시 효과 검증
 - [ ] **부하 테스트**: Apache Bench, wrk 등을 활용한 정밀 부하 테스트
 
@@ -907,11 +1145,7 @@ graph LR
 - 멱등성 처리 (Redis)
 - 마이크로서비스 아키텍처
 
-### Phase 2: 비즈니스 서비스 확장
-- [ ] **Product Service**: 상품 관리 서비스 (포트 6000)
-- [ ] **Order Service**: 주문 관리 서비스 (포트 7000)
-
-### Phase 3: 성능 최적화 ✅
+### Phase 2: 성능 최적화 ✅
 - [x] **Kong 성능 최적화**: 메모리 사용량 75% 감소, 로그 레벨 최적화
 - [x] **웜업 시스템**: 컨테이너 시작 시 자동 웜업으로 초기 응답 속도 개선
 - [x] **SSR 전환**: 홈페이지 서버사이드 렌더링으로 초기 로딩 속도 향상
@@ -919,36 +1153,20 @@ graph LR
 - [x] **Kong 캐싱**: Redis 기반 엔드포인트별 캐싱 전략 (simple-redis-cache 플러그인)
 - [x] **BFF 응답 캐싱**: 집계된 데이터 캐싱
 
+### Phase 3: 비즈니스 서비스 확장
+- [x] **Redis 로컬화**: Redis Cloud → Local Redis 전환으로 네트워크 지연 최소화 ✅
+- [x] **정적 자산 최적화**: Next.js 정적 자산 직접 접근으로 프록시 부하 분산 ✅
+- [ ] **Cart Service**: Redis 기반 장바구니 서비스
+- [ ] **Product Service**: 상품 관리 서비스 (포트 6000)
+<!-- - [ ] **Order Service**: 주문 관리 서비스 (포트 7000) -->
+
+
+
 ### Phase 4: 모니터링 & 관찰성
 - [ ] **메트릭 수집**: Prometheus + Grafana
 - [ ] **분산 추적**: 서비스 간 호출 추적
 - [ ] **로그 집계**: 중앙집중식 로깅
 - [ ] **알림 체계**: 장애 알림 시스템
-
-## 트러블슈팅
-
-### 일반적인 문제들
-
-**Kong Gateway 연결 실패**
-```bash
-# Kong 상태 확인
-docker logs kong
-
-# 서비스 연결 확인
-docker exec -it kong ping bff-server
-docker exec -it kong ping koa-auth-server
-docker exec -it kong ping fastify-member-server
-```
-
-**토큰 검증 실패**
-```bash
-# Auth 서버 로그 확인
-docker logs koa-auth-server
-
-# 토큰 유효성 수동 확인
-curl http://localhost:4000/api/auth/verify \
-  -H "Authorization: Bearer your-token"
-```
 
 ## 참고 문서
 
