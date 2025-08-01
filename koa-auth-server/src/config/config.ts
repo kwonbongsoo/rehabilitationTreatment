@@ -1,6 +1,41 @@
 import dotenv from 'dotenv';
+import { EnvValidator } from '@ecommerce/common';
 
 dotenv.config();
+
+// 환경변수 검증
+EnvValidator.validate({
+  required: [
+    'JWT_SECRET',
+    'REDIS_URL',
+    'REDIS_PASSWORD',
+    'MEMBER_SERVICE_URL',
+    'AUTH_BASIC_KEY'
+  ],
+  optional: {
+    'NODE_ENV': 'development',
+    'PORT': '4000',
+    'REDIS_PORT': '6379',
+    'JWT_EXPIRES_IN': '3600',
+    'MEMBER_SERVICE_TIMEOUT': '3000'
+  },
+  production: [
+    'NODE_ENV' // 프로덕션에서는 NODE_ENV가 반드시 설정되어야 함
+  ]
+});
+
+// 보안 중요 환경변수 추가 검증
+EnvValidator.validateSecret('JWT_SECRET', 32);
+EnvValidator.validateSecret('AUTH_BASIC_KEY', 16);
+if (process.env.MEMBER_SERVICE_URL) {
+  EnvValidator.validateUrl('MEMBER_SERVICE_URL');
+}
+if (process.env.PORT) {
+  EnvValidator.validateNumber('PORT', 1, 65535);
+}
+if (process.env.REDIS_PORT) {
+  EnvValidator.validateNumber('REDIS_PORT', 1, 65535);
+}
 
 /**
  * 애플리케이션 설정을 관리하는 클래스
@@ -26,8 +61,6 @@ export class Config {
    */
   public getJwtExpiresIn(): number {
     return parseInt(process.env.JWT_EXPIRES_IN || '3600', 10);
-    // 테스트용
-    // return parseInt(process.env.JWT_EXPIRES_IN || '60', 10);
   }
 
   /**
@@ -35,12 +68,11 @@ export class Config {
    * @returns 토큰 발급 관련 시간 정보 객체
    */
   public getTokenTimingConfig(): {
-    issuedAt: number; // 발급 시간 (현재 시간)
-    expiresAt: number; // 만료 시간 (현재 시간 + 만료 기간)
+    issuedAt: number;
+    expiresAt: number;
   } {
-    const now = Math.floor(Date.now() / 1000); // 현재 시간(초)
-    const expiresIn = this.getJwtExpiresIn(); // 만료 기간(초)
-    // expiresIn * 1000 // 쿠키 maxAge는 밀리초 단위
+    const now = Math.floor(Date.now() / 1000);
+    const expiresIn = this.getJwtExpiresIn();
 
     return {
       issuedAt: now,
@@ -129,16 +161,16 @@ export class Config {
       port: this.getRedisPort(),
     };
 
-    // 비밀번호가 설정된 경우에만 추가
     const password = this.getRedisPassword();
     if (password) {
       config.password = password;
     }
 
-    // 재시도 전략 추가
     config.retryStrategy = (times: number) => {
       const delay = Math.min(times * 500, 3000);
-      console.log(`Redis 연결 재시도... (${times}번째 시도, ${delay}ms 후)`);
+      if (process.env.NODE_ENV !== 'production') {
+        console.log(`Redis 연결 재시도... (${times}번째 시도, ${delay}ms 후)`);
+      }
       return delay;
     };
 

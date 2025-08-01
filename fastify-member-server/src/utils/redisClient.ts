@@ -14,7 +14,9 @@ export class RedisClient {
         connectTimeout: 10000, // 10초
         retryStrategy: (times: number) => {
           const delay = Math.min(times * 500, 3000);
-          console.log(`Redis 연결 재시도... (${times}번째, ${delay}ms 후)`);
+          if (process.env.NODE_ENV !== 'production') {
+            console.log(`Redis 연결 재시도... (${times}번째, ${delay}ms 후)`);
+          }
           if (times > 10) return null; // 10번 시도 후 포기
           return delay;
         },
@@ -24,23 +26,36 @@ export class RedisClient {
 
       // 이벤트 리스너로 에러 처리 개선
       this.client.on('error', (err) => {
-        console.error('Redis 에러:', err);
+        // 프로덕션에서는 에러 상세 정보 마스킹
+        if (process.env.NODE_ENV === 'production') {
+          console.error('Redis 연결 오류 발생');
+        } else {
+          console.error('Redis 에러:', err.message);
+        }
       });
 
       this.client.on('connect', () => {
-        console.log('Redis 서버에 연결됨 (connect 이벤트)');
+        if (process.env.NODE_ENV !== 'production') {
+          console.log('Redis 서버에 연결됨 (connect 이벤트)');
+        }
       });
 
       this.client.on('ready', () => {
-        console.log('Redis 클라이언트 준비 완료 (ready 이벤트)');
+        if (process.env.NODE_ENV !== 'production') {
+          console.log('Redis 클라이언트 준비 완료 (ready 이벤트)');
+        }
       });
 
       this.client.on('reconnecting', () => {
-        console.log('Redis 재연결 중...');
+        if (process.env.NODE_ENV !== 'production') {
+          console.log('Redis 재연결 중...');
+        }
       });
 
       this.client.on('close', () => {
-        console.log('Redis 연결 종료됨');
+        if (process.env.NODE_ENV !== 'production') {
+          console.log('Redis 연결 종료됨');
+        }
       });
     } catch (error) {
       console.error('Redis 초기화 실패:', error);
@@ -107,16 +122,27 @@ export class RedisClient {
   }
 
   /**
-   * 패턴으로 키 검색
+   * 패턴으로 키 검색 - SCAN 사용으로 성능 최적화
+   * Redis KEYS 명령어는 O(N) 복잡도로 성능상 위험하므로 SCAN 사용
    */
-  public async keys(pattern: string): Promise<string[]> {
+  public async scanKeys(pattern: string, count: number = 100): Promise<string[]> {
     try {
-      return await this.client.keys(pattern);
+      const keys: string[] = [];
+      let cursor = '0';
+      
+      do {
+        const result = await this.client.scan(cursor, 'MATCH', pattern, 'COUNT', count);
+        cursor = result[0];
+        keys.push(...result[1]);
+      } while (cursor !== '0');
+      
+      return keys;
     } catch (error) {
-      this.handleRedisError(error, 'keys', pattern);
+      this.handleRedisError(error, 'scan', pattern);
       return [];
     }
   }
+
 
   /**
    * 키의 TTL 확인
@@ -136,7 +162,9 @@ export class RedisClient {
   public async ping(): Promise<string> {
     try {
       const result = await this.client.ping();
-      console.log('Redis ping 성공:', result);
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('Redis ping 성공:', result);
+      }
       return result;
     } catch (error) {
       this.handleRedisError(error, 'ping', 'ping');
@@ -149,18 +177,25 @@ export class RedisClient {
    */
   public async testConnection(): Promise<boolean> {
     try {
-      console.log('Redis 연결 테스트 시작...');
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('Redis 연결 테스트 시작...');
+      }
 
       // lazyConnect가 true이므로 첫 번째 명령어로 연결 시도
       const result = await this.client.ping();
-      console.log('Redis 연결 성공! Ping 결과:', result);
-
-      // 연결 상태 확인
-      console.log('Redis 연결 상태:', this.client.status);
+      
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('Redis 연결 성공! Ping 결과:', result);
+        console.log('Redis 연결 상태:', this.client.status);
+      }
 
       return true;
     } catch (error) {
-      console.error('Redis 연결 테스트 실패:', error);
+      if (process.env.NODE_ENV === 'production') {
+        console.error('Redis 연결 테스트 실패');
+      } else {
+        console.error('Redis 연결 테스트 실패:', (error as Error).message);
+      }
       return false;
     }
   }
@@ -176,7 +211,12 @@ export class RedisClient {
    * Redis 에러 처리 헬퍼
    */
   private handleRedisError(error: unknown, operation: string, key: string): never {
-    console.error(`Redis ${operation} 작업 실패 (${key}):`, error);
+    // 프로덕션에서는 민감한 정보 로깅 방지
+    if (process.env.NODE_ENV === 'production') {
+      console.error(`Redis ${operation} 작업 실패`);
+    } else {
+      console.error(`Redis ${operation} 작업 실패 (${key}):`, (error as Error).message || error);
+    }
 
     if (error instanceof Error) {
       if (error.message.includes('timeout')) {

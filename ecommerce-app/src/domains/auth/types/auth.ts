@@ -136,7 +136,9 @@ export interface ForgotPasswordRequest {
  * 비밀번호 찾기 응답 모델
  */
 export interface ForgotPasswordResponse {
-  message: string;
+  data: {
+    message: string;
+  };
   success: boolean;
 }
 

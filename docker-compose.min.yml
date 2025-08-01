@@ -1,0 +1,127 @@
+# Docker Compose Minimum Resource Configuration
+# 최저 사양 환경에서 테스트용
+# 사용법: docker-compose -f docker-compose.yaml -f docker-compose.min.yml up
+
+services:
+  # 최저 사양 설정 - 메모리와 CPU를 최소한으로 제한
+  redis:
+    deploy:
+      resources:
+        limits:
+          cpus: '0.05'
+          memory: 32M
+        reservations:
+          cpus: '0.02'
+          memory: 16M
+    # Redis 설정 최적화
+    command: >
+      redis-server
+      --appendonly yes
+      --requirepass ${REDIS_PASSWORD}
+      --maxmemory 24mb
+      --maxmemory-policy allkeys-lru
+      --save ""
+
+  db:
+    deploy:
+      resources:
+        limits:
+          cpus: '0.1'
+          memory: 64M
+        reservations:
+          cpus: '0.05'
+          memory: 32M
+    # PostgreSQL 최소 설정
+    command: >
+      postgres
+      -c max_connections=20
+      -c shared_buffers=16MB
+      -c effective_cache_size=48MB
+      -c maintenance_work_mem=4MB
+      -c checkpoint_completion_target=0.9
+      -c wal_buffers=1MB
+      -c default_statistics_target=50
+      -c random_page_cost=1.1
+      -c effective_io_concurrency=200
+
+  fastify-member-server:
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 128M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    environment:
+      - NODE_ENV=production
+      - NODE_OPTIONS=--max-old-space-size=100
+
+  koa-auth-server:
+    deploy:
+      resources:
+        limits:
+          cpus: '0.1'
+          memory: 64M
+        reservations:
+          cpus: '0.05'
+          memory: 32M
+    environment:
+      - NODE_ENV=production
+      - NODE_OPTIONS=--max-old-space-size=50
+
+  bff-server:
+    deploy:
+      resources:
+        limits:
+          cpus: '0.1'
+          memory: 64M
+        reservations:
+          cpus: '0.05'
+          memory: 32M
+    environment:
+      - NODE_ENV=production
+      - NODE_OPTIONS=--max-old-space-size=50
+
+  proxy-server:
+    deploy:
+      resources:
+        limits:
+          cpus: '0.05'
+          memory: 32M
+        reservations:
+          cpus: '0.02'
+          memory: 16M
+    environment:
+      - NODE_ENV=production
+      - BUN_ENV=production
+
+  ecommerce-app:
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 128M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    environment:
+      - NODE_ENV=production
+      - NODE_OPTIONS=--max-old-space-size=100
+
+  kong:
+    deploy:
+      resources:
+        limits:
+          cpus: '0.1'
+          memory: 64M
+        reservations:
+          cpus: '0.05'
+          memory: 32M
+    # Kong 최소 설정 환경변수 추가
+    environment:
+      - KONG_MEM_CACHE_SIZE=32m
+      - KONG_WORKER_PROCESSES=1
+
+
+# docker-compose -f docker-compose.yaml -f docker-compose.min.yml up --build

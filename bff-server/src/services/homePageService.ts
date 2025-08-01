@@ -35,23 +35,23 @@ class HomePageService {
         ) || defaultPath;
     }
 
-    console.log(`🔍 Data path resolved to: ${this.dataPath}`);
-    console.log(`📁 __dirname: ${__dirname}`);
-    console.log(`📁 process.cwd(): ${process.cwd()}`);
-    console.log(
-      `✅ products.json exists: ${fs.existsSync(path.join(this.dataPath, 'products.json'))}`,
-    );
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`🔍 Data path resolved to: ${this.dataPath}`);
+      console.log(`✅ products.json exists: ${fs.existsSync(path.join(this.dataPath, 'products.json'))}`);
+    }
   }
 
   // JSON 파일 읽기 헬퍼 메서드
   private readJsonFile<T>(fileName: string): T {
     try {
       const filePath = path.join(this.dataPath, fileName);
-      console.log(`Attempting to read file: ${filePath}`); // 디버깅용 로그 추가
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`Attempting to read file: ${filePath}`);
+      }
       const fileContent = fs.readFileSync(filePath, 'utf-8');
       return JSON.parse(fileContent);
     } catch (error) {
-      console.error(`Error reading file ${fileName} from ${this.dataPath}:`, error); // 디버깅용 로그 추가
+      console.error(`Error reading file ${fileName} from ${this.dataPath}:`, error);
       throw new BaseError(
         ErrorCode.FILE_READ_ERROR,
         `Failed to read ${fileName}`,

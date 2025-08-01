@@ -19,19 +19,28 @@ export class RedisClient {
         ...redisConfig,
         retryStrategy: (times) => {
           const delay = Math.min(times * 500, 3000);
-          console.log(`Redis 연결 재시도... (${times}번째, ${delay}ms 후)`);
+          if (process.env.NODE_ENV !== 'production') {
+            console.log(`Redis 연결 재시도... (${times}번째, ${delay}ms 후)`);
+          }
           return delay;
         },
       });
 
       // 이벤트 리스너로 에러 처리 개선
       this.client.on('error', (err) => {
-        console.error('Redis 에러:', err);
+        // 프로덕션에서는 에러 상세 정보 마스킹
+        if (process.env.NODE_ENV === 'production') {
+          console.error('Redis 연결 오류 발생');
+        } else {
+          console.error('Redis 에러:', err.message);
+        }
         // 에러 이벤트는 로깅만 하고, 실제 에러는 작업 실행 시 던짐
       });
 
       this.client.on('connect', () => {
-        console.log('Redis 서버에 연결됨');
+        if (process.env.NODE_ENV !== 'production') {
+          console.log('Redis 서버에 연결됨');
+        }
       });
     } catch (error) {
       console.error('Redis 초기화 실패:', error);
@@ -86,7 +95,12 @@ export class RedisClient {
    * Redis 에러 처리 헬퍼 - 에러 유형별 적절한 비즈니스 에러로 변환
    */
   private handleRedisError(error: unknown, operation: string, key: string): never {
-    console.error(`Redis ${operation} 작업 실패 (${key}):`, error);
+    // 프로덕션에서는 민감한 정보 로깅 방지
+    if (process.env.NODE_ENV === 'production') {
+      console.error(`Redis ${operation} 작업 실패`);
+    } else {
+      console.error(`Redis ${operation} 작업 실패 (${key}):`, (error as Error).message || error);
+    }
 
     // 에러 유형에 따른 분류
     if (error instanceof Error) {
@@ -99,7 +113,7 @@ export class RedisClient {
       } // 그 외 Redis 에러
       throw new BaseError(
         ErrorCode.INTERNAL_ERROR,
-        `Redis ${operation} 작업 실패: ${error.message}`,
+        `Redis ${operation} 작업 실패`,
         undefined,
         500,
       );

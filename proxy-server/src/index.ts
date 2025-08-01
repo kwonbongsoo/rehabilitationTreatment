@@ -59,12 +59,6 @@ const server = Bun.serve({
   maxRequestBodySize: 256 * 1024 * 1024, // 256MB
   
   async fetch(req: Request): Promise<Response> {
-    // 요청 로깅
-    // if (config.enableRequestLogging) {
-    //   const url = new URL(req.url);
-    //   console.log(`[${new Date().toISOString()}] ${req.method} ${url.pathname}`);
-    // }
-
     // 모든 요청을 프록시 핸들러로 처리 (토큰 검증 포함)
     const response = await withErrorHandling(proxyHandler.handleRequest.bind(proxyHandler))(req);
     

@@ -219,7 +219,7 @@ export class IdempotencyMiddleware {
     async cleanupExpiredCache(): Promise<number> {
         try {
             const pattern = `${this.keyPrefix}*`;
-            const keys = await this.redis.keys(pattern);
+            const keys = await this.redis.scanKeys(pattern);
 
             if (keys.length === 0) {
                 return 0;
