@@ -1,0 +1,12 @@
+# SSL 인증서 파일들은 보안상 Git에 커밋하지 않음
+*.crt
+*.key
+*.csr
+*.pem
+*.p12
+*.pfx
+
+# 단, README.md와 generate-cert.sh는 포함
+!README.md
+!generate-cert.sh
+!.gitignore

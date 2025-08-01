@@ -178,5 +178,21 @@ services:
         reservations:
           cpus: '0.1'
           memory: 32M
+    # SSL 인증서가 없을 때 컨테이너 시작 실패 방지
+    command: >
+      sh -c "
+        if [ ! -f /etc/nginx/ssl/server.crt ] || [ ! -f /etc/nginx/ssl/server.key ]; then
+          echo '⚠️  SSL 인증서가 없습니다. 자체 서명 인증서를 생성합니다...';
+          apk add --no-cache openssl;
+          mkdir -p /etc/nginx/ssl;
+          openssl genrsa -out /etc/nginx/ssl/server.key 2048;
+          openssl req -new -x509 -key /etc/nginx/ssl/server.key -out /etc/nginx/ssl/server.crt -days 365 \
+            -subj '/C=KR/ST=Seoul/L=Seoul/O=Development/OU=IT/CN=localhost';
+          chmod 600 /etc/nginx/ssl/server.key;
+          chmod 644 /etc/nginx/ssl/server.crt;
+          echo '✅ 자체 서명 SSL 인증서가 생성되었습니다.';
+        fi;
+        nginx -g 'daemon off;'
+      "
 
 #  docker-compose -f docker-compose.yaml -f docker-compose.prod.yml up --build
