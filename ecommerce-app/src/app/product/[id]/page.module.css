@@ -2,7 +2,6 @@
 .productDetail {
   min-height: 100vh;
   background: var(--color-background);
-  padding-bottom: 160px; /* 하단 버튼(80px) + 바텀 네비게이션(80px) 공간 확보 */
 }
 
 /* 헤더 */
@@ -316,7 +315,7 @@
   .bottomActions {
     bottom: 0; /* 데스크탑에서는 바텀 네비게이션과 겹치지 않으므로 원래 위치 */
   }
-  
+
   .productDetail {
     padding-bottom: 100px; /* 데스크탑에서는 원래 패딩으로 복원 */
   }
