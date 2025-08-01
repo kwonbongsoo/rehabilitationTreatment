@@ -947,7 +947,7 @@ graph LR
 
 ### 분석 결과
 
-#### 🔍 핵심 발견사항
+#### 핵심 발견사항
 
 1. **ISR 캐시 유무에 따른 극명한 차이**
    - ISR 활성화 시: 프록시가 **42배 느림**
@@ -961,7 +961,7 @@ graph LR
    - 캐시 조회/저장 시간이 상당 부분 차지
    - 로컬 Redis 사용 시 성능 개선 예상
 
-#### 💡 결론
+#### 결론
 
 **현재 저트래픽 환경에서는:**
 - **직접 접속이 압도적으로 유리** (ISR 캐시 활용 시)
@@ -973,7 +973,7 @@ graph LR
 - Next.js 서버 부하 분산 효과
 - 동시 요청 처리 능력 차이
 
-### 🚀 Redis 로컬화 성능 개선 결과
+### Redis 로컬화 성능 개선 결과
 
 #### Redis Cloud → Local Redis 전환 후 성능 측정
 
@@ -1004,7 +1004,7 @@ Test 10: 9000: 0.006138s  3000: 0.010666s
 | **프록시 경유 (9000)** | **0.555초** | **0.007초** | **79배 빠름** 🚀 |
 | **직접 접속 (3000)** | **0.013초** | **0.012초** | **거의 동일** |
 
-#### 🎯 핵심 발견사항
+#### 핵심 발견사항
 
 1. **프록시 서버 성능 혁신**
    - **79배 성능 향상**: 0.555초 → 0.007초
@@ -1019,7 +1019,7 @@ Test 10: 9000: 0.006138s  3000: 0.010666s
    - **이전**: 직접 접속이 42배 빠름
    - **현재**: 프록시가 1.7배 빠름 ⚡
 
-#### 🔥 Redis 로컬화의 임팩트
+#### Redis 로컬화의 임팩트
 
 **기술적 개선:**
 - **네트워크 지연 제거**: 미국 동부 Redis Cloud → 로컬 Docker 네트워크
@@ -1036,7 +1036,7 @@ Test 10: 9000: 0.006138s  3000: 0.010666s
 
 Redis 로컬화를 통해 **프록시 서버가 진정한 성능 우위**를 확보했습니다. 이제 프록시 서버는 단순한 캐싱 레이어가 아닌, **실질적인 성능 가속기**로 작동합니다.
 
-### 🚀 정적 자산 최적화 (Static Assets Optimization)
+### 정적 자산 최적화 (Static Assets Optimization)
 
 #### 프록시 부하 분산 및 성능 최적화
 
@@ -1107,17 +1107,17 @@ NEXT_PUBLIC_STATIC_URL=http://localhost:3000
 // proxy-server/src/handlers/proxy.ts
 private isHealthCheckRequest(req: Request, url: URL): boolean {
   const userAgent = req.headers.get('User-Agent') || '';
-  
+
   const healthCheckPatterns = [
     'health', 'ping', 'monitor', 'check', 'probe',
     'ELB-HealthChecker', 'GoogleHC', 'kube-probe', 'Warmup-Request'
   ];
 
-  const isHealthPath = url.pathname === '/health' || 
-                      url.pathname === '/ping' || 
+  const isHealthPath = url.pathname === '/health' ||
+                      url.pathname === '/ping' ||
                       url.pathname === '/_health';
 
-  const isHealthUserAgent = healthCheckPatterns.some(pattern => 
+  const isHealthUserAgent = healthCheckPatterns.some(pattern =>
     userAgent.toLowerCase().includes(pattern.toLowerCase())
   );
 
