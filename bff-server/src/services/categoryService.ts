@@ -1,43 +1,20 @@
-import { readFile } from 'fs/promises';
-import { join } from 'path';
-import { RawProductData } from '../types/common';
-import {
-  CategoryRaw,
-  ProductRaw,
-  CategoryWithProducts,
-  CategoryPageData,
-  FilterOption,
-} from '../types/categoryTypes';
-
-interface LoadedData {
-  categories: CategoryRaw[];
-  products: RawProductData[];
-}
+import { ProductDomainCategory, ProductDomainProduct } from '../types';
+import { CategoryWithProducts, CategoryPageData, FilterOption } from '../types/categoryTypes';
+import productDomainClient from '../clients/productDomainClient';
 
 class CategoryService {
-  private async loadJsonFiles(): Promise<LoadedData> {
-    const categoriesPath = join(__dirname, '../data/categories.json');
-    const productsPath = join(__dirname, '../data/products.json');
+  constructor() {
+    // Product 도메인 클라이언트는 싱글톤으로 관리됨
+  }
 
-    const [categoriesData, productsData] = await Promise.all([
-      readFile(categoriesPath, 'utf-8').catch((err) => {
-        throw new Error(`Failed to load categories.json: ${err.message}`);
-      }),
-      readFile(productsPath, 'utf-8').catch((err) => {
-        throw new Error(`Failed to load products.json: ${err.message}`);
-      }),
-    ]);
+  // Product Domain API 호출 메서드들
+  private async getCategoriesFromProductDomain(): Promise<ProductDomainCategory[]> {
+    return await productDomainClient.getCategories();
+  }
 
-    try {
-      return {
-        categories: JSON.parse(categoriesData) as CategoryRaw[],
-        products: JSON.parse(productsData) as ProductRaw[],
-      };
-    } catch (err) {
-      throw new Error(
-        `Failed to parse JSON data: ${err instanceof Error ? err.message : 'Unknown error'}`,
-      );
-    }
+  private async getProductsFromProductDomain(): Promise<ProductDomainProduct[]> {
+    const response = await productDomainClient.getProducts({ page: 1, limit: 20 });
+    return response.products || [];
   }
 
   private getDefaultFilters(): FilterOption[] {
@@ -60,32 +37,40 @@ class CategoryService {
   }
 
   private groupProductsByCategory(
-    categories: CategoryRaw[],
-    products: RawProductData[],
+    domainCategories: ProductDomainCategory[],
+    domainProducts: ProductDomainProduct[],
   ): CategoryWithProducts[] {
-    const categoriesWithProducts = categories
+    const categoriesWithProducts = domainCategories
       .filter((cat) => cat.isActive)
       .map((category) => {
-        const categoryProducts = products.filter((product) => product.categoryId === category.id);
+        const categoryProducts = domainProducts.filter(
+          (product) => product.categoryId === category.id,
+        );
 
         return {
           link: `/categories?category=${encodeURIComponent(category.id)}`,
-          ...category,
+          id: category.id,
+          name: category.name,
+          slug: category.slug,
+          iconCode: category.iconCode || '📦',
+          order: category.order || 0,
+          isActive: category.isActive,
           products: categoryProducts.map((item) => {
             return {
               id: item.id,
               name: item.name,
               price: item.price,
-              image: item.imageUrl,
+              image: item.mainImage,
               rating: item.averageRating,
               reviewCount: item.reviewCount,
               description: item.description,
+              categoryId: item.categoryId,
               // isNew 상태도 포함
               isNew: item.isNew,
               // 할인이 있을 때만 discount 속성 추가
               ...(item.discountPercentage > 0 && {
                 discount: item.discountPercentage,
-                originalPrice: Math.round(item.price / (1 - item.discountPercentage / 100)),
+                originalPrice: item.originalPrice,
               }),
             };
           }),
@@ -100,7 +85,6 @@ class CategoryService {
         name: '전체',
         slug: '',
         iconCode: '👕',
-        order: 0,
         isActive: true,
         link: '/categories',
         products: [],
@@ -111,10 +95,13 @@ class CategoryService {
 
   // See All 페이지용 - 컴포넌트 기반 구조로 반환
   async getCategoryPageData(): Promise<{ success: boolean; data: CategoryPageData }> {
-    const { categories, products } = await this.loadJsonFiles();
+    // Product domain에서 데이터 가져오기
+    const [domainCategories, domainProducts] = await Promise.all([
+      this.getCategoriesFromProductDomain(),
+      this.getProductsFromProductDomain(),
+    ]);
 
-    const categoriesWithProducts = this.groupProductsByCategory(categories, products);
-    const allProducts = products;
+    const categoriesWithProducts = this.groupProductsByCategory(domainCategories, domainProducts);
     const filters = this.getDefaultFilters();
     const sortOptions = this.getDefaultSortOptions();
 
@@ -142,16 +129,21 @@ class CategoryService {
         type: 'productGrid' as const,
         visible: true,
         data: {
-          allProducts: allProducts.map((item) => ({
+          allProducts: domainProducts.map((item) => ({
             id: item.id,
             name: item.name,
             description: item.description,
             price: item.price,
-            image: item.imageUrl,
+            image: item.mainImage,
             rating: item.averageRating,
             reviewCount: item.reviewCount,
             isNew: item.isNew,
             categoryId: item.categoryId,
+            tags: [
+              item.isNew ? 'NEW' : '',
+              item.isFeatured ? '추천' : '',
+              item.discountPercentage > 0 ? '할인' : '',
+            ].filter(Boolean),
             // 할인이 있을 때만 discount 속성 추가
             ...(item.discountPercentage > 0 && {
               discount: item.discountPercentage,
@@ -171,4 +163,5 @@ class CategoryService {
   }
 }
 
-export default new CategoryService();
+const categoryService = new CategoryService();
+export default categoryService;

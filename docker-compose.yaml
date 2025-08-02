@@ -5,8 +5,9 @@ services:
     container_name: redis
     ports:
       - "6379:6379"
-    volumes:
-      - redis_data:/data
+    # volumes 제거로 재시작 시 데이터 초기화
+    # volumes:
+    #   - redis_data:/data
     env_file:
       - ./redis/.env
     command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
@@ -46,8 +47,9 @@ services:
     # ports:
     #   - "5432:5432"
     # 확인하고 주석처리
-    volumes:
-      - ./postgres-data:/var/lib/postgresql/data
+    # volumes 제거로 재시작 시 데이터 초기화
+    # volumes:
+    #   - ./postgres-data:/var/lib/postgresql/data
     networks:
       - app-network
     deploy:
@@ -58,6 +60,33 @@ services:
         reservations:
           cpus: '0.1'
           memory: 64M
+
+  # Product Domain Database
+  product-db:
+    image: postgres:16
+    container_name: product-db
+    env_file:
+      - ./product-domain-server/.env
+    # ports:
+    #   - "5434:5432"
+    # volumes 제거로 재시작 시 데이터 초기화
+    # volumes:
+    #   - product_db_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 128M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   fastify-member-server:
     build:
@@ -112,9 +141,15 @@ services:
     container_name: bff-server
     env_file:
       - ./bff-server/.env
+    # ports:
+    #   - "3001:3001"
     depends_on:
-      - koa-auth-server
-      - fastify-member-server
+      product-domain-server:
+        condition: service_started
+      koa-auth-server:
+        condition: service_started
+      fastify-member-server:
+        condition: service_started
     restart: unless-stopped
     networks:
       - app-network
@@ -126,6 +161,31 @@ services:
         reservations:
           cpus: '0.1'
           memory: 64M
+
+  # Product Domain Server
+  product-domain-server:
+    build:
+      context: .
+      dockerfile: ./product-domain-server/Dockerfile
+    container_name: product-domain-server
+    env_file:
+      - ./product-domain-server/.env
+    # ports:
+    #   - '3002:3002'
+    depends_on:
+      product-db:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - app-network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 256M
+        reservations:
+          cpus: '0.15'
+          memory: 128M
 
   # Bun Proxy Server
   proxy-server:
@@ -165,7 +225,7 @@ services:
     ports:
       - '3000:3000'
     depends_on:
-      - db
+      - bff-server
     restart: unless-stopped
     networks:
       - app-network
@@ -195,6 +255,9 @@ services:
         kong start"
     depends_on:
       - redis
+      - fastify-member-server
+      - product-domain-server
+      - koa-auth-server
     networks:
       - app-network
     deploy:
@@ -224,8 +287,10 @@ services:
       - app-network
     restart: "no"
 
-volumes:
-  redis_data:
+# volumes 제거로 재시작 시 데이터 초기화
+# volumes:
+#   redis_data:
+#   product_db_data:
 
 networks:
   app-network:

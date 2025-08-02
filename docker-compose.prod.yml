@@ -154,6 +154,68 @@ services:
     ports:
       - "8000:8000"  # Kong Proxy만 노출
 
+  product-domain-server:
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+    # Production에서는 포트를 내부적으로만 사용
+    ports: []
+    environment:
+      - NODE_ENV=production
+      - NODE_OPTIONS=--max-old-space-size=400
+    # 프로덕션 헬스체크
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  product-db:
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 256M
+        reservations:
+          cpus: '0.15'
+          memory: 128M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+    # Production에서는 포트를 내부적으로만 사용
+    ports: []
+    # Production 최적화된 PostgreSQL 설정
+    command: >
+      postgres
+      -c max_connections=100
+      -c shared_buffers=64MB
+      -c effective_cache_size=192MB
+      -c maintenance_work_mem=16MB
+      -c work_mem=4MB
+      -c checkpoint_completion_target=0.9
+      -c wal_buffers=4MB
+      -c default_statistics_target=100
+      -c random_page_cost=1.1
+      -c effective_io_concurrency=200
+    # 프로덕션 헬스체크
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d product_db"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
   # Production 전용 nginx 로드밸런서 추가
   nginx:
     image: nginx:alpine

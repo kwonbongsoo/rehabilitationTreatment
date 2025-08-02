@@ -88,3 +88,58 @@ services:
               redis_database: 0  # 멱등성과 같은 DB 사용
               cache_ttl: 300  # 5분 캐시
               max_body_size: 1048576  # 1MB
+
+  # Product Domain Server
+  - name: product-domain-server
+    url: ${PRODUCT_SERVICE_URL}
+    routes:
+      - name: product-api
+        paths:
+          - /api/v1/products
+        strip_path: false
+        plugins:
+          - name: token-validator
+            config:
+              auth_server_url: "${AUTH_SERVER_URL}"
+              token_header: "Authorization"
+              token_prefix: "Bearer "
+          - name: idempotency
+            config:
+              redis_host: ${REDIS_URL}
+              redis_port: ${REDIS_PORT}
+              redis_password: ${REDIS_PASSWORD}
+              redis_database: ${REDIS_DB}
+              ttl: ${IDEMPOTENCY_TTL}
+              header_name: "X-Idempotency-Key"
+              paths:
+                - "/api/v1/products"
+              methods:
+                - "POST"
+                - "PUT"
+                - "PATCH"
+                - "DELETE"
+      - name: category-api
+        paths:
+          - /api/v1/categories
+        strip_path: false
+        plugins:
+          - name: token-validator
+            config:
+              auth_server_url: "${AUTH_SERVER_URL}"
+              token_header: "Authorization"
+              token_prefix: "Bearer "
+          - name: idempotency
+            config:
+              redis_host: ${REDIS_URL}
+              redis_port: ${REDIS_PORT}
+              redis_password: ${REDIS_PASSWORD}
+              redis_database: ${REDIS_DB}
+              ttl: ${IDEMPOTENCY_TTL}
+              header_name: "X-Idempotency-Key"
+              paths:
+                - "/api/v1/categories"
+              methods:
+                - "POST"
+                - "PUT"
+                - "PATCH"
+                - "DELETE"

@@ -9,6 +9,8 @@ export const config: ProxyConfig = {
     process.env.ENABLE_REQUEST_LOGGING === 'true' || process.env.NODE_ENV === 'development',
   logLevel: process.env.LOG_LEVEL || 'info',
   authServiceUrl: process.env.AUTH_SERVICE_URL || '',
+  authPrefix: process.env.AUTH_PREFIX || '',
+  authBasicKey: process.env.AUTH_BASIC_KEY || '',
   warmupToken: process.env.WARMUP_TOKEN || '',
   redis: {
     url: process.env.REDIS_URL || 'localhost',

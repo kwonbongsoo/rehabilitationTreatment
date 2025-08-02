@@ -7,34 +7,32 @@ dotenv.config();
 
 // 환경변수 검증
 try {
-    EnvValidator.validate({
-        required: [
-            'KOA_AUTH_SERVER_URL',
-            'FASTIFY_MEMBER_SERVER_URL'
-        ],
-        optional: {
-            'NODE_ENV': 'development',
-            'PORT': '3001',
-            'HOST': '0.0.0.0'
-        },
-        production: [
-            'NODE_ENV'
-        ]
-    });
+  EnvValidator.validate({
+    required: ['KOA_AUTH_SERVER_URL', 'FASTIFY_MEMBER_SERVER_URL', 'PRODUCT_SERVICE_URL'],
+    optional: {
+      NODE_ENV: 'development',
+      PORT: '3001',
+      HOST: '0.0.0.0',
+    },
+    production: ['NODE_ENV'],
+  });
 
-    // 추가 검증
-    if (process.env.KOA_AUTH_SERVER_URL) {
-        EnvValidator.validateUrl('KOA_AUTH_SERVER_URL');
-    }
-    if (process.env.FASTIFY_MEMBER_SERVER_URL) {
-        EnvValidator.validateUrl('FASTIFY_MEMBER_SERVER_URL');
-    }
-    if (process.env.PORT) {
-        EnvValidator.validateNumber('PORT', 1, 65535);
-    }
+  // 추가 검증
+  if (process.env.KOA_AUTH_SERVER_URL) {
+    EnvValidator.validateUrl('KOA_AUTH_SERVER_URL');
+  }
+  if (process.env.FASTIFY_MEMBER_SERVER_URL) {
+    EnvValidator.validateUrl('FASTIFY_MEMBER_SERVER_URL');
+  }
+  if (process.env.PRODUCT_SERVICE_URL) {
+    EnvValidator.validateUrl('PRODUCT_SERVICE_URL');
+  }
+  if (process.env.PORT) {
+    EnvValidator.validateNumber('PORT', 1, 65535);
+  }
 } catch (error) {
-    console.error('환경변수 검증 실패:', error instanceof Error ? error.message : error);
-    process.exit(1);
+  console.error('환경변수 검증 실패:', error instanceof Error ? error.message : error);
+  process.exit(1);
 }
 
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3001;

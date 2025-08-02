@@ -1,14 +1,9 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { BaseError, ErrorCode } from '@ecommerce/common';
-import { RawProductData } from '../types/common';
-import {
-  RawBannerData,
-  RawCategoryData,
-  RawPromotionData,
-  RawReviewData,
-  RawBrandData,
-} from '../types/homePageTypes';
+import { ProductDomainCategory, ProductDomainProduct } from '../types';
+import productDomainClient from '../clients/productDomainClient';
+import { RawBannerData, RawPromotionData, RawReviewData } from '../types/homePageTypes';
 
 class HomePageService {
   private readonly dataPath: string;
@@ -37,7 +32,9 @@ class HomePageService {
 
     if (process.env.NODE_ENV === 'development') {
       console.log(`🔍 Data path resolved to: ${this.dataPath}`);
-      console.log(`✅ products.json exists: ${fs.existsSync(path.join(this.dataPath, 'products.json'))}`);
+      console.log(
+        `✅ products.json exists: ${fs.existsSync(path.join(this.dataPath, 'products.json'))}`,
+      );
     }
   }
 
@@ -61,17 +58,18 @@ class HomePageService {
     }
   }
 
-  // 각 데이터 타입별 JSON 파일 조회 메서드
+  // Product Domain API 호출 메서드들
+  private async getCategoriesFromProductDomain(): Promise<ProductDomainCategory[]> {
+    return await productDomainClient.getCategories();
+  }
+
+  private async getProductsFromProductDomain(): Promise<ProductDomainProduct[]> {
+    const response = await productDomainClient.getProducts({ page: 1, limit: 20 });
+    return response.products || [];
+  }
+
   private getRawBannerData(): RawBannerData[] {
     return this.readJsonFile<RawBannerData[]>('banners.json');
-  }
-
-  private getRawCategoryData(): RawCategoryData[] {
-    return this.readJsonFile<RawCategoryData[]>('categories.json');
-  }
-
-  private getRawProductData(): RawProductData[] {
-    return this.readJsonFile<RawProductData[]>('products.json');
   }
 
   private getRawPromotionData(): RawPromotionData[] {
@@ -82,7 +80,6 @@ class HomePageService {
     return this.readJsonFile<RawReviewData[]>('reviews.json');
   }
 
-  // 가라 데이터를 UI용 데이터로 변환하는 메서드들
   private transformBannerData(rawData: RawBannerData[]) {
     return {
       id: 'banner-1',
@@ -105,13 +102,16 @@ class HomePageService {
     };
   }
 
-  private transformCategoryData(rawData: RawCategoryData[], rawProducts: RawProductData[]) {
-    const activeCategories = rawData
+  private transformCategoryData(domainCategories: ProductDomainCategory[]) {
+    const categories = domainCategories
       .filter((item) => item.isActive)
-      .filter((item) => rawProducts.some((product) => product.categoryId === item.id))
-      .sort((a, b) => a.order - b.order)
       .map((item) => ({
-        ...item,
+        id: item.id,
+        name: item.name,
+        slug: item.slug,
+        iconCode: item.iconCode || '📦',
+        isActive: item.isActive,
+        products: [],
         link: `/categories?category=${encodeURIComponent(item.id)}`,
       }));
 
@@ -128,33 +128,37 @@ class HomePageService {
             name: '전체',
             slug: 'all',
             iconCode: '👕',
-            order: 0,
             isActive: true,
             products: [],
             link: '/categories',
           },
-          ...activeCategories,
+          ...categories,
         ],
       },
     };
   }
 
-  private transformProductData(rawData: RawProductData[], id: string, type: string, title: string) {
+  private transformProductData(
+    domainProducts: ProductDomainProduct[],
+    id: string,
+    type: string,
+    title: string,
+  ) {
     // 상품 타입에 따라 다른 필터링 로직 적용
-    let filteredProducts: RawProductData[];
+    let filteredProducts: ProductDomainProduct[];
 
     switch (type) {
       case 'featuredProducts':
         // 추천 상품: isFeatured가 true인 상품들
-        filteredProducts = rawData.filter((item) => item.isFeatured);
+        filteredProducts = domainProducts.filter((item) => item.isFeatured);
         break;
       case 'newArrivals':
         // 신상품: isNew가 true인 상품들
-        filteredProducts = rawData.filter((item) => item.isNew);
+        filteredProducts = domainProducts.filter((item) => item.isNew);
         break;
       default:
         // 기본값: 모든 상품
-        filteredProducts = rawData;
+        filteredProducts = domainProducts;
         break;
     }
 
@@ -168,12 +172,17 @@ class HomePageService {
           id: item.id,
           name: item.name,
           price: item.price,
-          image: item.imageUrl,
+          image: item.mainImage,
           rating: item.averageRating,
           reviewCount: item.reviewCount,
           description: item.description,
           // isNew 상태도 포함
           isNew: item.isNew,
+          tags: [
+            item.isNew ? 'NEW' : '',
+            item.isFeatured ? '추천' : '',
+            item.discountPercentage > 0 ? '할인' : '',
+          ].filter(Boolean),
           // 할인이 있을 때만 discount 속성 추가
           ...(item.discountPercentage > 0 && {
             discount: item.discountPercentage,
@@ -232,11 +241,12 @@ class HomePageService {
   // 메인 메서드: 모든 데이터를 변환하여 홈페이지 데이터 반환
   public async getHomePageData() {
     try {
-      const [rawBanners, rawCategories, rawProducts, rawPromotions, rawReviews] = await Promise.all(
+      // Product domain에서 데이터 가져오기
+      const [rawBanners, domainCategories, products, rawPromotions, rawReviews] = await Promise.all(
         [
           this.getRawBannerData(),
-          this.getRawCategoryData(),
-          this.getRawProductData(),
+          this.getCategoriesFromProductDomain(),
+          this.getProductsFromProductDomain(),
           this.getRawPromotionData(),
           this.getRawReviewData(),
         ],
@@ -251,14 +261,14 @@ class HomePageService {
       }
 
       // 카테고리 컴포넌트
-      const categoryComponent = this.transformCategoryData(rawCategories, rawProducts);
+      const categoryComponent = this.transformCategoryData(domainCategories);
       if (categoryComponent.data.categories.length > 0) {
         components.push(categoryComponent);
       }
 
       // 추천 상품 컴포넌트
       const featuredProductComponent = this.transformProductData(
-        rawProducts,
+        products,
         'featuredProducts-1',
         'featuredProducts',
         '추천 상품',
@@ -276,7 +286,7 @@ class HomePageService {
 
       // 신상품 컴포넌트
       const newArrivalsComponent = this.transformProductData(
-        rawProducts,
+        products,
         'newArrivals-1',
         'newArrivals',
         '신상품',

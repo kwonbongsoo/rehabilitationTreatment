@@ -79,7 +79,7 @@ services:
           memory: 128M
     # 개발환경에서는 포트를 외부에 노출
     ports:
-      - "8000:8000"
+      - "3001:3001"
     # 소스코드 볼륨 마운트 (핫 리로드)
     volumes:
       - ./bff-server/src:/app/src:ro
@@ -133,4 +133,51 @@ services:
     # ports:
     #   - "8001:8001"  # Kong Admin API
     #   - "8000:8000"  # Kong Proxy
+
+  product-domain-server:
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.3'
+          memory: 256M
+    # 개발환경에서는 포트를 외부에 노출
+    ports:
+      - "3002:3002"
+    # 소스코드 볼륨 마운트 (핫 리로드)
+    volumes:
+      - ./product-domain-server/src:/app/src:ro
+      - ./product-domain-server/package.json:/app/package.json:ro
+      - ./product-domain-server/tsconfig.json:/app/tsconfig.json:ro
+      - ./product-domain-server/nest-cli.json:/app/nest-cli.json:ro
+    # 개발 모드로 실행
+    environment:
+      - NODE_ENV=development
+      - DEBUG=*
+
+  product-db:
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    # 개발환경에서는 PostgreSQL 포트를 외부에 노출
+    ports:
+      - "5434:5432"
+    # 개발용 PostgreSQL 설정
+    command: >
+      postgres
+      -c shared_buffers=64MB
+      -c effective_cache_size=192MB
+      -c maintenance_work_mem=32MB
+      -c work_mem=4MB
+      -c max_connections=50
+      -c log_statement=all
+      -c log_duration=on
+
 # docker-compose up --build

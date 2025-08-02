@@ -32,4 +32,36 @@ export interface ApiConfig {
 export interface ServiceEndpoints {
   auth: ApiConfig;
   member: ApiConfig;
+  product: ApiConfig;
+}
+
+// Product Domain Types
+export interface ProductDomainCategory {
+  id: number;
+  name: string;
+  slug: string;
+  description?: string;
+  iconCode?: string;
+  order: number;
+  isActive: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface ProductDomainProduct {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  stock: number;
+  categoryId: number;
+  mainImage: string;
+  averageRating: number;
+  reviewCount: number;
+  isNew: boolean;
+  isFeatured: boolean;
+  discountPercentage: number;
+  createdAt?: string;
+  updatedAt?: string;
+  originalPrice?: number;
 }

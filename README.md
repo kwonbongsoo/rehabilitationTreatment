@@ -131,12 +131,14 @@ graph TB
 
         subgraph "Business Services"
             Member["Member 서비스<br/>Fastify Port 5000<br/>회원 관리<br/>CRUD 연산"]
-            Other["기타 비즈니스 서비스<br/>미구현 상태<br/>Product Order Payment"]
+            Product["Product 서비스<br/>NestJS Port 3002<br/>상품 관리<br/>카테고리 & 상품 CRUD<br/>S3 이미지 업로드"]
+            Other["기타 비즈니스 서비스<br/>미구현 상태<br/>Order Payment Cart"]
         end
 
         subgraph "Data Layer"
             Redis[("Redis<br/>토큰 저장<br/>세션 관리<br/>멱등성 캐시")]
             PostgreSQL[("PostgreSQL Database<br/>회원 데이터")]
+            ProductDB[("Product PostgreSQL<br/>상품 & 카테고리 데이터<br/>독립 데이터베이스")]
         end
     end
 
@@ -158,11 +160,13 @@ graph TB
 
     %% BFF connections - 데이터 집계만
     BFF --> Member
+    BFF --> Product
     BFF --> Other
 
     %% Service to data connections
     Auth --> Redis
     Member --> PostgreSQL
+    Product --> ProductDB
 
     %% Styling
     style Client fill:#e3f2fd
@@ -477,6 +481,39 @@ cache:GET:/api/categories
   - DELETE /api/members/:id: 회원 삭제
 ```
 
+### Product Domain Server (:3002)
+```yaml
+역할: 상품 및 카테고리 관리
+기술 스택: NestJS + TypeORM + TypeScript
+주요 기능:
+  - 상품 CRUD 연산 (생성, 조회, 수정, 삭제)
+  - 카테고리 관리 (8개 기본 카테고리)
+  - S3 이미지 업로드 서비스
+  - 페이지네이션 및 필터링 지원
+  - TypeORM 엔티티 관계 설정
+  - 독립 PostgreSQL 데이터베이스
+
+데이터 모델:
+  - Category: id, name, slug, iconCode, isActive
+  - Product: 상품 기본 정보, 가격, 할인, 평점, 재고 등
+  - ProductOption: 색상, 사이즈 등 상품 옵션
+  - ProductImage: 상품 이미지 관리 (S3 연동)
+
+주요 엔드포인트:
+  - GET /api/v1/categories: 카테고리 목록 조회
+  - GET /api/v1/products: 상품 목록 조회 (페이지네이션)
+  - GET /api/v1/products/:id: 특정 상품 상세 조회
+  - POST /api/v1/products: 상품 생성
+  - PUT /api/v1/products/:id: 상품 수정
+  - DELETE /api/v1/products/:id: 상품 삭제 (소프트 삭제)
+  - POST /api/v1/products/:id/images: 상품 이미지 업로드
+
+데이터베이스 최적화:
+  - 컨테이너 재시작 시 데이터 초기화 (개발 환경)
+  - 초기 데이터 자동 생성 (카테고리 8개, 상품 12개)
+  - TypeORM 동기화 및 마이그레이션
+```
+
 ### Frontend (:3000)
 ```yaml
 역할: 사용자 인터페이스
@@ -746,6 +783,7 @@ docker-compose up --build
 | BFF Server | 3001 | http://localhost:3001 | Backend for Frontend |
 | Auth Server | 4000 | http://localhost:4000 | 인증 서비스 |
 | Member Server | 5000 | http://localhost:5000 | 회원 서비스 |
+| Product Server | 3002 | http://localhost:3002 | 상품 도메인 서비스 |
 | Frontend | 3000 | http://localhost:3000 | 웹 애플리케이션 |
 
 ## API 사용 예시
@@ -824,7 +862,7 @@ curl http://localhost:8000/api/members \
 # kong/kong.yml.template
 services:
   - name: product-service
-    url: http://product-service:6000
+    url: http://product-service:8000
     routes:
       - name: product-api
         paths:
@@ -1156,8 +1194,12 @@ private isHealthCheckRequest(req: Request, url: URL): boolean {
 ### Phase 3: 비즈니스 서비스 확장
 - [x] **Redis 로컬화**: Redis Cloud → Local Redis 전환으로 네트워크 지연 최소화 ✅
 - [x] **정적 자산 최적화**: Next.js 정적 자산 직접 접근으로 프록시 부하 분산 ✅
+- [x] **Product Domain Server**: NestJS 기반 상품 및 카테고리 관리 서비스 (포트 3002) ✅
+  - TypeORM + PostgreSQL 독립 데이터베이스
+  - S3 이미지 업로드 서비스 통합
+  - 카테고리 8개, 상품 12개 초기 데이터
+  - BFF 서버 연동 완료
 - [ ] **Cart Service**: Redis 기반 장바구니 서비스
-- [ ] **Product Service**: 상품 관리 서비스 (포트 6000)
 <!-- - [ ] **Order Service**: 주문 관리 서비스 (포트 7000) -->
 
 

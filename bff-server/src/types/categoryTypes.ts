@@ -27,6 +27,7 @@ export interface Product {
   reviewCount: number;
   isNew?: boolean;
   tags?: string[];
+  categoryId: number;
 }
 
 export interface CategoryWithProducts {
@@ -34,9 +35,9 @@ export interface CategoryWithProducts {
   name: string;
   slug: string;
   iconCode: string;
-  order: number;
   isActive: boolean;
   products: Product[];
+  link: string;
 }
 export interface FilterOption {
   value: string;

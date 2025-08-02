@@ -6,11 +6,11 @@ export class AuthService {
     try {
       const requestUrl = `${config.authServiceUrl}${config.authPrefix}/guest-token`;
       const basicAuth = Buffer.from(config.authBasicKey).toString('base64');
-      
+
       const response = await fetch(requestUrl, {
         method: 'POST',
         headers: {
-          'Authorization': `Basic ${basicAuth}`,
+          Authorization: `Basic ${basicAuth}`,
           'Content-Type': 'application/json',
           'User-Agent': 'Bun-Proxy-Server/1.0',
         },

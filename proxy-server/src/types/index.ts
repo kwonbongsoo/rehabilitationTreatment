@@ -24,6 +24,8 @@ export interface ProxyConfig {
   enableRequestLogging: boolean;
   logLevel: string;
   authServiceUrl: string;
+  authBasicKey: string;
+  authPrefix: string;
   warmupToken: string;
   redis: {
     url: string;

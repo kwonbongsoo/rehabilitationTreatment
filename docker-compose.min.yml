@@ -123,5 +123,36 @@ services:
       - KONG_MEM_CACHE_SIZE=32m
       - KONG_WORKER_PROCESSES=1
 
+  product-domain-server:
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 128M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    environment:
+      - NODE_ENV=production
+      - NODE_OPTIONS=--max-old-space-size=100
+
+  product-db:
+    deploy:
+      resources:
+        limits:
+          cpus: '0.1'
+          memory: 64M
+        reservations:
+          cpus: '0.05'
+          memory: 32M
+    # PostgreSQL 최소 설정
+    command: >
+      postgres
+      -c max_connections=20
+      -c shared_buffers=16MB
+      -c effective_cache_size=48MB
+      -c maintenance_work_mem=4MB
+      -c work_mem=2MB
+
 
 # docker-compose -f docker-compose.yaml -f docker-compose.min.yml up --build
