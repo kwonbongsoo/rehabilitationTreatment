@@ -244,6 +244,126 @@ const productRoutes = async (fastify: FastifyInstance) => {
     },
     handler: productController.deleteProductImage.bind(productController),
   });
+
+  // 상품 옵션 조회
+  fastify.get('/products/:productId/options', {
+    schema: {
+      tags: ['Product Options'],
+      summary: '상품 옵션 조회',
+      description: '특정 상품의 모든 옵션을 조회합니다.',
+      params: {
+        type: 'object',
+        properties: {
+          productId: { type: 'string', description: '상품 ID' },
+        },
+        required: ['productId'],
+      },
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            success: { type: 'boolean' },
+            data: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  id: { type: 'number' },
+                  productId: { type: 'number' },
+                  optionType: { type: 'string' },
+                  optionName: { type: 'string' },
+                  optionValue: { type: 'string' },
+                  additionalPrice: { type: 'number' },
+                  stock: { type: 'number' },
+                  sku: { type: 'string' },
+                  sortOrder: { type: 'number' },
+                  isActive: { type: 'boolean' },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    handler: productController.getProductOptions.bind(productController),
+  });
+
+  // 상품 옵션 수정
+  fastify.patch('/products/:productId/options/:optionId', {
+    schema: {
+      tags: ['Product Options'],
+      summary: '상품 옵션 수정',
+      description: '특정 상품 옵션을 수정합니다.',
+      params: {
+        type: 'object',
+        properties: {
+          productId: { type: 'string', description: '상품 ID' },
+          optionId: { type: 'string', description: '옵션 ID' },
+        },
+        required: ['productId', 'optionId'],
+      },
+      body: {
+        type: 'object',
+        properties: {
+          optionType: { type: 'string' },
+          optionName: { type: 'string' },
+          optionValue: { type: 'string' },
+          additionalPrice: { type: 'number' },
+          stock: { type: 'number' },
+          sku: { type: 'string' },
+          sortOrder: { type: 'number' },
+          isActive: { type: 'boolean' },
+        },
+      },
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            success: { type: 'boolean' },
+            data: {
+              type: 'object',
+              properties: {
+                message: { type: 'string' },
+              },
+            },
+          },
+        },
+      },
+    },
+    handler: productController.updateProductOption.bind(productController),
+  });
+
+  // 상품 옵션 삭제
+  fastify.delete('/products/:productId/options/:optionId', {
+    schema: {
+      tags: ['Product Options'],
+      summary: '상품 옵션 삭제',
+      description: '특정 상품 옵션을 삭제합니다.',
+      params: {
+        type: 'object',
+        properties: {
+          productId: { type: 'string', description: '상품 ID' },
+          optionId: { type: 'string', description: '옵션 ID' },
+        },
+        required: ['productId', 'optionId'],
+      },
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            success: { type: 'boolean' },
+            data: {
+              type: 'object',
+              properties: {
+                message: { type: 'string' },
+              },
+            },
+          },
+        },
+      },
+    },
+    handler: productController.deleteProductOption.bind(productController),
+  });
 };
 
 export default productRoutes;

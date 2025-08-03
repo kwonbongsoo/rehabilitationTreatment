@@ -35,6 +35,22 @@ export interface CreateProductOptionRequest {
   stock?: number;
   sku?: string;
   sortOrder?: number;
+  isActive?: boolean;
+}
+
+export interface ProductOptionResponse {
+  id: number;
+  productId: number;
+  optionType: string;
+  optionName: string;
+  optionValue: string;
+  additionalPrice: number;
+  stock: number;
+  sku?: string;
+  sortOrder: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface ProductRegistrationResponse {

@@ -128,6 +128,30 @@ class ProductDomainClient extends HttpClient {
     const response = await this.getProducts({ search: searchTerm });
     return response.products;
   }
+
+  // Product Options API
+  async createProductOptions(
+    productId: number,
+    options: any[]
+  ): Promise<any[]> {
+    return this.post<any[]>(`/products/${productId}/options`, { options });
+  }
+
+  async getProductOptions(productId: number): Promise<any[]> {
+    return this.get<any[]>(`/products/${productId}/options`);
+  }
+
+  async updateProductOption(
+    productId: number,
+    optionId: number,
+    data: any
+  ): Promise<any> {
+    return this.patch<any>(`/products/${productId}/options/${optionId}`, data);
+  }
+
+  async deleteProductOption(optionId: number): Promise<{ message: string }> {
+    return this.delete<{ message: string }>(`/product-options/${optionId}`);
+  }
 }
 
 // 싱글톤 인스턴스 생성
