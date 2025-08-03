@@ -1,4 +1,4 @@
-import HttpClient from '../utils/httpClient';
+import { HttpClient } from '@ecommerce/common';
 import { serviceEndpoints } from '../utils/config';
 import { ProductDomainCategory, ProductDomainProduct } from '../types';
 

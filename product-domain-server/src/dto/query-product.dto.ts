@@ -26,6 +26,11 @@ export class QueryProductDto {
   @IsNumber()
   categoryId?: number;
 
+  @ApiPropertyOptional({ description: '판매자 ID' })
+  @IsOptional()
+  @IsString()
+  sellerId?: string;
+
   @ApiPropertyOptional({ description: '최소 가격' })
   @IsOptional()
   @Type(() => Number)

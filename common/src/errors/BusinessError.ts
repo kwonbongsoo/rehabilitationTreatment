@@ -2,7 +2,7 @@ import { BaseError } from './BaseError';
 import { ErrorCode, ErrorDetails } from './types';
 
 export class ValidationError extends BaseError {
-  constructor(message: string, details?: { field: string; reason: string }) {
+  constructor(message: string, details?: ErrorDetails) {
     super(ErrorCode.VALIDATION_ERROR, message, details, 400);
   }
 }

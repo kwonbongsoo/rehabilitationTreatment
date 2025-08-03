@@ -1,4 +1,4 @@
-import { BaseError, ErrorCode } from '@ecommerce/common';
+import { BaseError, ErrorCode } from '../errors';
 
 interface FetchOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
@@ -37,12 +37,7 @@ class HttpClient {
   }
 
   async request<T>(endpoint: string, options: FetchOptions = {}): Promise<T> {
-    const {
-      method = 'GET',
-      headers = {},
-      body,
-      timeout = this.defaultTimeout,
-    } = options;
+    const { method = 'GET', headers = {}, body, timeout = this.defaultTimeout } = options;
 
     const url = `${this.baseURL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
 
@@ -95,12 +90,12 @@ class HttpClient {
               response: errorData,
             },
           },
-          response.status
+          response.status,
         );
       }
 
       const responseText = await response.text();
-      
+
       if (process.env.NODE_ENV === 'development') {
         console.log(`✅ HTTP Response: ${response.status}`);
         console.log('📄 Response Body:', responseText);
@@ -123,7 +118,7 @@ class HttpClient {
             reason: 'json_parse_error',
             context: parseError instanceof Error ? parseError.message : 'Unknown error',
           },
-          500
+          500,
         );
       }
     } catch (error) {
@@ -142,7 +137,26 @@ class HttpClient {
               timeout,
             },
           },
-          408
+          408,
+        );
+      }
+
+      // 연결 오류인지 확인
+      if (error instanceof Error && 
+          (error.message.includes('ECONNREFUSED') || 
+           error.message.includes('ENOTFOUND') ||
+           error.message.includes('ECONNRESET'))) {
+        throw new BaseError(
+          ErrorCode.CONNECTION_ERROR,
+          `Connection error: ${error.message}`,
+          {
+            reason: 'connection_error',
+            context: {
+              url,
+              originalError: error,
+            },
+          },
+          503,
         );
       }
 
@@ -156,7 +170,7 @@ class HttpClient {
             originalError: error,
           },
         },
-        500
+        500,
       );
     } finally {
       clearTimeout(timeoutId);
@@ -197,3 +211,4 @@ class HttpClient {
 }
 
 export default HttpClient;
+export { HttpClient, FetchOptions, ApiResponse };

@@ -3,6 +3,7 @@ import SessionProvider from '@/components/providers/SessionProvider';
 import SessionInitializer from '@/components/providers/SessionInitializer';
 import { AppProviders } from '@/providers/AppProviders';
 import ErrorBoundary from '@/components/errors/ErrorBoundary';
+import { AuthGuard } from '@/components/common/AuthGuard';
 import '@/styles/globals.css';
 import 'react-toastify/dist/ReactToastify.css';
 import { Metadata } from 'next';
@@ -54,11 +55,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <ErrorBoundary level="page">
               <SessionInitializer />
               <SessionProvider>
-                <Layout>
-                  <ErrorBoundary level="component">
-                    {children}
-                  </ErrorBoundary>
-                </Layout>
+                <AuthGuard>
+                  <Layout>
+                    <ErrorBoundary level="component">
+                      {children}
+                    </ErrorBoundary>
+                  </Layout>
+                </AuthGuard>
               </SessionProvider>
             </ErrorBoundary>
           </AppProviders>

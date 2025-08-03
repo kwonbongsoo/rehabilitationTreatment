@@ -5,7 +5,7 @@
  */
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
-import { ApiError, BaseError } from '@/lib/api';
+import { BaseError } from '@ecommerce/common';
 
 export interface ToastError {
   id: string;
@@ -16,12 +16,12 @@ export interface ToastError {
 
 export interface ErrorState {
   // 상태
-  globalError: Error | ApiError | BaseError | null;
+  globalError: Error | BaseError | null;
   toastErrors: ToastError[];
   isHandlingError: boolean;
 
   // 액션
-  setGlobalError: (error: Error | ApiError | BaseError | null) => void;
+  setGlobalError: (error: Error | BaseError | null) => void;
   clearGlobalError: () => void;
   addToastError: (message: string, type?: ToastError['type']) => string;
   removeToastError: (id: string) => void;

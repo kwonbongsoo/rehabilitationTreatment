@@ -1,26 +1,14 @@
 'use client';
 
 import { useLoginForm } from '@/domains/auth/hooks/useLoginForm';
-import { useAuth } from '@/domains/auth/stores';
 import styles from '@/styles/auth/MobileAuth.module.css';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
 import { LoginForm } from './LoginForm';
 
 export default function LoginPageContent() {
   const router = useRouter();
-  const { isGuest } = useAuth();
   const { handleLogin, isLoading } = useLoginForm();
-  const isClientSide = typeof window !== 'undefined';
-
-  // 클라이언트에서만 토큰 체크 및 리다이렉트
-  useEffect(() => {
-    if (!isClientSide) return;
-    if (!isGuest) {
-      router.replace('/');
-    }
-  }, [isClientSide, router, isGuest]);
 
   const handleBackClick = () => {
     router.push('/');

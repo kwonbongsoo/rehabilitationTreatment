@@ -68,6 +68,10 @@ export class CreateProductDto {
   @IsNumber()
   categoryId: number;
 
+  @ApiProperty({ description: '판매자 ID', example: 'seller123' })
+  @IsString()
+  sellerId: string;
+
   @ApiPropertyOptional({ description: '메인 이미지 URL' })
   @IsOptional()
   @IsString()
@@ -103,16 +107,10 @@ export class CreateProductDto {
   @IsBoolean()
   isActive?: boolean;
 
-  @ApiPropertyOptional({ description: '할인액', example: 0 })
-  @IsOptional()
-  @IsNumber()
-  discount?: number;
-
   @ApiPropertyOptional({ description: '할인율', example: 0 })
   @IsOptional()
   @IsNumber()
   discountPercentage?: number;
-
 
   @ApiPropertyOptional({ description: '재고', example: 100 })
   @IsOptional()

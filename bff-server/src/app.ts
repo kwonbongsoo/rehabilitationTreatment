@@ -2,11 +2,13 @@ import Fastify, { FastifyInstance } from 'fastify';
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
 import compress from '@fastify/compress';
+import multipart from '@fastify/multipart';
 import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
 import { requestLogger } from './middleware/requestLogger';
 import homePageRoutes from './routes/homePageRoutes';
 import categoryRoutes from './routes/categoryRoutes';
+import productRoutes from './routes/productRoutes';
 // import { authRoutes } from './routes/authRoutes';
 // import { memberRoutes } from './routes/memberRoutes';
 
@@ -55,6 +57,14 @@ export async function buildApp(): Promise<FastifyInstance> {
     origin: process.env.CORS_ORIGIN || true,
   });
   await app.register(compress);
+  
+  // Register multipart support for file uploads
+  await app.register(multipart, {
+    limits: {
+      fileSize: 10 * 1024 * 1024, // 10MB per file
+      files: 10, // Maximum 10 files
+    },
+  });
 
   // Request logging hook
   app.addHook('onRequest', requestLogger);
@@ -93,6 +103,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   // API routes will be registered here
   await app.register(homePageRoutes);
   await app.register(categoryRoutes);
+  await app.register(productRoutes, { prefix: '/api' });
   // await app.register(authRoutes, { prefix: '/api/auth' });
   // await app.register(memberRoutes, { prefix: '/api/members' });
 

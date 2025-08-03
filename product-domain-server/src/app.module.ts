@@ -26,7 +26,16 @@ import { DataInitializerService } from '@services/data-initializer.service';
     MulterModule.register({
       dest: './uploads',
       limits: {
-        fileSize: 5 * 1024 * 1024, // 5MB
+        fileSize: 10 * 1024 * 1024, // 10MB
+      },
+      fileFilter: (req, file, cb) => {
+        // 허용된 이미지 타입 검증
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+        if (allowedTypes.includes(file.mimetype)) {
+          cb(null, true);
+        } else {
+          cb(new Error(`지원하지 않는 이미지 형식입니다. (형식: ${file.mimetype})`), false);
+        }
       },
     }),
   ],

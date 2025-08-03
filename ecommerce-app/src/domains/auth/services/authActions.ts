@@ -155,7 +155,7 @@ export async function logout(): Promise<LogoutActionResult> {
  */
 export async function register(
   userData: RegisterRequest,
-  idempotencyKey?: string,
+  idempotencyKey: string,
 ): Promise<RegisterActionResult> {
   const result = await safeServerAction(async () => {
     // 입력 검증
@@ -167,10 +167,12 @@ export async function register(
       throw new ValidationError('비밀번호가 일치하지 않습니다.');
     }
 
-    // 멱등성 키가 없으면 서버에서 생성 (안전 장치)
-    const key = idempotencyKey ?? `register_${Date.now()}_${crypto.randomUUID()}`;
+    // 클라이언트에서 반드시 멱등성 키를 전달받아야 함
+    if (!idempotencyKey) {
+      throw new ValidationError('멱등성 키가 누락되었습니다.');
+    }
 
-    const headers = await HeaderBuilderFactory.createForIdempotentRequest(key).build();
+    const headers = await HeaderBuilderFactory.createForIdempotentRequest(idempotencyKey).build();
 
     // 1) Kong Gateway를 통한 회원가입 호출
     const apiResponse = await fetch(`${KONG_GATEWAY_URL}/api/members`, {

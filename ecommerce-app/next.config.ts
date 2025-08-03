@@ -257,18 +257,18 @@ const nextConfig: NextConfig = {
   },
 
   // API 라우트 프록시 설정
-  async rewrites() {
-    const kongGatewayUrl = process.env.KONG_GATEWAY_URL || 'http://localhost:8000';
+  // async rewrites() {
+  //   const kongGatewayUrl = process.env.KONG_GATEWAY_URL || 'http://localhost:8000';
 
-    // 개발환경에서는 디버깅용, 운영환경에서는 fallback용으로 유지
-    // 예: /api/gateway/auth/login → http://localhost:8000/api/auth/login
-    return [
-      {
-        source: '/api/gateway/:path*',
-        destination: `${kongGatewayUrl}/api/:path*`,
-      },
-    ];
-  },
+  //   // 개발환경에서는 디버깅용, 운영환경에서는 fallback용으로 유지
+  //   // 예: /api/gateway/auth/login → http://localhost:8000/api/auth/login
+  //   return [
+  //     {
+  //       source: '/api/gateway/:path*',
+  //       destination: `${kongGatewayUrl}/api/:path*`,
+  //     },
+  //   ];
+  // },
 };
 
 export default nextConfig;

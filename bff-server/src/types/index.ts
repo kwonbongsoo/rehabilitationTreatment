@@ -65,3 +65,6 @@ export interface ProductDomainProduct {
   updatedAt?: string;
   originalPrice?: number;
 }
+
+// Product Registration Types
+export * from './productTypes';

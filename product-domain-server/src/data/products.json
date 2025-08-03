@@ -14,9 +14,9 @@
     "reviewCount": 123,
     "isNew": false,
     "isFeatured": true,
-    "discount": 0,
     "discountPercentage": 0,
-    "createdAt": "2024-01-15T10:00:00Z"
+    "createdAt": "2024-01-15T10:00:00Z",
+    "sellerId": "star12310"
   },
   {
     "id": 2,
@@ -33,9 +33,9 @@
     "reviewCount": 87,
     "isNew": false,
     "isFeatured": true,
-    "discount": 15,
     "discountPercentage": 15,
-    "createdAt": "2024-02-10T14:30:00Z"
+    "createdAt": "2024-02-10T14:30:00Z",
+    "sellerId": "star12310"
   },
   {
     "id": 3,
@@ -52,9 +52,9 @@
     "reviewCount": 56,
     "isNew": false,
     "isFeatured": true,
-    "discount": 0,
     "discountPercentage": 0,
-    "createdAt": "2024-01-20T09:15:00Z"
+    "createdAt": "2024-01-20T09:15:00Z",
+    "sellerId": "star12310"
   },
   {
     "id": 4,
@@ -71,9 +71,9 @@
     "reviewCount": 92,
     "isNew": false,
     "isFeatured": true,
-    "discount": 10,
     "discountPercentage": 10,
-    "createdAt": "2024-03-05T16:20:00Z"
+    "createdAt": "2024-03-05T16:20:00Z",
+    "sellerId": "star12310"
   },
   {
     "id": 5,
@@ -90,9 +90,9 @@
     "reviewCount": 324,
     "isNew": true,
     "isFeatured": true,
-    "discount": 22,
     "discountPercentage": 32,
-    "createdAt": "2024-03-10T12:00:00Z"
+    "createdAt": "2024-03-10T12:00:00Z",
+    "sellerId": "star12310"
   },
   {
     "id": 6,
@@ -109,9 +109,9 @@
     "reviewCount": 287,
     "isNew": true,
     "isFeatured": true,
-    "discount": 64,
     "discountPercentage": 64,
-    "createdAt": "2024-03-15T09:30:00Z"
+    "createdAt": "2024-03-15T09:30:00Z",
+    "sellerId": "star12310"
   },
   {
     "id": 7,
@@ -128,9 +128,9 @@
     "reviewCount": 156,
     "isNew": false,
     "isFeatured": true,
-    "discount": 25,
     "discountPercentage": 25,
-    "createdAt": "2024-02-20T14:00:00Z"
+    "createdAt": "2024-02-20T14:00:00Z",
+    "sellerId": "star12310"
   },
   {
     "id": 8,
@@ -147,9 +147,9 @@
     "reviewCount": 203,
     "isNew": false,
     "isFeatured": true,
-    "discount": 0,
     "discountPercentage": 0,
-    "createdAt": "2024-02-25T11:20:00Z"
+    "createdAt": "2024-02-25T11:20:00Z",
+    "sellerId": "star12310"
   },
   {
     "id": 101,
@@ -166,9 +166,9 @@
     "reviewCount": 25,
     "isNew": true,
     "isFeatured": false,
-    "discount": 0,
     "discountPercentage": 0,
-    "createdAt": "2024-06-01T11:00:00Z"
+    "createdAt": "2024-06-01T11:00:00Z",
+    "sellerId": "star12310"
   },
   {
     "id": 102,
@@ -185,9 +185,9 @@
     "reviewCount": 42,
     "isNew": true,
     "isFeatured": false,
-    "discount": 0,
     "discountPercentage": 0,
-    "createdAt": "2024-06-10T15:30:00Z"
+    "createdAt": "2024-06-10T15:30:00Z",
+    "sellerId": "star12310"
   },
   {
     "id": 103,
@@ -204,9 +204,9 @@
     "reviewCount": 18,
     "isNew": true,
     "isFeatured": false,
-    "discount": 0,
     "discountPercentage": 0,
-    "createdAt": "2024-06-15T13:45:00Z"
+    "createdAt": "2024-06-15T13:45:00Z",
+    "sellerId": "star12310"
   },
   {
     "id": 104,
@@ -223,8 +223,8 @@
     "reviewCount": 31,
     "isNew": true,
     "isFeatured": false,
-    "discount": 0,
     "discountPercentage": 0,
-    "createdAt": "2024-06-20T10:15:00Z"
+    "createdAt": "2024-06-20T10:15:00Z",
+    "sellerId": "star12310"
   }
 ]

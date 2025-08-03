@@ -4,7 +4,7 @@ import {
   Category,
   ProductOption,
   ProductImage,
-} from '@entities/index';
+} from '../entities/index';
 import * as dotenv from 'dotenv';
 
 dotenv.config();

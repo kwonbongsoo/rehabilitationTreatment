@@ -1,8 +1,8 @@
 // UI 컴포넌트 타입은 공통으로 이동되었습니다
 import type { UIComponent } from '@/components/common/types/ui-components';
 
-export type { 
-  UIComponent, 
+export type {
+  UIComponent,
   UIComponentType,
   BaseUIComponent,
   BannerComponent,
@@ -11,7 +11,7 @@ export type {
   NewArrivalsComponent,
   PromotionComponent,
   ReviewsComponent,
-  BrandsComponent
+  BrandsComponent,
 } from '@/components/common/types/ui-components';
 
 // API 응답 타입
@@ -20,7 +20,7 @@ export interface HomePageResponse {
 }
 
 // Server Action 결과 타입
-export interface HomePageActionResult {
+export interface HomePageResult {
   success: boolean;
   data?: HomePageResponse;
   error?: string;

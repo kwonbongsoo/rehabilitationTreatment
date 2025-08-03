@@ -1,8 +1,8 @@
 import React from 'react';
-import { ApiError, getUserMessage } from '@/lib/api';
+import { BaseError } from '@ecommerce/common';
 
 interface ErrorMessageProps {
-  error: Error | ApiError | string;
+  error: Error | BaseError | string;
   variant?: 'inline' | 'alert' | 'banner' | 'toast';
   showRetry?: boolean;
   onRetry?: () => void;
@@ -18,8 +18,12 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({
   const getMessage = () => {
     if (typeof error === 'string') return error;
     
-    // getUserMessage 유틸리티 함수 사용
-    return getUserMessage(error);
+    // BaseError와 일반 Error 처리
+    if (error instanceof BaseError || error instanceof Error) {
+      return error.message;
+    }
+    
+    return '알 수 없는 오류가 발생했습니다.';
   };
 
   const renderContent = () => (

@@ -23,7 +23,6 @@ export class AuthMiddleware {
     } else {
       // 토큰이 없으면 게스트 토큰 발급
       // LoggingUtils.logTokenStatus(false, false);
-
       const tokenData = await authService.issueGuestToken();
       if (tokenData) {
         accessToken = tokenData.access_token;

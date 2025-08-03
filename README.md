@@ -1134,6 +1134,66 @@ NEXT_PUBLIC_STATIC_URL=http://localhost:3000
 - **부하 분산**: 정적 자산 트래픽을 Next.js로 분리
 - **보안 유지**: 인증이 필요한 HTML/API는 여전히 프록시 경유
 
+### Next.js 미들웨어 리다이렉트 이슈 해결
+
+**문제 상황:**
+- Proxy 서버를 통한 프록시 환경에서 Next.js 미들웨어의 `NextResponse.redirect()` 사용 시 발생하는 문제
+- 게스트 유저가 보호된 페이지(`/account`)에 접근할 때 예상된 동작과 다른 결과
+
+**에러 로그:**
+```json
+{
+  "code": "SYS_5002",
+  "message": "Proxy request failed: Failed to connect to Next.js: UnexpectedRedirect fetching \"http://ecommerce-app:3000/auth/login?redirect=%2Faccount\"",
+  "details": {
+    "context": {
+      "url": "http://localhost:9000/account",
+      "method": "POST"
+    }
+  }
+}
+```
+
+**근본 원인:**
+1. 브라우저 → Proxy Server (localhost:9000)
+2. Proxy Server → Next.js (ecommerce-app:3000)
+3. **Next.js 미들웨어가 리다이렉트 응답 반환**
+4. **Proxy Server가가 리다이렉트를 예상하지 못하고 프록시 에러 발생**
+
+**해결 방안:**
+
+**Before (서버사이드 리다이렉트):**
+```typescript
+// middleware.ts - 프록시 환경에서 문제 발생
+if (isProtectedRoute && !isAuthenticatedUser(request)) {
+  return NextResponse.redirect(new URL('/auth/login', request.url)); // ❌ 프록시 에러
+}
+```
+
+**After (클라이언트사이드 처리):**
+```typescript
+// AuthGuard.tsx - 클라이언트에서 안전하게 처리
+useEffect(() => {
+  if (!isClient || !isSessionInitialized) return;
+
+  if (isProtectedRoute && isGuest) {
+    router.replace(`/auth/login?redirect=${encodeURIComponent(pathname)}`); // ✅ 정상 동작
+  }
+}, [isClient, isSessionInitialized, isProtectedRoute, isGuest, router, pathname]);
+```
+
+**핵심 개선사항:**
+- **전역 AuthGuard**: Root Layout에서 한 번만 설정하여 모든 페이지에 자동 적용
+- **자동 경로 감지**: `PROTECTED_ROUTES` 배열에서 보호된 경로 중앙 관리
+- **세션 안전성**: `isSessionInitialized` 체크로 세션 로드 완료 후 인증 처리
+- **프록시 호환**: 서버사이드 리다이렉트 제거로 Kong Gateway 환경에서 안정적 동작
+
+**결과:**
+- ✅ 프록시 환경에서 `UnexpectedRedirect` 에러 해결
+- ✅ 정확한 URL 리다이렉트 (`/auth/login?redirect=/account`)
+- ✅ 로그인 후 원래 페이지로 자동 복귀
+- ✅ 개발자 친화적인 중앙화된 라우트 관리
+
 ### Health Check 최적화
 
 **문제점:**

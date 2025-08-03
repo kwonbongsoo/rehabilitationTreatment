@@ -50,6 +50,7 @@ export class ProductService {
       limit = 10,
       search,
       categoryId,
+      sellerId,
       minPrice,
       maxPrice,
       isNew,
@@ -68,6 +69,7 @@ export class ProductService {
     this.applyFilters(queryBuilder, {
       search,
       categoryId,
+      sellerId,
       minPrice,
       maxPrice,
       isNew,
@@ -103,6 +105,53 @@ export class ProductService {
     }
 
     return product;
+  }
+
+  async findBySeller(sellerId: string, queryDto?: QueryProductDto) {
+    const {
+      page = 1,
+      limit = 10,
+      search,
+      categoryId,
+      minPrice,
+      maxPrice,
+      isNew,
+      isFeatured,
+      sortBy = 'createdAt',
+      sortOrder = 'DESC',
+    } = queryDto || {};
+
+    const queryBuilder = this.productRepository
+      .createQueryBuilder('product')
+      .leftJoinAndSelect('product.category', 'category')
+      .leftJoinAndSelect('product.options', 'options')
+      .leftJoinAndSelect('product.images', 'images')
+      .where('product.sellerId = :sellerId', { sellerId })
+      .andWhere('product.isActive = :isActive', { isActive: true });
+
+    this.applyFilters(queryBuilder, {
+      search,
+      categoryId,
+      minPrice,
+      maxPrice,
+      isNew,
+      isFeatured,
+    });
+
+    this.applySorting(queryBuilder, sortBy, sortOrder);
+
+    const [products, total] = await queryBuilder
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getManyAndCount();
+
+    return {
+      products,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 
   async update(
@@ -144,6 +193,9 @@ export class ProductService {
     productId: number,
     files: Express.Multer.File[],
   ): Promise<ProductImage[]> {
+    // 파일 유효성 검사
+    this.validateImageFiles(files);
+    
     const product = await this.findOne(productId);
 
     const uploadResults = await this.s3UploadService.uploadMultipleFiles(
@@ -216,7 +268,7 @@ export class ProductService {
     queryBuilder: SelectQueryBuilder<Product>,
     filters: any,
   ): void {
-    const { search, categoryId, minPrice, maxPrice, isNew, isFeatured } =
+    const { search, categoryId, sellerId, minPrice, maxPrice, isNew, isFeatured } =
       filters;
 
     if (search) {
@@ -228,6 +280,10 @@ export class ProductService {
 
     if (categoryId) {
       queryBuilder.andWhere('product.categoryId = :categoryId', { categoryId });
+    }
+
+    if (sellerId) {
+      queryBuilder.andWhere('product.sellerId = :sellerId', { sellerId });
     }
 
     if (minPrice !== undefined) {
@@ -258,6 +314,55 @@ export class ProductService {
       queryBuilder.orderBy(`product.${sortBy}`, sortOrder);
     } else {
       queryBuilder.orderBy('product.createdAt', 'DESC');
+    }
+  }
+
+  /**
+   * 이미지 파일 유효성 검사
+   */
+  private validateImageFiles(files: Express.Multer.File[]): void {
+    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+    const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    const MAX_FILE_COUNT = 10;
+
+    if (!files || files.length === 0) {
+      throw new BadRequestException('업로드할 이미지 파일이 없습니다.');
+    }
+
+    if (files.length > MAX_FILE_COUNT) {
+      throw new BadRequestException(`이미지는 최대 ${MAX_FILE_COUNT}개까지 업로드 가능합니다.`);
+    }
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      
+      // 파일 크기 검증
+      if (file.size > MAX_FILE_SIZE) {
+        throw new BadRequestException(
+          `이미지 파일 크기가 10MB를 초과합니다. (파일: ${file.originalname}, 크기: ${(file.size / 1024 / 1024).toFixed(2)}MB)`
+        );
+      }
+
+      // 파일 타입 검증
+      if (!ALLOWED_TYPES.includes(file.mimetype)) {
+        throw new BadRequestException(
+          `지원하지 않는 이미지 형식입니다. (파일: ${file.originalname}, 형식: ${file.mimetype})`
+        );
+      }
+
+      // 파일명 검증
+      if (!file.originalname || file.originalname.trim() === '') {
+        throw new BadRequestException(
+          '이미지 파일명이 유효하지 않습니다.'
+        );
+      }
+
+      // 파일 내용 검증 (빈 파일 체크)
+      if (file.size === 0) {
+        throw new BadRequestException(
+          `빈 파일은 업로드할 수 없습니다. (파일: ${file.originalname})`
+        );
+      }
     }
   }
 }

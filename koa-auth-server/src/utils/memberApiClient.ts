@@ -1,4 +1,4 @@
-import got, { HTTPError, Got, RequestError, TimeoutError } from 'got';
+import { HttpClient, BaseError, ErrorCode } from '@ecommerce/common';
 import { UserInfo } from '../interfaces/auth';
 import { MemberResponse } from '../interfaces/member';
 import {
@@ -39,10 +39,10 @@ import { Config } from '../config/config';
 
 /**
  * Member API와의 통신을 전담하는 클래스
- * got 라이브러리 활용 및 에러 핸들러 통합
+ * @ecommerce/common HttpClient 활용 및 에러 핸들러 통합
  */
 export class MemberApiClient {
-  private api: Got;
+  private httpClient: HttpClient;
   private readonly SERVICE_NAME = 'member-service';
   private static instance: MemberApiClient;
 
@@ -51,21 +51,11 @@ export class MemberApiClient {
     const memberServiceUrl = configInstance.getMemberServiceUrl();
     const memberServiceTimeout = configInstance.getMemberServiceTimeout();
 
-    this.api = got.extend({
-      prefixUrl: memberServiceUrl,
-      timeout: {
-        request: memberServiceTimeout,
-      },
+    this.httpClient = new HttpClient(memberServiceUrl, {
+      timeout: memberServiceTimeout,
       headers: {
-        'content-type': 'application/json',
-        'user-agent': 'koa-auth-server',
+        'User-Agent': 'koa-auth-server',
       },
-      retry: {
-        limit: 2,
-        methods: ['GET', 'POST', 'PUT'],
-        statusCodes: [408, 429, 500, 502, 503, 504],
-      },
-      responseType: 'json',
     });
   }
 
@@ -82,22 +72,21 @@ export class MemberApiClient {
    */
   public async verifyCredentials(id: string, password: string): Promise<UserInfo> {
     try {
-      const response = await this.api.post<MemberResponse>('api/members/verify', {
-        json: { id, password },
+      const response = await this.httpClient.post<MemberResponse>('api/members/verify', {
+        id,
+        password,
       });
 
-      const { body } = response;
-
       // 응답 구조 검증
-      if (!this.isMemberResponse(body)) {
-        console.error(`[MemberAPI] Invalid response format:`, body);
+      if (!this.isMemberResponse(response)) {
+        console.error(`[MemberAPI] Invalid response format:`, response);
         throw new ApiResponseFormatError(
           'Invalid response format from member service',
           this.SERVICE_NAME,
         );
       }
 
-      const member = body.data;
+      const member = response.data;
 
       return {
         id: member.id,
@@ -110,9 +99,9 @@ export class MemberApiClient {
       console.error(`[MemberAPI] Error message:`, (error as any)?.message);
       console.error(`[MemberAPI] Error code:`, (error as any)?.code);
 
-      if (error instanceof HTTPError) {
-        console.error(`[MemberAPI] HTTP Error status:`, error.response.statusCode);
-        console.error(`[MemberAPI] HTTP Error body:`, error.response.body);
+      if (error instanceof BaseError) {
+        console.error(`[MemberAPI] BaseError status:`, error.statusCode);
+        console.error(`[MemberAPI] BaseError context:`, error.details);
       }
 
       throw this.handleApiError(error, 'verifyCredentials');
@@ -120,64 +109,69 @@ export class MemberApiClient {
   }
 
   /**
-   * got 에러를 비즈니스 에러로 변환하는 헬퍼 메서드
+   * HttpClient 에러를 비즈니스 에러로 변환하는 헬퍼 메서드
    * @private
    */
   private handleApiError(error: unknown, operation: string): Error {
-    // got의 TimeoutError 처리
-    if (error instanceof TimeoutError) {
-      return new ApiTimeoutError(`요청 시간이 초과되었습니다 (${operation})`, this.SERVICE_NAME);
-    }
+    // BaseError (공통 HttpClient 에러) 처리
+    if (error instanceof BaseError) {
+      const statusCode = error.statusCode || 500;
+      let message = error.message;
 
-    // got의 HTTP 에러 처리
-    if (error instanceof HTTPError) {
-      const statusCode = error.response.statusCode;
-      let message = this.getErrorMessage(error);
-
-      // HTTP 상태 코드별 처리
-      switch (statusCode) {
-        case 429:
-          return new ApiRateLimitError(`요청 한도를 초과했습니다: ${message}`, this.SERVICE_NAME);
-
-        case 401:
-          return new ApiAuthenticationError(
-            '아이디 또는 비밀번호가 올바르지 않습니다',
+      // ErrorCode에 따른 처리
+      switch (error.code) {
+        case ErrorCode.TIMEOUT_ERROR:
+          return new ApiTimeoutError(
+            `요청 시간이 초과되었습니다 (${operation})`,
             this.SERVICE_NAME,
           );
-        case 403:
-          return new ApiForbiddenError('권한이 없습니다', this.SERVICE_NAME);
-        case 404:
-          return new ApiNotFoundError('등록되지 않은 계정입니다', this.SERVICE_NAME);
-        case 422:
-          return new ApiInvalidCredentialsError(
-            '아이디 또는 비밀번호가 올바르지 않습니다',
-            this.SERVICE_NAME,
-          );
-        // 서버 오류
-        case 500:
-        case 502:
-        case 503:
-        case 504:
+
+        case ErrorCode.EXTERNAL_SERVICE_ERROR:
+          // HTTP 상태 코드별 처리
+          switch (statusCode) {
+            case 429:
+              return new ApiRateLimitError(
+                `요청 한도를 초과했습니다: ${message}`,
+                this.SERVICE_NAME,
+              );
+
+            case 401:
+              return new ApiAuthenticationError(
+                '아이디 또는 비밀번호가 올바르지 않습니다',
+                this.SERVICE_NAME,
+              );
+            case 403:
+              return new ApiForbiddenError('권한이 없습니다', this.SERVICE_NAME);
+            case 404:
+              return new ApiNotFoundError('등록되지 않은 계정입니다', this.SERVICE_NAME);
+            case 422:
+              return new ApiInvalidCredentialsError(
+                '아이디 또는 비밀번호가 올바르지 않습니다',
+                this.SERVICE_NAME,
+              );
+            // 서버 오류
+            case 500:
+            case 502:
+            case 503:
+            case 504:
+              return new ApiUnavailableError(
+                `서비스를 일시적으로 사용할 수 없습니다: ${message}`,
+                this.SERVICE_NAME,
+              );
+
+            default:
+              return new ApiError(message, statusCode, this.SERVICE_NAME);
+          }
+
+        case ErrorCode.CONNECTION_ERROR:
           return new ApiUnavailableError(
-            `서비스를 일시적으로 사용할 수 없습니다: ${message}`,
+            `서비스에 연결할 수 없습니다 (${operation})`,
             this.SERVICE_NAME,
           );
 
         default:
           return new ApiError(message, statusCode, this.SERVICE_NAME);
       }
-    }
-
-    // got의 RequestError (네트워크 문제 등)
-    if (error instanceof RequestError) {
-      if (error.code === 'ECONNREFUSED') {
-        return new ApiUnavailableError(
-          `서비스에 연결할 수 없습니다 (${operation})`,
-          this.SERVICE_NAME,
-        );
-      }
-
-      return new ApiError(`API 요청 오류: ${error.message}`, 500, this.SERVICE_NAME);
     }
 
     // 일반 Error 객체 처리
@@ -187,67 +181,6 @@ export class MemberApiClient {
 
     // 기타 예상치 못한 에러
     return new ApiError('예상치 못한 오류가 발생했습니다', 500, this.SERVICE_NAME);
-  }
-
-  /**
-   * 에러 객체에서 사용자 친화적인 메시지 추출
-   */
-  private getErrorMessage(error: HTTPError): string {
-    try {
-      // body가 객체인지 확인
-      const body = error.response.body;
-
-      if (typeof body === 'object' && body !== null) {
-        // 다양한 메시지 필드 시도
-        if ('message' in body && typeof body.message === 'string') {
-          return body.message;
-        }
-
-        if ('error' in body) {
-          const errorObj = body.error;
-          if (typeof errorObj === 'object' && errorObj !== null && 'message' in errorObj) {
-            return (errorObj as any).message;
-          }
-          if (typeof errorObj === 'string') {
-            return errorObj;
-          }
-        }
-
-        // 기타 일반적인 에러 필드들
-        if ('msg' in body && typeof body.msg === 'string') {
-          return body.msg;
-        }
-
-        if ('detail' in body && typeof body.detail === 'string') {
-          return body.detail;
-        }
-      }
-
-      // body가 문자열인 경우
-      if (typeof body === 'string') {
-        return body;
-      }
-    } catch (e) {
-      console.error(`[MemberAPI] Error extracting message:`, e);
-    }
-
-    // 상태 코드별 기본 메시지
-    switch (error.response.statusCode) {
-      case 400:
-        return '잘못된 요청입니다';
-      case 401:
-        return '인증이 필요합니다';
-      case 403:
-        return '권한이 없습니다';
-      case 404:
-        return '요청한 리소스를 찾을 수 없습니다';
-      case 429:
-        return '너무 많은 요청을 보냈습니다';
-      case 500:
-        return '서버 내부 오류가 발생했습니다';
-      default:
-        return `${error.response.statusCode} 오류가 발생했습니다`;
-    }
   }
 
   /**

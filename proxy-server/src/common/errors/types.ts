@@ -35,6 +35,7 @@ export enum ErrorCode {
   RATE_LIMIT_EXCEEDED = 'SYS_5003',
   FILE_READ_ERROR = 'SYS_5004',
   TIMEOUT_ERROR = 'SYS_5005',
+  CONNECTION_ERROR = 'SYS_5006',
 
   // 외부 서비스 관련 (6xxx)
   EXTERNAL_SERVICE_ERROR = 'EXT_6001',

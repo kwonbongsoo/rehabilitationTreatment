@@ -15,6 +15,7 @@ import { ProductImage } from './product-image.entity';
 
 @Entity('products')
 @Index(['categoryId', 'isActive'])
+@Index(['sellerId', 'isActive'])
 @Index(['createdAt'])
 export class Product {
   @PrimaryGeneratedColumn()
@@ -34,6 +35,9 @@ export class Product {
 
   @Column({ type: 'int' })
   categoryId: number;
+
+  @Column({ type: 'varchar', length: 100 })
+  sellerId: string;
 
   @Column({ type: 'varchar', length: 500, nullable: true })
   mainImage: string;
@@ -57,11 +61,7 @@ export class Product {
   isActive: boolean;
 
   @Column({ type: 'int', default: 0 })
-  discount: number;
-
-  @Column({ type: 'int', default: 0 })
   discountPercentage: number;
-
 
   @Column({ type: 'int', default: 0 })
   stock: number;

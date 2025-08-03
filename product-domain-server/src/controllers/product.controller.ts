@@ -54,6 +54,19 @@ export class ProductController {
     return this.productService.findAll(queryDto);
   }
 
+  @Get('seller/:sellerId')
+  @ApiOperation({ summary: '판매자별 상품 목록 조회' })
+  @ApiResponse({
+    status: 200,
+    description: '판매자별 상품 목록을 성공적으로 조회했습니다.',
+  })
+  async findBySeller(
+    @Param('sellerId') sellerId: string,
+    @Query() queryDto: QueryProductDto,
+  ) {
+    return this.productService.findBySeller(sellerId, queryDto);
+  }
+
   @Get(':id')
   @ApiOperation({ summary: '상품 상세 조회' })
   @ApiResponse({

@@ -1,4 +1,4 @@
-import { HTTPError, RequestError, TimeoutError } from 'got';
+import { BaseError, ErrorCode } from '@ecommerce/common';
 import {
     ApiError, ApiTimeoutError, ApiUnavailableError,
     ApiResponseFormatError, ApiRateLimitError
@@ -10,19 +10,8 @@ export class ApiErrorHandler {
     constructor(private readonly serviceName: string) { }
 
     handleApiError(error: unknown, operation: string): Error {
-        if (error instanceof TimeoutError) {
-            return new ApiTimeoutError(
-                `${ERROR_MESSAGES.TIMEOUT} (${operation})`,
-                this.serviceName
-            );
-        }
-
-        if (error instanceof HTTPError) {
-            return this.handleHttpError(error, operation);
-        }
-
-        if (error instanceof RequestError) {
-            return this.handleRequestError(error, operation);
+        if (error instanceof BaseError) {
+            return this.handleBaseError(error, operation);
         }
 
         // 기타 예상치 못한 에러
@@ -34,58 +23,56 @@ export class ApiErrorHandler {
         );
     }
 
-    private handleHttpError(error: HTTPError, operation: string): Error {
-        const statusCode = error.response.statusCode;
-        const message = this.extractErrorMessage(error);
+    private handleBaseError(error: BaseError, operation: string): Error {
+        const statusCode = error.statusCode || 500;
+        const message = error.message;
 
-        // HTTP 상태 코드별 처리
-        switch (statusCode) {
-            case 429:
-                return new ApiRateLimitError(
-                    `${ERROR_MESSAGES.RATE_LIMIT}: ${message}`,
+        // ErrorCode에 따른 처리
+        switch (error.code) {
+            case ErrorCode.TIMEOUT_ERROR:
+                return new ApiTimeoutError(
+                    `${ERROR_MESSAGES.TIMEOUT} (${operation})`,
                     this.serviceName
                 );
 
-            case 401:
-                return new ApiError(
-                    ERROR_MESSAGES.INVALID_CREDENTIALS,
-                    statusCode,
+            case ErrorCode.EXTERNAL_SERVICE_ERROR:
+                // HTTP 상태 코드별 처리
+                switch (statusCode) {
+                    case 429:
+                        return new ApiRateLimitError(
+                            `${ERROR_MESSAGES.RATE_LIMIT}: ${message}`,
+                            this.serviceName
+                        );
+
+                    case 401:
+                        return new ApiError(
+                            ERROR_MESSAGES.INVALID_CREDENTIALS,
+                            statusCode,
+                            this.serviceName
+                        );
+
+                    case 500:
+                    case 502:
+                    case 503:
+                    case 504:
+                        return new ApiUnavailableError(
+                            `${ERROR_MESSAGES.SERVER_ERROR}: ${message}`,
+                            this.serviceName
+                        );
+
+                    default:
+                        return new ApiError(message, statusCode, this.serviceName);
+                }
+
+            case ErrorCode.CONNECTION_ERROR:
+                return new ApiUnavailableError(
+                    `${ERROR_MESSAGES.CONNECTION_REFUSED} (${operation})`,
                     this.serviceName
                 );
-
-            // 다른 상태 코드 처리...
 
             default:
                 return new ApiError(message, statusCode, this.serviceName);
         }
-    }
-
-    private handleRequestError(error: RequestError, operation: string): Error {
-        if (error.code === 'ECONNREFUSED') {
-            return new ApiUnavailableError(
-                `${ERROR_MESSAGES.CONNECTION_REFUSED} (${operation})`,
-                this.serviceName
-            );
-        }
-
-        return new ApiError(
-            `${ERROR_MESSAGES.REQUEST_ERROR}: ${error.message}`,
-            500,
-            this.serviceName
-        );
-    }
-
-    private extractErrorMessage(error: HTTPError): string {
-        try {
-            const body = error.response.body;
-            if (typeof body === 'object' && body !== null && 'message' in body) {
-                return body.message as string;
-            }
-        } catch (e) {
-            // 메시지 추출 중 오류 발생 시 기본 메시지 사용
-        }
-
-        return this.getDefaultErrorMessage(error.response.statusCode);
     }
 
     private getDefaultErrorMessage(statusCode: number): string {

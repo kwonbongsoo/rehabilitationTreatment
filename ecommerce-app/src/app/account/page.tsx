@@ -6,7 +6,7 @@ import { useAuth } from '@/domains/auth/stores';
 import { ErrorHandler } from '@/utils/errorHandling';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { FiHeart, FiLogOut, FiSettings, FiShoppingBag, FiUser } from 'react-icons/fi';
+import { FiHeart, FiLogOut, FiPlus, FiSettings, FiShoppingBag, FiUser } from 'react-icons/fi';
 import styles from '@/styles/account/MobileAccount.module.css';
 
 export default function AccountPage() {
@@ -79,6 +79,14 @@ export default function AccountPage() {
               <FiHeart size={20} />
             </div>
             <span className={styles.menuText}>Wishlist</span>
+            <div className={styles.menuArrow}>›</div>
+          </div>
+
+          <div className={styles.menuItem} onClick={() => router.push('/account/add-product')}>
+            <div className={styles.menuIcon}>
+              <FiPlus size={20} />
+            </div>
+            <span className={styles.menuText}>Add Products</span>
             <div className={styles.menuArrow}>›</div>
           </div>
 
