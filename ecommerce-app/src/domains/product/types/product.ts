@@ -34,6 +34,19 @@ export interface ProductFilter {
   order?: 'asc' | 'desc';
 }
 
+// 상품 옵션 타입
+export interface ProductOption {
+  id?: number;
+  optionType: string; // 'color', 'size', 'material' 등
+  optionName: string; // '색상', '사이즈', '소재' 등
+  optionValue: string; // '빨강', 'XL', '면' 등
+  additionalPrice: number; // 추가 가격
+  stock: number; // 옵션별 재고
+  sku?: string; // 옵션별 SKU
+  isActive: boolean;
+  sortOrder: number;
+}
+
 // 상품 등록 폼 데이터 타입
 export interface ProductFormData {
   name: string;
@@ -54,6 +67,7 @@ export interface ProductFormData {
   isFeatured: boolean;
   discountPercentage: number;
   specifications?: { [key: string]: string };
+  options?: ProductOption[]; // 상품 옵션 추가
 }
 // 상품 액션 결과 타입
 export interface ProductActionResult {
