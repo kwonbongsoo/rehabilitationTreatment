@@ -2,9 +2,71 @@ import { FastifyRequest, FastifyReply } from 'fastify';
 import productService from '../services/productService';
 import { CreateProductRequest } from '../types/productTypes';
 
+/**
+ * 상품 관리 컨트롤러
+ * 
+ * @description
+ * 멀티파트 폼 데이터를 처리하여 상품 등록, 이미지 업로드, 옵션 관리 등의 기능을 제공합니다.
+ * 베스트 프랙티스를 적용한 검증, 에러 처리, 로깅을 포함합니다.
+ * 
+ * @author BFF Team
+ * @version 2.0.0
+ * @since 2024-01-01
+ */
 export class ProductController {
+  // === 상수 정의 ===
+  
+  /** 허용되는 이미지 MIME 타입 목록 */
+  private static readonly ALLOWED_MIME_TYPES = [
+    'image/jpeg',
+    'image/jpg', 
+    'image/png',
+    'image/gif',
+    'image/webp'
+  ] as const;
+
+  /** 최대 파일 크기 (10MB) */
+  private static readonly MAX_FILE_SIZE = 10 * 1024 * 1024;
+
+  /** 최대 이미지 업로드 개수 */
+  private static readonly MAX_IMAGE_COUNT = 5;
+
+  /** 상품명 최대 길이 */
+  private static readonly MAX_NAME_LENGTH = 200;
+
+  /** 상품 설명 최대 길이 */
+  private static readonly MAX_DESCRIPTION_LENGTH = 2000;
+
+  // === 메서드 정의 ===
   /**
    * 상품 등록 (이미지 및 옵션 포함)
+   * 
+   * @description
+   * 멀티파트 폼 데이터로 전송된 상품 정보와 이미지를 처리하여 새 상품을 등록합니다.
+   * - productData: JSON 문자열로 전송된 상품 기본 정보
+   * - images: 업로드된 이미지 파일들 (최대 5개)
+   * - 철저한 검증 로직과 에러 처리 포함
+   * 
+   * @param request - Fastify 요청 객체 (multipart/form-data 형식)
+   * @param reply - Fastify 응답 객체
+   * @returns 등록된 상품 정보 또는 에러 응답
+   * 
+   * @throws {400} 검증 실패, 파싱 오류, 필수 필드 누락
+   * @throws {500} 서버 내부 오류
+   * 
+   * @example
+   * // 프론트엔드에서 FormData 전송
+   * const formData = new FormData();
+   * formData.append('productData', JSON.stringify({
+   *   name: '상품명',
+   *   description: '상품 설명',
+   *   price: 10000,
+   *   originalPrice: 15000,
+   *   categoryId: 1,
+   *   sellerId: 'seller123'
+   * }));
+   * formData.append('images', file1);
+   * formData.append('images', file2);
    */
   async registerProduct(request: FastifyRequest, reply: FastifyReply) {
     try {
@@ -25,19 +87,42 @@ export class ProductController {
   }
 
   /**
-   * 요청에서 상품 데이터 파싱
+   * 멀티파트 요청에서 상품 데이터 파싱 및 검증
+   * 
+   * @description
+   * multipart/form-data 요청을 파싱하여 상품 정보와 이미지 파일을 추출합니다.
+   * - productData 필드에서 JSON 문자열을 파싱하여 상품 기본 정보 추출
+   * - images 필드에서 업로드된 파일들을 File 객체로 변환
+   * - 파일 타입, 크기, 개수 등 철저한 검증 수행
+   * - 숫자 타입 자동 변환 및 불린 타입 정규화
+   * 
+   * @param request - multipart/form-data 형식의 Fastify 요청 객체
+   * @returns 파싱되고 검증된 상품 생성 요청 데이터
+   * 
+   * @throws {Error} multipart 형식이 아닌 경우
+   * @throws {Error} productData 필드가 누락된 경우
+   * @throws {Error} JSON 파싱 실패
+   * @throws {Error} 파일 검증 실패 (타입, 크기, 개수 등)
+   * @throws {Error} 숫자 타입 변환 실패
+   * 
+   * @private
    */
   private async parseProductData(request: FastifyRequest): Promise<CreateProductRequest> {
-    const data = request.body as CreateProductRequest & { images?: any[] };
-    let productData: CreateProductRequest;
-    let files: File[] = [];
+    // 멀티파트 요청만 지원하도록 변경
+    if (!request.isMultipart()) {
+      throw new Error('상품 등록은 multipart/form-data 형식만 지원합니다.');
+    }
 
-    if (request.isMultipart()) {
-      const parts = request.parts();
-      const formData: any = {};
+    const parts = request.parts();
+    const formData: any = {};
+    const files: File[] = [];
 
+    try {
       for await (const part of parts) {
         if (part.type === 'file') {
+          // 파일 유형 및 크기 검증
+          await this.validateFileUpload(part);
+          
           // 파일 데이터를 File 객체로 변환
           const buffer = await part.toBuffer();
           const file = new File([buffer], part.filename || 'upload', {
@@ -49,26 +134,33 @@ export class ProductController {
           formData[part.fieldname] = part.value;
         }
       }
+    } catch (error: any) {
+      throw new Error(`파일 파싱 실패: ${error.message}`);
+    }
 
-      // 문자열로 전송된 JSON 데이터 파싱
-      if (formData.productData) {
+    // productData JSON 파싱
+    let productData: CreateProductRequest;
+    if (formData.productData) {
+      try {
         productData = JSON.parse(formData.productData);
-      } else {
-        productData = formData;
-      }
-
-      // 옵션 데이터 파싱 (문자열로 전송된 경우)
-      if (formData.options && typeof formData.options === 'string') {
-        try {
-          productData.options = JSON.parse(formData.options);
-        } catch (error) {
-          throw new Error('옵션 데이터 파싱에 실패했습니다.');
-        }
+      } catch (error) {
+        throw new Error('상품 데이터 JSON 파싱에 실패했습니다. 올바른 JSON 형식인지 확인해주세요.');
       }
     } else {
-      productData = data;
-      files = data.images || [];
+      throw new Error('상품 데이터(productData)가 누락되었습니다.');
     }
+
+    // 옵션 데이터 파싱 (문자열로 전송된 경우)
+    if (formData.options && typeof formData.options === 'string') {
+      try {
+        productData.options = JSON.parse(formData.options);
+      } catch (error) {
+        throw new Error('옵션 데이터 JSON 파싱에 실패했습니다.');
+      }
+    }
+
+    // 숫자 타입 변환 및 검증
+    productData = this.normalizeProductData(productData);
 
     // 파일을 productData에 추가
     productData.images = files;
@@ -77,19 +169,153 @@ export class ProductController {
   }
 
   /**
-   * 필수 필드 검증
+   * 업로드 파일 검증 (MIME 타입, 크기, 파일명)
+   * 
+   * @description
+   * 멀티파트 요청으로 업로드된 파일의 유효성을 검증합니다.
+   * - MIME 타입: image/jpeg, image/png, image/gif, image/webp만 허용
+   * - 파일 크기: 최대 10MB 제한
+   * - 파일명: 빈 값이나 공백만 있는 파일명 거부
+   * 
+   * @param part - multipart 파싱된 파일 부분 객체
+   * @returns 검증 성공 시 void (Promise<void>)
+   * 
+   * @throws {Error} 지원하지 않는 MIME 타입
+   * @throws {Error} 파일 크기 초과 (10MB)
+   * @throws {Error} 유효하지 않은 파일명
+   * 
+   * @private
    */
-  private validateRequiredFields(productData: CreateProductRequest): void {
-    const requiredFields = ['name', 'description', 'price', 'categoryId', 'sellerId'];
-    const missingFields = requiredFields.filter(field => !productData[field as keyof CreateProductRequest]);
+  private async validateFileUpload(part: any): Promise<void> {
+    // MIME 타입 검증
+    if (!ProductController.ALLOWED_MIME_TYPES.includes(part.mimetype)) {
+      throw new Error(
+        `지원하지 않는 파일 형식입니다: ${part.mimetype}. ` +
+        `지원 형식: ${ProductController.ALLOWED_MIME_TYPES.join(', ')}`
+      );
+    }
 
-    if (missingFields.length > 0) {
-      throw new Error(`필수 필드가 누락되었습니다: ${missingFields.join(', ')}`);
+    // 파일 크기 제한
+    if (part.file && part.file.bytesRead > ProductController.MAX_FILE_SIZE) {
+      const maxSizeMB = ProductController.MAX_FILE_SIZE / (1024 * 1024);
+      throw new Error(`파일 크기가 너무 큽니다. 최대 ${maxSizeMB}MB까지 업로드 가능합니다.`);
+    }
+
+    // 파일명 검증
+    if (!part.filename || part.filename.trim() === '') {
+      throw new Error('파일명이 유효하지 않습니다.');
     }
   }
 
   /**
-   * 에러 처리 헬퍼
+   * 상품 데이터 정규화 및 타입 변환
+   */
+  private normalizeProductData(data: any): CreateProductRequest {
+    return {
+      ...data,
+      price: this.parseNumber(data.price, '가격'),
+      originalPrice: this.parseNumber(data.originalPrice, '원가'),
+      categoryId: this.parseNumber(data.categoryId, '카테고리 ID'),
+      stock: data.stock !== undefined ? this.parseNumber(data.stock, '재고') : undefined,
+      weight: data.weight !== undefined ? this.parseNumber(data.weight, '무게') : undefined,
+      discountPercentage: data.discountPercentage !== undefined ? 
+        this.parseNumber(data.discountPercentage, '할인율') : undefined,
+      isNew: Boolean(data.isNew),
+      isFeatured: Boolean(data.isFeatured),
+      isActive: data.isActive !== undefined ? Boolean(data.isActive) : undefined,
+    };
+  }
+
+  /**
+   * 숫자 파싱 헬퍼
+   */
+  private parseNumber(value: any, fieldName: string): number {
+    const parsed = typeof value === 'string' ? parseFloat(value) : Number(value);
+    if (isNaN(parsed)) {
+      throw new Error(`${fieldName}은(는) 올바른 숫자여야 합니다: ${value}`);
+    }
+    return parsed;
+  }
+
+  /**
+   * 필수 필드 및 비즈니스 로직 검증
+   */
+  private validateRequiredFields(productData: CreateProductRequest): void {
+    // 필수 필드 검증
+    const validationErrors: string[] = [];
+
+    if (!productData.name || productData.name.trim() === '') {
+      validationErrors.push('상품명은 필수입니다.');
+    }
+
+    if (!productData.description || productData.description.trim() === '') {
+      validationErrors.push('상품 설명은 필수입니다.');
+    }
+
+    if (!productData.sellerId || productData.sellerId.trim() === '') {
+      validationErrors.push('판매자 ID는 필수입니다.');
+    }
+
+    // 숫자 필드 검증 (이미 parseNumber에서 검증되었지만 추가 비즈니스 로직 검증)
+    if (productData.price <= 0) {
+      validationErrors.push('가격은 0보다 커야 합니다.');
+    }
+
+    if (productData.originalPrice <= 0) {
+      validationErrors.push('원가는 0보다 커야 합니다.');
+    }
+
+    if (productData.categoryId <= 0) {
+      validationErrors.push('올바른 카테고리를 선택해주세요.');
+    }
+
+    // 비즈니스 로직 검증
+    if (productData.price > productData.originalPrice) {
+      validationErrors.push('판매가격은 원가보다 높을 수 없습니다.');
+    }
+
+    // 할인율 검증
+    if (productData.discountPercentage !== undefined && 
+        (productData.discountPercentage < 0 || productData.discountPercentage > 100)) {
+      validationErrors.push('할인율은 0%에서 100% 사이여야 합니다.');
+    }
+
+    // 재고 검증
+    if (productData.stock !== undefined && productData.stock < 0) {
+      validationErrors.push('재고는 0 이상이어야 합니다.');
+    }
+
+    // 무게 검증
+    if (productData.weight !== undefined && productData.weight < 0) {
+      validationErrors.push('무게는 0 이상이어야 합니다.');
+    }
+
+    // 이미지 검증
+    if (!productData.images || productData.images.length === 0) {
+      validationErrors.push('최소 1개의 상품 이미지가 필요합니다.');
+    }
+
+    if (productData.images && productData.images.length > ProductController.MAX_IMAGE_COUNT) {
+      validationErrors.push(`상품 이미지는 최대 ${ProductController.MAX_IMAGE_COUNT}개까지 업로드 가능합니다.`);
+    }
+
+    // 상품명 길이 검증
+    if (productData.name && productData.name.length > ProductController.MAX_NAME_LENGTH) {
+      validationErrors.push(`상품명은 ${ProductController.MAX_NAME_LENGTH}자를 초과할 수 없습니다.`);
+    }
+
+    // 상품 설명 길이 검증
+    if (productData.description && productData.description.length > ProductController.MAX_DESCRIPTION_LENGTH) {
+      validationErrors.push(`상품 설명은 ${ProductController.MAX_DESCRIPTION_LENGTH}자를 초과할 수 없습니다.`);
+    }
+
+    if (validationErrors.length > 0) {
+      throw new Error(`검증 실패: ${validationErrors.join(' | ')}`);
+    }
+  }
+
+  /**
+   * 에러 처리 헬퍼 (개선된 에러 분류 및 로깅)
    */
   private handleError(
     request: FastifyRequest, 
@@ -97,7 +323,23 @@ export class ProductController {
     error: any, 
     operation: string
   ) {
-    request.log.error(`${operation} 실패:`, error);
+    // 에러 유형별 상태 코드 결정
+    const statusCode = this.determineStatusCode(error);
+    
+    // 구조화된 에러 로깅
+    request.log.error({
+      operation,
+      error: {
+        message: error.message,
+        stack: error.stack,
+        statusCode,
+      },
+      requestInfo: {
+        method: request.method,
+        url: request.url,
+        userAgent: request.headers['user-agent'],
+      }
+    }, `${operation} 실패`);
 
     // BaseError 타입의 에러인 경우
     if (error.statusCode && error.toResponse) {
@@ -107,13 +349,80 @@ export class ProductController {
       });
     }
 
-    // 일반 에러
-    return reply.status(error.statusCode || 500).send({
+    // 클라이언트 친화적 에러 메시지 생성
+    const clientMessage = this.getClientFriendlyMessage(error, operation);
+
+    // 응답 전송
+    return reply.status(statusCode).send({
       error: {
-        message: error.message || `${operation} 중 오류가 발생했습니다.`,
-        status: error.statusCode || 500,
+        message: clientMessage,
+        status: statusCode,
+        timestamp: new Date().toISOString(),
+        operation,
       },
     });
+  }
+
+  /**
+   * 에러 유형에 따른 HTTP 상태 코드 결정
+   */
+  private determineStatusCode(error: any): number {
+    if (error.statusCode) {
+      return error.statusCode;
+    }
+
+    const message = error.message?.toLowerCase() || '';
+
+    // 검증 에러 (400)
+    if (message.includes('필수') || 
+        message.includes('검증') ||
+        message.includes('파싱') ||
+        message.includes('형식') ||
+        message.includes('크기') ||
+        message.includes('타입')) {
+      return 400;
+    }
+
+    // 인증 에러 (401)
+    if (message.includes('인증') || message.includes('권한')) {
+      return 401;
+    }
+
+    // 리소스 없음 (404)
+    if (message.includes('찾을 수 없') || message.includes('존재하지')) {
+      return 404;
+    }
+
+    // 충돌 에러 (409)
+    if (message.includes('중복') || message.includes('이미 존재')) {
+      return 409;
+    }
+
+    // 기본값: 내부 서버 에러 (500)
+    return 500;
+  }
+
+  /**
+   * 클라이언트 친화적 에러 메시지 생성
+   */
+  private getClientFriendlyMessage(error: any, operation: string): string {
+    const originalMessage = error.message || '';
+    
+    // 이미 클라이언트 친화적인 메시지인 경우
+    if (originalMessage.includes('필수') || 
+        originalMessage.includes('검증') ||
+        originalMessage.includes('형식') ||
+        originalMessage.includes('크기')) {
+      return originalMessage;
+    }
+
+    // 운영 환경에서는 일반적인 메시지로 변환
+    if (process.env.NODE_ENV === 'production') {
+      return `${operation} 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.`;
+    }
+
+    // 개발 환경에서는 상세한 메시지 제공
+    return originalMessage || `${operation} 중 오류가 발생했습니다.`;
   }
 
   /**
@@ -145,20 +454,36 @@ export class ProductController {
   }
 
   /**
-   * 요청에서 파일 추출
+   * 요청에서 파일 추출 (개선된 검증 포함)
    */
   private async extractFilesFromRequest(request: FastifyRequest): Promise<File[]> {
     const files: File[] = [];
     const parts = request.parts();
     
-    for await (const part of parts) {
-      if (part.type === 'file') {
-        const buffer = await part.toBuffer();
-        const file = new File([buffer], part.filename || 'upload', {
-          type: part.mimetype,
-        });
-        files.push(file);
+    try {
+      for await (const part of parts) {
+        if (part.type === 'file') {
+          // 파일 검증
+          await this.validateFileUpload(part);
+          
+          const buffer = await part.toBuffer();
+          const file = new File([buffer], part.filename || 'upload', {
+            type: part.mimetype,
+          });
+          files.push(file);
+        }
       }
+    } catch (error: any) {
+      throw new Error(`이미지 파일 추출 실패: ${error.message}`);
+    }
+    
+    // 파일 개수 검증
+    if (files.length === 0) {
+      throw new Error('업로드할 이미지 파일이 없습니다.');
+    }
+
+    if (files.length > ProductController.MAX_IMAGE_COUNT) {
+      throw new Error(`한 번에 최대 ${ProductController.MAX_IMAGE_COUNT}개의 이미지만 업로드할 수 있습니다.`);
     }
     
     return files;

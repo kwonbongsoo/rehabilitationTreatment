@@ -2,78 +2,15 @@ import { FastifyInstance } from 'fastify';
 import productController from '../controllers/productController';
 
 const productRoutes = async (fastify: FastifyInstance) => {
-  // 상품 등록 (이미지 포함)
+  // 상품 등록 (이미지 포함) - 멀티파트 전용
   fastify.post('/products', {
     schema: {
       tags: ['Products'],
       summary: '상품 등록',
-      description: '상품 정보와 이미지를 함께 등록합니다.',
-      consumes: ['multipart/form-data', 'application/json'],
-      body: {
-        type: 'object',
-        properties: {
-          productData: {
-            type: 'string',
-            description: '상품 정보 JSON 문자열 (multipart 요청 시)',
-          },
-          name: { type: 'string', description: '상품명' },
-          description: { type: 'string', description: '상품 설명' },
-          price: { type: 'number', description: '가격' },
-          originalPrice: { type: 'number', description: '원가' },
-          categoryId: { type: 'number', description: '카테고리 ID' },
-          sellerId: { type: 'string', description: '판매자 ID' },
-          mainImage: { type: 'string', description: '메인 이미지 URL' },
-          rating: { type: 'number', description: '평점' },
-          averageRating: { type: 'number', description: '평균 평점' },
-          reviewCount: { type: 'number', description: '리뷰 수' },
-          isNew: { type: 'boolean', description: '신상품 여부' },
-          isFeatured: { type: 'boolean', description: '추천 상품 여부' },
-          isActive: { type: 'boolean', description: '활성화 상태' },
-          discount: { type: 'number', description: '할인액' },
-          discountPercentage: { type: 'number', description: '할인율' },
-          stock: { type: 'number', description: '재고' },
-          sku: { type: 'string', description: 'SKU' },
-          weight: { type: 'number', description: '무게' },
-          dimensions: {
-            type: 'object',
-            description: '치수',
-            properties: {
-              length: { type: 'number' },
-              width: { type: 'number' },
-              height: { type: 'number' },
-            },
-          },
-          specifications: {
-            type: 'object',
-            description: '상품 스펙',
-          },
-          options: {
-            type: 'array',
-            description: '상품 옵션',
-            items: {
-              type: 'object',
-              properties: {
-                optionType: { type: 'string' },
-                optionName: { type: 'string' },
-                optionValue: { type: 'string' },
-                additionalPrice: { type: 'number' },
-                stock: { type: 'number' },
-                sku: { type: 'string' },
-                sortOrder: { type: 'number' },
-              },
-            },
-          },
-          images: {
-            type: 'array',
-            description: '상품 이미지 파일들',
-            items: {
-              type: 'string',
-              format: 'binary',
-            },
-          },
-        },
-        required: ['name', 'description', 'price', 'categoryId', 'sellerId'],
-      },
+      description: '상품 정보와 이미지를 함께 등록합니다. (multipart/form-data 전용)',
+      consumes: ['multipart/form-data'],
+      // 멀티파트 요청에서는 body 스키마를 생략하거나 최소화
+      // Fastify는 multipart 데이터를 동적으로 파싱하므로 JSON 스키마 검증이 적합하지 않음
       response: {
         201: {
           type: 'object',
@@ -157,12 +94,12 @@ const productRoutes = async (fastify: FastifyInstance) => {
     handler: productController.getProductsBySeller.bind(productController),
   });
 
-  // 기존 상품에 이미지 업로드
+  // 기존 상품에 이미지 업로드 - 멀티파트 전용
   fastify.post('/products/:productId/images', {
     schema: {
       tags: ['Products'],
       summary: '상품 이미지 업로드',
-      description: '기존 상품에 이미지를 추가로 업로드합니다.',
+      description: '기존 상품에 이미지를 추가로 업로드합니다. (multipart/form-data 전용)',
       consumes: ['multipart/form-data'],
       params: {
         type: 'object',
@@ -171,19 +108,8 @@ const productRoutes = async (fastify: FastifyInstance) => {
         },
         required: ['productId'],
       },
-      body: {
-        type: 'object',
-        properties: {
-          images: {
-            type: 'array',
-            description: '업로드할 이미지 파일들',
-            items: {
-              type: 'string',
-              format: 'binary',
-            },
-          },
-        },
-      },
+      // 멀티파트 이미지 업로드에서는 body 스키마 검증을 생략
+      // 컨트롤러에서 파일 존재 여부 및 타입 검증을 수행
       response: {
         200: {
           type: 'object',
