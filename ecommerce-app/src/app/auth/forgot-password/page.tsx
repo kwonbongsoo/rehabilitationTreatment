@@ -2,6 +2,7 @@
 
 import LoadingIndicator from '@/components/common/LoadingIndicator';
 import dynamic from 'next/dynamic';
+import { ReactElement } from 'react';
 
 // 클라이언트에서만 실행되는 컴포넌트로 동적 임포트
 const ForgotPasswordClient = dynamic(
@@ -23,7 +24,7 @@ const ForgotPasswordClient = dynamic(
   },
 );
 
-export default function ForgotPasswordPage() {
+export default function ForgotPasswordPage(): ReactElement {
   return (
     <div style={{ minHeight: '100vh', background: '#f8f9fa' }}>
       <ForgotPasswordClient />

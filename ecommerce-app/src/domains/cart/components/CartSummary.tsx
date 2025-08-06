@@ -3,7 +3,7 @@
  * 할인 코드, 가격 정보, 체크아웃 버튼
  */
 
-import React from 'react';
+import React, { ReactElement } from 'react';
 import { Button } from '@/components/common/Button';
 import styles from './CartSummary.module.css';
 
@@ -23,7 +23,7 @@ export function CartSummary({
   onDiscountCodeChange,
   onApplyDiscount,
   onCheckout,
-}: CartSummaryProps) {
+}: CartSummaryProps): ReactElement {
   return (
     <div className={styles.summary}>
       {/* 할인 코드 */}

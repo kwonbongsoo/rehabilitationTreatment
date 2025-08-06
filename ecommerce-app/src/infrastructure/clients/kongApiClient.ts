@@ -14,7 +14,7 @@ interface ApiCallOptions {
 class KongApiClient extends HttpClient {
   constructor(options: KongApiClientOptions = {}) {
     // 서버사이드: KONG_GATEWAY_URL, 클라이언트사이드: NEXT_PUBLIC_PROXY_API_URL
-    const getBaseURL = () => {
+    const getBaseURL = (): string => {
       if (typeof window === 'undefined') {
         // 서버사이드
         return process.env.KONG_GATEWAY_URL || 'http://localhost:8000';

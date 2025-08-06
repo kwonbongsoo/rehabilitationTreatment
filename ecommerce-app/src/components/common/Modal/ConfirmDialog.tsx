@@ -2,6 +2,7 @@
  * 확인 다이얼로그 컴포넌트
  */
 
+import React, { ReactElement } from 'react';
 import styles from '../Modal.module.css';
 import { BaseModal } from './BaseModal';
 
@@ -31,7 +32,7 @@ export function ConfirmDialog({
   confirmText = '확인',
   cancelText = '취소',
   variant = 'default',
-}: ConfirmDialogProps) {
+}: ConfirmDialogProps): ReactElement {
   return (
     <BaseModal isOpen={isOpen} onClose={onCancel} className={styles.dialog}>
       <div className={styles.dialogHeader}>

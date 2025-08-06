@@ -1,5 +1,5 @@
 'use client';
-import { Component, ErrorInfo, ReactNode } from 'react';
+import { Component, ErrorInfo, ReactElement, ReactNode } from 'react';
 import { normalizeError, getErrorActions, getUserFriendlyMessage } from '@/utils/errorHandler';
 
 type FallbackRender = (error: Error | null, reset: () => void) => ReactNode;
@@ -26,7 +26,7 @@ class ErrorBoundary extends Component<Props, State> {
     return { hasError: true, error };
   }
 
-  public override componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+  public override componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
     const { level = 'component', onError } = this.props;
     const normalizedError = normalizeError(error);
 
@@ -49,11 +49,11 @@ class ErrorBoundary extends Component<Props, State> {
     }
   }
 
-  public resetError = () => {
+  public resetError = (): void => {
     this.setState({ hasError: false, error: null });
   };
 
-  public override render() {
+  public override render(): ReactElement | ReactNode {
     if (this.state.hasError && this.state.error) {
       const { fallback, level = 'component' } = this.props;
       const normalizedError = normalizeError(this.state.error);

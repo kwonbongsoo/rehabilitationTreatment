@@ -2,7 +2,7 @@
  * 기본 모달 컴포넌트
  */
 
-import React, { ReactNode, useCallback, useEffect } from 'react';
+import React, { ReactElement, ReactNode, useCallback, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import styles from '../Modal.module.css';
 
@@ -34,7 +34,7 @@ export function BaseModal({
   closeOnEscape = true,
   showCloseButton = true,
   preventScroll = true,
-}: BaseModalProps) {
+}: BaseModalProps): ReactElement | null {
   // ESC 키로 모달 닫기
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
@@ -75,7 +75,9 @@ export function BaseModal({
     };
   }, [isOpen, handleKeyDown]);
 
-  if (!isOpen) return null;
+  if (!isOpen) {
+    return null;
+  }
 
   const modalContent = (
     <div className={`${styles.overlay} ${overlayClassName}`} onClick={handleOverlayClick}>

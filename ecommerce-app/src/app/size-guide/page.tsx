@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { ReactElement, useState } from 'react';
 import Layout from '@/components/layout/Layout';
 import styles from './page.module.css';
 
@@ -21,7 +21,7 @@ interface ShoeSize {
   cm: string;
 }
 
-export default function SizeGuide() {
+export default function SizeGuide(): ReactElement {
   const [selectedCategory, setSelectedCategory] = useState('women');
   const [selectedType, setSelectedType] = useState('clothing');
 
@@ -98,7 +98,7 @@ export default function SizeGuide() {
     },
   ];
 
-  const getClothingSizeData = () => {
+  const getClothingSizeData = (): ClothingSize[] => {
     switch (selectedCategory) {
       case 'women':
         return womenClothingSizes;

@@ -6,7 +6,14 @@ import { BaseError, AuthenticationError, ValidationError, NotFoundError } from '
  * 에러 처리 훅
  * 전역 에러 상태 관리와 에러 처리 로직을 담당합니다
  */
-export const useErrorHandler = () => {
+export const useErrorHandler = (): {
+  handleError: (error: Error | BaseError | unknown) => void;
+  handleApiError: (error: unknown) => void;
+  handleSuccess: (message: string) => void;
+  clearErrors: () => void;
+  hasErrors: () => boolean;
+  getErrorCount: () => number;
+} => {
   const {
     setGlobalError,
     clearGlobalError,

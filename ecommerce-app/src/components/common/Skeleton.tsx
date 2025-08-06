@@ -1,4 +1,5 @@
 import styles from './Skeleton.module.css';
+import { ReactElement } from 'react';
 
 interface SkeletonProps {
   width?: string | number;
@@ -16,7 +17,7 @@ export default function Skeleton({
   className = '',
   variant = 'rectangular',
   animation = 'pulse',
-}: SkeletonProps) {
+}: SkeletonProps): ReactElement {
   const style = {
     width: typeof width === 'number' ? `${width}px` : width,
     height: typeof height === 'number' ? `${height}px` : height,
@@ -37,7 +38,7 @@ export function TextSkeleton({
 }: {
   lines?: number;
   className?: string | undefined;
-}) {
+}): ReactElement {
   return (
     <div className={className}>
       {Array.from({ length: lines }, (_, index) => (
@@ -62,7 +63,7 @@ export function ImageSkeleton({
   width?: string | number;
   height?: string | number;
   className?: string;
-}) {
+}): ReactElement {
   return (
     <Skeleton
       variant="rectangular"
@@ -75,6 +76,12 @@ export function ImageSkeleton({
 }
 
 // 원형 아바타 스켈레톤
-export function AvatarSkeleton({ size = 40, className }: { size?: number; className?: string }) {
+export function AvatarSkeleton({
+  size = 40,
+  className,
+}: {
+  size?: number;
+  className?: string;
+}): ReactElement {
   return <Skeleton variant="circular" width={size} height={size} className={className} />;
 }

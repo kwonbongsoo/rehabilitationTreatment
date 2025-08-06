@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { ReactElement } from 'react';
 import { normalizeError, getErrorActions, getUserFriendlyMessage } from '@/utils/errorHandler';
 import { useRouter } from 'next/navigation';
 import styles from '@/styles/error/ErrorPage.module.css';
@@ -10,7 +10,7 @@ interface ErrorPageProps {
   reset: () => void;
 }
 
-export default function ErrorPage({ error, reset }: ErrorPageProps) {
+export default function ErrorPage({ error, reset }: ErrorPageProps): ReactElement {
   const router = useRouter();
   const normalizedError = normalizeError(error);
   const userMessage = getUserFriendlyMessage(normalizedError);
@@ -25,7 +25,7 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
     });
   }, [error, normalizedError]);
 
-  const handleAction = (action: typeof actions[0]) => {
+  const handleAction = (action: (typeof actions)[0]): void => {
     switch (action.action) {
       case 'retry':
         reset();
@@ -55,26 +55,26 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
             />
           </svg>
         </div>
-        
-        <h2 className={styles.errorTitle}>
-          오류가 발생했습니다
-        </h2>
-        
-        <p className={styles.errorMessage}>
-          {userMessage}
-        </p>
-        
+
+        <h2 className={styles.errorTitle}>오류가 발생했습니다</h2>
+
+        <p className={styles.errorMessage}>{userMessage}</p>
+
         {process.env.NODE_ENV === 'development' && (
           <div className={styles.developerInfo}>
             <details>
               <summary className={styles.developerSummary}>개발자 정보</summary>
               <div className={styles.developerDetails}>
-                {JSON.stringify({
-                  code: normalizedError.code,
-                  statusCode: normalizedError.statusCode,
-                  message: error.message,
-                  digest: error.digest,
-                }, null, 2)}
+                {JSON.stringify(
+                  {
+                    code: normalizedError.code,
+                    statusCode: normalizedError.statusCode,
+                    message: error.message,
+                    digest: error.digest,
+                  },
+                  null,
+                  2,
+                )}
               </div>
             </details>
           </div>

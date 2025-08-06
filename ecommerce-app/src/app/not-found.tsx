@@ -1,10 +1,10 @@
 'use client';
 
-import React from 'react';
+import React, { ReactElement } from 'react';
 import Link from 'next/link';
 import styles from '@/styles/error/NotFound.module.css';
 
-export default function NotFound() {
+export default function NotFound(): ReactElement {
   return (
     <div className={styles.notFoundContainer}>
       <div className={styles.notFoundContent}>

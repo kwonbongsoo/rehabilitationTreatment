@@ -7,7 +7,7 @@ import { AuthGuard } from '@/components/common/AuthGuard';
 import '@/styles/globals.css';
 import 'react-toastify/dist/ReactToastify.css';
 import { Metadata } from 'next';
-import React from 'react';
+import React, { ReactElement } from 'react';
 
 export const metadata: Metadata = {
   title: {
@@ -46,7 +46,7 @@ export const metadata: Metadata = {
  * - 클라이언트에서 인증 상태 로드
  * - React Query 클라이언트 전용 실행으로 안전성 보장
  */
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({ children }: { children: React.ReactNode }): ReactElement {
   return (
     <html lang="ko">
       <body>
@@ -57,9 +57,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <SessionProvider>
                 <AuthGuard>
                   <Layout>
-                    <ErrorBoundary level="component">
-                      {children}
-                    </ErrorBoundary>
+                    <ErrorBoundary level="component">{children}</ErrorBoundary>
                   </Layout>
                 </AuthGuard>
               </SessionProvider>

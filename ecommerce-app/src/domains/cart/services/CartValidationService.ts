@@ -38,7 +38,6 @@ export class CartValidationService {
     };
   }
 
-
   /**
    * 장바구니 전체 검증 (통합 ValidationResult 반환)
    */
@@ -76,7 +75,6 @@ export class CartValidationService {
       errors,
     };
   }
-
 
   private static readonly MIN_ORDER_AMOUNT = 10000;
 
@@ -116,14 +114,13 @@ export class CartValidationService {
     };
   }
 
-
   /**
    * 상품 추가 가능 여부 검증 (통합 ValidationResult 기반)
    */
   static canAddToCart(
     existingItems: CartItem[],
     newItem: Omit<CartItem, 'quantity'>,
-    quantity: number = 1,
+    quantity = 1,
   ): ValidationResult & { canAdd: boolean } {
     const errors: string[] = [];
 
@@ -158,5 +155,4 @@ export class CartValidationService {
       errors,
     };
   }
-
 }

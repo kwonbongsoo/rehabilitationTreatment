@@ -2,7 +2,7 @@
  * 센터 컴포넌트 - 중앙 정렬 레이아웃
  */
 
-import React, { ReactNode, HTMLAttributes, CSSProperties } from 'react';
+import React, { ReactElement, ReactNode, HTMLAttributes, CSSProperties } from 'react';
 import styles from './Layout.module.css';
 
 /**
@@ -21,7 +21,7 @@ export function Center({
   className = '',
   style,
   ...props
-}: CenterProps) {
+}: CenterProps): ReactElement {
   const centerClasses = [styles.center, styles[`center-${axis}`], className]
     .filter(Boolean)
     .join(' ');

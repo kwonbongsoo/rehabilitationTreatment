@@ -34,6 +34,9 @@ export const MOCK_PRODUCTS: Product[] = [
       { name: 'casual', color: '#007bff' },
       { name: 'basic', color: '#dc2626' },
     ],
+    sellerId: 'star12310',
+    isNew: false,
+    isFeatured: false,
   },
   {
     id: 2,
@@ -57,6 +60,9 @@ export const MOCK_PRODUCTS: Product[] = [
       { name: 'skinny', color: '#007bff' },
       { name: 'fashion', color: '#dc2626' },
     ],
+    sellerId: 'star12310',
+    isNew: false,
+    isFeatured: false,
   },
   {
     id: 3,
@@ -78,6 +84,9 @@ export const MOCK_PRODUCTS: Product[] = [
       { name: 'elegant', color: '#007bff' },
       { name: 'occasion', color: '#dc2626' },
     ],
+    sellerId: 'star12310',
+    isNew: false,
+    isFeatured: false,
   },
   {
     id: 4,
@@ -95,6 +104,9 @@ export const MOCK_PRODUCTS: Product[] = [
       { name: 'light', color: '#007bff' },
       { name: 'casual', color: '#dc2626' },
     ],
+    sellerId: 'star12310',
+    isNew: false,
+    isFeatured: false,
   },
   {
     id: 5,
@@ -114,6 +126,9 @@ export const MOCK_PRODUCTS: Product[] = [
       { name: 'warm', color: '#007bff' },
       { name: 'coat', color: '#dc2626' },
     ],
+    sellerId: 'star12310',
+    isNew: false,
+    isFeatured: false,
   },
 ];
 

@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { ReactElement } from 'react';
 import { useAuth } from '@/domains/auth/stores';
 import HomeSkeleton from '@/components/skeleton/HomeSkeleton';
 
@@ -15,7 +15,7 @@ interface SessionProviderProps {
  * - 실제 세션 초기화는 SessionInitializer에서 담당
  * - 모든 페이지에서 일관된 로딩 상태 제공
  */
-export default function SessionProvider({ children }: SessionProviderProps) {
+export default function SessionProvider({ children }: SessionProviderProps): ReactElement {
   const { isSessionInitialized } = useAuth();
 
   // 세션이 초기화되지 않았으면 스켈레톤 UI 표시

@@ -65,7 +65,10 @@ export class AuthValidationService {
       errors.push('비밀번호를 입력해주세요.');
     } else {
       // 비밀번호 기본 검증
-      const passwordResult = PasswordValidator.validate(credentials.password, REGISTER_CONSTANTS.MIN_LOGIN_PASSWORD_LENGTH);
+      const passwordResult = PasswordValidator.validate(
+        credentials.password,
+        REGISTER_CONSTANTS.MIN_LOGIN_PASSWORD_LENGTH,
+      );
       if (!passwordResult.isValid) {
         errors.push(...passwordResult.errors);
       }
@@ -102,7 +105,10 @@ export class AuthValidationService {
     }
 
     // 비밀번호 검증
-    const passwordResult = PasswordValidator.validate(formData.password, REGISTER_CONSTANTS.MIN_PASSWORD_LENGTH);
+    const passwordResult = PasswordValidator.validate(
+      formData.password,
+      REGISTER_CONSTANTS.MIN_PASSWORD_LENGTH,
+    );
     if (!passwordResult.isValid) {
       errors.push(...passwordResult.errors);
     }
@@ -137,7 +143,10 @@ export class AuthValidationService {
       id: IdValidator.validate(formData.id, REGISTER_CONSTANTS.MIN_ID_LENGTH),
       name: NameValidator.validate(formData.name, REGISTER_CONSTANTS.MIN_NAME_LENGTH),
       email: EmailValidator.validate(formData.email),
-      password: PasswordValidator.validate(formData.password, REGISTER_CONSTANTS.MIN_PASSWORD_LENGTH),
+      password: PasswordValidator.validate(
+        formData.password,
+        REGISTER_CONSTANTS.MIN_PASSWORD_LENGTH,
+      ),
       confirmPassword: PasswordValidator.validateConfirmation(
         formData.password,
         formData.confirmPassword,
@@ -148,7 +157,11 @@ export class AuthValidationService {
   /**
    * 비밀번호 강도 평가 (UI용)
    */
-  evaluatePasswordStrength(password: string) {
+  evaluatePasswordStrength(password: string): {
+    score: number;
+    feedback: string[];
+    isStrong: boolean;
+  } {
     return PasswordValidator.validateStrength(password);
   }
 

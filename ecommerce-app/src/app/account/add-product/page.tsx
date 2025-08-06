@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { ReactElement } from 'react';
 import styles from '@/styles/account/AddProduct.module.css';
 import { useProductForm } from '@/domains/product/hooks/useProductForm';
 import { ProductImageUpload } from '@/domains/product/components/ProductImageUpload';
@@ -11,11 +11,13 @@ import { ProductDetails } from '@/domains/product/components/ProductDetails';
 import { ProductSpecifications } from '@/domains/product/components/ProductSpecifications';
 import { ProductOptions } from '@/domains/product/components/ProductOptions';
 
-export default function AddProductPage() {
+export default function AddProductPage(): ReactElement {
   const {
     formData,
     imagePreviews,
     isSubmitting,
+    isCompressing,
+    compressionProgress,
     errors,
     categories,
     loadingCategories,
@@ -35,7 +37,7 @@ export default function AddProductPage() {
     },
   } = useProductForm();
 
-  const handleSpecificationKeyChange = (oldKey: string, newKey: string, value: string) => {
+  const handleSpecificationKeyChange = (oldKey: string, newKey: string, value: string): void => {
     if (newKey !== oldKey) {
       const newSpecs = { ...formData.specifications };
       delete newSpecs[oldKey];
@@ -49,8 +51,10 @@ export default function AddProductPage() {
     <div className={styles.addProductContainer}>
       <form onSubmit={handleSubmit} className={styles.form}>
         <ProductImageUpload
-          images={formData.images}
+          images={formData.images || []}
           imagePreviews={imagePreviews}
+          isCompressing={isCompressing}
+          compressionProgress={compressionProgress}
           onImageUpload={handleImageUpload}
           onRemoveImage={removeImage}
         />
@@ -63,7 +67,11 @@ export default function AddProductPage() {
             originalPrice: formData.originalPrice,
           }}
           errors={errors}
-          onChange={handleInputChange}
+          onChange={
+            handleInputChange as (
+              e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+            ) => void
+          }
         />
 
         <ProductCategoryStock
@@ -75,7 +83,11 @@ export default function AddProductPage() {
           errors={errors}
           categories={categories}
           loadingCategories={loadingCategories}
-          onChange={handleInputChange}
+          onChange={
+            handleInputChange as (
+              e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+            ) => void
+          }
         />
 
         <ProductDiscountOptions

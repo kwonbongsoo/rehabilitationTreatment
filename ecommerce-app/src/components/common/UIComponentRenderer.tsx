@@ -7,13 +7,16 @@ import ProductSection from './ProductSection';
 import CategoryGridRenderer from '@/domains/category/components/CategoryGridRenderer';
 import ProductFiltersRenderer from '@/domains/category/components/ProductFiltersRenderer';
 import ProductGridRenderer from '@/domains/category/components/ProductGridRenderer';
+import { ReactElement } from 'react';
 
 interface UIComponentRendererProps {
   component: UIComponent;
   index?: number;
 }
 
-export default function UIComponentRenderer({ component }: UIComponentRendererProps) {
+export default function UIComponentRenderer({
+  component,
+}: UIComponentRendererProps): ReactElement | null {
   if (!component.visible) {
     return null;
   }

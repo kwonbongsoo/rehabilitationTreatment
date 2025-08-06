@@ -62,14 +62,14 @@ export class AuthService {
   /**
    * 토큰 서비스 접근자
    */
-  get tokens() {
+  get tokens(): TokenService {
     return this.tokenService;
   }
 
   /**
    * 검증 서비스 접근자
    */
-  get validation() {
+  get validation(): AuthValidationService {
     return this.validationService;
   }
 }

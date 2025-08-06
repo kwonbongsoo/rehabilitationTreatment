@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { ReactElement } from 'react';
 import { ConfirmDialog } from '@/components/common/Modal';
 import { CartSkeleton } from '@/components/skeleton/PageSkeleton';
 import styles from './page.module.css';
@@ -9,7 +9,7 @@ import { CartItem } from '@/domains/cart/components/CartItem';
 import { CartSummary } from '@/domains/cart/components/CartSummary';
 import { EmptyCart } from '@/domains/cart/components/EmptyCart';
 
-export default function CartPage() {
+export default function CartPage(): ReactElement {
   const {
     // 상태
     displayItems,
@@ -20,7 +20,7 @@ export default function CartPage() {
     discountCode,
     subtotal,
     total,
-    
+
     // 액션
     handleItemClick,
     handleDeleteItem,
@@ -30,7 +30,7 @@ export default function CartPage() {
     setDiscountCode,
     applyDiscountCode,
     handleCheckout,
-    
+
     // 모달 제어
     setShowDeleteModal,
     setShowClearModal,

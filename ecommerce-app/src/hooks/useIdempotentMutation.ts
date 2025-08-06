@@ -143,7 +143,16 @@ class MutationExecutor<TData, TVariables> {
  * - 의존성 역전 원칙: 인터페이스 기반 설계
  * - 조합 패턴: 여러 서비스를 조합하여 복잡한 로직 구성
  */
-export function useIdempotentMutation<TData, TVariables>() {
+export function useIdempotentMutation<TData, TVariables>(): {
+  executeMutation: (
+    mutationFn: MutationFunction<TData, TVariables>,
+    variables: TVariables,
+    options?: MutationOptions<TData>,
+  ) => Promise<TData>;
+  cancelCurrentRequest: () => void;
+  getRequestStatus: () => RequestStatus;
+  generateIdempotencyKey: () => string;
+} {
   const keyGenerator = useMemo(() => new IdempotencyKeyGenerator(), []);
 
   // 세션별 고정 멱등성 키 (컴포넌트 마운트 시 한 번만 생성)

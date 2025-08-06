@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { ReactElement, useMemo, useState } from 'react';
 import ProductCard from './ProductCard';
 import {
   BESTSELLER_SORT_OPTIONS,
@@ -34,7 +34,7 @@ export default function ProductGrid({
   emptyMessage = '상품이 없습니다.',
   onWishlistToggle,
   isWishlisted,
-}: ProductGridProps) {
+}: ProductGridProps): ReactElement {
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [sortBy, setSortBy] = useState<SortOption>(initialSort);
 

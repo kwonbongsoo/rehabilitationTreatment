@@ -3,7 +3,7 @@
  * 개별 장바구니 아이템 UI 렌더링
  */
 
-import React from 'react';
+import React, { ReactElement } from 'react';
 import OptimizedImageNext from '@/components/common/OptimizedImageNext';
 import styles from './CartItem.module.css';
 
@@ -29,7 +29,7 @@ export function CartItem({
   onItemClick,
   onQuantityChange,
   onDelete,
-}: CartItemProps) {
+}: CartItemProps): ReactElement {
   return (
     <div className={styles.cartItemWrapper}>
       <div
@@ -61,14 +61,7 @@ export function CartItem({
             aria-label="수량 감소"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <line
-                x1="5"
-                y1="12"
-                x2="19"
-                y2="12"
-                stroke="currentColor"
-                strokeWidth="2"
-              />
+              <line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" strokeWidth="2" />
             </svg>
           </button>
           <span className={styles.quantity}>{item.quantity}</span>
@@ -81,22 +74,8 @@ export function CartItem({
             aria-label="수량 증가"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <line
-                x1="12"
-                y1="5"
-                x2="12"
-                y2="19"
-                stroke="currentColor"
-                strokeWidth="2"
-              />
-              <line
-                x1="5"
-                y1="12"
-                x2="19"
-                y2="12"
-                stroke="currentColor"
-                strokeWidth="2"
-              />
+              <line x1="12" y1="5" x2="12" y2="19" stroke="currentColor" strokeWidth="2" />
+              <line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" strokeWidth="2" />
             </svg>
           </button>
         </div>

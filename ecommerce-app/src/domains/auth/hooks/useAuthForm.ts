@@ -120,7 +120,7 @@ export function useAuthForm<T extends AuthFormData>(
 export function useLoginForm(
   onSubmit: (data: LoginFormData) => Promise<void>,
   options?: Partial<Omit<UseAuthFormOptions<LoginFormData>, 'type' | 'initialData' | 'onSubmit'>>,
-) {
+): UseAuthFormReturn<LoginFormData> {
   return useAuthForm<LoginFormData>({
     type: 'login',
     initialData: { id: '', password: '' },
@@ -137,7 +137,7 @@ export function useRegisterForm(
   options?: Partial<
     Omit<UseAuthFormOptions<RegisterFormData>, 'type' | 'initialData' | 'onSubmit'>
   >,
-) {
+): UseAuthFormReturn<RegisterFormData> {
   return useAuthForm<RegisterFormData>({
     type: 'register',
     initialData: {
@@ -161,7 +161,7 @@ export function useForgotPasswordForm(
   options?: Partial<
     Omit<UseAuthFormOptions<ForgotPasswordFormData>, 'type' | 'initialData' | 'onSubmit'>
   >,
-) {
+): UseAuthFormReturn<ForgotPasswordFormData> {
   return useAuthForm<ForgotPasswordFormData>({
     type: 'forgotPassword',
     initialData: { email: '' },

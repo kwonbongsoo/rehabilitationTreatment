@@ -1,12 +1,18 @@
+import { ReactElement } from 'react';
+
 interface RatingProps {
   rating: number;
   reviewCount?: number;
   size?: 'small' | 'medium' | 'large';
 }
 
-export default function Rating({ rating, reviewCount, size = 'medium' }: RatingProps) {
+export default function Rating({
+  rating,
+  reviewCount,
+  size = 'medium',
+}: RatingProps): ReactElement {
   // 크기별 스타일 설정
-  const getSizeStyles = (size: string) => {
+  const getSizeStyles = (size: string): { fontSize: string; gap: string; textSize: string } => {
     switch (size) {
       case 'small':
         return { fontSize: '12px', gap: '6px', textSize: '12px' };
@@ -20,14 +26,21 @@ export default function Rating({ rating, reviewCount, size = 'medium' }: RatingP
   const sizeStyles = getSizeStyles(size);
 
   // 별점 렌더링 함수
-  const renderStars = (rating: number) => {
+  const renderStars = (rating: number): ReactElement[] => {
     const stars = [];
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 >= 0.5;
+    // 평점을 0-5 범위로 제한
+    const clampedRating = Math.max(0, Math.min(5, rating));
+    const fullStars = Math.floor(clampedRating);
+    const hasHalfStar = clampedRating % 1 >= 0.5;
 
     for (let i = 0; i < fullStars; i++) {
       stars.push(
-        <span key={`star-${i}`} style={{ color: '#ffc107', fontSize: sizeStyles.fontSize }}>
+        <span 
+          key={`star-${i}`} 
+          style={{ color: '#ffc107', fontSize: sizeStyles.fontSize }}
+          data-testid="rating-star"
+          data-star-type="full"
+        >
           ★
         </span>,
       );
@@ -38,6 +51,8 @@ export default function Rating({ rating, reviewCount, size = 'medium' }: RatingP
         <span
           key="half-star"
           style={{ color: '#ffc107', opacity: '0.5', fontSize: sizeStyles.fontSize }}
+          data-testid="rating-star"
+          data-star-type="half"
         >
           ★
         </span>,
@@ -47,7 +62,12 @@ export default function Rating({ rating, reviewCount, size = 'medium' }: RatingP
     const emptyStars = 5 - stars.length;
     for (let i = 0; i < emptyStars; i++) {
       stars.push(
-        <span key={`empty-${i}`} style={{ color: '#ddd', fontSize: sizeStyles.fontSize }}>
+        <span 
+          key={`empty-${i}`} 
+          style={{ color: '#ddd', fontSize: sizeStyles.fontSize }}
+          data-testid="rating-star"
+          data-star-type="empty"
+        >
           ☆
         </span>,
       );
@@ -57,10 +77,20 @@ export default function Rating({ rating, reviewCount, size = 'medium' }: RatingP
   };
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: sizeStyles.gap }}>
-      <div style={{ display: 'flex', alignItems: 'center' }}>{renderStars(rating)}</div>
+    <div
+      style={{ display: 'flex', alignItems: 'center', gap: sizeStyles.gap }}
+      data-testid="rating-container"
+    >
+      <div style={{ display: 'flex', alignItems: 'center' }} data-testid="rating-stars">
+        {renderStars(rating)}
+      </div>
       {reviewCount !== undefined && (
-        <span style={{ fontSize: sizeStyles.textSize, color: '#666' }}>({reviewCount})</span>
+        <span
+          style={{ fontSize: sizeStyles.textSize, color: '#666' }}
+          data-testid="rating-review-count"
+        >
+          ({reviewCount})
+        </span>
       )}
     </div>
   );

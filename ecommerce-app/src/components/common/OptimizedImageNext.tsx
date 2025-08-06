@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, ReactElement } from 'react';
 
 interface OptimizedImageNextProps {
   src: string;
@@ -25,7 +25,7 @@ export default function OptimizedImageNext({
   fallbackSrc = 'https://www.kbs-cdn.shop/image/placeholder.webp',
   lazy = false,
   style = { objectFit: 'cover' },
-}: OptimizedImageNextProps) {
+}: OptimizedImageNextProps): ReactElement {
   const [imgSrc, setImgSrc] = useState(src);
   const [hasError, setHasError] = useState(false);
 
@@ -35,7 +35,7 @@ export default function OptimizedImageNext({
     setHasError(false);
   }, [src]);
 
-  const handleError = () => {
+  const handleError = (): void => {
     if (!hasError) {
       setHasError(true);
       setImgSrc(fallbackSrc);

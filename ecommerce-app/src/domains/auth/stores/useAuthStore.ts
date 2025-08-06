@@ -104,7 +104,7 @@ export const useAuthStore = create<AuthStore>()(
 );
 
 // React Context 패턴과 호환되는 훅 (기존 코드 호환성)
-export const useAuth = () => {
+export const useAuth = (): AuthState & AuthActions => {
   const {
     user,
     isGuest,

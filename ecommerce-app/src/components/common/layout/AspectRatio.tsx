@@ -2,7 +2,7 @@
  * 아스펙트 비율 컴포넌트
  */
 
-import React, { ReactNode, HTMLAttributes, CSSProperties } from 'react';
+import React, { ReactElement, ReactNode, HTMLAttributes, CSSProperties } from 'react';
 import styles from './Layout.module.css';
 
 /**
@@ -21,7 +21,7 @@ export function AspectRatio({
   className = '',
   style,
   ...props
-}: AspectRatioProps) {
+}: AspectRatioProps): ReactElement {
   const aspectRatioStyle: CSSProperties = {
     ...style,
     aspectRatio: typeof ratio === 'number' ? ratio.toString() : ratio,

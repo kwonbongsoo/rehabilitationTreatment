@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import { LoginRequest } from '../types/auth';
 import { Button } from '@/components/common/Button';
 import { FormContainer, FormInput } from '@/components/common/Form';
@@ -11,7 +11,10 @@ interface LoginFormProps {
   error?: string;
 }
 
-export function LoginForm({ onSubmit, isLoading: externalLoading = false }: LoginFormProps) {
+export function LoginForm({
+  onSubmit,
+  isLoading: externalLoading = false,
+}: LoginFormProps): ReactElement {
   // 공통 Auth 폼 훅 사용
   const form = useLoginForm(async (data) => {
     await onSubmit({
@@ -23,13 +26,13 @@ export function LoginForm({ onSubmit, isLoading: externalLoading = false }: Logi
   const isLoading = externalLoading || form.isSubmitting;
 
   // 에러 필터링 로직
-  const getFilteredError = (errorKeyword: string) => {
+  const getFilteredError = (errorKeyword: string): string | undefined => {
     if (!form.hasError || !form.error) return undefined;
     return form.error.includes(errorKeyword) ? form.error : undefined;
   };
 
   // TypeScript exactOptionalPropertyTypes 호환성을 위한 헬퍼
-  const buildFormInputProps = (baseProps: any, errorKeyword: string) => {
+  const buildFormInputProps = (baseProps: any, errorKeyword: string): any => {
     const error = getFilteredError(errorKeyword);
     return error ? { ...baseProps, error } : baseProps;
   };
@@ -70,6 +73,7 @@ export function LoginForm({ onSubmit, isLoading: externalLoading = false }: Logi
               placeholder: 'Enter Password',
               autoComplete: 'current-password',
               required: true,
+              'data-testid': 'login-password',
             },
             REGISTER_CONSTANTS.ERROR_KEYWORDS.PASSWORD,
           )}
@@ -77,7 +81,12 @@ export function LoginForm({ onSubmit, isLoading: externalLoading = false }: Logi
       </div>
 
       <div className="checkbox-container">
-        <input type="checkbox" id="remember-me" className="checkbox-input" />
+        <input
+          type="checkbox"
+          id="remember-me"
+          className="checkbox-input"
+          data-testid="remember-me"
+        />
         <label htmlFor="remember-me" className="checkbox-text">
           Remember me
         </label>
@@ -95,7 +104,6 @@ export function LoginForm({ onSubmit, isLoading: externalLoading = false }: Logi
       >
         Login
       </Button>
-
     </FormContainer>
   );
 }

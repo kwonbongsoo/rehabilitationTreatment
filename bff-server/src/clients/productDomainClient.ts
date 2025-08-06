@@ -30,30 +30,30 @@ class ProductDomainClient extends HttpClient {
 
   // Categories API
   async getCategories(): Promise<ProductDomainCategory[]> {
-    return this.get<ProductDomainCategory[]>('/categories');
+    return await this.get<ProductDomainCategory[]>('/categories');
   }
 
   async getCategoryById(id: number): Promise<ProductDomainCategory> {
-    return this.get<ProductDomainCategory>(`/categories/${id}`);
+    return await this.get<ProductDomainCategory>(`/categories/${id}`);
   }
 
   async getCategoryBySlug(slug: string): Promise<ProductDomainCategory> {
-    return this.get<ProductDomainCategory>(`/categories/slug/${slug}`);
+    return await this.get<ProductDomainCategory>(`/categories/slug/${slug}`);
   }
 
   async createCategory(data: Partial<ProductDomainCategory>): Promise<ProductDomainCategory> {
-    return this.post<ProductDomainCategory>('/categories', data);
+    return await this.post<ProductDomainCategory>('/categories', data);
   }
 
   async updateCategory(
     id: number,
     data: Partial<ProductDomainCategory>,
   ): Promise<ProductDomainCategory> {
-    return this.patch<ProductDomainCategory>(`/categories/${id}`, data);
+    return await this.patch<ProductDomainCategory>(`/categories/${id}`, data);
   }
 
   async deleteCategory(id: number): Promise<{ message: string }> {
-    return this.delete<{ message: string }>(`/categories/${id}`);
+    return await this.delete<{ message: string }>(`/categories/${id}`);
   }
 
   // Products API
@@ -71,26 +71,26 @@ class ProductDomainClient extends HttpClient {
     const queryString = searchParams.toString();
     const endpoint = queryString ? `/products?${queryString}` : '/products';
 
-    return this.get<ProductDomainProductResponse>(endpoint);
+    return await this.get<ProductDomainProductResponse>(endpoint);
   }
 
   async getProductById(id: number): Promise<ProductDomainProduct> {
-    return this.get<ProductDomainProduct>(`/products/${id}`);
+    return await this.get<ProductDomainProduct>(`/products/${id}`);
   }
 
   async createProduct(data: Partial<ProductDomainProduct>): Promise<ProductDomainProduct> {
-    return this.post<ProductDomainProduct>('/products', data);
+    return await this.post<ProductDomainProduct>('/products', data);
   }
 
   async updateProduct(
     id: number,
     data: Partial<ProductDomainProduct>,
   ): Promise<ProductDomainProduct> {
-    return this.patch<ProductDomainProduct>(`/products/${id}`, data);
+    return await this.patch<ProductDomainProduct>(`/products/${id}`, data);
   }
 
   async deleteProduct(id: number): Promise<{ message: string }> {
-    return this.delete<{ message: string }>(`/products/${id}`);
+    return await this.delete<{ message: string }>(`/products/${id}`);
   }
 
   // Product Images API
@@ -103,7 +103,7 @@ class ProductDomainClient extends HttpClient {
       formData.append('files', file);
     });
 
-    return this.post<{ message: string; images: any[] }>(
+    return await this.post<{ message: string; images: any[] }>(
       `/products/${productId}/images`,
       formData,
       {
@@ -116,7 +116,7 @@ class ProductDomainClient extends HttpClient {
   }
 
   async deleteProductImage(productId: number, imageId: number): Promise<{ message: string }> {
-    return this.delete<{ message: string }>(`/products/${productId}/images/${imageId}`);
+    return await this.delete<{ message: string }>(`/products/${productId}/images/${imageId}`);
   }
 
   async getProductsByCategory(categoryId: number): Promise<ProductDomainProduct[]> {
@@ -130,27 +130,20 @@ class ProductDomainClient extends HttpClient {
   }
 
   // Product Options API
-  async createProductOptions(
-    productId: number,
-    options: any[]
-  ): Promise<any[]> {
-    return this.post<any[]>(`/products/${productId}/options`, { options });
+  async createProductOptions(productId: number, options: any[]): Promise<any[]> {
+    return await this.post<any[]>(`/products/${productId}/options`, { options });
   }
 
   async getProductOptions(productId: number): Promise<any[]> {
-    return this.get<any[]>(`/products/${productId}/options`);
+    return await this.get<any[]>(`/products/${productId}/options`);
   }
 
-  async updateProductOption(
-    productId: number,
-    optionId: number,
-    data: any
-  ): Promise<any> {
-    return this.patch<any>(`/products/${productId}/options/${optionId}`, data);
+  async updateProductOption(productId: number, optionId: number, data: any): Promise<any> {
+    return await this.patch<any>(`/products/${productId}/options/${optionId}`, data);
   }
 
   async deleteProductOption(optionId: number): Promise<{ message: string }> {
-    return this.delete<{ message: string }>(`/product-options/${optionId}`);
+    return await this.delete<{ message: string }>(`/product-options/${optionId}`);
   }
 }
 

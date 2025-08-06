@@ -1,10 +1,11 @@
-import { useQuery } from '@tanstack/react-query';
+import { UseQueryResult, useQuery } from '@tanstack/react-query';
 import { getCurrentUser } from '../services';
+import { UserResponse } from '../types/auth';
 
 /**
  * 현재 사용자 정보 조회 훅
  */
-export function useCurrentUser() {
+export function useCurrentUser(): UseQueryResult<UserResponse | undefined, Error> {
   return useQuery({
     queryKey: ['auth', 'current-user'],
     queryFn: async () => {

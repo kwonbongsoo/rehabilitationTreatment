@@ -2,12 +2,12 @@
  * 빈 장바구니 상태 컴포넌트
  */
 
-import React from 'react';
+import React, { ReactElement } from 'react';
 import Link from 'next/link';
 import { FiShoppingCart } from 'react-icons/fi';
 import styles from './EmptyCart.module.css';
 
-export function EmptyCart() {
+export function EmptyCart(): ReactElement {
   return (
     <div className={styles.emptyState}>
       <FiShoppingCart size={60} className={styles.emptyIcon} />

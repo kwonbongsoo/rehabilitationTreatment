@@ -25,11 +25,11 @@ const MobileHeader: React.FC<MobileHeaderProps> = ({
 }) => {
   const router = useRouter();
 
-  const handleBackClick = () => {
+  const handleBackClick = (): void => {
     router.back();
   };
 
-  const handleSearchClick = () => {
+  const handleSearchClick = (): void => {
     if (onSearchClick) {
       onSearchClick();
     } else {
@@ -37,7 +37,7 @@ const MobileHeader: React.FC<MobileHeaderProps> = ({
     }
   };
 
-  const handleFilterClick = (event: React.MouseEvent) => {
+  const handleFilterClick = (event: React.MouseEvent): void => {
     // 이벤트 버블링 방지 - 부모의 onClick(서치바 클릭) 실행 방지
     event.stopPropagation();
 

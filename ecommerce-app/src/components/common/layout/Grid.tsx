@@ -2,7 +2,7 @@
  * 그리드 컴포넌트 - CSS Grid 레이아웃
  */
 
-import React, { ReactNode, HTMLAttributes, CSSProperties } from 'react';
+import React, { ReactElement, ReactNode, HTMLAttributes, CSSProperties } from 'react';
 import styles from './Layout.module.css';
 
 /**
@@ -37,7 +37,7 @@ export function Grid({
   className = '',
   style,
   ...props
-}: GridProps) {
+}: GridProps): ReactElement {
   const gridClasses = [
     styles.grid,
     styles[`gap-${gap}`],

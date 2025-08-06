@@ -2,7 +2,7 @@
  * 컨테이너 컴포넌트 - 최대 너비와 중앙 정렬을 관리
  */
 
-import React, { ReactNode, HTMLAttributes } from 'react';
+import React, { ReactElement, ReactNode, HTMLAttributes } from 'react';
 import styles from './Layout.module.css';
 
 /**
@@ -27,7 +27,7 @@ export function Container({
   fluid = false,
   className = '',
   ...props
-}: ContainerProps) {
+}: ContainerProps): ReactElement {
   const containerClasses = [
     styles.container,
     !fluid && styles[`maxWidth-${maxWidth}`],

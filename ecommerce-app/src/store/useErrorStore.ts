@@ -91,12 +91,21 @@ export const useErrorStore = create<ErrorState>()(
 );
 
 // 편의 함수들 (React Context 패턴과 호환)
-export const useGlobalError = () => {
+export const useGlobalError = (): {
+  globalError: Error | BaseError | null;
+  setGlobalError: (error: Error | BaseError | null) => void;
+  clearGlobalError: () => void;
+} => {
   const { globalError, setGlobalError, clearGlobalError } = useErrorStore();
   return { globalError, setGlobalError, clearGlobalError };
 };
 
-export const useToastError = () => {
+export const useToastError = (): {
+  toastErrors: ToastError[];
+  addToastError: (message: string, type?: ToastError['type']) => string;
+  removeToastError: (id: string) => void;
+  clearAllToastErrors: () => void;
+} => {
   const { toastErrors, addToastError, removeToastError, clearAllToastErrors } = useErrorStore();
 
   return {

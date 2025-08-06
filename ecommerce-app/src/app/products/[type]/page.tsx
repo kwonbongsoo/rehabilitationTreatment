@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import Link from 'next/link';
 import OptimizedImageNext from '@/components/common/OptimizedImageNext';
 import { notFound } from 'next/navigation';
+import { Metadata } from 'next';
 
 interface ProductTypePageProps {
   params: {
@@ -11,26 +12,13 @@ interface ProductTypePageProps {
 
 const VALID_PRODUCT_TYPES = ['seasonal', 'new', 'sale'] as const;
 
-export default function ProductTypePage({ params }: ProductTypePageProps) {
+export default function ProductTypePage({ params }: ProductTypePageProps): ReactElement {
   const { type: productType } = params;
 
   // Validate product type (타입 가드 사용)
   if (!VALID_PRODUCT_TYPES.includes(productType as (typeof VALID_PRODUCT_TYPES)[number])) {
     notFound();
   }
-
-  const getTypeTitle = (type: string) => {
-    switch (type) {
-      case 'seasonal':
-        return '시즌 상품';
-      case 'new':
-        return '신상품';
-      case 'sale':
-        return '세일 상품';
-      default:
-        return '상품';
-    }
-  };
 
   // Mock products for the specific type
   const mockProducts = [
@@ -222,31 +210,31 @@ export default function ProductTypePage({ params }: ProductTypePageProps) {
 }
 
 // 정적 경로 생성 (선택사항)
-export function generateStaticParams() {
+export function generateStaticParams(): { type: string }[] {
   return VALID_PRODUCT_TYPES.map((type) => ({
     type,
   }));
 }
 
 // 메타데이터 생성
-export function generateMetadata({ params }: ProductTypePageProps) {
+export function generateMetadata({ params }: ProductTypePageProps): Metadata {
   const { type } = params;
-
-  const getTypeTitle = (type: string) => {
-    switch (type) {
-      case 'seasonal':
-        return '시즌 상품';
-      case 'new':
-        return '신상품';
-      case 'sale':
-        return '세일 상품';
-      default:
-        return '상품';
-    }
-  };
 
   return {
     title: `${getTypeTitle(type)} | 쇼핑몰`,
     description: `${getTypeTitle(type)} 상품을 확인해보세요.`,
   };
 }
+
+const getTypeTitle = (type: string): string => {
+  switch (type) {
+    case 'seasonal':
+      return '시즌 상품';
+    case 'new':
+      return '신상품';
+    case 'sale':
+      return '세일 상품';
+    default:
+      return '상품';
+  }
+};

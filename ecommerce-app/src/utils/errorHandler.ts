@@ -25,7 +25,6 @@ export function normalizeError(error: unknown): {
 
   // 일반 Error 객체인 경우
   if (error instanceof Error) {
-
     // 인증 관련 에러 감지 (401)
     if (
       error.message.toLowerCase().includes('auth') ||
@@ -73,7 +72,11 @@ export function normalizeError(error: unknown): {
 /**
  * 에러 상황에 따른 사용자 액션 제안
  */
-export function getErrorActions(error: ReturnType<typeof normalizeError>) {
+export function getErrorActions(error: ReturnType<typeof normalizeError>): Array<{
+  label: string;
+  action: 'retry' | 'reload' | 'navigate' | 'login';
+  href?: string;
+}> {
   const actions: Array<{
     label: string;
     action: 'retry' | 'reload' | 'navigate' | 'login';

@@ -10,7 +10,11 @@ export const useBottomNavVisibility = ({
   hideThreshold = 200,
   showThreshold = 100,
   autoShowDelay = 2000,
-}: UseBottomNavVisibilityOptions = {}) => {
+}: UseBottomNavVisibilityOptions = {}): {
+  isVisible: boolean;
+  show: () => void;
+  hide: () => void;
+} => {
   const [isVisible, setIsVisible] = useState(true);
   const sentinelUpRef = useRef<HTMLDivElement | null>(null);
   const sentinelDownRef = useRef<HTMLDivElement | null>(null);
@@ -54,7 +58,7 @@ export const useBottomNavVisibility = ({
     sentinelDownRef.current = downSentinel;
 
     // Intersection Observer 콜백
-    const handleIntersection = (entries: IntersectionObserverEntry[]) => {
+    const handleIntersection = (entries: IntersectionObserverEntry[]): void => {
       entries.forEach((entry) => {
         const isUpSentinel = entry.target === sentinelUpRef.current;
         const isDownSentinel = entry.target === sentinelDownRef.current;

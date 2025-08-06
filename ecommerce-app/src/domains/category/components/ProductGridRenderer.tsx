@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, ReactElement } from 'react';
 import ProductCard from '@/components/common/ProductCard';
 import { useCategoryContext } from '@/domains/category/context/CategoryContext';
 import styles from './ProductGridRenderer.module.css';
@@ -10,7 +10,9 @@ interface ProductGridRendererProps {
   allProducts: Product[];
 }
 
-export default function ProductGridRenderer({ allProducts }: ProductGridRendererProps) {
+export default function ProductGridRenderer({
+  allProducts,
+}: ProductGridRendererProps): ReactElement {
   const { selectedCategoryId, currentFilter, currentSort, viewMode } = useCategoryContext();
 
   // 필터링된 상품 계산

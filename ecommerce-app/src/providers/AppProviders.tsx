@@ -3,8 +3,7 @@
 import { createUIConfigurationService } from '@/services/uiConfigurationService';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { ReactNode } from 'react';
-import React from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 import { ToastContainer } from 'react-toastify';
 import { AuthProvider } from './AuthProvider';
 
@@ -24,7 +23,7 @@ const uiConfig = uiConfigService.createConfiguration();
  * - 서버에서 인증 상태 초기화하지 않음
  * - 클라이언트에서 필요시에만 인증 상태 로드
  */
-export function AppProviders({ children }: AppProvidersProps) {
+export function AppProviders({ children }: AppProvidersProps): ReactElement {
   const { queryClient, toastConfig, devtoolsConfig } = uiConfig;
 
   return (

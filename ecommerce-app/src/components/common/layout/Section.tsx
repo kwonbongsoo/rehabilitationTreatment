@@ -2,7 +2,7 @@
  * 섹션 컴포넌트 - 페이지 섹션 레이아웃
  */
 
-import React, { ReactNode, HTMLAttributes } from 'react';
+import React, { ReactElement, ReactNode, HTMLAttributes } from 'react';
 import styles from './Layout.module.css';
 
 /**
@@ -24,7 +24,7 @@ export function Section({
   fullWidth = false,
   className = '',
   ...props
-}: SectionProps) {
+}: SectionProps): ReactElement {
   const sectionClasses = [
     styles.section,
     styles[`spacing-${spacing}`],

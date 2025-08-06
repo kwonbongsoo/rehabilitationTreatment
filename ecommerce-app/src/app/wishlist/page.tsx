@@ -2,19 +2,19 @@
 
 import OptimizedImageNext from '@/components/common/OptimizedImageNext';
 import Link from 'next/link';
-import React from 'react';
+import React, { ReactElement } from 'react';
 import { FiHeart, FiTrash2 } from 'react-icons/fi';
 import styles from '@/styles/wishlist/MobileWishlist.module.css';
 import { useWishlistStore } from '@/domains/wishlist/stores';
 import { useWishlistActions } from '@/domains/wishlist/hooks';
 import { useCartActions } from '@/domains/cart/hooks';
 
-export default function WishlistPage() {
+export default function WishlistPage(): ReactElement {
   const { wishlistItems } = useWishlistStore();
   const { removeFromWishlist } = useWishlistActions();
   const { addToCart } = useCartActions();
 
-  const moveToCart = async (id: number) => {
+  const moveToCart = async (id: number): Promise<void> => {
     const item = wishlistItems.find((item) => item.id === id);
     if (item) {
       await addToCart({

@@ -18,7 +18,7 @@ interface UseCartPageReturn {
   discountCode: string;
   subtotal: number;
   total: number;
-  
+
   // 액션
   handleItemClick: (itemId: string) => void;
   handleDeleteItem: (itemId: string) => void;
@@ -29,7 +29,7 @@ interface UseCartPageReturn {
   setDiscountCode: (code: string) => void;
   applyDiscountCode: () => void;
   handleCheckout: () => void;
-  
+
   // 모달 제어
   setShowDeleteModal: (show: boolean) => void;
   setShowClearModal: (show: boolean) => void;
@@ -54,9 +54,12 @@ export function useCartPage(): UseCartPageReturn {
   const total = subtotal; // 추가 수수료 없음
 
   // 아이템 클릭 처리
-  const handleItemClick = useCallback((itemId: string) => {
-    setSelectedItemId(selectedItemId === itemId ? null : itemId);
-  }, [selectedItemId]);
+  const handleItemClick = useCallback(
+    (itemId: string) => {
+      setSelectedItemId(selectedItemId === itemId ? null : itemId);
+    },
+    [selectedItemId],
+  );
 
   // 아이템 삭제 처리
   const handleDeleteItem = useCallback((itemId: string) => {
@@ -87,20 +90,23 @@ export function useCartPage(): UseCartPageReturn {
   }, [clearCart]);
 
   // 수량 업데이트 처리
-  const updateItemQuantity = useCallback((itemId: string, change: number) => {
-    const item = displayItems.find((item) => item.id === itemId);
-    if (item) {
-      const newQuantity = Math.max(1, item.quantity + change);
-      updateQuantity(itemId, newQuantity);
-    }
-  }, [displayItems, updateQuantity]);
+  const updateItemQuantity = useCallback(
+    (itemId: string, change: number) => {
+      const item = displayItems.find((item) => item.id === itemId);
+      if (item) {
+        const newQuantity = Math.max(1, item.quantity + change);
+        updateQuantity(itemId, newQuantity);
+      }
+    },
+    [displayItems, updateQuantity],
+  );
 
   // 할인 코드 적용 (추후 구현)
   const applyDiscountCode = useCallback(() => {
     // TODO: 할인 코드 적용 로직 구현
     // 개발 환경에서만 로그 출력
     if (process.env.NODE_ENV === 'development') {
-      console.log('할인 코드 적용:', discountCode);
+      alert(`할인 코드 적용: ${discountCode}`);
     }
   }, [discountCode]);
 
@@ -108,14 +114,11 @@ export function useCartPage(): UseCartPageReturn {
   const handleCheckout = useCallback(() => {
     // TODO: 체크아웃 로직 구현
     // 개발 환경에서만 로그 출력
-    if (process.env.NODE_ENV === 'development') {
-      console.log('체크아웃 처리');
-    }
   }, []);
 
   // CommonLayout에서 발생하는 clearCart 이벤트 리스너
   useEffect(() => {
-    const handleClearCartEvent = () => {
+    const handleClearCartEvent = (): void => {
       handleClearCart();
     };
 
@@ -136,7 +139,7 @@ export function useCartPage(): UseCartPageReturn {
     discountCode,
     subtotal,
     total,
-    
+
     // 액션
     handleItemClick,
     handleDeleteItem,
@@ -147,7 +150,7 @@ export function useCartPage(): UseCartPageReturn {
     setDiscountCode,
     applyDiscountCode,
     handleCheckout,
-    
+
     // 모달 제어
     setShowDeleteModal,
     setShowClearModal,

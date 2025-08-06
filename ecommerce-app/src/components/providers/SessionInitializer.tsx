@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/domains/auth/stores';
 import { useCurrentUser } from '@/domains/auth/hooks';
-import { useEffect } from 'react';
+import { useEffect, ReactElement } from 'react';
 
 /**
  * 세션 초기화 전용 컴포넌트
@@ -13,7 +13,7 @@ import { useEffect } from 'react';
  * - zustand store에 세션 정보 설정
  * - UI 렌더링 없음 (순수 로직 컴포넌트)
  */
-export default function SessionInitializer() {
+export default function SessionInitializer(): ReactElement | null {
   const { setUser, isSessionInitialized } = useAuth();
   const { data: user, isLoading, error } = useCurrentUser();
 

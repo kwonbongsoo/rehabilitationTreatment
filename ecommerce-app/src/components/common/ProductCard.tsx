@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { ReactElement } from 'react';
 import Link from 'next/link';
 import OptimizedImageNext from './OptimizedImageNext';
 import styles from './ProductCard.module.css';
@@ -22,8 +22,8 @@ export default function ProductCard({
   isWishlisted = false,
   priority = false,
   lazy = false,
-}: ProductCardProps) {
-  const handleWishlistClick = (e: React.MouseEvent) => {
+}: ProductCardProps): ReactElement {
+  const handleWishlistClick = (e: React.MouseEvent): void => {
     e.preventDefault();
     e.stopPropagation();
     if (onWishlistToggle) {
@@ -31,11 +31,11 @@ export default function ProductCard({
     }
   };
 
-  const formatPrice = (price: number) => {
+  const formatPrice = (price: number): string => {
     return `${price.toLocaleString('ko-KR')}원`;
   };
 
-  const renderRating = () => {
+  const renderRating = (): ReactElement | null => {
     if (!product.rating) return null;
     return (
       <div className={styles.rating}>

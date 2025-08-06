@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { ReactElement, useState } from 'react';
 import OptimizedImageNext from '@/components/common/OptimizedImageNext';
 import { Button } from '@/components/common/Button';
 import styles from './page.module.css';
@@ -39,21 +39,21 @@ const mockProduct = {
   isWishlisted: false,
 };
 
-export default function ProductDetailPage({ params }: ProductDetailPageProps) {
+export default function ProductDetailPage({ params }: ProductDetailPageProps): ReactElement {
   const { id } = params;
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [selectedColor, setSelectedColor] = useState(mockProduct.colors[0]);
   const [selectedSize, setSelectedSize] = useState('');
   // const [quantity, setQuantity] = useState(1); // 제거
 
-  const handleAddToCart = () => {
+  const handleAddToCart = (): void => {
     if (!selectedSize) {
       alert('사이즈를 선택해주세요.');
       return;
     }
   };
 
-  const handleBuyNow = () => {
+  const handleBuyNow = (): void => {
     if (!selectedSize) {
       alert('사이즈를 선택해주세요.');
       return;

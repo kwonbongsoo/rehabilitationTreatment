@@ -3,6 +3,7 @@ import { CategoryProvider } from '@/domains/category/context/CategoryContext';
 import { categoriesService } from '@/domains/category/services';
 import { UIComponent } from '@/components/common/types/ui-components';
 import { HeaderBuilderFactory } from '@/lib/server/headerBuilder';
+import { ReactElement } from 'react';
 
 // 쿠키 사용으로 인해 동적 렌더링 강제
 export const dynamic = 'force-dynamic';
@@ -11,7 +12,7 @@ export default async function CategoriesPage({
   searchParams,
 }: {
   searchParams: { category?: string };
-}) {
+}): Promise<ReactElement> {
   const headers = await HeaderBuilderFactory.createForApiRequest().build();
   const { components } = await categoriesService.getCategoriesPageData({ headers });
 

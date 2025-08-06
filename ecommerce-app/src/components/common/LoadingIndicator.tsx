@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import styles from '@/styles/common/LoadingIndicator.module.css';
 
 interface LoadingIndicatorProps {
@@ -13,7 +13,7 @@ export default function LoadingIndicator({
   message,
   size = 'medium',
   type = 'loading',
-}: LoadingIndicatorProps) {
+}: LoadingIndicatorProps): ReactElement {
   // 타입에 따른 기본 메시지 설정
   const defaultMessage = type === 'submitting' ? '처리 중...' : '로딩 중...';
   const displayMessage = message || defaultMessage;

@@ -10,7 +10,7 @@
  */
 
 import dynamic from 'next/dynamic';
-import React, { ComponentType, ReactNode } from 'react';
+import React, { ComponentType, ReactElement, ReactNode } from 'react';
 
 /**
  * 모달 기본 Props
@@ -81,7 +81,7 @@ export interface BottomSheetProps {
 }
 
 // 로딩 컴포넌트
-const LoadingModal = () => (
+const LoadingModal = (): ReactElement => (
   <div
     style={{
       position: 'fixed',
@@ -139,7 +139,12 @@ export const BottomSheet = dynamic(() => import('./Modal/BottomSheet'), {
 // 훅들은 Modal/index.ts에서 직접 export됨
 
 // 편의를 위한 동기 훅 함수들 export (기본 기능만 제공)
-export function useModalState(initialState: boolean = false) {
+export function useModalState(initialState = false): {
+  isOpen: boolean;
+  openModal: () => void;
+  closeModal: () => void;
+  toggleModal: () => void;
+} {
   const [isOpen, setIsOpen] = React.useState(initialState);
 
   const openModal = React.useCallback(() => setIsOpen(true), []);

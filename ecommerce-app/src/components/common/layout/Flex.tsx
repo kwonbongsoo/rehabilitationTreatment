@@ -2,7 +2,7 @@
  * 플렉스 컴포넌트 - Flexbox 레이아웃
  */
 
-import React, { ReactNode, HTMLAttributes } from 'react';
+import React, { ReactElement, ReactNode, HTMLAttributes } from 'react';
 import styles from './Layout.module.css';
 
 /**
@@ -31,7 +31,7 @@ export function Flex({
   inline = false,
   className = '',
   ...props
-}: FlexProps) {
+}: FlexProps): ReactElement {
   const flexClasses = [
     inline ? styles.inlineFlex : styles.flex,
     styles[`direction-${direction}`],

@@ -1,21 +1,14 @@
 import kongApiClient from '@/infrastructure/clients/kongApiClient';
-import type { CategoryPageData } from '../types/categories';
+import type { Category, CategoryPageData } from '../types/categories';
 import { BaseError, ErrorCode } from '@ecommerce/common';
 
 interface ServiceCallOptions {
   headers?: Record<string, string>;
 }
 
-interface CategoryOption {
-  id: number;
-  name: string;
-  slug: string;
-  iconCode: string;
-}
-
 interface CategoriesResponse {
   success: boolean;
-  data?: CategoryOption[];
+  data?: Category[];
   error?: string;
 }
 
@@ -83,9 +76,12 @@ export async function fetchCategories(): Promise<CategoriesResponse> {
       const errorData = await response
         .json()
         .catch(() => ({ error: 'Failed to fetch categories' }));
+
+      // development 환경에서만 에러 데이터 로깅
       if (process.env.NODE_ENV === 'development') {
         console.log(errorData);
       }
+
       throw new BaseError(
         ErrorCode.EXTERNAL_SERVICE_ERROR,
         errorData.error || 'Failed to fetch categories',
@@ -94,7 +90,7 @@ export async function fetchCategories(): Promise<CategoriesResponse> {
       );
     }
 
-    const categories: CategoryOption[] = await response.json();
+    const categories: Category[] = await response.json();
 
     return {
       success: true,
@@ -122,4 +118,4 @@ export async function fetchCategories(): Promise<CategoriesResponse> {
 
 export default categoriesService;
 export { CategoriesService };
-export type { CategoryOption, CategoriesResponse };
+export type { Category, CategoriesResponse };

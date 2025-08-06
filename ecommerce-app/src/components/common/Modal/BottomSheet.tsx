@@ -2,7 +2,7 @@
  * 바텀 시트 컴포넌트 (모바일 최적화)
  */
 
-import { ReactNode } from 'react';
+import { ReactElement, ReactNode } from 'react';
 import styles from '../Modal.module.css';
 import { BaseModal } from './BaseModal';
 
@@ -29,7 +29,7 @@ export function BottomSheet({
   className = '',
   title,
   showCloseButton = true,
-}: BottomSheetProps) {
+}: BottomSheetProps): ReactElement {
   return (
     <BaseModal
       isOpen={isOpen}

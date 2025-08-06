@@ -6,8 +6,8 @@
  */
 
 import categoriesService, { CategoriesService, fetchCategories } from '../categoriesService';
-import type { CategoryOption, CategoriesResponse } from '../categoriesService';
-import type { CategoryPageData } from '../../types/categories';
+import type { CategoriesResponse } from '../categoriesService';
+import type { Category, CategoryPageData } from '../../types/categories';
 import { BaseError, ErrorCode } from '@ecommerce/common';
 
 // 외부 의존성 모킹
@@ -32,24 +32,33 @@ global.console.log = mockConsoleLog;
 describe('CategoriesService', () => {
   const mockKongApiClient = require('@/infrastructure/clients/kongApiClient').default;
 
-  const mockCategoryOptions: CategoryOption[] = [
+  const mockCategoryOptions: Category[] = [
     {
       id: 1,
       name: '의류',
       slug: 'clothing',
       iconCode: 'shirt',
+      order: 1,
+      isActive: true,
+      link: '/category/clothing',
     },
     {
       id: 2,
       name: '신발',
       slug: 'shoes',
       iconCode: 'shoe',
+      order: 2,
+      isActive: true,
+      link: '/category/shoes',
     },
     {
       id: 3,
       name: '액세서리',
       slug: 'accessories',
       iconCode: 'watch',
+      order: 3,
+      isActive: true,
+      link: '/category/accessories',
     },
   ];
 
@@ -248,7 +257,10 @@ describe('CategoriesService', () => {
   });
 
   describe('fetchCategories (함수형 API)', () => {
-    const mockResponse = (status: number, data: any): { ok: boolean; status: number; json: jest.Mock } => ({
+    const mockResponse = (
+      status: number,
+      data: any,
+    ): { ok: boolean; status: number; json: jest.Mock } => ({
       ok: status >= 200 && status < 300,
       status,
       json: jest.fn().mockResolvedValue(data),
@@ -275,7 +287,7 @@ describe('CategoriesService', () => {
     it('서버 에러 응답시 BaseError를 던지고 실패 응답을 반환해야 한다', async () => {
       const originalEnv = process.env.NODE_ENV;
       (process.env as any).NODE_ENV = 'development';
-      
+
       try {
         const errorData = { error: 'Categories not found' };
         mockFetch.mockResolvedValue(mockResponse(404, errorData) as any);
@@ -348,10 +360,10 @@ describe('CategoriesService', () => {
     it('development 환경에서 에러 데이터를 로깅해야 한다', async () => {
       // Mock the environment to 'development'
       const originalEnv = process.env.NODE_ENV;
-      
+
       // Use direct assignment which should work for the test
       (process.env as any).NODE_ENV = 'development';
-      
+
       try {
         const errorData = { error: 'Test error', details: 'Additional info' };
         mockFetch.mockResolvedValue(mockResponse(400, errorData) as any);
@@ -367,7 +379,7 @@ describe('CategoriesService', () => {
 
     it('production 환경에서는 에러 데이터를 로깅하지 않아야 한다', async () => {
       const originalEnv = process.env.NODE_ENV;
-      
+
       // Use direct assignment for production test as well
       (process.env as any).NODE_ENV = 'production';
 
@@ -409,7 +421,7 @@ describe('CategoriesService', () => {
       expect(result).toHaveProperty('success');
       expect(typeof result.success).toBe('boolean');
       expect(result.success).toBe(true);
-      
+
       // 성공 응답의 데이터 구조 검증
       expect(result).toHaveProperty('data');
       expect(Array.isArray((result as any).data)).toBe(true);
@@ -424,7 +436,7 @@ describe('CategoriesService', () => {
       expect(result).toHaveProperty('success');
       expect(typeof result.success).toBe('boolean');
       expect(result.success).toBe(false);
-      
+
       // 실패 응답의 에러 구조 검증
       expect(result).toHaveProperty('error');
       expect(typeof (result as any).error).toBe('string');

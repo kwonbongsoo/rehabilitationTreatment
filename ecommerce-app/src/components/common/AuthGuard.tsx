@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/domains/auth/stores';
 import { useRouter, usePathname } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
+import React, { ReactElement, useEffect, useState } from 'react';
 
 // 인증이 필요한 경로들
 const PROTECTED_ROUTES = [
@@ -21,7 +21,7 @@ interface AuthGuardProps {
   children: React.ReactNode;
 }
 
-export function AuthGuard({ children }: AuthGuardProps) {
+export function AuthGuard({ children }: AuthGuardProps): ReactElement {
   const router = useRouter();
   const pathname = usePathname();
   const { isGuest, isSessionInitialized } = useAuth();
@@ -53,7 +53,15 @@ export function AuthGuard({ children }: AuthGuardProps) {
       router.replace(`/auth/login?redirect=${encodeURIComponent(pathname)}`);
       return;
     }
-  }, [isClient, isSessionInitialized, isProtectedRoute, isAuthRestrictedRoute, isGuest, router, pathname]);
+  }, [
+    isClient,
+    isSessionInitialized,
+    isProtectedRoute,
+    isAuthRestrictedRoute,
+    isGuest,
+    router,
+    pathname,
+  ]);
 
   // 서버사이드에서는 항상 렌더링
   if (!isClient) {

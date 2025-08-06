@@ -1,6 +1,6 @@
 import { Button } from '@/components/common/Button';
 import { FormContainer, FormInput, FormCheckbox } from '@/components/common/Form';
-import React, { useState } from 'react';
+import React, { useState, ReactElement } from 'react';
 import { RegisterFormData } from '../types/auth';
 import { REGISTER_CONSTANTS } from '../constants/registerConstants';
 import { ValidationError } from '@ecommerce/common';
@@ -16,7 +16,7 @@ export function RegisterForm({
   onSubmit,
   isLoading: externalLoading,
   isSubmitting,
-}: RegisterFormProps) {
+}: RegisterFormProps): ReactElement {
   const [agreeTerms, setAgreeTerms] = useState(false);
 
   // 공통 Auth 폼 훅 사용
@@ -38,13 +38,13 @@ export function RegisterForm({
   const isButtonDisabled = isFormLoading || isSubmitting || !agreeTerms || !form.canSubmit;
 
   // 에러 필터링 로직
-  const getFilteredError = (errorKeyword: string) => {
+  const getFilteredError = (errorKeyword: string): string | undefined => {
     if (!form.hasError || !form.error) return undefined;
     return form.error.includes(errorKeyword) ? form.error : undefined;
   };
 
   // TypeScript exactOptionalPropertyTypes 호환성을 위한 헬퍼
-  const buildFormInputProps = (baseProps: any, errorKeyword: string) => {
+  const buildFormInputProps = (baseProps: any, errorKeyword: string): any => {
     const error = getFilteredError(errorKeyword);
     return error ? { ...baseProps, error } : baseProps;
   };
@@ -168,9 +168,7 @@ export function RegisterForm({
         disabled={isButtonDisabled}
         className="auth-submit-button"
       >
-        {isFormLoading
-          ? 'Creating account...'
-          : 'Sign up'}
+        {isFormLoading ? 'Creating account...' : 'Sign up'}
       </Button>
     </FormContainer>
   );

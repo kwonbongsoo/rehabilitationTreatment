@@ -56,7 +56,10 @@ const TYPE_SPECIFIC_OPTIONS: Record<NotificationType, Partial<NotificationOption
  * Toast 유틸리티 클래스
  */
 class ToastUtil {
-  private static getOptions(type: NotificationType, options?: NotificationOptions) {
+  private static getOptions(
+    type: NotificationType,
+    options?: NotificationOptions,
+  ): NotificationOptions {
     return {
       ...DEFAULT_OPTIONS,
       ...TYPE_SPECIFIC_OPTIONS[type],

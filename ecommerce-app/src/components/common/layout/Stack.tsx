@@ -2,7 +2,7 @@
  * 스택 컴포넌트 - 수직 또는 수평 스택 레이아웃
  */
 
-import React, { ReactNode } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 import styles from './Layout.module.css';
 import { Flex, FlexProps } from './Flex';
 
@@ -21,7 +21,7 @@ export function Stack({
   gap = 'md',
   className = '',
   ...props
-}: StackProps) {
+}: StackProps): ReactElement {
   const flexDirection = direction === 'vertical' ? 'column' : 'row';
 
   if (divider) {

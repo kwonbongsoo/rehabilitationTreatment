@@ -5,7 +5,7 @@ import { useFormState } from '@/hooks/useFormState';
 import { ErrorHandler } from '@/utils/errorHandling';
 import { NotificationManager } from '@/utils/notifications';
 import { EmailValidator } from '@/utils/validation';
-import { useState } from 'react';
+import { useState, ReactElement } from 'react';
 
 interface ForgotPasswordFormProps {
   onSubmit: (request: ForgotPasswordRequest) => Promise<void>;
@@ -15,7 +15,7 @@ interface ForgotPasswordFormProps {
 export function ForgotPasswordForm({
   onSubmit,
   isLoading: externalLoading = false,
-}: ForgotPasswordFormProps) {
+}: ForgotPasswordFormProps): ReactElement {
   const [isSuccess, setIsSuccess] = useState(false);
 
   const form = useFormState<ForgotPasswordRequest>({

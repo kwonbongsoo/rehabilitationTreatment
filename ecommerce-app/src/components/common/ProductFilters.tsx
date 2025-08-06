@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { ReactElement, useState } from 'react';
 import styles from './ProductFilters.module.css';
 
 interface FilterOption {
@@ -47,21 +47,21 @@ export default function ProductFilters({
   defaultFilter = '전체',
   defaultSort = 'popular',
   defaultViewMode = 'grid',
-}: ProductFiltersProps) {
+}: ProductFiltersProps): ReactElement {
   const [filterBy, setFilterBy] = useState(defaultFilter);
   const [sortBy, setSortBy] = useState(defaultSort);
 
-  const handleFilterChange = (filter: string) => {
+  const handleFilterChange = (filter: string): void => {
     setFilterBy(filter);
     onFilterChange?.(filter);
   };
 
-  const handleSortChange = (sort: string) => {
+  const handleSortChange = (sort: string): void => {
     setSortBy(sort);
     onSortChange?.(sort);
   };
 
-  const handleViewModeChange = (mode: 'grid' | 'list') => {
+  const handleViewModeChange = (mode: 'grid' | 'list'): void => {
     onViewModeChange?.(mode);
   };
 

@@ -1,8 +1,9 @@
 import Skeleton, { ImageSkeleton, TextSkeleton } from '../common/Skeleton';
 import styles from './PageSkeleton.module.css';
+import { ReactElement } from 'react';
 
 // 기본 페이지 스켈레톤
-export default function PageSkeleton() {
+export default function PageSkeleton(): ReactElement {
   return (
     <div className={styles.pageSkeleton}>
       <div className={styles.header}>
@@ -32,7 +33,7 @@ interface ProductListSkeletonProps {
   count?: number;
 }
 
-export function ProductListSkeleton({ count = 8 }: ProductListSkeletonProps) {
+export function ProductListSkeleton({ count = 8 }: ProductListSkeletonProps): ReactElement {
   return (
     <div className={styles.productListSkeleton}>
       <div className={styles.listHeader}>
@@ -62,7 +63,7 @@ export function ProductListSkeleton({ count = 8 }: ProductListSkeletonProps) {
 }
 
 // 상품 상세 스켈레톤
-export function ProductDetailSkeleton() {
+export function ProductDetailSkeleton(): ReactElement {
   return (
     <div className={styles.productDetailSkeleton}>
       <div className={styles.productDetailGrid}>
@@ -100,7 +101,7 @@ export function ProductDetailSkeleton() {
 }
 
 // 카트 페이지 스켈레톤
-export function CartSkeleton() {
+export function CartSkeleton(): ReactElement {
   return (
     <div className={styles.cartSkeleton}>
       <div className={styles.cartHeader}>

@@ -8,7 +8,7 @@
  * @param includeWon 원화 단위 포함 여부 (기본값: true)
  * @returns 포맷팅된 가격 문자열
  */
-export const formatPrice = (price: number, includeWon: boolean = true): string => {
+export const formatPrice = (price: number, includeWon = true): string => {
   const formatted = new Intl.NumberFormat('ko-KR').format(price);
   return includeWon ? `${formatted}원` : formatted;
 };
@@ -85,11 +85,16 @@ export function omitDeep<T extends Record<string, unknown>>(obj: T, keysToOmit: 
     if (!keysToOmit.includes(key)) {
       if (value && typeof value === 'object' && !Array.isArray(value)) {
         // 중첩된 객체인 경우 재귀적으로 처리
-        (result as Record<string, unknown>)[key] = omitDeep(value as Record<string, unknown>, keysToOmit);
+        (result as Record<string, unknown>)[key] = omitDeep(
+          value as Record<string, unknown>,
+          keysToOmit,
+        );
       } else if (Array.isArray(value)) {
         // 배열인 경우 각 요소를 처리
         (result as Record<string, unknown>)[key] = value.map((item) =>
-          item && typeof item === 'object' ? omitDeep(item as Record<string, unknown>, keysToOmit) : item,
+          item && typeof item === 'object'
+            ? omitDeep(item as Record<string, unknown>, keysToOmit)
+            : item,
         );
       } else {
         // 원시값인 경우 그대로 복사

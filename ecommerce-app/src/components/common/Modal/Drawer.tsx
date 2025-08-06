@@ -2,7 +2,7 @@
  * 드로어 컴포넌트 (사이드 패널)
  */
 
-import { ReactNode } from 'react';
+import { ReactElement, ReactNode } from 'react';
 import styles from '../Modal.module.css';
 import { BaseModal } from './BaseModal';
 
@@ -32,7 +32,7 @@ export function Drawer({
   className = '',
   title,
   showCloseButton = true,
-}: DrawerProps) {
+}: DrawerProps): ReactElement {
   return (
     <BaseModal
       isOpen={isOpen}

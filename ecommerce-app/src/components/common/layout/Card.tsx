@@ -2,7 +2,7 @@
  * 카드 컴포넌트 - 기본 카드 레이아웃
  */
 
-import React, { ReactNode, HTMLAttributes } from 'react';
+import React, { ReactElement, ReactNode, HTMLAttributes } from 'react';
 import styles from './Layout.module.css';
 
 /**
@@ -24,7 +24,7 @@ export function Card({
   hoverable = false,
   className = '',
   ...props
-}: CardProps) {
+}: CardProps): ReactElement {
   const cardClasses = [
     styles.card,
     styles[`card-${variant}`],

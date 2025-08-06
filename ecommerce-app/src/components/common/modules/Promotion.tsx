@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import styles from '@/styles/home/Promotion.module.css';
+import { ReactElement } from 'react';
 
 interface PromotionProps {
   title: string;
@@ -8,7 +9,12 @@ interface PromotionProps {
   buttonText: string;
 }
 
-export default function Promotion({ title, description, link, buttonText }: PromotionProps) {
+export default function Promotion({
+  title,
+  description,
+  link,
+  buttonText,
+}: PromotionProps): ReactElement {
   return (
     <section className={styles.promotionSection}>
       <div className={styles.promotionCard}>

@@ -2,6 +2,7 @@
  * 알림 다이얼로그 컴포넌트
  */
 
+import React, { ReactElement } from 'react';
 import styles from '../Modal.module.css';
 import { BaseModal } from './BaseModal';
 
@@ -27,7 +28,7 @@ export function AlertDialog({
   message,
   buttonText = '확인',
   variant = 'info',
-}: AlertDialogProps) {
+}: AlertDialogProps): ReactElement {
   return (
     <BaseModal isOpen={isOpen} onClose={onClose} className={styles.dialog}>
       <div className={styles.dialogHeader}>

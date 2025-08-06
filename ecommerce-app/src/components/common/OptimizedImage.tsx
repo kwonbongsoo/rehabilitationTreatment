@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, ImgHTMLAttributes } from 'react';
+import { useState, ImgHTMLAttributes, ReactElement } from 'react';
 
 interface OptimizedImageProps extends Omit<ImgHTMLAttributes<HTMLImageElement>, 'src'> {
   src: string;
@@ -33,7 +33,7 @@ export default function OptimizedImage({
   height,
   loading,
   ...props
-}: OptimizedImageProps) {
+}: OptimizedImageProps): ReactElement {
   const optimizedSrc = buildCdnUrl(src, width ? Number(width) : 500, height ? Number(height) : 500);
   const optimizedFallbackSrc = buildCdnUrl(
     fallbackSrc,

@@ -4,7 +4,11 @@ import { useCallback, useMemo } from 'react';
 import { NavItem } from './types';
 import { NAVIGATION_ITEMS } from './constants';
 
-export const useBottomNavigation = () => {
+export const useBottomNavigation = (): {
+  navItems: NavItem[];
+  handleNavClick: (item: NavItem) => void;
+  isGuest: boolean;
+} => {
   const router = useRouter();
   const pathname = usePathname();
   const { isGuest } = useAuth();

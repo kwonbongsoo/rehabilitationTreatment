@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import { notFound } from 'next/navigation';
 import CollectionProductGrid from '@/components/collections/CollectionProductGrid';
 import type { Product } from '@/domains/product/types/product';
 import { MOCK_PRODUCT_COLLECTIONS, getProductsByCollection } from '@/data/mock';
+import { Metadata } from 'next';
 
 interface CollectionPageProps {
   params: {
@@ -12,28 +13,13 @@ interface CollectionPageProps {
 
 const VALID_COLLECTIONS = ['summer', 'winter', 'spring', 'fall'] as const;
 
-export default function CollectionPage({ params }: CollectionPageProps) {
+export default function CollectionPage({ params }: CollectionPageProps): ReactElement {
   const { collection } = params;
 
   // Validate collection
   if (!VALID_COLLECTIONS.includes(collection as (typeof VALID_COLLECTIONS)[number])) {
     notFound();
   }
-
-  const getCollectionTitle = (collection: string) => {
-    switch (collection) {
-      case 'summer':
-        return '여름 컬렉션';
-      case 'winter':
-        return '겨울 컬렉션';
-      case 'spring':
-        return '봄 컬렉션';
-      case 'fall':
-        return '가을 컬렉션';
-      default:
-        return '컬렉션';
-    }
-  };
 
   // 중앙집중화된 Mock 데이터 사용
   const mockProductsData = getProductsByCollection(
@@ -54,6 +40,9 @@ export default function CollectionPage({ params }: CollectionPageProps) {
     reviews: product.reviews || 0,
     tags: product.tags || [],
     description: product.description || `${getCollectionTitle(collection)} 상품입니다.`,
+    sellerId: 'star12310',
+    isNew: false,
+    isFeatured: false,
   }));
 
   // 빈 컬렉션의 경우 기본 상품 추가
@@ -72,6 +61,9 @@ export default function CollectionPage({ params }: CollectionPageProps) {
         reviews: 128,
         discount: 13,
         description: '편안하고 스타일리시한 디자인',
+        sellerId: 'star12310',
+        isNew: false,
+        isFeatured: false,
       },
       {
         id: 2,
@@ -86,6 +78,9 @@ export default function CollectionPage({ params }: CollectionPageProps) {
         reviews: 128,
         discount: 10,
         description: '고급스러운 소재와 마감',
+        sellerId: 'star12310',
+        isNew: false,
+        isFeatured: false,
       },
     ];
     mockProducts.push(...defaultProducts);
@@ -121,33 +116,33 @@ export default function CollectionPage({ params }: CollectionPageProps) {
 }
 
 // 정적 경로 생성
-export function generateStaticParams() {
+export function generateStaticParams(): { collection: string }[] {
   return VALID_COLLECTIONS.map((collection) => ({
     collection,
   }));
 }
 
 // 메타데이터 생성
-export function generateMetadata({ params }: CollectionPageProps) {
+export function generateMetadata({ params }: CollectionPageProps): Metadata {
   const { collection } = params;
-
-  const getCollectionTitle = (collection: string) => {
-    switch (collection) {
-      case 'summer':
-        return '여름 컬렉션';
-      case 'winter':
-        return '겨울 컬렉션';
-      case 'spring':
-        return '봄 컬렉션';
-      case 'fall':
-        return '가을 컬렉션';
-      default:
-        return '컬렉션';
-    }
-  };
 
   return {
     title: `${getCollectionTitle(collection)} | 쇼핑몰`,
     description: `${getCollectionTitle(collection)} 상품을 확인해보세요.`,
   };
 }
+
+const getCollectionTitle = (collection: string): string => {
+  switch (collection) {
+    case 'summer':
+      return '여름 컬렉션';
+    case 'winter':
+      return '겨울 컬렉션';
+    case 'spring':
+      return '봄 컬렉션';
+    case 'fall':
+      return '가을 컬렉션';
+    default:
+      return '컬렉션';
+  }
+};

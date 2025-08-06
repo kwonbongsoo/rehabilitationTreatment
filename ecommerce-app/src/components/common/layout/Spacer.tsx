@@ -2,7 +2,7 @@
  * 스페이서 컴포넌트 - 공간 생성
  */
 
-import React, { CSSProperties } from 'react';
+import React, { CSSProperties, ReactElement } from 'react';
 import styles from './Layout.module.css';
 
 /**
@@ -13,7 +13,7 @@ export interface SpacerProps {
   axis?: 'horizontal' | 'vertical' | 'both';
 }
 
-export function Spacer({ size = 'md', axis = 'vertical' }: SpacerProps) {
+export function Spacer({ size = 'md', axis = 'vertical' }: SpacerProps): ReactElement {
   const spacerClasses = [
     styles.spacer,
     typeof size === 'string' && !['sm', 'md', 'lg', 'xl'].includes(size)

@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { ReactElement } from 'react';
 import Link from 'next/link';
 import ProductCard from './ProductCard';
 import { Product } from '@/domains/product/types/product';
@@ -28,8 +28,8 @@ export default function ProductSection({
   onWishlistToggle,
   eagerCount = 2,
   allLazy = false,
-}: ProductSectionProps) {
-  const handleWishlistToggle = (productId: number) => {
+}: ProductSectionProps): ReactElement | null {
+  const handleWishlistToggle = (productId: number): void => {
     onWishlistToggle?.(productId);
   };
 

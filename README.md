@@ -1,10 +1,33 @@
 # E-Commerce 플랫폼
 
 마이크로서비스 아키텍처 기반의 이커머스 플랫폼으로, Kong API Gateway, BFF(Backend for Frontend) 패턴, 그리고 Redis 기반 HTML 캐싱 프록시 서버를 적용한 현대적인 웹 애플리케이션입니다.
-## UI
+
+## 📑 목차
+
+- [UI 데모](#ui-demo)
+- [성능 지표](#lightHouse)
+- [이미지 최적화 성능 비교](#-이미지-최적화-성능-비교)
+- [시스템 아키텍처](#시스템-아키텍처)
+- [데이터 플로우](#데이터-플로우)
+- [Kong Gateway 플러그인 구성](#kong-gateway-플러그인-구성)
+- [주요 특징](#주요-특징)
+- [서비스 구성](#서비스-구성)
+- [네트워크 구성](#네트워크-구성)
+- [시작하기](#시작하기)
+- [서비스 엔드포인트](#서비스-엔드포인트)
+- [API 사용 예시](#api-사용-예시)
+- [테스트 구현 현황](#-테스트-구현-현황)
+- [이미지 압축 기능](#-이미지-압축-기능)
+- [개발 가이드](#-개발-가이드)
+- [프록시 서버 성능 테스트](#-프록시-서버-성능-테스트-결과)
+- [향후 계획](#향후-계획)
+- [참고 문서](#참고-문서)
+- [라이선스](#-라이선스)
+
+## UI 데모 {#ui-demo}
 ![UI](커머스.png)
 
-## LightHouse
+## 성능 지표 {#lightHouse}
 ![Performance](lighthouse.png)
 
 ## 🚀 이미지 최적화 성능 비교
@@ -647,17 +670,6 @@ cd ecommerce-app && npm install && cd ..
 
 각 서비스별로 `.env` 파일을 생성하고 다음 설정을 추가하세요:
 
-**Root 프로젝트 설정**
-```bash
-# .env
-# Kong Redis Configuration (for idempotency plugin)
-REDIS_URL=your-redis-host
-REDIS_PORT=12020
-REDIS_DB=0
-REDIS_PASSWORD=your-redis-password
-IDEMPOTENCY_TTL=60
-```
-
 **Proxy Server 설정**
 ```bash
 # proxy-server/.env
@@ -827,7 +839,98 @@ curl http://localhost:3001/api/home \
   -H "Authorization: Bearer your-jwt-token"
 ```
 
-## 테스트
+## 📋 테스트 구현 현황
+
+본 프로젝트는 포괄적인 테스트 전략을 통해 **코드 품질과 안정성을 보장**합니다.
+
+### 테스트 프레임워크 및 도구
+- **Jest**: 단위 테스트 및 통합 테스트 프레임워크
+- **React Testing Library**: React 컴포넌트 테스트
+- **TypeScript**: 타입 안전성 및 개발 시 에러 감지
+- **Mocking**: API 호출 및 외부 의존성 모킹
+
+### 서버 사이드 테스트
+
+#### 🔐 Auth Server (Koa.js)
+- **에러 미들웨어 테스트** (`errorMiddleware.test.ts`)
+  - BaseError, AuthenticationError, 알 수 없는 에러 처리 검증
+  - HTTP 상태 코드 및 에러 응답 형식 정확성 확인
+  - 토큰 검증 실패 시나리오 테스트
+
+#### 👥 Member Server (Fastify)
+- **회원 컨트롤러 테스트** (`memberController.test.ts`)
+  - 회원 생성, 조회, 수정 성공/실패 시나리오
+  - ValidationError 처리 검증
+  - 싱글톤 패턴 구현 테스트
+  - Mock 기반 서비스 레이어 격리 테스트
+
+### 클라이언트 사이드 테스트 (Next.js)
+
+#### 🧩 공통 컴포넌트
+- **Button 컴포넌트** (`Button.test.tsx`): 기본 버튼 기능 및 이벤트 처리
+- **Modal 컴포넌트** (`Modal.test.tsx`): 모달 열림/닫힘 상태 관리
+- **Form 컴포넌트** (`Form.test.tsx`): 폼 검증 및 제출 플로우
+- **ProductCard 컴포넌트** (`ProductCard.test.tsx`): 상품 카드 렌더링
+- **ProductGrid 컴포넌트** (`ProductGrid.test.tsx`): 상품 목록 표시
+- **Rating 컴포넌트** (`Rating.test.tsx`): 별점 평가 시스템
+
+#### 🔑 인증 도메인
+- **LoginForm** (`LoginForm.test.tsx`): 로그인 폼 검증 및 제출
+- **RegisterForm** (`RegisterForm.test.tsx`): 회원가입 폼 처리
+- **ForgotPasswordForm** (`ForgotPasswordForm.test.tsx`): 비밀번호 재설정
+
+#### 📦 상품 도메인
+- **상품 폼 관련**:
+  - `useProductForm.test.ts`: 상품 등록 폼 상태 관리
+  - `useProductFormData.test.ts`: 폼 데이터 처리 로직
+  - `useProductOptions.test.ts`: 상품 옵션 관리
+  - `useProductCategories.test.ts`: 카테고리 선택 로직
+  - `useProductSpecifications.test.ts`: 상품 사양 관리
+  - `useProductSubmission.test.ts`: 상품 등록 제출 플로우
+
+- **상품 이미지 관리**:
+  - `useProductImages.test.ts`: 이미지 업로드 및 미리보기
+  - `useProductImages.compression.test.ts`: **이미지 압축 기능 상세 테스트**
+
+#### 🛒 장바구니 도메인
+- **useCartActions.test.ts**: 장바구니 추가/제거/수정 액션
+- **CartApiService.test.ts**: 장바구니 API 서비스 로직
+
+#### 🏠 홈 도메인
+- **homeService.test.ts**: 홈페이지 데이터 로딩 서비스
+
+#### 📂 카테고리 도메인
+- **categoriesService.test.ts**: 카테고리 관리 서비스
+
+#### 🛠️ 유틸리티 및 인프라
+- **Validation** (`validation.test.ts`): 데이터 검증 유틸리티
+- **Formatters** (`formatters.test.ts`): 데이터 포맷팅 함수들
+- **Error Handling** (`errorHandling.test.ts`): 에러 처리 유틸리티
+- **Notifications** (`notifications.test.ts`): 알림 시스템
+- **Product Utils** (`productUtils.test.ts`): 상품 관련 유틸리티
+
+#### 🎣 커스텀 훅
+- **useErrorHandler.test.ts**: 에러 처리 훅
+- **useIdempotentMutation.test.ts**: 멱등성 보장 뮤테이션 훅
+- **useFormState.test.ts**: 폼 상태 관리 훅
+
+#### 🌐 API 및 서버 통신
+- **kongApiClient.test.ts**: Kong Gateway API 클라이언트
+- **Server 유틸리티**:
+  - `errorHandler.test.ts`: 서버 에러 처리
+  - `headerBuilder.test.ts`: HTTP 헤더 구성
+  - `serverActionErrorHandler.test.ts`: 서버 액션 에러 처리
+
+#### 🚦 프록시 서버
+- **error-handling.test.ts**: 프록시 서버 에러 처리 로직
+
+### 테스트 커버리지 특징
+
+✅ **포괄적 도메인 커버리지**: 인증, 상품, 장바구니, 홈, 카테고리 모든 주요 도메인<br>
+✅ **계층별 테스트**: 컴포넌트, 훅, 서비스, 유틸리티 모든 계층<br>
+✅ **에러 시나리오**: 정상 케이스뿐만 아니라 에러 상황까지 검증<br>
+✅ **API 통신**: 실제 API 호출을 모킹하여 네트워크 레이어 테스트<br>
+✅ **타입 안전성**: TypeScript와 함께 컴파일 타임 에러 감지<br>
 
 ### 통합 테스트 시나리오
 ```bash
@@ -853,6 +956,136 @@ curl http://localhost:8000/api/members \
   -H "Authorization: Bearer $TOKEN" \
   -H "X-Idempotency-Key: test-key-2"
 ```
+
+### 테스트 실행 방법
+```bash
+# 전체 테스트 실행
+npm test
+
+# 특정 도메인 테스트
+npm test -- --testPathPattern="domains/product"
+
+# 커버리지 리포트 생성
+npm run test:coverage
+
+# Watch 모드로 테스트
+npm run test:watch
+```
+
+## 🖼️ 이미지 압축 기능
+
+본 프로젝트는 **고성능 이미지 처리 시스템**을 통해 사용자 경험과 성능을 최적화합니다.
+
+### 핵심 기능
+
+#### 📱 클라이언트 사이드 압축 (`useProductImages` Hook)
+```typescript
+// 실시간 이미지 압축 및 최적화
+const compressionOptions = {
+  maxSizeMB: 2,                    // 최대 2MB로 압축
+  maxWidthOrHeight: 1920,          // 최대 해상도 1920px
+  useWebWorker: true,              // 메인 스레드 블로킹 방지
+  preserveExif: false,             // EXIF 데이터 제거로 용량 절약
+  onProgress: (progress) => {      // 실시간 압축 진행률
+    setCompressionProgress(progress);
+  }
+};
+```
+
+**주요 특징:**
+- ⚡ **Web Worker 활용**: 메인 스레드 블로킹 없이 백그라운드 압축
+- 📊 **실시간 진행률**: 사용자에게 압축 진행 상황 표시
+- 🎯 **스마트 검증**: 10MB 이하, 이미지 파일만 허용
+- 🔄 **자동 최적화**: 파일 크기와 해상도 동시 최적화
+
+#### 🌐 CDN 기반 이미지 최적화 (Cloudflare Workers)
+```javascript
+// 온디맨드 이미지 리사이징 및 포맷 변환
+const imageUrl = `https://image-resizer.star1231076.workers.dev/?
+  url=${encodeURIComponent(originalUrl)}&
+  w=120&h=120&
+  fit=cover&
+  f=webp`;
+```
+
+**Cloudflare Workers 이미지 파이프라인:**
+1. **WSrv.nl** (1차 우선순위)
+2. **Statically** (백업 서비스 #1)
+3. **Images.weserv.nl** (백업 서비스 #2)
+
+### 성능 비교 분석
+
+#### 이미지 처리 방식별 응답 속도
+
+| 처리 방식 | 평균 응답시간 | 장점 | 단점 |
+|-----------|--------------|------|------|
+| **Next.js Image** | **0.0038초** | 로컬 캐싱, 내장 최적화 | 서버 부하, 지역 의존 |
+| **Cloudflare Workers** | **0.181초** | 글로벌 CDN, 서버 부하 분산 | 첫 요청 지연 |
+
+#### 프로덕션 환경 고려사항
+
+**개발/저트래픽 환경**: Next.js Image 우세 (47배 빠름)
+**글로벌 프로덕션 환경**:
+- 첫 요청: Cloudflare Workers 지연
+- **캐시 적중 후**: Cloudflare가 동등하거나 더 빠른 성능
+- **24시간 캐싱**: `Cache-Control: public, max-age=86400, immutable`
+
+### 이미지 압축 테스트 구현
+
+프로젝트는 이미지 압축 기능에 대한 **전문 테스트 스위트**를 제공합니다:
+
+#### 📋 테스트 파일들
+- `useProductImages.test.ts`: 기본 이미지 처리 로직
+- `useProductImages.compression.test.ts`: **압축 알고리즘 상세 테스트**
+
+#### 🧪 압축 테스트 시나리오
+```typescript
+// 압축 품질 검증
+it('should compress images within size limits', async () => {
+  const largeFile = createMockFile(5 * 1024 * 1024); // 5MB
+  const compressed = await compressImage(largeFile);
+
+  expect(compressed.size).toBeLessThan(2 * 1024 * 1024); // 2MB 미만
+  expect(compressed.type).toBe('image/webp');
+});
+
+// 진행률 콜백 테스트
+it('should report compression progress', async () => {
+  const progressCallback = jest.fn();
+  await compressImage(mockFile, { onProgress: progressCallback });
+
+  expect(progressCallback).toHaveBeenCalledWith(expect.any(Number));
+});
+```
+
+### 실제 사용 시나리오
+
+#### 📤 상품 등록 플로우
+1. **파일 선택** → 자동 유효성 검사
+2. **실시간 압축** → Web Worker에서 백그라운드 처리
+3. **진행률 표시** → 사용자 피드백
+4. **미리보기 생성** → 즉시 결과 확인
+5. **업로드 준비** → 최적화된 파일로 전송
+
+#### 🖼️ 이미지 렌더링 전략
+```jsx
+// 조건부 이미지 최적화
+<OptimizedImageNext
+  src={productImage}
+  width={300}
+  height={200}
+  priority={isAboveFold}  // 스크롤 위치에 따른 우선순위
+  quality={75}            // 품질 vs 용량 최적화
+/>
+```
+
+### 최적화 결과
+
+✅ **용량 최적화**: 평균 70-80% 파일 크기 감소
+✅ **품질 유지**: 시각적 품질 손실 최소화
+✅ **UX 향상**: 실시간 진행률로 사용자 만족도 증가
+✅ **서버 부하 감소**: 클라이언트 사이드 압축으로 업로드 트래픽 감소
+✅ **글로벌 성능**: CDN을 통한 전세계 일관된 이미지 전송 속도
 
 ## 🔧 개발 가이드
 
@@ -1278,8 +1511,8 @@ private isHealthCheckRequest(req: Request, url: URL): boolean {
 - [Prisma ORM 문서](https://www.prisma.io/docs)
 - [Docker Compose 문서](https://docs.docker.com/compose/)
 - [Koa 문서](https://koajs.com/)
-
-## 📄 라이선스
+- [NestJS 문서](https://docs.nestjs.com/)
+## 📄 라이선스 {#라이선스}
 
 MIT License
 

@@ -1,6 +1,6 @@
 import { Button } from '@/components/common/Button';
 import { FormContainer } from '@/components/common/Form';
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, ReactElement } from 'react';
 
 interface EmailVerificationFormProps {
   email: string;
@@ -14,7 +14,7 @@ export function EmailVerificationForm({
   onSubmit,
   isLoading = false,
   onResend,
-}: EmailVerificationFormProps) {
+}: EmailVerificationFormProps): ReactElement {
   const [verificationCode, setVerificationCode] = useState(['', '', '', '', '', '']);
   const [isResending, setIsResending] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -24,7 +24,7 @@ export function EmailVerificationForm({
     inputRefs.current[0]?.focus();
   }, []);
 
-  const handleInputChange = (index: number, value: string) => {
+  const handleInputChange = (index: number, value: string): void => {
     if (value.length > 1) return; // Only allow single character
 
     const newCode = [...verificationCode];
@@ -37,18 +37,18 @@ export function EmailVerificationForm({
     }
   };
 
-  const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
+  const handleKeyDown = (index: number, e: React.KeyboardEvent): void => {
     if (e.key === 'Backspace' && !verificationCode[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     await onSubmit(verificationCode.join(''));
   };
 
-  const handleResend = async () => {
+  const handleResend = async (): Promise<void> => {
     if (onResend) {
       setIsResending(true);
       try {
@@ -59,7 +59,7 @@ export function EmailVerificationForm({
     }
   };
 
-  const isComplete = verificationCode.every(digit => digit !== '');
+  const isComplete = verificationCode.every((digit) => digit !== '');
 
   return (
     <FormContainer onSubmit={handleSubmit} className="mobile-auth-form">
