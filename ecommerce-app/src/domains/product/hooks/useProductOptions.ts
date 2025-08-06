@@ -3,7 +3,11 @@ import type { ProductOption } from '@/domains/product/types/product';
 
 interface UseProductOptionsReturn {
   options: ProductOption[];
-  handleOptionChange: (index: number, field: keyof ProductOption, value: string | number | boolean) => void;
+  handleOptionChange: (
+    index: number,
+    field: keyof ProductOption,
+    value: string | number | boolean,
+  ) => void;
   addOption: () => void;
   removeOption: (index: number) => void;
   moveOption: (fromIndex: number, toIndex: number) => void;
@@ -13,17 +17,14 @@ interface UseProductOptionsReturn {
 export function useProductOptions(initialOptions: ProductOption[] = []): UseProductOptionsReturn {
   const [options, setOptions] = useState<ProductOption[]>(initialOptions);
 
-  const handleOptionChange = useCallback((
-    index: number, 
-    field: keyof ProductOption, 
-    value: string | number | boolean
-  ) => {
-    setOptions((prev) =>
-      prev.map((option, i) => 
-        i === index ? { ...option, [field]: value } : option
-      )
-    );
-  }, []);
+  const handleOptionChange = useCallback(
+    (index: number, field: keyof ProductOption, value: string | number | boolean): void => {
+      setOptions((prev) =>
+        prev.map((option, i) => (i === index ? { ...option, [field]: value } : option)),
+      );
+    },
+    [],
+  );
 
   const addOption = useCallback(() => {
     const newOption: ProductOption = {
@@ -48,12 +49,12 @@ export function useProductOptions(initialOptions: ProductOption[] = []): UseProd
     setOptions((prev) => {
       const newOptions = [...prev];
       const movedOption = newOptions[fromIndex];
-      
+
       if (!movedOption) return prev;
-      
+
       newOptions.splice(fromIndex, 1);
       newOptions.splice(toIndex, 0, movedOption);
-      
+
       // sortOrder 업데이트
       return newOptions.map((option, index) => ({
         ...option,

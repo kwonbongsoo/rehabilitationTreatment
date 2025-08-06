@@ -1,25 +1,26 @@
 import { useState, useEffect } from 'react';
-import { fetchCategories, type CategoryOption } from '@/domains/category/services/categoriesService';
+import { fetchCategories } from '@/domains/category/services/categoriesService';
+import { Category } from '@/types';
 
 interface UseProductCategoriesReturn {
-  categories: CategoryOption[];
+  categories: Category[];
   loadingCategories: boolean;
   categoriesError: string | null;
 }
 
 export function useProductCategories(): UseProductCategoriesReturn {
-  const [categories, setCategories] = useState<CategoryOption[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
   const [categoriesError, setCategoriesError] = useState<string | null>(null);
 
   useEffect(() => {
-    const loadCategories = async () => {
+    const loadCategories = async (): Promise<void> => {
       try {
         setLoadingCategories(true);
         setCategoriesError(null);
-        
+
         const response = await fetchCategories();
-        
+
         if (response.success && response.data) {
           setCategories(response.data);
         } else {

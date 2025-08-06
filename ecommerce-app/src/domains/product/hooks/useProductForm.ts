@@ -5,8 +5,42 @@ import { useProductOptions } from './useProductOptions';
 import { useProductSpecifications } from './useProductSpecifications';
 import { useProductCategories } from './useProductCategories';
 import { useProductSubmission } from './useProductSubmission';
+import { ProductFormData, ProductOption } from '..';
+import { Category } from '@/types';
 
-export function useProductForm() {
+interface CompressionProgress {
+  [key: string]: number;
+}
+
+export function useProductForm(): {
+  formData: ProductFormData;
+  imagePreviews: string[];
+  isSubmitting: boolean;
+  isCompressing: boolean;
+  compressionProgress: CompressionProgress;
+  errors: { [key: string]: string };
+  categories: Category[];
+  loadingCategories: boolean;
+  handlers: {
+    handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    handleDimensionChange: (dimension: 'length' | 'width' | 'height', value: string) => void;
+    handleImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    removeImage: (index: number) => void;
+    handleSpecificationChange: (key: string, value: string) => void;
+    addSpecification: (key: string, value: string) => void;
+    removeSpecification: (key: string) => void;
+    handleSpecificationKeyChange: (oldKey: string, newKey: string, value: string) => void;
+    handleOptionChange: (
+      index: number,
+      field: keyof ProductOption,
+      value: string | number | boolean,
+    ) => void;
+    addOption: () => void;
+    removeOption: (index: number) => void;
+    moveOption: (fromIndex: number, toIndex: number) => void;
+    handleSubmit: (e: React.FormEvent) => Promise<void>;
+  };
+} {
   // 각 기능별 훅 사용
   const {
     formData,
@@ -17,7 +51,15 @@ export function useProductForm() {
     setFieldError,
   } = useProductFormData();
 
-  const { images, imagePreviews, handleImageUpload, removeImage, resetImages } = useProductImages();
+  const { 
+    images, 
+    imagePreviews, 
+    isCompressing, 
+    compressionProgress, 
+    handleImageUpload, 
+    removeImage, 
+    resetImages 
+  } = useProductImages();
 
   const { options, handleOptionChange, addOption, removeOption, moveOption, resetOptions } =
     useProductOptions();
@@ -111,6 +153,8 @@ export function useProductForm() {
     // 상태
     imagePreviews,
     isSubmitting,
+    isCompressing,
+    compressionProgress,
     errors: {
       ...errors,
       ...(categoriesError && { categories: categoriesError }),

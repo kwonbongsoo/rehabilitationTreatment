@@ -14,6 +14,9 @@ export interface Product {
   size?: string;
   color?: string;
   tags?: Tag[];
+  sellerId: string;
+  isNew: boolean;
+  isFeatured: boolean;
 }
 
 interface Tag {
@@ -75,6 +78,7 @@ export interface ProductFormData {
   discountPercentage: number;
   specifications?: { [key: string]: string };
   options?: ProductOption[]; // 상품 옵션 추가
+  images?: File[];
 }
 // 상품 액션 결과 타입
 export interface ProductActionResult {

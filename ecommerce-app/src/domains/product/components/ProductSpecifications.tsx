@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import styles from '@/styles/account/AddProduct.module.css';
 
 interface ProductSpecificationsProps {
   specifications: { [key: string]: string };
   onSpecificationChange: (key: string, value: string) => void;
-  onAddSpecification: () => void;
+  onAddSpecification: (key: string, value: string) => void;
   onRemoveSpecification: (key: string) => void;
   onSpecificationKeyChange: (oldKey: string, newKey: string, value: string) => void;
 }
@@ -15,12 +15,16 @@ export function ProductSpecifications({
   onAddSpecification,
   onRemoveSpecification,
   onSpecificationKeyChange,
-}: ProductSpecificationsProps) {
+}: ProductSpecificationsProps): ReactElement {
   return (
     <div className={styles.section}>
       <div className={styles.specHeader}>
         <label className={styles.sectionTitle}>Specifications (Optional)</label>
-        <button type="button" onClick={onAddSpecification} className={styles.addSpecButton}>
+        <button
+          type="button"
+          onClick={() => onAddSpecification('', '')}
+          className={styles.addSpecButton}
+        >
           + Add
         </button>
       </div>

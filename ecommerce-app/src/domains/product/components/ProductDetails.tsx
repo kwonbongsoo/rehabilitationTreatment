@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import styles from '@/styles/account/AddProduct.module.css';
 
 interface ProductDetailsProps {
@@ -14,7 +14,11 @@ interface ProductDetailsProps {
   onDimensionChange: (dimension: 'length' | 'width' | 'height', value: string) => void;
 }
 
-export function ProductDetails({ formData, onChange, onDimensionChange }: ProductDetailsProps) {
+export function ProductDetails({
+  formData,
+  onChange,
+  onDimensionChange,
+}: ProductDetailsProps): ReactElement {
   return (
     <div className={styles.section}>
       <label className={styles.sectionTitle}>Product Details (Optional)</label>

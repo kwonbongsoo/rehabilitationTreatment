@@ -5,7 +5,7 @@
  * 사이드이펙트 방지를 위해 모든 의존성을 모킹합니다.
  */
 
-import React from 'react';
+import React, { ReactElement } from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ProductCard from '../ProductCard';
@@ -39,7 +39,7 @@ jest.mock('../OptimizedImageNext', () => {
     priority,
     lazy,
     ...props
-  }: any) {
+  }: any): ReactElement {
     return (
       <img
         src={src}
@@ -71,7 +71,10 @@ describe('ProductCard', () => {
     categoryId: 1,
     stock: 10,
     rating: 4.5,
+    sellerId: 'star12310',
     reviews: 25,
+    isNew: false,
+    isFeatured: false,
     tags: [
       { name: '신상품', color: '#FF6B6B' },
       { name: '할인', color: '#4ECDC4' },
@@ -396,6 +399,9 @@ describe('ProductCard', () => {
         stock: 1,
         rating: 0,
         reviews: 0,
+        sellerId: 'star12310',
+        isNew: false,
+        isFeatured: false,
       };
 
       render(<ProductCard product={minimalProduct} />);

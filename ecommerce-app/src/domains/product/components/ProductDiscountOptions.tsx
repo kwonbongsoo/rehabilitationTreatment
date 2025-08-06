@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import styles from '@/styles/account/AddProduct.module.css';
 
 interface ProductDiscountOptionsProps {
@@ -10,7 +10,10 @@ interface ProductDiscountOptionsProps {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-export function ProductDiscountOptions({ formData, onChange }: ProductDiscountOptionsProps) {
+export function ProductDiscountOptions({
+  formData,
+  onChange,
+}: ProductDiscountOptionsProps): ReactElement {
   return (
     <div className={styles.section}>
       <label className={styles.sectionTitle}>Discount & Options (Optional)</label>

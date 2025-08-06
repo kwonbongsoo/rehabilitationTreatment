@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -146,7 +146,7 @@ describe('Button', () => {
   });
 
   describe('아이콘 기능', () => {
-    const TestIcon = () => <span data-testid="test-icon">🎯</span>;
+    const TestIcon = (): ReactElement => <span data-testid="test-icon">🎯</span>;
 
     it('왼쪽 아이콘이 올바르게 렌더링된다', () => {
       render(
@@ -223,7 +223,7 @@ describe('Button', () => {
 });
 
 describe('IconButton', () => {
-  const TestIcon = () => <span data-testid="test-icon">🎯</span>;
+  const TestIcon = (): ReactElement => <span data-testid="test-icon">🎯</span>;
 
   it('아이콘 버튼이 올바르게 렌더링된다', () => {
     render(<IconButton icon={<TestIcon />} aria-label="테스트 아이콘 버튼" />);

@@ -41,9 +41,6 @@ export function useProductSubmission(): UseProductSubmissionReturn {
           idempotencyKeyRef.current,
         );
 
-        console.log('user', user);
-        console.log('formDataToSend', data);
-
         // Server Action 호출
         const result = await createProduct(formDataToSend);
 
@@ -65,7 +62,7 @@ export function useProductSubmission(): UseProductSubmissionReturn {
   );
 
   // 서버 에러 처리
-  const handleSubmissionError = (result: ProductActionResult) => {
+  const handleSubmissionError = (result: ProductActionResult): void => {
     if (result.errors) {
       // 첫 번째 에러 필드로 스크롤
       const firstErrorField = Object.keys(result.errors)[0];
@@ -81,7 +78,7 @@ export function useProductSubmission(): UseProductSubmissionReturn {
   };
 
   // 예상치 못한 에러 처리
-  const handleUnexpectedError = (error: unknown) => {
+  const handleUnexpectedError = (error: unknown): void => {
     const errorMessage =
       error instanceof Error ? error.message : '상품 등록 중 오류가 발생했습니다.';
     alert(`${errorMessage} 다시 시도해주세요.`);

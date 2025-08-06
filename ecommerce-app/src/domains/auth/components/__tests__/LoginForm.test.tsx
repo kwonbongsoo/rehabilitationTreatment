@@ -162,13 +162,12 @@ describe('LoginForm', () => {
       expect(screen.getByRole('button', { name: 'Login' })).toHaveAttribute('type', 'submit');
     });
 
-    it('Remember me 체크박스가 올바르게 렌더링된다', () => {
+    it('로그인 상태 유지 체크박스가 올바르게 렌더링된다', () => {
       render(<LoginForm onSubmit={mockOnSubmit} />);
 
-      const checkbox = screen.getByRole('checkbox', { name: 'Remember me' });
+      const checkbox = screen.getByTestId('remember-me');
       expect(checkbox).toBeInTheDocument();
       expect(checkbox).toHaveAttribute('id', 'remember-me');
     });
-
   });
 });
