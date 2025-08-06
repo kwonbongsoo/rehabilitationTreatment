@@ -3,15 +3,22 @@ export interface Product {
   name: string;
   description: string;
   price: number;
+  originalPrice?: number;
+  discount?: number;
+  mainImage: string;
   images: string[];
-  category: string;
+  categoryId: number;
   stock: number;
   rating: number;
   reviews: number;
-  createdAt: string;
-  updatedAt: string;
   size?: string;
   color?: string;
+  tags?: Tag[];
+}
+
+interface Tag {
+  name: string;
+  color: string;
 }
 
 export interface ProductListItem {
@@ -79,4 +86,10 @@ export interface ProductActionResult {
   };
   message?: string;
   errors?: { [key: string]: string };
+}
+
+export interface ProductSubmissionData extends ProductFormData {
+  images: File[];
+  options: ProductOption[];
+  specifications: Record<string, string>;
 }

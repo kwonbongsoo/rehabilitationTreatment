@@ -21,7 +21,7 @@ export function ProductSpecifications({
       <div className={styles.specHeader}>
         <label className={styles.sectionTitle}>Specifications (Optional)</label>
         <button type="button" onClick={onAddSpecification} className={styles.addSpecButton}>
-          + Add Specification
+          + Add
         </button>
       </div>
 

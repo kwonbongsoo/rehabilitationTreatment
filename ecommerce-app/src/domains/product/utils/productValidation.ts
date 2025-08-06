@@ -1,8 +1,23 @@
-import type { ProductFormData, ProductOption } from '@/domains/product/types/product';
+import type { ProductFormData } from '@/domains/product/types/product';
+import type { ValidationResult } from '@/utils/validation';
 
 interface ProductFormWithImages extends ProductFormData {
   images: File[];
 }
+
+/**
+ * 검증 결과 변환 헬퍼 (사이드이펙트 방지용)
+ */
+const convertToValidationResult = (error: string | null): ValidationResult => ({
+  isValid: error === null,
+  errors: error ? [error] : [],
+});
+
+/**
+ * ValidationResult를 기존 string | null 형식으로 변환
+ */
+export const convertFromValidationResult = (result: ValidationResult): string | null =>
+  result.isValid ? null : result.errors[0] || '검증 오류가 발생했습니다.';
 
 export const validateField = (name: string, value: string | boolean): string => {
   switch (name) {
@@ -196,7 +211,7 @@ export const validateForm = (formData: ProductFormWithImages): string | null => 
     for (let i = 0; i < formData.options.length; i++) {
       const option = formData.options[i];
       if (!option) continue;
-      
+
       const optionIndex = i + 1;
 
       if (!option.optionType.trim()) {
@@ -241,13 +256,33 @@ export const validateForm = (formData: ProductFormWithImages): string | null => 
     }
 
     // 중복 옵션 체크 (같은 optionType + optionValue 조합)
-    const optionKeys = formData.options.map(opt => `${opt.optionType}:${opt.optionValue}`);
+    const optionKeys = formData.options.map((opt) => `${opt.optionType}:${opt.optionValue}`);
     const duplicates = optionKeys.filter((key, index) => optionKeys.indexOf(key) !== index);
-    
+
     if (duplicates.length > 0) {
       return '중복된 옵션이 있습니다. 같은 유형의 같은 값을 가진 옵션은 한 번만 등록할 수 있습니다.';
     }
   }
 
   return null; // 검증 통과
+};
+
+/**
+ * 새로운 ValidationResult 기반 검증 함수들 (통합 API)
+ */
+
+/**
+ * 필드별 검증 (ValidationResult 반환)
+ */
+export const validateFieldNew = (name: string, value: string | boolean): ValidationResult => {
+  const error = validateField(name, value);
+  return convertToValidationResult(error);
+};
+
+/**
+ * 전체 폼 검증 (ValidationResult 반환)
+ */
+export const validateFormNew = (formData: ProductFormWithImages): ValidationResult => {
+  const error = validateForm(formData);
+  return convertToValidationResult(error);
 };

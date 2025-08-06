@@ -61,7 +61,7 @@ export function ProductOptions({
       <div className={styles.specHeader}>
         <label className={styles.sectionTitle}>Product Options (Optional)</label>
         <button type="button" onClick={onAddOption} className={styles.addSpecButton}>
-          + Add Option
+          + Add
         </button>
       </div>
 

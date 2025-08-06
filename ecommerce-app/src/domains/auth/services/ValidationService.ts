@@ -12,6 +12,7 @@ import {
   ValidationResult,
   FieldValidationResult,
 } from '@/utils/validation';
+import { REGISTER_CONSTANTS } from '../constants/registerConstants';
 
 /**
  * 로그인 폼 데이터 인터페이스
@@ -54,7 +55,7 @@ export class AuthValidationService {
       errors.push('아이디를 입력해주세요.');
     } else {
       // 아이디 형식 검증
-      const idResult = IdValidator.validate(credentials.id, 3);
+      const idResult = IdValidator.validate(credentials.id, REGISTER_CONSTANTS.MIN_LOGIN_ID_LENGTH);
       if (!idResult.isValid) {
         errors.push(...idResult.errors);
       }
@@ -64,7 +65,7 @@ export class AuthValidationService {
       errors.push('비밀번호를 입력해주세요.');
     } else {
       // 비밀번호 기본 검증
-      const passwordResult = PasswordValidator.validate(credentials.password, 6);
+      const passwordResult = PasswordValidator.validate(credentials.password, REGISTER_CONSTANTS.MIN_LOGIN_PASSWORD_LENGTH);
       if (!passwordResult.isValid) {
         errors.push(...passwordResult.errors);
       }
@@ -83,13 +84,13 @@ export class AuthValidationService {
     const errors: string[] = [];
 
     // 아이디 검증
-    const idResult = IdValidator.validate(formData.id, 4);
+    const idResult = IdValidator.validate(formData.id, REGISTER_CONSTANTS.MIN_ID_LENGTH);
     if (!idResult.isValid) {
       errors.push(...idResult.errors);
     }
 
     // 이름 검증
-    const nameResult = NameValidator.validate(formData.name, 2);
+    const nameResult = NameValidator.validate(formData.name, REGISTER_CONSTANTS.MIN_NAME_LENGTH);
     if (!nameResult.isValid) {
       errors.push(...nameResult.errors);
     }
@@ -101,7 +102,7 @@ export class AuthValidationService {
     }
 
     // 비밀번호 검증
-    const passwordResult = PasswordValidator.validate(formData.password, 8);
+    const passwordResult = PasswordValidator.validate(formData.password, REGISTER_CONSTANTS.MIN_PASSWORD_LENGTH);
     if (!passwordResult.isValid) {
       errors.push(...passwordResult.errors);
     }
@@ -133,10 +134,10 @@ export class AuthValidationService {
    */
   validateRegisterFormFields(formData: RegisterFormData): FieldValidationResult {
     return {
-      id: IdValidator.validate(formData.id, 4),
-      name: NameValidator.validate(formData.name, 2),
+      id: IdValidator.validate(formData.id, REGISTER_CONSTANTS.MIN_ID_LENGTH),
+      name: NameValidator.validate(formData.name, REGISTER_CONSTANTS.MIN_NAME_LENGTH),
       email: EmailValidator.validate(formData.email),
-      password: PasswordValidator.validate(formData.password, 8),
+      password: PasswordValidator.validate(formData.password, REGISTER_CONSTANTS.MIN_PASSWORD_LENGTH),
       confirmPassword: PasswordValidator.validateConfirmation(
         formData.password,
         formData.confirmPassword,

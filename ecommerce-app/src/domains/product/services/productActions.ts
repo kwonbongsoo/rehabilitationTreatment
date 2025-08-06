@@ -3,7 +3,7 @@
 import { redirect } from 'next/navigation';
 import { HeaderBuilderFactory } from '@/lib/server/headerBuilder';
 import kongApiClient from '@/infrastructure/clients/kongApiClient';
-import type { ProductFormData, ProductActionResult } from '../types/product';
+import type { ProductFormData, ProductActionResult, ProductOption } from '../types/product';
 
 export async function createProduct(formData: FormData): Promise<ProductActionResult> {
   try {
@@ -28,8 +28,9 @@ export async function createProduct(formData: FormData): Promise<ProductActionRe
       ...(extractedData.options && { options: extractedData.options }),
     };
 
-    console.log('Product data with options:', productData);
-
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Product data with options:', productData);
+    }
 
     // 파일 추출
     const files = formData.getAll('images') as File[];
@@ -92,11 +93,18 @@ export async function createProduct(formData: FormData): Promise<ProductActionRe
         message: '상품 등록에 실패했습니다.',
       };
     }
-  } catch (error: any) {
-    console.error('상품 등록 실패:', error);
+  } catch (error: unknown) {
+    if (process.env.NODE_ENV === 'development') {
+      console.error('상품 등록 실패:', error);
+    }
+    
+    const errorMessage = error instanceof Error 
+      ? error.message 
+      : '상품 등록 중 오류가 발생했습니다.';
+    
     return {
       success: false,
-      message: error.message || '상품 등록 중 오류가 발생했습니다.',
+      message: errorMessage,
     };
   }
 }
@@ -212,9 +220,13 @@ function validateProductData(productData: ProductFormData, imageCount: number): 
 }
 
 // 상품 옵션 검증
-function validateProductOptions(options: any[]): ProductActionResult | null {
+function validateProductOptions(options: ProductOption[]): ProductActionResult | null {
   for (let i = 0; i < options.length; i++) {
     const option = options[i];
+    if (!option) {
+      return { success: false, errors: { options: `옵션 ${i + 1}: 옵션 데이터가 올바르지 않습니다.` } };
+    }
+    
     const optionIndex = i + 1;
 
     if (!option.optionType?.trim()) {

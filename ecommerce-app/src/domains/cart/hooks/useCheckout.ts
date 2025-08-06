@@ -5,7 +5,7 @@
  */
 import { useState, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { useCartStore } from '../stores/useCartStore';
+import { useCartState } from './useCartState';
 import { useCartValidation } from './useCartValidation';
 import { useCartActions } from './useCartActions';
 import { NotificationManager } from '@/utils/notifications';
@@ -42,7 +42,7 @@ export function useCheckout(options: UseCheckoutOptions = {}): UseCheckoutReturn
   const { onSuccess, onError } = options;
   const router = useRouter();
 
-  const items = useCartStore((state) => state.cartItems);
+  const { cartItems: items } = useCartState();
   const { validateCart, isCartValid } = useCartValidation();
   const { clearCart } = useCartActions();
 

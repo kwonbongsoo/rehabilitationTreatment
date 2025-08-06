@@ -1,12 +1,13 @@
 import CategoryIconGrid from '@/components/common/CategoryIconGrid';
-import { CategoryI } from '@/domains/category/types/categories';
+import { Category } from '@/domains/category/types/categories';
 
 interface CategoriesProps {
   title?: string;
-  categories: CategoryI[];
+  categories: Category[];
 }
 
 export default function Categories({ title: _title, categories }: CategoriesProps) {
+  void _title;
   return (
     <CategoryIconGrid
       categories={categories}

@@ -2,7 +2,8 @@
 
 import React from 'react';
 import Link from 'next/link';
-import ProductCard, { Product } from './ProductCard';
+import ProductCard from './ProductCard';
+import { Product } from '@/domains/product/types/product';
 import styles from './ProductSection.module.css';
 
 interface ProductSectionProps {

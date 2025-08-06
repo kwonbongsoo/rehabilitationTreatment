@@ -26,7 +26,7 @@ export class AuthService {
   /**
    * 로그인 처리
    */
-  async login(request: LoginRequest): Promise<LoginResponse> {
+  login(request: LoginRequest): LoginResponse {
     // 1. 입력 검증
     this.validationService.validateLoginCredentials(request);
 
@@ -38,7 +38,7 @@ export class AuthService {
   /**
    * 회원가입 처리
    */
-  async register(request: RegisterRequest): Promise<RegisterResponse> {
+  register(request: RegisterRequest): RegisterResponse {
     // 1. 입력 검증
     this.validationService.validateRegisterForm(request);
 
@@ -50,7 +50,7 @@ export class AuthService {
   /**
    * 비밀번호 찾기 처리
    */
-  async forgotPassword(request: ForgotPasswordRequest): Promise<ForgotPasswordResponse> {
+  forgotPassword(request: ForgotPasswordRequest): ForgotPasswordResponse {
     // 1. 입력 검증
     this.validationService.validateForgotPasswordForm(request);
 

@@ -42,7 +42,6 @@ export function ProductImageUpload({
                 onChange={onImageUpload}
                 style={{ display: 'none' }}
               />
-              <FiCamera size={24} />
               <span>Add Photo</span>
             </label>
           )}

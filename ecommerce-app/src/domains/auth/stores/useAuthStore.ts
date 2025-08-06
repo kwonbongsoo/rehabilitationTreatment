@@ -61,7 +61,7 @@ export const useAuthStore = create<AuthStore>()(
 
       logout: async () => {
         // 🔄 완전한 세션 초기화
-        set(() => ({
+        await set(() => ({
           ...initialState,
           isSessionInitialized: true, // 로그아웃도 초기화된 상태로 간주
           getUserRole: get().getUserRole,

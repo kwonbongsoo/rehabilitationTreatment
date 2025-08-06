@@ -1,5 +1,3 @@
-// import styles from '@/styles/common/Rating.module.css';
-
 interface RatingProps {
   rating: number;
   reviewCount?: number;

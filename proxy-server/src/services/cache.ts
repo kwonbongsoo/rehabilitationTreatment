@@ -1,5 +1,6 @@
 import { redisClient } from './redis';
 import { CacheError } from '../middleware/errorHandler';
+import { BaseError, ErrorCode } from '../common/errors';
 
 export interface CacheOptions {
   ttl?: number; // TTL in seconds
@@ -88,6 +89,7 @@ export class HtmlCacheService {
 
     if (!redisClient.isReady()) {
       // Redis가 준비되지 않은 경우 즉시 null 반환 (블로킹 방지)
+      console.warn('Redis not ready, skipping cache get');
       return null;
     }
 
@@ -97,23 +99,82 @@ export class HtmlCacheService {
       // 비동기 Redis 조회 - 타임아웃 설정으로 블로킹 방지
       const cachedContent = await Promise.race([
         redisClient.get(cacheKey),
-        new Promise<null>(
-          (_, reject) => setTimeout(() => reject(new Error('Redis timeout')), 2000), // 2000ms 타임아웃
+        new Promise<null>((_, reject) =>
+          setTimeout(
+            () =>
+              reject(
+                new BaseError(ErrorCode.TIMEOUT_ERROR, 'Redis get operation timeout', {
+                  context: { cacheKey, timeout: 2000 },
+                }),
+              ),
+            2000,
+          ),
         ),
       ]);
 
       if (cachedContent) {
-        console.log(`Cache HIT: ${cacheKey}`);
-        return cachedContent;
+        // 캐시된 데이터 유효성 검증
+        try {
+          const parsed = JSON.parse(cachedContent);
+          if (this.isValidCachedData(parsed)) {
+            console.log(`Cache HIT: ${cacheKey}`);
+            return cachedContent;
+          } else {
+            console.warn(`Invalid cached data found: ${cacheKey}`);
+            // 유효하지 않은 데이터는 삭제
+            await this.delete(url, options).catch(() => {});
+            return null;
+          }
+        } catch {
+          // JSON 파싱 실패 - 기존 방식의 캐시 데이터일 수 있음
+          console.log(`Cache HIT (legacy format): ${cacheKey}`);
+          return cachedContent;
+        }
       } else {
         console.log(`Cache MISS: ${cacheKey}`);
         return null;
       }
     } catch (error) {
-      console.error('Cache get error:', error);
+      if (error instanceof BaseError) {
+        console.warn('Cache get timeout:', error.message);
+      } else {
+        console.error('Cache get error:', error);
+      }
       // 에러 발생 시 null 반환하여 원본 요청 진행
       return null;
     }
+  }
+
+  /**
+   * 캐시된 데이터의 유효성 검증
+   */
+  private isValidCachedData(data: any): boolean {
+    if (!data || typeof data !== 'object') {
+      return false;
+    }
+
+    // 필수 필드 존재 여부
+    if (!data.content || typeof data.content !== 'string') {
+      return false;
+    }
+
+    // 내용이 비어있는지 확인
+    if (data.content.trim().length === 0) {
+      return false;
+    }
+
+    // 에러 지시자 체크
+    const errorIndicators = [
+      'Application error: a client-side exception has occurred',
+      '__NEXT_ERROR__',
+      'Error: ECONNREFUSED',
+      'TypeError: fetch failed',
+      '500 - Internal Server Error',
+    ];
+
+    const hasError = errorIndicators.some((indicator) => data.content.includes(indicator));
+
+    return !hasError;
   }
 
   /**
@@ -130,6 +191,13 @@ export class HtmlCacheService {
     }
 
     if (!redisClient.isReady()) {
+      console.warn('Redis not ready, skipping cache set');
+      return false;
+    }
+
+    // 내용 유효성 검증
+    if (!content || content.trim().length === 0) {
+      console.warn('Empty content provided for cache set, skipping');
       return false;
     }
 
@@ -141,23 +209,27 @@ export class HtmlCacheService {
       // 백그라운드에서 비동기 저장 (블로킹 방지)
       const setPromise = Promise.race([
         redisClient.set(cacheKey, content, ttl),
-        new Promise<boolean>(
-          (_, reject) => setTimeout(() => reject(new Error('Redis set timeout')), 3000), // 3000ms 타임아웃
+        new Promise<boolean>((_, reject) =>
+          setTimeout(
+            () =>
+              reject(
+                new BaseError(ErrorCode.TIMEOUT_ERROR, 'Redis set operation timeout', {
+                  context: { cacheKey, ttl, contentLength: content.length },
+                }),
+              ),
+            3000,
+          ),
         ),
       ]);
 
       // 백그라운드에서 실행 (응답 블로킹 방지)
-      setPromise
-        .then((success) => {
-          if (success) {
-            console.log(`Cache SET: ${cacheKey} (TTL: ${ttl}s)`);
-          } else {
-            console.error(`Cache SET failed: ${cacheKey}`);
-          }
-        })
-        .catch((error) => {
+      setPromise.catch((error) => {
+        if (error instanceof BaseError) {
+          console.warn('Cache set timeout:', error.message);
+        } else {
           console.error('Background cache set error:', error);
-        });
+        }
+      });
 
       // 즉시 true 반환하여 응답 속도 향상
       return true;

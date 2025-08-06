@@ -1,7 +1,9 @@
+import React from 'react';
 import { LoginRequest } from '../types/auth';
 import { Button } from '@/components/common/Button';
-import { useFormState } from '@/hooks/useFormState';
-import { validateLoginForm } from '@/utils/validation';
+import { FormContainer, FormInput } from '@/components/common/Form';
+import { useLoginForm } from '../hooks/useAuthForm';
+import { REGISTER_CONSTANTS } from '../constants/registerConstants';
 
 interface LoginFormProps {
   onSubmit: (credentials: LoginRequest) => Promise<void>;
@@ -9,66 +11,76 @@ interface LoginFormProps {
   error?: string;
 }
 
-interface LoginFormData {
-  id: string;
-  password: string;
-}
-
 export function LoginForm({ onSubmit, isLoading: externalLoading = false }: LoginFormProps) {
-  const form = useFormState<LoginFormData>({
-    initialData: { id: '', password: '' },
-    validate: (data) => validateLoginForm(data).errors,
-    preventDuplicateSubmit: true,
-  });
-
-  const handleSubmit = form.handleSubmit(async (data) => {
-    // useLoginForm에서 모든 성공/에러 처리를 담당하므로 여기서는 단순히 호출만
-    // 에러가 발생해도 폼 상태에 영향을 주지 않도록 에러를 다시 던지지 않음
-    try {
-      await onSubmit({
-        id: data.id.trim(),
-        password: data.password,
-      });
-    } catch {
-      // 에러를 다시 던지지 않음 - useLoginForm에서 토스트로 처리됨
-      // 폼 상태는 그대로 유지
-    }
+  // 공통 Auth 폼 훅 사용
+  const form = useLoginForm(async (data) => {
+    await onSubmit({
+      id: data.id.trim(),
+      password: data.password,
+    });
   });
 
   const isLoading = externalLoading || form.isSubmitting;
 
+  // 에러 필터링 로직
+  const getFilteredError = (errorKeyword: string) => {
+    if (!form.hasError || !form.error) return undefined;
+    return form.error.includes(errorKeyword) ? form.error : undefined;
+  };
+
+  // TypeScript exactOptionalPropertyTypes 호환성을 위한 헬퍼
+  const buildFormInputProps = (baseProps: any, errorKeyword: string) => {
+    const error = getFilteredError(errorKeyword);
+    return error ? { ...baseProps, error } : baseProps;
+  };
+
   return (
-    <form onSubmit={handleSubmit} className="mobile-auth-form">
+    <FormContainer onSubmit={form.submitWithErrorHandling} className="mobile-auth-form">
       <div className="form-group">
-        <input
-          id="login-id"
-          type="text"
-          value={form.data.id}
-          onChange={(e) => form.updateField('id', e.target.value)}
-          placeholder="Username"
-          className="form-input"
-          autoComplete="username"
-          required
+        <label className="form-label">ID</label>
+        <FormInput
+          {...buildFormInputProps(
+            {
+              id: 'login-id',
+              label: '',
+              type: 'text',
+              value: form.data.id,
+              onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+                form.updateField('id', e.target.value),
+              placeholder: 'Enter ID',
+              autoComplete: 'username',
+              required: true,
+            },
+            REGISTER_CONSTANTS.ERROR_KEYWORDS.ID,
+          )}
         />
-        {form.hasError && form.error.includes('아이디') && (
-          <span className="error-text">{form.error}</span>
-        )}
       </div>
 
       <div className="form-group">
-        <input
-          id="login-password"
-          type="password"
-          value={form.data.password}
-          onChange={(e) => form.updateField('password', e.target.value)}
-          placeholder="Password"
-          className="form-input"
-          autoComplete="current-password"
-          required
+        <label className="form-label">Password</label>
+        <FormInput
+          {...buildFormInputProps(
+            {
+              id: 'login-password',
+              label: '',
+              type: 'password',
+              value: form.data.password,
+              onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+                form.updateField('password', e.target.value),
+              placeholder: 'Enter Password',
+              autoComplete: 'current-password',
+              required: true,
+            },
+            REGISTER_CONSTANTS.ERROR_KEYWORDS.PASSWORD,
+          )}
         />
-        {form.hasError && form.error.includes('비밀번호') && (
-          <span className="error-text">{form.error}</span>
-        )}
+      </div>
+
+      <div className="checkbox-container">
+        <input type="checkbox" id="remember-me" className="checkbox-input" />
+        <label htmlFor="remember-me" className="checkbox-text">
+          Remember me
+        </label>
       </div>
 
       <Button
@@ -77,12 +89,13 @@ export function LoginForm({ onSubmit, isLoading: externalLoading = false }: Logi
         size="large"
         fullWidth
         isLoading={isLoading}
-        loadingText="Sign in..."
+        loadingText="Signing in..."
         disabled={!form.canSubmit || isLoading}
         className="auth-submit-button"
       >
-        Sign in
+        Login
       </Button>
-    </form>
+
+    </FormContainer>
   );
 }

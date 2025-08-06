@@ -5,8 +5,7 @@
 // 타입들
 export * from './types';
 
-// 상태 관리
-export * from './stores';
+// 상태 관리 (hooks로 이전)
 
 // 훅들
 export * from './hooks';

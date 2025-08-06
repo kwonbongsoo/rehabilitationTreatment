@@ -73,7 +73,7 @@ export const formatRatingStars = (rating: number): string => {
  * @param keysToOmit 제거할 키들의 배열
  * @returns 지정된 키들이 제거된 새로운 객체
  */
-export function omitDeep<T extends Record<string, any>>(obj: T, keysToOmit: string[]): T {
+export function omitDeep<T extends Record<string, unknown>>(obj: T, keysToOmit: string[]): T {
   if (!obj || typeof obj !== 'object') {
     return obj;
   }
@@ -85,15 +85,15 @@ export function omitDeep<T extends Record<string, any>>(obj: T, keysToOmit: stri
     if (!keysToOmit.includes(key)) {
       if (value && typeof value === 'object' && !Array.isArray(value)) {
         // 중첩된 객체인 경우 재귀적으로 처리
-        result[key as keyof T] = omitDeep(value, keysToOmit);
+        (result as Record<string, unknown>)[key] = omitDeep(value as Record<string, unknown>, keysToOmit);
       } else if (Array.isArray(value)) {
         // 배열인 경우 각 요소를 처리
-        result[key as keyof T] = value.map((item) =>
-          item && typeof item === 'object' ? omitDeep(item, keysToOmit) : item,
-        ) as any;
+        (result as Record<string, unknown>)[key] = value.map((item) =>
+          item && typeof item === 'object' ? omitDeep(item as Record<string, unknown>, keysToOmit) : item,
+        );
       } else {
         // 원시값인 경우 그대로 복사
-        result[key as keyof T] = value;
+        (result as Record<string, unknown>)[key] = value;
       }
     }
   }

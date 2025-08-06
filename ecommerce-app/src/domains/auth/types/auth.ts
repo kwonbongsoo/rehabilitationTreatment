@@ -69,7 +69,7 @@ export interface SessionInfoActionResult {
   statusCode?: number;
 }
 
-interface SessionInfoResponseI {
+export interface SessionInfoResponseI {
   role: UserRole;
   exp: number;
   iat: number;

@@ -26,7 +26,7 @@ export interface FormState<T> {
  * 폼 액션 인터페이스
  */
 export interface FormActions<T> {
-  updateField: (field: keyof T, value: any) => void;
+  updateField: <K extends keyof T>(field: K, value: T[K]) => void;
   updateData: (data: Partial<T>) => void;
   resetForm: () => void;
   setLoading: (loading: boolean) => void;
@@ -80,7 +80,7 @@ export function useFormState<T extends Record<string, any>>(
 
   // 필드 업데이트
   const updateField = useCallback(
-    (field: keyof T, value: any) => {
+    <K extends keyof T>(field: K, value: T[K]) => {
       setData((prev) => ({ ...prev, [field]: value }));
       setIsDirty(true);
       if (error) setError(''); // 에러 클리어

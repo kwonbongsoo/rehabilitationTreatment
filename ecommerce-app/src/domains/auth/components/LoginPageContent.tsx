@@ -28,8 +28,9 @@ export default function LoginPageContent() {
 
       <div className={styles.mobileAuthContainer}>
         <div className={styles.authHeader}>
-          <h1 className={styles.authTitle}>Hi Welcome</h1>
-          <p className={styles.authSubtitle}>Hello again, you&apos;ve been missed!</p>
+          <div className={styles.brandLogo}></div>
+          <h1 className={styles.authTitle}>Login to your account</h1>
+          <p className={styles.authSubtitle}>Welcome back we have missed you !</p>
         </div>
 
         <div className={`${styles.authForm}`}>
@@ -37,15 +38,15 @@ export default function LoginPageContent() {
 
           <div className={styles.forgotPassword}>
             <Link href="/auth/forgot-password" className={styles.forgotLink}>
-              Forgot your password?
+              forgot password ?
             </Link>
           </div>
         </div>
 
         <div className={styles.authFooter}>
-          <p className={styles.footerText}>Don&apos;t have an account?</p>
+          <p className={styles.footerText}>Don&apos;t have an account ?</p>
           <Link href="/auth/register" className={styles.signupLink}>
-            Sign up for free
+            Sign up
           </Link>
         </div>
       </div>

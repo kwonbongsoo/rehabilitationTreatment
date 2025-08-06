@@ -4,6 +4,7 @@ import { BaseError, ErrorCode } from '@ecommerce/common';
 import { ProductDomainCategory, ProductDomainProduct } from '../types';
 import productDomainClient from '../clients/productDomainClient';
 import { RawBannerData, RawPromotionData, RawReviewData } from '../types/homePageTypes';
+import { TAGS_COLORS } from '../types/common';
 
 class HomePageService {
   private readonly dataPath: string;
@@ -172,16 +173,16 @@ class HomePageService {
           id: item.id,
           name: item.name,
           price: item.price,
-          image: item.mainImage,
+          mainImage: item.mainImage,
           rating: item.averageRating,
           reviewCount: item.reviewCount,
           description: item.description,
           // isNew 상태도 포함
           isNew: item.isNew,
           tags: [
-            item.isNew ? 'NEW' : '',
-            item.isFeatured ? '추천' : '',
-            item.discountPercentage > 0 ? '할인' : '',
+            ...(item.isNew ? [{ name: 'NEW', color: TAGS_COLORS.NEW }] : []),
+            ...(item.isFeatured ? [{ name: '추천', color: TAGS_COLORS.RECOMMENDED }] : []),
+            ...(item.discountPercentage > 0 ? [{ name: '할인', color: TAGS_COLORS.DISCOUNT }] : []),
           ].filter(Boolean),
           // 할인이 있을 때만 discount 속성 추가
           ...(item.discountPercentage > 0 && {

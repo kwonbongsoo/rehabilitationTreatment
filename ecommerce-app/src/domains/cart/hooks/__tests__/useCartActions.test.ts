@@ -3,14 +3,14 @@ import { useCartActions } from '../useCartActions';
 import { jest, describe, beforeEach, it, expect } from '@jest/globals';
 
 // Create mock functions first
-const mockUseCartStore = jest.fn();
-const mockUseCartSummary = jest.fn();
+const mockUseCartState = jest.fn();
+const mockUseCartSummaryHook = jest.fn();
 const mockFetchProductInfo = jest.fn() as jest.MockedFunction<any>;
 
 // Mock dependencies with immediate return values
-jest.mock('../../stores/useCartStore', () => ({
-  useCartStore: mockUseCartStore,
-  useCartSummary: mockUseCartSummary,
+jest.mock('../useCartState', () => ({
+  useCartState: mockUseCartState,
+  useCartSummaryHook: mockUseCartSummaryHook,
 }));
 
 jest.mock('../../../../utils/notifications', () => ({
@@ -90,15 +90,10 @@ describe('useCartActions', () => {
     mockSummary.shipping = 0;
     mockSummary.tax = 0;
 
-    // Mock zustand store with proper selector support
-    mockUseCartStore.mockImplementation((selector?: any) => {
-      if (selector) {
-        return selector(mockStoreState);
-      }
-      return mockStoreState;
-    });
+    // Mock useState hooks with direct return values
+    mockUseCartState.mockReturnValue(mockStoreState);
 
-    mockUseCartSummary.mockReturnValue(mockSummary);
+    mockUseCartSummaryHook.mockReturnValue(mockSummary);
 
     // Default mock implementations
     mockValidateItem.mockReturnValue(true);

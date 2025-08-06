@@ -8,12 +8,13 @@
 
 import { RegisterRequest } from '@/domains/auth/types/auth';
 import { ErrorHandler } from '@/utils/errorHandling';
-import { NotificationManager, SUCCESS_MESSAGES } from '@/utils/notifications';
+import { NotificationManager } from '@/utils/notifications';
 import { useRouter } from 'next/navigation';
 import { useCallback, useMemo } from 'react';
 import { register as registerAction } from '@/domains/auth/services';
 import { useIdempotentMutation } from '@/hooks/useIdempotentMutation';
 import { RegisterFormData } from '../types/auth';
+import { REGISTER_CONSTANTS } from '../constants/registerConstants';
 
 /**
  * 회원가입 폼 훅 반환 타입
@@ -36,14 +37,12 @@ export function useRegisterForm(): UseRegisterFormReturn {
     () => ({
       showSuccessAndRedirect: () => {
         // 성공 메시지 표시
-        NotificationManager.showSuccess(
-          `${SUCCESS_MESSAGES.REGISTRATION_SUCCESS} 로그인 페이지로 이동합니다.`,
-        );
+        NotificationManager.showSuccess(REGISTER_CONSTANTS.SUCCESS_MESSAGE);
 
         // 로그인 페이지로 리다이렉트
         setTimeout(() => {
-          router.push('/auth/login?message=registration_success');
-        }, 1500);
+          router.push(REGISTER_CONSTANTS.ROUTES.LOGIN_WITH_SUCCESS);
+        }, REGISTER_CONSTANTS.REDIRECT_DELAY_MS);
       },
       handleError: (error: unknown) => {
         // 에러 메시지를 토스트로 표시

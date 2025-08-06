@@ -9,13 +9,14 @@ import {
   filterAndSortProducts,
   SortOption,
 } from '@/utils/productUtils';
+import type { Product } from '@/domains/product/types/product';
 import styles from './ProductGrid.module.css';
 
 interface ProductGridProps {
-  products: any[];
+  products: Product[];
   title?: string;
   showFilters?: boolean;
-  initialCategory?: string;
+  initialCategory?: number;
   initialSort?: SortOption;
   gridType?: 'default' | 'bestseller';
   emptyMessage?: string;
@@ -27,7 +28,7 @@ export default function ProductGrid({
   products,
   title,
   showFilters = true,
-  initialCategory = 'all',
+  initialCategory = 0,
   initialSort = 'newest',
   gridType = 'default',
   emptyMessage = '상품이 없습니다.',
@@ -66,13 +67,13 @@ export default function ProductGrid({
           <div className={styles.categoryFilter}>
             {COMMON_CATEGORIES.map((category) => (
               <button
-                key={category.value}
+                key={category.id}
                 className={`${styles.categoryButton} ${
-                  selectedCategory === category.value ? styles.active : ''
+                  selectedCategory === category.id ? styles.active : ''
                 }`}
-                onClick={() => setSelectedCategory(category.value)}
+                onClick={() => setSelectedCategory(category.id)}
               >
-                {category.label}
+                {category.name}
               </button>
             ))}
           </div>

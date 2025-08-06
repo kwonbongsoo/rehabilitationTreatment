@@ -4,3 +4,11 @@ export { useRegisterForm } from './useRegisterForm';
 export { useForgotPasswordForm } from './useForgotPasswordForm';
 export { useLogoutForm } from './useLogoutForm';
 export { useCurrentUser } from './useCurrentUser';
+
+// 새로운 공통 Auth 폼 훅들
+export { 
+  useAuthForm, 
+  useLoginForm as useCommonLoginForm, 
+  useRegisterForm as useCommonRegisterForm, 
+  useForgotPasswordForm as useCommonForgotPasswordForm 
+} from './useAuthForm';

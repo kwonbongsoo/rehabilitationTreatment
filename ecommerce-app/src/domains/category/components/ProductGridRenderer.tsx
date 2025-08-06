@@ -4,21 +4,7 @@ import { useMemo } from 'react';
 import ProductCard from '@/components/common/ProductCard';
 import { useCategoryContext } from '@/domains/category/context/CategoryContext';
 import styles from './ProductGridRenderer.module.css';
-
-interface Product {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  originalPrice?: number;
-  discount?: number;
-  image: string;
-  rating: number;
-  reviewCount: number;
-  isNew?: boolean;
-  tags?: string[];
-  categoryId?: number;
-}
+import { Product } from '@/domains/product/types/product';
 
 interface ProductGridRendererProps {
   allProducts: Product[];
@@ -43,7 +29,7 @@ export default function ProductGridRenderer({ allProducts }: ProductGridRenderer
           case '할인상품':
             return product.discount && product.discount > 0;
           case '신상품':
-            return product.isNew;
+            return product.tags?.some((t) => t.name === 'NEW');
           case '인기상품':
             return product.rating > 2;
           default:
@@ -55,8 +41,6 @@ export default function ProductGridRenderer({ allProducts }: ProductGridRenderer
     // 정렬
     products.sort((a, b) => {
       switch (currentSort) {
-        case 'newest':
-          return (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0);
         case 'price-low':
           return a.price - b.price;
         case 'price-high':
@@ -76,10 +60,7 @@ export default function ProductGridRenderer({ allProducts }: ProductGridRenderer
 
   return (
     <div>
-      <div 
-        className={gridClasses} 
-        data-view-mode={viewMode}
-      >
+      <div className={gridClasses} data-view-mode={viewMode}>
         {filteredAndSortedProducts.map((product) => (
           <ProductCard
             key={product.id}

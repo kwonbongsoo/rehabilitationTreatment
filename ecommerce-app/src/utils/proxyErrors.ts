@@ -85,7 +85,7 @@ export class ProxyInternalError extends BaseError {
 export class GatewayError extends ProxyError {
   constructor(
     public readonly gatewayStatus: number,
-    public readonly gatewayData: any,
+    public readonly gatewayData: unknown,
     message: string = 'Gateway returned an error',
   ) {
     // 상태 코드에 따른 에러 코드 매핑
@@ -111,6 +111,6 @@ export class GatewayError extends ProxyError {
 /**
  * 에러 타입 체커 - 프록시 관련 에러인지 확인
  */
-export function isProxyError(error: any): error is ProxyError {
+export function isProxyError(error: unknown): error is ProxyError {
   return error instanceof ProxyError;
 }

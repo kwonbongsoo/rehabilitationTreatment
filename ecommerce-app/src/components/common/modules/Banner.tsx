@@ -16,6 +16,9 @@ export default function Banner({
   imageSizes: _imageSizes = DEFAULT_BANNER_CONFIG.imageSizes,
   className = '',
 }: BannerProps) {
+  void _showDots;
+  void _showArrows;
+  void _imageSizes;
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [startPos, setStartPos] = useState({ x: 0, y: 0 });

@@ -4,12 +4,13 @@
  * 장바구니 관련 비즈니스 규칙 검증을 담당합니다.
  */
 import type { CartItem } from '../types/cart';
+import type { ValidationResult } from '@/utils/validation';
 
 export class CartValidationService {
   /**
-   * 아이템 기본 검증
+   * 아이템 기본 검증 (통합 ValidationResult 반환)
    */
-  static validateItem(item: CartItem): { isValid: boolean; errors: string[] } {
+  static validateItem(item: CartItem): ValidationResult {
     const errors: string[] = [];
 
     // 필수 필드 검증
@@ -37,10 +38,11 @@ export class CartValidationService {
     };
   }
 
+
   /**
-   * 장바구니 전체 검증
+   * 장바구니 전체 검증 (통합 ValidationResult 반환)
    */
-  static validateCart(items: CartItem[]): { isValid: boolean; errors: string[] } {
+  static validateCart(items: CartItem[]): ValidationResult {
     const errors: string[] = [];
 
     if (items.length === 0) {
@@ -75,16 +77,18 @@ export class CartValidationService {
     };
   }
 
+
   private static readonly MIN_ORDER_AMOUNT = 10000;
 
   /**
-   * 체크아웃 가능 여부 검증
+   * 체크아웃 가능 여부 검증 (통합 ValidationResult 기반)
    */
-  static canCheckout(items: CartItem[]): { canCheckout: boolean; errors: string[] } {
+  static canCheckout(items: CartItem[]): ValidationResult & { canCheckout: boolean } {
     const cartValidation = this.validateCart(items);
 
     if (!cartValidation.isValid) {
       return {
+        isValid: false,
         canCheckout: false,
         errors: cartValidation.errors,
       };
@@ -104,20 +108,23 @@ export class CartValidationService {
       errors.push('품절된 상품이 포함되어 있습니다.');
     }
 
+    const isValid = errors.length === 0;
     return {
-      canCheckout: errors.length === 0,
+      isValid,
+      canCheckout: isValid,
       errors,
     };
   }
 
+
   /**
-   * 상품 추가 가능 여부 검증
+   * 상품 추가 가능 여부 검증 (통합 ValidationResult 기반)
    */
   static canAddToCart(
     existingItems: CartItem[],
     newItem: Omit<CartItem, 'quantity'>,
     quantity: number = 1,
-  ): { canAdd: boolean; errors: string[] } {
+  ): ValidationResult & { canAdd: boolean } {
     const errors: string[] = [];
 
     // 기존 아이템과의 중복 검사
@@ -144,9 +151,12 @@ export class CartValidationService {
       errors.push('수량은 1 이상이어야 합니다.');
     }
 
+    const isValid = errors.length === 0;
     return {
-      canAdd: errors.length === 0,
+      isValid,
+      canAdd: isValid,
       errors,
     };
   }
+
 }

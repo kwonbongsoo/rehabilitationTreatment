@@ -83,7 +83,9 @@ export async function fetchCategories(): Promise<CategoriesResponse> {
       const errorData = await response
         .json()
         .catch(() => ({ error: 'Failed to fetch categories' }));
-      console.log(errorData);
+      if (process.env.NODE_ENV === 'development') {
+        console.log(errorData);
+      }
       throw new BaseError(
         ErrorCode.EXTERNAL_SERVICE_ERROR,
         errorData.error || 'Failed to fetch categories',

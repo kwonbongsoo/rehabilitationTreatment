@@ -1,4 +1,5 @@
 import { htmlCacheService } from '../services/cache';
+import { BaseError, ErrorCode } from '../common/errors';
 
 export interface CacheMiddlewareOptions {
   ttl?: number;
@@ -64,15 +65,47 @@ export class CacheMiddleware {
       // 응답 본문 읽기
       const responseText = await response.text();
 
+      // HTML 내용 유효성 검증
+      if (!this.isValidHtmlContent(responseText, response.status)) {
+        console.warn('Invalid HTML content detected, skipping cache', {
+          url,
+          status: response.status,
+          contentLength: responseText.length,
+          hasDoctype: responseText.includes('<!DOCTYPE'),
+        });
+
+        // 유효하지 않은 HTML은 캐시하지 않고 그대로 반환
+        return new Response(responseText, {
+          status: response.status,
+          statusText: response.statusText,
+          headers: {
+            ...Object.fromEntries(response.headers.entries()),
+            'X-Cache': 'SKIP',
+            'X-Cache-Reason': 'Invalid HTML content',
+          },
+        });
+      }
+
       // 캐시 데이터 구성
       const cacheData = {
         content: responseText,
         contentType,
         etag: response.headers.get('etag'),
         contentLanguage: response.headers.get('content-language'),
+        timestamp: Date.now(), // 캐시 저장 시간 추가
       };
 
-      await htmlCacheService.set(url, JSON.stringify(cacheData), { ttl: options.ttl }, contentType);
+      try {
+        await htmlCacheService.set(
+          url,
+          JSON.stringify(cacheData),
+          { ttl: options.ttl },
+          contentType,
+        );
+      } catch (cacheSetError) {
+        console.error('Failed to save cache:', cacheSetError);
+        // 캐시 저장 실패해도 원본 응답은 반환
+      }
 
       // 새로운 Response 객체 반환
       return new Response(responseText, {
@@ -85,8 +118,61 @@ export class CacheMiddleware {
         },
       });
     } catch (error) {
+      console.error('Cache response error:', error);
+
+      // 에러 발생 시에도 원본 응답 반환
       return response;
     }
+  }
+
+  /**
+   * HTML 내용이 유효한지 검증
+   */
+  private isValidHtmlContent(content: string, statusCode: number): boolean {
+    // 빈 내용 체크
+    if (!content || content.trim().length === 0) {
+      return false;
+    }
+
+    // 에러 상태 코드는 캐시하지 않음
+    if (statusCode >= 400) {
+      return false;
+    }
+
+    // Next.js 에러 페이지 감지
+    const errorIndicators = [
+      'Application error: a client-side exception has occurred',
+      '__NEXT_ERROR__',
+      'This page could not be found',
+      '500 - Internal Server Error',
+      '404 - This page could not be found',
+      'Error: ECONNREFUSED',
+      'TypeError: fetch failed',
+      'ETIMEDOUT',
+      'ENOTFOUND',
+    ];
+
+    // 에러 지시자가 포함된 내용은 캐시하지 않음
+    const hasErrorIndicator = errorIndicators.some((indicator) => content.includes(indicator));
+
+    if (hasErrorIndicator) {
+      return false;
+    }
+
+    // HTML 문서 구조 최소 요구사항 확인
+    const hasBasicHtmlStructure = content.includes('<html') || content.includes('<!DOCTYPE');
+
+    if (!hasBasicHtmlStructure) {
+      return false;
+    }
+
+    // 너무 짧은 응답은 에러 메시지일 가능성이 높음
+    // 하지만 정상적인 HTML 구조가 있으면 허용
+    if (content.length < 30000 && !content.includes('<body>')) {
+      return false;
+    }
+
+    return true;
   }
 
   /**

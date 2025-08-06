@@ -49,10 +49,9 @@ export default function RegisterPageContent() {
 
       <div className={styles.mobileAuthContainer}>
         <div className={styles.authHeader}>
-          <h1 className={styles.authTitle}>Create Account</h1>
-          <p className={styles.authSubtitle}>
-            Fill your information below or register with your social account.
-          </p>
+          <div className={styles.brandLogo}></div>
+          <h1 className={styles.authTitle}>Create your account</h1>
+          <p className={styles.authSubtitle}>Welcome, let&apos;s fill in the account details</p>
         </div>
 
         <div className={`${styles.authForm}`}>
@@ -60,9 +59,9 @@ export default function RegisterPageContent() {
         </div>
 
         <div className={styles.authFooter}>
-          <p className={styles.footerText}>Already have an account?</p>
+          <p className={styles.footerText}>Already have account ?</p>
           <Link href="/auth/login" className={styles.signupLink}>
-            Sign in
+            Login
           </Link>
         </div>
       </div>

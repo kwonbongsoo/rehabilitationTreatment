@@ -27,13 +27,12 @@ const uiConfig = uiConfigService.createConfiguration();
 export function AppProviders({ children }: AppProvidersProps) {
   const { queryClient, toastConfig, devtoolsConfig } = uiConfig;
 
-
   return (
-    <QueryClientProvider client={queryClient}>      
+    <QueryClientProvider client={queryClient}>
       <AuthProvider>{children}</AuthProvider>
       <ToastContainer
         {...Object.fromEntries(
-          Object.entries(toastConfig).filter(([_, value]) => value !== undefined),
+          Object.entries(toastConfig).filter(([, value]) => value !== undefined),
         )}
       />
       {devtoolsConfig.enabled && (

@@ -7,14 +7,14 @@ export interface QueryClientConfig {
     queries?: {
       staleTime?: number;
       cacheTime?: number;
-      retry?: boolean | number | ((failureCount: number, error: any) => boolean);
+      retry?: boolean | number | ((failureCount: number, error: unknown) => boolean);
       refetchOnWindowFocus?: boolean;
       refetchOnReconnect?: boolean;
       refetchOnMount?: boolean;
     };
     mutations?: {
-      retry?: boolean | number | ((failureCount: number, error: any) => boolean);
-      onError?: (error: any) => void;
+      retry?: boolean | number | ((failureCount: number, error: unknown) => boolean);
+      onError?: (error: unknown) => void;
     };
   };
 }
@@ -57,13 +57,18 @@ class QueryClientFactory implements IQueryClientFactory {
       queries: {
         staleTime: 5 * 60 * 1000, // 5분
         cacheTime: 10 * 60 * 1000, // 10분 (React Query v5에서는 gcTime)
-        retry: (failureCount: number, error: any) => {
+        retry: (failureCount: number, error: unknown) => {
+          // 타입 가드: status 속성이 있는 에러인지 확인
+          const hasStatus = (err: unknown): err is { status: number } => {
+            return typeof err === 'object' && err !== null && 'status' in err;
+          };
+
           // 인증 에러는 재시도하지 않음
-          if (error?.status === 401 || error?.status === 403) {
+          if (hasStatus(error) && (error.status === 401 || error.status === 403)) {
             return false;
           }
           // 서버 에러는 최대 2번까지 재시도
-          if (error?.status >= 500) {
+          if (hasStatus(error) && error.status >= 500) {
             return failureCount < 2;
           }
           // 기타 에러는 재시도하지 않음
@@ -74,18 +79,28 @@ class QueryClientFactory implements IQueryClientFactory {
         refetchOnMount: true,
       },
       mutations: {
-        retry: (failureCount: number, error: any) => {
+        retry: (failureCount: number, error: unknown) => {
           // Mutation은 기본적으로 재시도하지 않음
           // 단, 네트워크 에러의 경우 1번 재시도
-          if (error?.code === 'NETWORK_ERROR') {
+          // 타입 가드: code 속성이 있는 에러인지 확인
+          const hasCode = (err: unknown): err is { code: string } => {
+            return typeof err === 'object' && err !== null && 'code' in err;
+          };
+
+          if (hasCode(error) && error.code === 'NETWORK_ERROR') {
             return failureCount < 1;
           }
           return false;
         },
-        onError: (error: any) => {
+        onError: (error: unknown) => {
           console.error('Mutation error:', error);
           // 전역 에러 처리 로직 추가 가능
-          if (error?.status === 401) {
+          // 타입 가드: status 속성이 있는 에러인지 확인
+          const hasStatus = (err: unknown): err is { status: number } => {
+            return typeof err === 'object' && err !== null && 'status' in err;
+          };
+
+          if (hasStatus(error) && error.status === 401) {
             // 인증 실패 시 로그아웃 처리
             if (typeof window !== 'undefined') {
               window.location.reload();
@@ -102,10 +117,15 @@ class QueryClientFactory implements IQueryClientFactory {
     return new QueryClient({
       ...mergedConfig,
       queryCache: new QueryCache({
-        onError: (error: any, query) => {
+        onError: (error: unknown, query) => {
           console.error('Query error:', error, 'Query key:', query.queryKey);
           // 전역 쿼리 에러 처리
-          if (error?.status === 401) {
+          // 타입 가드: status 속성이 있는 에러인지 확인
+          const hasStatus = (err: unknown): err is { status: number } => {
+            return typeof err === 'object' && err !== null && 'status' in err;
+          };
+
+          if (hasStatus(error) && error.status === 401) {
             // 인증 실패 시 처리
             if (typeof window !== 'undefined') {
               window.location.reload();
@@ -114,7 +134,7 @@ class QueryClientFactory implements IQueryClientFactory {
         },
       }),
       mutationCache: new MutationCache({
-        onError: (error: any) => {
+        onError: (error: unknown) => {
           console.error('Global mutation error:', error);
         },
       }),

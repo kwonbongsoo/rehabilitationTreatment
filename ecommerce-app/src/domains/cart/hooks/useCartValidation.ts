@@ -4,7 +4,7 @@
  * 장바구니 아이템들의 유효성을 검증합니다.
  */
 import { useCallback, useEffect, useMemo } from 'react';
-import { useCartStore } from '../stores/useCartStore';
+import { useCartState } from './useCartState';
 import { NotificationManager } from '@/utils/notifications';
 import type { CartItem } from '../types/cart';
 
@@ -29,12 +29,8 @@ export interface UseCartValidationReturn {
 export function useCartValidation(options: UseCartValidationOptions = {}): UseCartValidationReturn {
   const { autoFix = false, showNotifications = true } = options;
 
-  // Zustand selector를 사용하여 필요한 상태와 액션만 선택
-  const items = useCartStore((state) => state.cartItems);
-  const validateItem = useCartStore((state) => state.validateItem);
-  const removeItem = useCartStore((state) => state.removeItem);
-  const updateItem = useCartStore((state) => state.updateItem);
-  const setError = useCartStore((state) => state.setError);
+  // useState 기반 cart hooks 사용
+  const { cartItems: items, validateItem, removeItem, updateItem, setError } = useCartState();
 
   // === 전체 장바구니 검증 ===
   const validateCart = useCallback((): ValidationResult => {
@@ -75,7 +71,7 @@ export function useCartValidation(options: UseCartValidationOptions = {}): UseCa
 
     if (validation.isValid) return;
 
-    const fixPromises = validation.invalidItems.map(async (item) => {
+    const fixPromises = validation.invalidItems.map((item) => {
       try {
         // 재고 부족 아이템 제거
         if (!item.inStock) {

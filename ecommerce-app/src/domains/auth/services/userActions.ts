@@ -1,16 +1,18 @@
 'use server';
 
-import { SessionInfoResponse, SessionInfoActionResult } from '@/domains/auth/types/auth';
+import {
+  ProxySessionInfoResponse,
+  SessionInfoActionResult,
+  SessionInfoResponseI,
+} from '@/domains/auth/types/auth';
 import { HeaderBuilderFactory } from '@/lib/server/headerBuilder';
-import { handleApiResponse, handleActionError } from '@/lib/server/errorHandler';
+import { handleApiServerActionResponse, handleActionError } from '@/lib/server/errorHandler';
 
 const AUTH_SERVICE_URL = process.env.AUTH_SERVICE_URL;
 
 /**
  * 서버에서 세션 정보 조회 Server Action
- * - React Query에서 호출 가능
  * - 서버에서 실행되어 쿠키 접근 가능
- * - 상태 코드를 포함하여 반환
  */
 export async function getSessionInfo(): Promise<SessionInfoActionResult> {
   try {
@@ -22,39 +24,35 @@ export async function getSessionInfo(): Promise<SessionInfoActionResult> {
       cache: 'no-store', // 항상 최신 세션 정보 가져오기
     });
 
-    const result = await handleApiResponse(response, (json: SessionInfoResponse) => json.data);
-    return result;
+    const result = (await handleApiServerActionResponse(response)) as ProxySessionInfoResponse;
+    const { access_token: _access_token, ...data } = result.data;
+    void _access_token;
+    return {
+      success: true,
+      data,
+    };
   } catch (error) {
-    return handleActionError(error);
+    return handleActionError(error) as SessionInfoActionResult;
   }
 }
 
 /**
  * 현재 사용자 정보 조회 Server Action
- * - React Query에서 호출 가능
  * - 서버에서 실행되어 쿠키 접근 가능
  */
 export async function getCurrentUser(): Promise<SessionInfoActionResult> {
-  const sessionResult = await getSessionInfo();
+  const { success, error, statusCode, data } = await getSessionInfo();
 
-  if (!sessionResult.success) {
+  if (!success) {
     return {
       success: false,
-      error: sessionResult.error || '사용자 정보 조회에 실패했습니다.',
-      statusCode: sessionResult.statusCode || 500,
-    };
-  }
-
-  if (!sessionResult.data) {
-    return {
-      success: false,
-      error: '사용자 세션 정보를 찾을 수 없습니다.',
-      statusCode: 404,
+      error: error ?? '사용자 정보 조회에 실패했습니다.',
+      statusCode: statusCode ?? 500,
     };
   }
 
   return {
-    success: true,
-    data: sessionResult.data,
+    success,
+    data: data as SessionInfoResponseI,
   };
 }

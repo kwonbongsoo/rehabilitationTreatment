@@ -115,8 +115,15 @@ export class ErrorMessageExtractor {
     } else if (typeof error === 'string') {
       message = error;
     } else if (error && typeof error === 'object') {
-      const errorObj = error as any;
-      message = errorObj.message || errorObj.error || JSON.stringify(error);
+      // 타입 가드를 사용한 안전한 객체 속성 접근
+      const errorObj = error as Record<string, unknown>;
+      if ('message' in errorObj && typeof errorObj.message === 'string') {
+        message = errorObj.message;
+      } else if ('error' in errorObj && typeof errorObj.error === 'string') {
+        message = errorObj.error;
+      } else {
+        message = JSON.stringify(error);
+      }
     } else {
       message = String(error);
     }
@@ -244,7 +251,7 @@ export class ErrorHandler {
 /**
  * 에러 처리 데코레이터 (함수 래핑용)
  */
-export function withErrorHandling<T extends (..._args: any[]) => any>(fn: T, context?: string): T {
+export function withErrorHandling<T extends (...args: readonly unknown[]) => unknown>(fn: T, context?: string): T {
   return ((...args: Parameters<T>) => {
     try {
       const result = fn(...args);

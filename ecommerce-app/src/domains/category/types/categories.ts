@@ -1,29 +1,21 @@
 // BFF에서 받는 카테고리 관련 타입 정의
+import { Product } from '@/domains/product/types/product';
 
-export interface Product {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  originalPrice?: number;
-  discount?: number;
-  image: string;
-  rating: number;
-  reviewCount: number;
-  isNew?: boolean;
-  tags?: string[];
-  categoryId?: number;
-}
-
-export interface CategoryWithProducts {
+export interface Category {
   id: number;
   name: string;
   slug: string;
   iconCode: string;
   order: number;
   isActive: boolean;
+  link: string;
+}
+
+export interface CategoryProducts {
   products: Product[];
 }
+
+export type CategoryWithProducts = Category & CategoryProducts;
 
 export interface CategoryFilter {
   id: string;
@@ -63,18 +55,7 @@ export interface ActionResult<T> extends ApiResponse<T> {
 }
 
 export interface CategoryGridRendererProps {
-  categories: CategoryI[];
-}
-
-export interface CategoryI {
-  id: number;
-  name: string;
-  slug: string;
-  iconCode: string;
-  order: number;
-  isActive: boolean;
-  products: Product[];
-  link: string;
+  categories: Category[];
 }
 
 export type CategoryPageActionResult = ActionResult<CategoryPageData>;

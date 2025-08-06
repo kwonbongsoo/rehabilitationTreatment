@@ -1,6 +1,5 @@
 import React from 'react';
 import Link from 'next/link';
-// import styles from './page.module.css';
 import OptimizedImageNext from '@/components/common/OptimizedImageNext';
 import { notFound } from 'next/navigation';
 
@@ -15,8 +14,8 @@ const VALID_PRODUCT_TYPES = ['seasonal', 'new', 'sale'] as const;
 export default function ProductTypePage({ params }: ProductTypePageProps) {
   const { type: productType } = params;
 
-  // Validate product type
-  if (!VALID_PRODUCT_TYPES.includes(productType as any)) {
+  // Validate product type (타입 가드 사용)
+  if (!VALID_PRODUCT_TYPES.includes(productType as (typeof VALID_PRODUCT_TYPES)[number])) {
     notFound();
   }
 
@@ -223,14 +222,14 @@ export default function ProductTypePage({ params }: ProductTypePageProps) {
 }
 
 // 정적 경로 생성 (선택사항)
-export async function generateStaticParams() {
+export function generateStaticParams() {
   return VALID_PRODUCT_TYPES.map((type) => ({
     type,
   }));
 }
 
 // 메타데이터 생성
-export async function generateMetadata({ params }: ProductTypePageProps) {
+export function generateMetadata({ params }: ProductTypePageProps) {
   const { type } = params;
 
   const getTypeTitle = (type: string) => {

@@ -1,0 +1,211 @@
+/* 장바구니 아이템 스타일 */
+
+.cartItemWrapper {
+  position: relative;
+}
+
+.cartItem {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  gap: 16px;
+}
+
+.cartItem:hover {
+  border-color: #007bff;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.1);
+}
+
+.cartItem.selected {
+  border-color: #007bff;
+  background: #f8f9ff;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.15);
+}
+
+.itemImage {
+  flex-shrink: 0;
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.productImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.itemInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.itemName {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 4px 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.itemPrice {
+  font-size: 14px;
+  font-weight: 500;
+  color: #007bff;
+  margin: 0;
+}
+
+.quantityControls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.quantityButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: white;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.quantityButton:hover {
+  border-color: #007bff;
+  color: #007bff;
+  background: #f8f9ff;
+}
+
+.quantityButton:active {
+  transform: scale(0.95);
+}
+
+.quantity {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  min-width: 24px;
+  text-align: center;
+}
+
+.deleteButton {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: #ff4444;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(255, 68, 68, 0.3);
+}
+
+.deleteButton:hover {
+  background: #ff2222;
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(255, 68, 68, 0.4);
+}
+
+.deleteButton:active {
+  transform: scale(0.95);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .cartItem {
+    padding: 12px;
+    gap: 12px;
+  }
+  
+  .itemImage {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .itemName {
+    font-size: 14px;
+  }
+  
+  .itemPrice {
+    font-size: 13px;
+  }
+  
+  .quantityButton {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .deleteButton {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+/* 접근성 개선 */
+.quantityButton:focus-visible,
+.deleteButton:focus-visible {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+}
+
+/* 다크모드 지원 */
+@media (prefers-color-scheme: dark) {
+  .cartItem {
+    background: #2a2a2a;
+    border-color: #555;
+  }
+  
+  .cartItem:hover {
+    border-color: #66b3ff;
+    background: #333;
+  }
+  
+  .cartItem.selected {
+    border-color: #66b3ff;
+    background: #1a1a2e;
+  }
+  
+  .itemName {
+    color: #f0f0f0;
+  }
+  
+  .itemPrice {
+    color: #66b3ff;
+  }
+  
+  .quantity {
+    color: #f0f0f0;
+  }
+  
+  .quantityButton {
+    background: #2a2a2a;
+    border-color: #555;
+    color: #b0b0b0;
+  }
+  
+  .quantityButton:hover {
+    border-color: #66b3ff;
+    color: #66b3ff;
+    background: #333;
+  }
+}

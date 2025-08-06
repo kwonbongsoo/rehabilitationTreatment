@@ -8,7 +8,6 @@ interface MobileHeaderProps {
   title?: string;
   showBackButton?: boolean;
   onSearchClick?: () => void;
-  onNotificationClick?: () => void;
   onFilterClick?: () => void;
   customActionButton?: {
     icon: React.ReactNode;
@@ -21,7 +20,6 @@ const MobileHeader: React.FC<MobileHeaderProps> = ({
   title = 'Home',
   showBackButton = false,
   onSearchClick,
-  onNotificationClick,
   onFilterClick,
   customActionButton,
 }) => {
@@ -36,12 +34,6 @@ const MobileHeader: React.FC<MobileHeaderProps> = ({
       onSearchClick();
     } else {
       router.push('/search');
-    }
-  };
-
-  const handleNotificationClick = () => {
-    if (onNotificationClick) {
-      onNotificationClick();
     }
   };
 
@@ -70,22 +62,13 @@ const MobileHeader: React.FC<MobileHeaderProps> = ({
         )}
         <h1 className={styles.title}>{title}</h1>
         <div className={styles.headerActions}>
-          {customActionButton ? (
+          {customActionButton && (
             <button
               className={styles.actionButton}
               onClick={customActionButton.onClick}
               aria-label={customActionButton.label}
             >
               {customActionButton.icon}
-            </button>
-          ) : (
-            <button
-              className={styles.actionButton}
-              onClick={handleNotificationClick}
-              aria-label="알림"
-            >
-              <span className={styles.notificationIcon}>🔔</span>
-              <span className={styles.notificationBadge}>3</span>
             </button>
           )}
         </div>

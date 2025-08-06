@@ -34,13 +34,14 @@ export interface BannerComponent extends BaseUIComponent {
   };
 }
 
-import { CategoryI } from '@/domains/category/types/categories';
+import { Category } from '@/domains/category/types/categories';
+import { Product } from '@/domains/product';
 
 // 카테고리 컴포넌트 타입
 export interface CategoriesComponent extends BaseUIComponent {
   type: 'categories';
   data: {
-    categories: CategoryI[];
+    categories: Category[];
   };
 }
 
@@ -48,15 +49,7 @@ export interface CategoriesComponent extends BaseUIComponent {
 export interface FeaturedProductsComponent extends BaseUIComponent {
   type: 'featuredProducts';
   data: {
-    products: {
-      id: number;
-      name: string;
-      price: number;
-      discount: number;
-      image: string;
-      rating: number;
-      reviewCount: number;
-    }[];
+    products: Product[];
   };
 }
 
@@ -64,12 +57,7 @@ export interface FeaturedProductsComponent extends BaseUIComponent {
 export interface NewArrivalsComponent extends BaseUIComponent {
   type: 'newArrivals';
   data: {
-    products: {
-      id: number;
-      name: string;
-      price: number;
-      image: string;
-    }[];
+    products: Product[];
   };
 }
 
@@ -123,19 +111,7 @@ export interface CategoryGridComponent extends BaseUIComponent {
       iconCode: string;
       order: number;
       isActive: boolean;
-      products: {
-        id: number;
-        name: string;
-        price: number;
-        image: string;
-        rating: number;
-        reviewCount: number;
-        description: string;
-        isNew?: boolean;
-        discount?: number;
-        originalPrice?: number;
-        categoryId?: number;
-      }[];
+      products: Product[];
     }[];
   };
 }
@@ -159,20 +135,7 @@ export interface ProductFiltersComponent extends BaseUIComponent {
 export interface ProductGridComponent extends BaseUIComponent {
   type: 'productGrid';
   data: {
-    allProducts: {
-      id: number;
-      name: string;
-      description: string;
-      price: number;
-      originalPrice?: number;
-      discount?: number;
-      image: string;
-      rating: number;
-      reviewCount: number;
-      isNew?: boolean;
-      tags?: string[];
-      categoryId?: number;
-    }[];
+    allProducts: Product[];
   };
 }
 

@@ -79,7 +79,7 @@ export default function UIComponentRenderer({ component }: UIComponentRendererPr
       return <ProductGridRenderer allProducts={component.data.allProducts} />;
 
     default:
-      console.warn(`Unknown component type: ${(component as any).type}`);
+      console.warn(`Unknown component type: ${(component as UIComponent & { type: string }).type}`);
       return null;
   }
 }

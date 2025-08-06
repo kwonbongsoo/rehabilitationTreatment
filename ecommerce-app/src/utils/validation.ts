@@ -278,7 +278,7 @@ export class ValidationUtils {
   /**
    * 필수 필드 검증
    */
-  static required(value: any, fieldName: string): ValidationResult {
+  static required(value: unknown, fieldName: string): ValidationResult {
     const errors: string[] = [];
 
     if (

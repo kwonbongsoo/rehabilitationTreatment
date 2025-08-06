@@ -1,8 +1,7 @@
 import { Button } from '@/components/common/Button';
-import { FormActions, FormContainer, FormInput } from '@/components/common/Form';
+import { FormContainer, FormInput } from '@/components/common/Form';
 import { ForgotPasswordRequest } from '@/domains/auth/types/auth';
 import { useFormState } from '@/hooks/useFormState';
-// import styles from '@/styles/auth/Form.module.css';
 import { ErrorHandler } from '@/utils/errorHandling';
 import { NotificationManager } from '@/utils/notifications';
 import { EmailValidator } from '@/utils/validation';
@@ -47,8 +46,18 @@ export function ForgotPasswordForm({
   if (isSuccess) {
     return (
       <div style={{ padding: '20px' }}>
-        <div style={{ textAlign: 'center', background: '#d4edda', color: '#155724', padding: '20px', borderRadius: '8px' }}>
-          <h3 style={{ fontSize: '18px', fontWeight: '600', margin: '0 0 12px 0' }}>이메일이 전송되었습니다!</h3>
+        <div
+          style={{
+            textAlign: 'center',
+            background: '#d4edda',
+            color: '#155724',
+            padding: '20px',
+            borderRadius: '8px',
+          }}
+        >
+          <h3 style={{ fontSize: '18px', fontWeight: '600', margin: '0 0 12px 0' }}>
+            이메일이 전송되었습니다!
+          </h3>
           <p>
             입력하신 이메일 주소로 비밀번호 재설정 링크를 전송했습니다.
             <br />
@@ -67,49 +76,34 @@ export function ForgotPasswordForm({
   }
 
   return (
-    <FormContainer onSubmit={handleSubmit}>
-      <div style={{ marginBottom: '20px' }}>
-        <p>
-          비밀번호를 재설정하려면 가입 시 사용한 이메일 주소를 입력해주세요.
-          <br />
-          재설정 링크를 이메일로 보내드립니다.
-        </p>
+    <FormContainer onSubmit={handleSubmit} className="mobile-auth-form">
+      <div className="form-group">
+        <label className="form-label">Email</label>
+        <FormInput
+          id="forgot-password-email"
+          label=""
+          type="email"
+          value={form.data.email}
+          onChange={(e) => form.updateField('email', e.target.value)}
+          placeholder="Enter email address"
+          {...(form.hasError && { error: form.error })}
+          required
+          autoComplete="email"
+          autoFocus
+        />
       </div>
 
-      <FormInput
-        id="forgot-password-email"
-        label="이메일 주소"
-        type="email"
-        value={form.data.email}
-        onChange={(e) => form.updateField('email', e.target.value)}
-        placeholder="example@email.com"
-        {...(form.hasError && { error: form.error })}
-        required
-        autoComplete="email"
-        autoFocus
-      />
-
-      <FormActions>
-        <Button
-          type="submit"
-          variant="primary"
-          size="large"
-          fullWidth
-          isLoading={isLoading}
-          disabled={!form.canSubmit || isLoading}
-        >
-          {isLoading ? '전송 중...' : '비밀번호 재설정 링크 보내기'}
-        </Button>
-      </FormActions>
-
-      <div style={{ marginTop: '16px' }}>
-        <p>
-          • 이메일 전송까지 몇 분이 소요될 수 있습니다
-          <br />
-          • 스팸 폴더도 함께 확인해주세요
-          <br />• 가입한 이메일 주소가 기억나지 않으시면 고객센터로 문의해주세요
-        </p>
-      </div>
+      <Button
+        type="submit"
+        variant="primary"
+        size="large"
+        fullWidth
+        isLoading={isLoading}
+        disabled={!form.canSubmit || isLoading}
+        className="auth-submit-button"
+      >
+        {isLoading ? 'Sending...' : 'Send Email'}
+      </Button>
     </FormContainer>
   );
 }

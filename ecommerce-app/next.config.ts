@@ -105,6 +105,7 @@ const nextConfig: NextConfig = {
         }),
       );
     }
+    config.cache = { type: 'memory' };
 
     return config;
   },
@@ -169,7 +170,7 @@ const nextConfig: NextConfig = {
     optimizeCss: true,
     cssChunking: 'strict',
     serverActions: {
-      bodySizeLimit: '10mb',
+      bodySizeLimit: '11mb',
     },
 
     // 🚀 모던 JavaScript 최적화

@@ -1,5 +1,3 @@
-// import styles from '@/styles/common/SectionTitle.module.css'; // 경로 변경
-
 interface SectionTitleProps {
   title: string;
 }

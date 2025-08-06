@@ -97,7 +97,7 @@ export async function login(credentials: LoginRequest): Promise<LoginActionResul
       data: { role, id, email, name, exp, iat },
     };
   } catch (error) {
-    const result = await safeServerAction(async () => {
+    const result = await safeServerAction(() => {
       throw error;
     }, '로그인');
 
@@ -211,6 +211,8 @@ export async function register(
  * 개발 단계에서 인지할 수 있도록 한다.
  */
 export async function forgotPassword(_request: ForgotPasswordRequest): Promise<void> {
+  void _request;
   // TODO: 실제 API 구현 시 safeServerAction으로 래핑 필요
+  await Promise.resolve();
   throw new ValidationError('비밀번호 찾기 기능은 아직 구현되지 않았습니다.');
 }

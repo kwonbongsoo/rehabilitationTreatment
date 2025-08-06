@@ -2,10 +2,10 @@
 import Link from 'next/link';
 import styles from './CategoryIconGrid.module.css';
 import React, { useRef, useState } from 'react';
-import { CategoryI } from '@/domains/category/types/categories';
+import { Category } from '@/domains/category/types/categories';
 
 interface CategoryIconGridProps {
-  categories: CategoryI[];
+  categories: Category[];
   showHeader?: boolean;
   headerTitle?: string;
   seeAllLink?: string;
@@ -32,7 +32,7 @@ export default function CategoryIconGrid({
 
   if (categories.length === 0) return null;
 
-  const handleCategoryClick = (category: CategoryI, e: React.MouseEvent) => {
+  const handleCategoryClick = (category: Category, e: React.MouseEvent) => {
     if (isDragging) {
       e.preventDefault();
       return;

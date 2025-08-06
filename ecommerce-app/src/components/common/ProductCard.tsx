@@ -4,19 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import OptimizedImageNext from './OptimizedImageNext';
 import styles from './ProductCard.module.css';
-
-export interface Product {
-  id: number;
-  name: string;
-  price: number;
-  originalPrice?: number;
-  image: string;
-  rating?: number;
-  isNew?: boolean;
-  discount?: number;
-  category?: string;
-  description?: string; // 설명 추가
-}
+import { Product } from '@/domains/product/types/product';
 
 export interface ProductCardProps {
   product: Product;
@@ -60,25 +48,35 @@ export default function ProductCard({
   };
 
   return (
-    <div className={`${styles.productCard} ${className}`}>
-      <Link href={`/product/${product.id}`} className={styles.productLink} prefetch={false}>
+    <div className={`${styles.productCard} ${className}`} data-testid="product-card">
+      <Link
+        href={`/product/${product.id}`}
+        className={styles.productLink}
+        prefetch={false}
+        data-testid="product-link"
+      >
         <div className={styles.imageContainer}>
           <OptimizedImageNext
-            src={product.image}
+            src={product.mainImage}
             alt={product.name}
             width={200}
             height={200}
             className={styles.productImage}
             priority={priority}
-            lazy={lazy || !priority}
+            lazy={priority ? false : lazy}
           />
 
           {/* 배지들 */}
           <div className={styles.badges}>
-            {product.isNew && <span className={styles.newBadge}>NEW</span>}
-            {product.discount && (
-              <span className={styles.discountBadge}>{Math.round(product.discount)}%</span>
-            )}
+            {product.tags?.map((tag) => (
+              <span
+                key={`${product.id}-${tag.name}`}
+                style={{ backgroundColor: tag.color }}
+                className={styles.badge}
+              >
+                {tag.name}
+              </span>
+            ))}
           </div>
 
           {/* 찜하기 버튼 */}
@@ -90,7 +88,13 @@ export default function ProductCard({
             aria-label="찜하기"
           >
             {isWishlisted ? (
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="#FF4757">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="#FF4757"
+                data-testid="wishlist-button-filled"
+              >
                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
               </svg>
             ) : (
@@ -101,6 +105,7 @@ export default function ProductCard({
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="2"
+                data-testid="wishlist-button-empty"
               >
                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
               </svg>

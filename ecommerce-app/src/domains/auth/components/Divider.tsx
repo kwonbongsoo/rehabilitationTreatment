@@ -1,5 +1,3 @@
-// import styles from '@/styles/templates/UserFormLayout.module.css';
-
 interface DividerProps {
   text: string;
 }

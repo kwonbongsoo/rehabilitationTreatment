@@ -1,0 +1,114 @@
+/* 빈 장바구니 상태 스타일 */
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 24px;
+  text-align: center;
+  min-height: 400px;
+}
+
+.emptyIcon {
+  color: #ccc;
+  margin-bottom: 24px;
+  opacity: 0.7;
+}
+
+.emptyTitle {
+  font-size: 24px;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 12px 0;
+}
+
+.emptyMessage {
+  font-size: 16px;
+  color: #666;
+  margin: 0 0 32px 0;
+  line-height: 1.5;
+}
+
+.shopButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 28px;
+  background: #007bff;
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.shopButton:hover {
+  background: #0056b3;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 123, 255, 0.3);
+}
+
+.shopButton:active {
+  transform: translateY(0);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .emptyState {
+    padding: 48px 20px;
+    min-height: 300px;
+  }
+  
+  .emptyIcon {
+    font-size: 48px;
+    margin-bottom: 20px;
+  }
+  
+  .emptyTitle {
+    font-size: 20px;
+    margin-bottom: 8px;
+  }
+  
+  .emptyMessage {
+    font-size: 14px;
+    margin-bottom: 24px;
+  }
+  
+  .shopButton {
+    padding: 12px 24px;
+    font-size: 15px;
+  }
+}
+
+/* 접근성 개선 */
+.shopButton:focus-visible {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+}
+
+/* 다크모드 지원 */
+@media (prefers-color-scheme: dark) {
+  .emptyIcon {
+    color: #666;
+  }
+  
+  .emptyTitle {
+    color: #f0f0f0;
+  }
+  
+  .emptyMessage {
+    color: #b0b0b0;
+  }
+  
+  .shopButton {
+    background: #0066cc;
+  }
+  
+  .shopButton:hover {
+    background: #0056b3;
+  }
+}
