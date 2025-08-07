@@ -221,6 +221,15 @@ export class HeaderBuilderFactory {
   }
 
   /**
+   * 멀티파트 요청용 헤더 빌더 프리셋 (Content-Type 제외)
+   */
+  static createForMultipartRequest(idempotencyKey: string): HeaderBuilder {
+    return new HttpHeaderBuilder()
+      .withAuth('bearer')
+      .withIdempotencyKey(idempotencyKey);
+  }
+
+  /**
    * 미들웨어용 헤더 빌더 (Edge Runtime 호환)
    */
   static createForMiddleware(request?: NextRequest): HeaderBuilder {

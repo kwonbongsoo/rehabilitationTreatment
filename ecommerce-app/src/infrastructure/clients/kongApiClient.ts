@@ -1,6 +1,6 @@
 import { CategoryPageResponse, HomePageResult } from '@/types';
 import { Category } from '@/domains/category/types/categories';
-import { HttpClient } from '@ecommerce/common';
+import { HttpClient, FetchOptions } from '@ecommerce/common';
 
 interface KongApiClientOptions {
   timeout?: number;
@@ -64,12 +64,21 @@ class KongApiClient extends HttpClient {
   }
 
   // BFF API - 상품 등록
-  async createProduct(formData: FormData, options?: ApiCallOptions): Promise<any> {
+  async createProduct(formData: any, options?: ApiCallOptions): Promise<any> {
     const requestOptions: Record<string, unknown> = {};
     if (options?.headers) {
       requestOptions.headers = options.headers;
     }
     return await this.post('/api/products', formData, requestOptions);
+  }
+
+  // BFF API - 상품 등록 (서버 환경용 멀티파트)
+  async createProductMultiPart(formData: FormData, options?: ApiCallOptions): Promise<any> {
+    const requestOptions: FetchOptions = {};
+    if (options?.headers) {
+      requestOptions.headers = options.headers;
+    }
+    return await this.requestMultiPartServer('/api/products', formData, requestOptions);
   }
 }
 

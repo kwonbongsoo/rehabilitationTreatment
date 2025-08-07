@@ -10,6 +10,10 @@ local cjson = require "cjson"
 function IdempotencyHandler:access(conf)
     local method = kong.request.get_method()
     local path = kong.request.get_path()
+    local content_type = kong.request.get_header("content-type") or ""
+    
+    -- multipart/form-data 요청은 헤더 기반 멱등성만 적용
+    local is_multipart = string.find(content_type:lower(), "multipart/form%-data") ~= nil
     
     -- 멱등성이 필요한 요청인지 확인
     if not self:needs_idempotency_check(method, path, conf) then
@@ -77,6 +81,18 @@ function IdempotencyHandler:access(conf)
         )
     end
     
+    -- multipart 요청의 경우 body 읽기 방지를 위한 특별 처리
+    if is_multipart then
+        kong.log.info("Multipart request detected - using header-only idempotency")
+        -- multipart 요청은 바로 context에 저장하고 downstream으로 전달
+        kong.ctx.plugin.idempotency_key = idempotency_key
+        kong.ctx.plugin.cache_key = cache_key  
+        kong.ctx.plugin.redis_connection = red
+        kong.ctx.plugin.ttl = conf.ttl or 60
+        kong.ctx.plugin.is_multipart = true
+        return
+    end
+    
     -- 새로운 요청 - 컨텍스트에 멱등성 키 저장
     kong.ctx.plugin.idempotency_key = idempotency_key
     kong.ctx.plugin.cache_key = cache_key
@@ -90,7 +106,41 @@ function IdempotencyHandler:body_filter(conf)
         return
     end
     
-    -- 응답 캐싱 (성공한 경우만)
+    -- multipart 요청의 경우 응답만 캐시 (body는 읽지 않음)
+    if ctx.is_multipart then
+        local status = kong.response.get_status()
+        if status >= 200 and status < 300 then
+            local headers = kong.response.get_headers()
+            local body = kong.response.get_raw_body()
+            
+            local response_data = {
+                status = status,
+                body = body and cjson.decode(body) or {},
+                headers = headers,
+                timestamp = ngx.time(),
+                multipart = true
+            }
+            
+            -- Redis에 응답 캐시
+            local red = ctx.redis_connection
+            if red then
+                local success, cache_result = pcall(function()
+                    return red:setex(ctx.cache_key, ctx.ttl, cjson.encode(response_data))
+                end)
+                
+                if success then
+                    kong.log.info("Multipart response cached for key: ", ctx.idempotency_key)
+                else
+                    kong.log.err("Failed to cache multipart response: ", cache_result)
+                end
+                
+                pcall(function() red:close() end)
+            end
+        end
+        return
+    end
+    
+    -- 일반 요청 응답 캐싱 (성공한 경우만)
     local status = kong.response.get_status()
     if status >= 200 and status < 300 then
         local body = kong.response.get_raw_body()

@@ -14,13 +14,9 @@ services:
           cpus: '0.02'
           memory: 16M
     # Redis 설정 최적화
-    command: >
-      redis-server
-      --appendonly yes
-      --requirepass ${REDIS_PASSWORD}
-      --maxmemory 24mb
-      --maxmemory-policy allkeys-lru
-      --save ""
+    command: "/bin/sh /redis/entrypoint.min.sh"
+    volumes:
+      - ./redis/entrypoint.min.sh:/redis/entrypoint.min.sh:ro
 
   db:
     deploy:

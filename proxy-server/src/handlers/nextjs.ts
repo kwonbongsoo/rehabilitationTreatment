@@ -34,11 +34,26 @@ export class NextJsHandler extends BaseProxyHandler {
       // 프록시 헤더 구성 (Authorization 포함)
       const headers = ProxyHeaderUtils.createProxyHeaders(req, accessToken);
 
-      // 헤더 로깅 (디버깅용)
-      const modifiedRequest = new Request(req.url, {
+      // multipart 요청 처리 개선
+      let requestBody = undefined;
+      if (req.method !== 'GET' && req.method !== 'HEAD') {
+        const contentType = req.headers.get('content-type') || '';
+        
+        if (contentType.includes('multipart/form-data')) {
+          console.log('🔄 Next.js multipart request detected in proxy');
+          // multipart 요청은 body를 그대로 전달 (stream 유지)
+          requestBody = req.body;
+        } else {
+          // JSON 요청은 기존 방식
+          requestBody = req.body;
+        }
+      }
+
+      // 헤더 로깅 (디버깅용)  
+      const modifiedRequest = new Request(targetUrl, {
         method: req.method,
         headers,
-        body: req.method !== 'GET' && req.method !== 'HEAD' ? req.body : undefined,
+        body: requestBody,
       });
 
       // LoggingUtils.logRequestHeaders(modifiedRequest, 'Next.js');

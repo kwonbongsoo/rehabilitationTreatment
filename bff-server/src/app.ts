@@ -62,7 +62,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(multipart, {
     limits: {
       fileSize: 11 * 1024 * 1024, // 10MB per file
-      files: 10, // Maximum 10 files
+      files: 5, // Maximum 10 files
     },
   });
 

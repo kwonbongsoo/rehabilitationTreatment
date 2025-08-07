@@ -51,10 +51,37 @@ export async function createProduct(formData: FormData): Promise<ProductActionRe
     // multipart/form-data 준비
     const multipartFormData = new FormData();
 
-    // 상품 데이터를 JSON 문자열로 변환하여 추가
+    // 상품 데이터를 개별 프로퍼티로 분리하여 추가
     const productPayload = createProductPayload(productData);
 
-    multipartFormData.append('productData', JSON.stringify(productPayload));
+    // 기본 상품 정보 개별 추가
+    multipartFormData.append('name', productPayload.name);
+    multipartFormData.append('description', productPayload.description);
+    multipartFormData.append('price', productPayload.price.toString());
+    multipartFormData.append('originalPrice', productPayload.originalPrice.toString());
+    multipartFormData.append('categoryId', productPayload.categoryId.toString());
+    multipartFormData.append('sellerId', productPayload.sellerId);
+    multipartFormData.append('stock', productPayload.stock.toString());
+    multipartFormData.append('isNew', productPayload.isNew.toString());
+    multipartFormData.append('isFeatured', productPayload.isFeatured.toString());
+    multipartFormData.append('discountPercentage', productPayload.discountPercentage.toString());
+
+    // 선택적 필드들 추가
+    if (productPayload.sku) {
+      multipartFormData.append('sku', productPayload.sku);
+    }
+    if (productPayload.weight) {
+      multipartFormData.append('weight', productPayload.weight.toString());
+    }
+    if (productPayload.dimensions) {
+      multipartFormData.append('dimensions', JSON.stringify(productPayload.dimensions));
+    }
+    if (productPayload.specifications) {
+      multipartFormData.append('specifications', JSON.stringify(productPayload.specifications));
+    }
+    if (productPayload.options) {
+      multipartFormData.append('options', JSON.stringify(productPayload.options));
+    }
 
     // 이미지 파일들 추가
     validFiles.forEach((file) => {
@@ -67,16 +94,11 @@ export async function createProduct(formData: FormData): Promise<ProductActionRe
       return { success: false, message: 'Idempotency key가 누락되었습니다.' };
     }
 
-    // 헤더 생성 (X-Idempotency-Key 포함)
-    const headers = await HeaderBuilderFactory.createForIdempotentRequest(idempotencyKey)
-      .withCustomHeader('Content-Type', 'multipart/form-data')
-      .build();
+    // 헤더 생성 (멀티파트 요청용 - Content-Type 제외)
+    const headers = await HeaderBuilderFactory.createForMultipartRequest(idempotencyKey).build();
 
-    // Content-Type은 브라우저가 자동으로 설정하도록 제거
-    delete headers['Content-Type'];
-
-    // BFF API 호출
-    const response = await kongApiClient.createProduct(multipartFormData, {
+    // BFF API 호출 (서버 환경용 멀티파트 메서드 사용)
+    const response = await kongApiClient.createProductMultiPart(multipartFormData, {
       headers,
     });
 

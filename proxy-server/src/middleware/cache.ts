@@ -7,6 +7,18 @@ export interface CacheMiddlewareOptions {
 }
 
 export class CacheMiddleware {
+  static readonly ERROR_INDICATORS = [
+    'Application error: a client-side exception has occurred',
+    '__NEXT_ERROR__',
+    'This page could not be found',
+    '500 - Internal Server Error',
+    '404 - This page could not be found',
+    'Error: ECONNREFUSED',
+    'TypeError: fetch failed',
+    'ETIMEDOUT',
+    'ENOTFOUND',
+    '페이지를 불러오는 중 오류가 발생했습니다.',
+  ];
   /**
    * 캐시에서 HTML 콘텐츠 조회
    */
@@ -140,17 +152,7 @@ export class CacheMiddleware {
     }
 
     // Next.js 에러 페이지 감지
-    const errorIndicators = [
-      'Application error: a client-side exception has occurred',
-      '__NEXT_ERROR__',
-      'This page could not be found',
-      '500 - Internal Server Error',
-      '404 - This page could not be found',
-      'Error: ECONNREFUSED',
-      'TypeError: fetch failed',
-      'ETIMEDOUT',
-      'ENOTFOUND',
-    ];
+    const errorIndicators = CacheMiddleware.ERROR_INDICATORS;
 
     // 에러 지시자가 포함된 내용은 캐시하지 않음
     const hasErrorIndicator = errorIndicators.some((indicator) => content.includes(indicator));
@@ -163,12 +165,6 @@ export class CacheMiddleware {
     const hasBasicHtmlStructure = content.includes('<html') || content.includes('<!DOCTYPE');
 
     if (!hasBasicHtmlStructure) {
-      return false;
-    }
-
-    // 너무 짧은 응답은 에러 메시지일 가능성이 높음
-    // 하지만 정상적인 HTML 구조가 있으면 허용
-    if (content.length < 30000 && !content.includes('<body>')) {
       return false;
     }
 

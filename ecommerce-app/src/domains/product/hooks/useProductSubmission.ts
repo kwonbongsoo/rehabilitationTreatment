@@ -115,23 +115,15 @@ function createFormDataForSubmission(
   if (formData.sku) formDataToSend.append('sku', formData.sku);
   if (formData.weight) formDataToSend.append('weight', formData.weight.toString());
 
-  // 치수 정보
-  if (formData.dimensions?.length) {
-    formDataToSend.append('dimensions.length', formData.dimensions.length.toString());
-  }
-  if (formData.dimensions?.width) {
-    formDataToSend.append('dimensions.width', formData.dimensions.width.toString());
-  }
-  if (formData.dimensions?.height) {
-    formDataToSend.append('dimensions.height', formData.dimensions.height.toString());
+  // 치수 정보 - JSON 문자열로 전송
+  if (formData.dimensions) {
+    formDataToSend.append('dimensions', JSON.stringify(formData.dimensions));
   }
 
-  // 사양 정보
-  Object.entries(formData.specifications || {}).forEach(([key, value]) => {
-    if (value?.trim()) {
-      formDataToSend.append(key, value);
-    }
-  });
+  // 사양 정보 - JSON 문자열로 전송
+  if (formData.specifications && Object.keys(formData.specifications).length > 0) {
+    formDataToSend.append('specifications', JSON.stringify(formData.specifications));
+  }
 
   // 옵션 데이터
   if (formData.options && formData.options.length > 0) {
@@ -145,6 +137,5 @@ function createFormDataForSubmission(
 
   // Idempotency Key
   formDataToSend.append('idempotencyKey', idempotencyKey);
-
   return formDataToSend;
 }
