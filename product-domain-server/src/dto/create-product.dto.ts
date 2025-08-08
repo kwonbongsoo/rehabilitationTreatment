@@ -7,7 +7,7 @@ import {
   ValidateNested,
   IsObject,
 } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Type, Transform } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateProductOptionDto {
@@ -26,11 +26,13 @@ export class CreateProductOptionDto {
   @ApiPropertyOptional({ description: '추가 가격', example: 0 })
   @IsOptional()
   @IsNumber()
+  @Transform(({ value }) => (value ? parseFloat(value) : undefined))
   additionalPrice?: number;
 
   @ApiPropertyOptional({ description: '재고', example: 100 })
   @IsOptional()
   @IsNumber()
+  @Transform(({ value }) => (value ? parseFloat(value) : undefined))
   stock?: number;
 
   @ApiPropertyOptional({ description: 'SKU' })
@@ -41,6 +43,7 @@ export class CreateProductOptionDto {
   @ApiPropertyOptional({ description: '정렬 순서', example: 0 })
   @IsOptional()
   @IsNumber()
+  @Transform(({ value }) => (value ? parseFloat(value) : undefined))
   sortOrder?: number;
 }
 
@@ -58,14 +61,38 @@ export class CreateProductDto {
 
   @ApiProperty({ description: '가격', example: 29000 })
   @IsNumber()
+  @Type(() => Number)
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      const parsed = parseFloat(value);
+      return isNaN(parsed) ? value : parsed;
+    }
+    return value;
+  })
   price: number;
 
   @ApiProperty({ description: '원가', example: 29000 })
   @IsNumber()
+  @Type(() => Number)
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      const parsed = parseFloat(value);
+      return isNaN(parsed) ? value : parsed;
+    }
+    return value;
+  })
   originalPrice: number;
 
   @ApiProperty({ description: '카테고리 ID', example: 1 })
   @IsNumber()
+  @Type(() => Number)
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      const parsed = parseFloat(value);
+      return isNaN(parsed) ? value : parsed;
+    }
+    return value;
+  })
   categoryId: number;
 
   @ApiProperty({ description: '판매자 ID', example: 'seller123' })
@@ -80,41 +107,72 @@ export class CreateProductDto {
   @ApiPropertyOptional({ description: '평점', example: 4.5 })
   @IsOptional()
   @IsNumber()
+  @Type(() => Number)
+  @Transform(({ value }) => (value ? parseFloat(value) : undefined))
   rating?: number;
 
   @ApiPropertyOptional({ description: '평균 평점', example: 4.5 })
   @IsOptional()
   @IsNumber()
+  @Type(() => Number)
+  @Transform(({ value }) => (value ? parseFloat(value) : undefined))
   averageRating?: number;
 
   @ApiPropertyOptional({ description: '리뷰 수', example: 123 })
   @IsOptional()
   @IsNumber()
+  @Type(() => Number)
+  @Transform(({ value }) => (value ? parseFloat(value) : undefined))
   reviewCount?: number;
 
   @ApiPropertyOptional({ description: '신상품 여부', example: false })
   @IsOptional()
   @IsBoolean()
+  @Type(() => Boolean)
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      return value === 'true' || value === '1';
+    }
+    return Boolean(value);
+  })
   isNew?: boolean;
 
   @ApiPropertyOptional({ description: '추천 상품 여부', example: true })
   @IsOptional()
   @IsBoolean()
+  @Type(() => Boolean)
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      return value === 'true' || value === '1';
+    }
+    return Boolean(value);
+  })
   isFeatured?: boolean;
 
   @ApiPropertyOptional({ description: '활성화 상태', example: true })
   @IsOptional()
   @IsBoolean()
+  @Type(() => Boolean)
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      return value === 'true' || value === '1';
+    }
+    return Boolean(value);
+  })
   isActive?: boolean;
 
   @ApiPropertyOptional({ description: '할인율', example: 0 })
   @IsOptional()
   @IsNumber()
+  @Type(() => Number)
+  @Transform(({ value }) => (value ? parseFloat(value) : undefined))
   discountPercentage?: number;
 
   @ApiPropertyOptional({ description: '재고', example: 100 })
   @IsOptional()
   @IsNumber()
+  @Type(() => Number)
+  @Transform(({ value }) => (value ? parseFloat(value) : undefined))
   stock?: number;
 
   @ApiPropertyOptional({ description: 'SKU' })
@@ -125,6 +183,8 @@ export class CreateProductDto {
   @ApiPropertyOptional({ description: '무게', example: 0.5 })
   @IsOptional()
   @IsNumber()
+  @Type(() => Number)
+  @Transform(({ value }) => (value ? parseFloat(value) : undefined))
   weight?: number;
 
   @ApiPropertyOptional({
@@ -133,6 +193,16 @@ export class CreateProductDto {
   })
   @IsOptional()
   @IsObject()
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      try {
+        return JSON.parse(value);
+      } catch {
+        return undefined;
+      }
+    }
+    return value;
+  })
   dimensions?: {
     length?: number;
     width?: number;
@@ -142,12 +212,47 @@ export class CreateProductDto {
   @ApiPropertyOptional({ description: '상품 스펙' })
   @IsOptional()
   @IsObject()
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      try {
+        return JSON.parse(value);
+      } catch {
+        return undefined;
+      }
+    }
+    return value;
+  })
   specifications?: Record<string, any>;
 
-  @ApiPropertyOptional({ description: '상품 옵션', type: [CreateProductOptionDto] })
+  @ApiPropertyOptional({
+    description: '상품 옵션',
+    type: [CreateProductOptionDto],
+  })
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => CreateProductOptionDto)
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      try {
+        return JSON.parse(value);
+      } catch {
+        return undefined;
+      }
+    }
+    return value;
+  })
   options?: CreateProductOptionDto[];
+
+  @ApiPropertyOptional({
+    description: '이미지 URL 배열 (사전 업로드된 이미지)',
+    example: [
+      'https://s3.amazonaws.com/bucket/image1.jpg',
+      'https://s3.amazonaws.com/bucket/image2.jpg',
+    ],
+  })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  imageUrls?: string[];
 }

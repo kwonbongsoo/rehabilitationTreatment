@@ -49,6 +49,14 @@ export function useProductImages(): UseProductImagesReturn {
           return null;
         }
 
+        // 100KB 이하라면 압축하지 않고 원본 그대로 사용
+        if (file.size < 100 * 1024) {
+          return {
+            file,
+            preview: URL.createObjectURL(file),
+          };
+        }
+
         try {
           const progressKey = `${file.name}_${Date.now()}`;
           const options = {
@@ -56,6 +64,7 @@ export function useProductImages(): UseProductImagesReturn {
             maxWidthOrHeight: 1920,
             useWebWorker: true,
             preserveExif: false,
+            fileType: 'image/webp',
             onProgress: (progress: number) => {
               setCompressionProgress((prev) => ({
                 ...prev,
@@ -75,7 +84,7 @@ export function useProductImages(): UseProductImagesReturn {
           // 랜덤한 파일명 생성
           const fileExtension = getFileExtension(file.name);
           const randomFileName = generateRandomFileName(fileExtension);
-          
+
           // 새로운 파일명으로 File 객체 재생성
           const renamedFile = new File([compressedFile], randomFileName, {
             type: compressedFile.type,
@@ -135,12 +144,12 @@ export function useProductImages(): UseProductImagesReturn {
             0,
           );
           const currentTotalMB = images.reduce((total, file) => total + file.size / 1024 / 1024, 0);
-          
+
           // 랜덤 파일명으로 생성된 파일들 정보 표시
-          const addedFileNames = compressedFiles.map(file => file.name).join(', ');
+          const addedFileNames = compressedFiles.map((file) => file.name).join(', ');
           toast.info(
             `총 ${compressedFiles.length}개 이미지 추가됨\n파일명: ${addedFileNames}\n총 용량: ${(currentTotalMB + totalSizeMB).toFixed(1)}MB`,
-            { style: { whiteSpace: 'pre-line' } }
+            { style: { whiteSpace: 'pre-line' } },
           );
         }
       } finally {

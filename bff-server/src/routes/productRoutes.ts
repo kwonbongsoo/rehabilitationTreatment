@@ -2,15 +2,28 @@ import { FastifyInstance } from 'fastify';
 import productController from '../controllers/productController';
 
 const productRoutes = async (fastify: FastifyInstance) => {
-  // 상품 등록 (이미지 포함) - 멀티파트 전용
+  // 상품 등록 (2단계 워크플로우) - 멀티파트 전용
   fastify.post('/products', {
     schema: {
       tags: ['Products'],
-      summary: '상품 등록',
-      description: '상품 정보와 이미지를 함께 등록합니다. (multipart/form-data 전용)',
+      summary: '상품 등록 (2단계 워크플로우)',
+      description: `
+        상품 정보와 이미지를 2단계로 처리하여 등록합니다.
+
+        1단계: 이미지 업로드 (상품도메인서버 /products/images)
+        2단계: 상품 생성 (상품도메인서버 /products + imageUrls)
+
+        multipart/form-data 형식으로 전송:
+        - name: 상품명 (필수)
+        - description: 상품 설명 (필수)
+        - price: 가격 (필수)
+        - originalPrice: 원가 (필수)
+        - categoryId: 카테고리 ID (필수)
+        - sellerId: 판매자 ID (필수)
+        - images: 이미지 파일들 (선택, 최대 10개)
+        - 기타 선택적 필드들
+      `,
       consumes: ['multipart/form-data'],
-      // 멀티파트 요청에서는 body 스키마를 생략하거나 최소화
-      // Fastify는 multipart 데이터를 동적으로 파싱하므로 JSON 스키마 검증이 적합하지 않음
       response: {
         201: {
           type: 'object',
@@ -27,16 +40,19 @@ const productRoutes = async (fastify: FastifyInstance) => {
                 message: { type: 'string' },
               },
             },
+            message: { type: 'string' },
           },
         },
         400: {
           type: 'object',
           properties: {
+            success: { type: 'boolean' },
             error: {
               type: 'object',
               properties: {
                 message: { type: 'string' },
                 status: { type: 'number' },
+                code: { type: 'string' },
               },
             },
           },
@@ -71,7 +87,12 @@ const productRoutes = async (fastify: FastifyInstance) => {
           isNew: { type: 'boolean', description: '신상품 여부' },
           isFeatured: { type: 'boolean', description: '추천 상품 여부' },
           sortBy: { type: 'string', description: '정렬 기준', default: 'createdAt' },
-          sortOrder: { type: 'string', description: '정렬 순서', enum: ['ASC', 'DESC'], default: 'DESC' },
+          sortOrder: {
+            type: 'string',
+            description: '정렬 순서',
+            enum: ['ASC', 'DESC'],
+            default: 'DESC',
+          },
         },
       },
       response: {

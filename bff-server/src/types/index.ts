@@ -64,6 +64,7 @@ export interface ProductDomainProduct {
   createdAt?: string;
   updatedAt?: string;
   originalPrice?: number;
+  images: string[];
 }
 
 // Product Registration Types

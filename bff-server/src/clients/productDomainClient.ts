@@ -1,6 +1,6 @@
 import { HttpClient } from '@ecommerce/common';
 import { serviceEndpoints } from '../utils/config';
-import { ProductDomainCategory, ProductDomainProduct } from '../types';
+import { CreateProductRequest, ProductDomainCategory, ProductDomainProduct } from '../types';
 
 interface ProductDomainProductResponse {
   products: ProductDomainProduct[];
@@ -78,8 +78,25 @@ class ProductDomainClient extends HttpClient {
     return await this.get<ProductDomainProduct>(`/products/${id}`);
   }
 
-  async createProduct(data: Partial<ProductDomainProduct>): Promise<ProductDomainProduct> {
-    return await this.post<ProductDomainProduct>('/products', data);
+  async createProduct(productData: any): Promise<ProductDomainProduct> {
+    // 이제 항상 JSON으로 전송 (이미지 URL 포함)
+    return await this.post<ProductDomainProduct>('/products', productData);
+  }
+
+  /**
+   * 이미지만 업로드 (상품 생성 전)
+   */
+  async uploadImagesOnly(files: File[]): Promise<{ message: string; imageUrls: string[] }> {
+    const formData = new FormData();
+    files.forEach((file) => {
+      formData.append('files', file);
+    });
+
+    return await this.requestMultiPartServer<{ message: string; imageUrls: string[] }>(
+      '/products/images',
+      formData,
+      { method: 'POST' },
+    );
   }
 
   async updateProduct(
@@ -103,15 +120,10 @@ class ProductDomainClient extends HttpClient {
       formData.append('files', file);
     });
 
-    return await this.post<{ message: string; images: any[] }>(
+    return await this.requestMultiPartServer<{ message: string; images: any[] }>(
       `/products/${productId}/images`,
       formData,
-      {
-        headers: {
-          // FormData는 Content-Type을 자동으로 설정하므로 제거
-          'Content-Type': undefined,
-        } as any,
-      },
+      { method: 'POST' },
     );
   }
 
