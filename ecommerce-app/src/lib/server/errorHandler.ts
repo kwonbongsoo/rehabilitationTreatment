@@ -12,17 +12,15 @@ interface ActionResult<T = any> {
 /**
  * API 응답을 처리하고 적절한 ActionResult를 반환
  */
-export async function handleApiResponse<T>(
+export async function handleApiServerActionResponse<T>(
   response: Response,
-  successDataExtractor?: (json: any) => T
 ): Promise<ActionResult<T>> {
   try {
     if (response.ok) {
-      const json = await response.json();
-      
+      const { data } = await response.json();
+
       // successDataExtractor 실행 중 에러가 발생하면 캐치
       try {
-        const data = successDataExtractor ? successDataExtractor(json) : json;
         return {
           success: true,
           data,
@@ -30,7 +28,10 @@ export async function handleApiResponse<T>(
       } catch (extractorError) {
         return {
           success: false,
-          error: extractorError instanceof Error ? extractorError.message : '데이터 처리 중 오류가 발생했습니다.',
+          error:
+            extractorError instanceof Error
+              ? extractorError.message
+              : '데이터 처리 중 오류가 발생했습니다.',
           statusCode: 500,
         };
       }
@@ -38,7 +39,7 @@ export async function handleApiResponse<T>(
 
     // 에러 응답에서 메시지 추출
     let errorMessage = '오류가 발생했습니다.';
-    
+
     try {
       const errorJson = await response.json();
       if (errorJson?.message) {

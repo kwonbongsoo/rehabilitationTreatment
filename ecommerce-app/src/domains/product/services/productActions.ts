@@ -3,13 +3,13 @@
 import { redirect } from 'next/navigation';
 import { HeaderBuilderFactory } from '@/lib/server/headerBuilder';
 import kongApiClient from '@/infrastructure/clients/kongApiClient';
-import type { ProductFormData, ProductActionResult } from '../types/product';
+import type { ProductFormData, ProductActionResult, ProductOption } from '../types/product';
 
 export async function createProduct(formData: FormData): Promise<ProductActionResult> {
   try {
     // FormData에서 데이터 추출
     const extractedData = extractFormData(formData);
-    
+
     const productData: ProductFormData = {
       name: extractedData.name,
       description: extractedData.description,
@@ -27,9 +27,6 @@ export async function createProduct(formData: FormData): Promise<ProductActionRe
       ...(extractedData.specifications && { specifications: extractedData.specifications }),
       ...(extractedData.options && { options: extractedData.options }),
     };
-
-    console.log('Product data with options:', productData);
-
 
     // 파일 추출
     const files = formData.getAll('images') as File[];
@@ -54,10 +51,37 @@ export async function createProduct(formData: FormData): Promise<ProductActionRe
     // multipart/form-data 준비
     const multipartFormData = new FormData();
 
-    // 상품 데이터를 JSON 문자열로 변환하여 추가
+    // 상품 데이터를 개별 프로퍼티로 분리하여 추가
     const productPayload = createProductPayload(productData);
 
-    multipartFormData.append('productData', JSON.stringify(productPayload));
+    // 기본 상품 정보 개별 추가
+    multipartFormData.append('name', productPayload.name);
+    multipartFormData.append('description', productPayload.description);
+    multipartFormData.append('price', productPayload.price.toString());
+    multipartFormData.append('originalPrice', productPayload.originalPrice.toString());
+    multipartFormData.append('categoryId', productPayload.categoryId.toString());
+    multipartFormData.append('sellerId', productPayload.sellerId);
+    multipartFormData.append('stock', productPayload.stock.toString());
+    multipartFormData.append('isNew', productPayload.isNew.toString());
+    multipartFormData.append('isFeatured', productPayload.isFeatured.toString());
+    multipartFormData.append('discountPercentage', productPayload.discountPercentage.toString());
+
+    // 선택적 필드들 추가
+    if (productPayload.sku) {
+      multipartFormData.append('sku', productPayload.sku);
+    }
+    if (productPayload.weight) {
+      multipartFormData.append('weight', productPayload.weight.toString());
+    }
+    if (productPayload.dimensions) {
+      multipartFormData.append('dimensions', JSON.stringify(productPayload.dimensions));
+    }
+    if (productPayload.specifications) {
+      multipartFormData.append('specifications', JSON.stringify(productPayload.specifications));
+    }
+    if (productPayload.options) {
+      multipartFormData.append('options', JSON.stringify(productPayload.options));
+    }
 
     // 이미지 파일들 추가
     validFiles.forEach((file) => {
@@ -70,16 +94,11 @@ export async function createProduct(formData: FormData): Promise<ProductActionRe
       return { success: false, message: 'Idempotency key가 누락되었습니다.' };
     }
 
-    // 헤더 생성 (X-Idempotency-Key 포함)
-    const headers = await HeaderBuilderFactory.createForIdempotentRequest(idempotencyKey)
-      .withCustomHeader('Content-Type', 'multipart/form-data')
-      .build();
+    // 헤더 생성 (멀티파트 요청용 - Content-Type 제외)
+    const headers = await HeaderBuilderFactory.createForMultipartRequest(idempotencyKey).build();
 
-    // Content-Type은 브라우저가 자동으로 설정하도록 제거
-    delete headers['Content-Type'];
-
-    // BFF API 호출
-    const response = await kongApiClient.createProduct(multipartFormData, {
+    // BFF API 호출 (서버 환경용 멀티파트 메서드 사용)
+    const response = await kongApiClient.createProductMultiPart(multipartFormData, {
       headers,
     });
 
@@ -92,17 +111,23 @@ export async function createProduct(formData: FormData): Promise<ProductActionRe
         message: '상품 등록에 실패했습니다.',
       };
     }
-  } catch (error: any) {
-    console.error('상품 등록 실패:', error);
+  } catch (error: unknown) {
+    if (process.env.NODE_ENV === 'development') {
+      console.error('상품 등록 실패:', error);
+    }
+
+    const errorMessage =
+      error instanceof Error ? error.message : '상품 등록 중 오류가 발생했습니다.';
+
     return {
       success: false,
-      message: error.message || '상품 등록 중 오류가 발생했습니다.',
+      message: errorMessage,
     };
   }
 }
 
 // FormData에서 모든 데이터를 추출하는 헬퍼 함수
-function extractFormData(formData: FormData) {
+function extractFormData(formData: FormData): ProductFormData {
   // 기본 상품 정보
   const name = formData.get('name') as string;
   const description = formData.get('description') as string;
@@ -121,19 +146,26 @@ function extractFormData(formData: FormData) {
   const lengthValue = formData.get('dimensions.length');
   const widthValue = formData.get('dimensions.width');
   const heightValue = formData.get('dimensions.height');
-  
-  const dimensions = (lengthValue || widthValue || heightValue) ? {
-    ...(lengthValue && { length: Number(lengthValue) }),
-    ...(widthValue && { width: Number(widthValue) }),
-    ...(heightValue && { height: Number(heightValue) }),
-  } : null;
+
+  const dimensions =
+    lengthValue || widthValue || heightValue
+      ? {
+          ...(lengthValue && { length: Number(lengthValue) }),
+          ...(widthValue && { width: Number(widthValue) }),
+          ...(heightValue && { height: Number(heightValue) }),
+        }
+      : null;
 
   // 사양 정보
-  const specKeys = Array.from(formData.keys()).filter(key => key.startsWith('spec_'));
-  const specifications = specKeys.length > 0 ? 
-    Object.fromEntries(
-      specKeys.map(key => [key, formData.get(key) as string]).filter(([, value]) => value?.trim())
-    ) : null;
+  const specKeys = Array.from(formData.keys()).filter((key) => key.startsWith('spec_'));
+  const specifications =
+    specKeys.length > 0
+      ? Object.fromEntries(
+          specKeys
+            .map((key) => [key, formData.get(key) as string])
+            .filter(([, value]) => value?.trim()),
+        )
+      : null;
 
   // 옵션 정보
   const optionsData = formData.get('options') as string;
@@ -147,9 +179,9 @@ function extractFormData(formData: FormData) {
     categoryId,
     sellerId,
     stock,
-    sku,
-    weight,
-    dimensions,
+    ...(sku && { sku }),
+    ...(weight && { weight }),
+    ...(dimensions && { dimensions }),
     isNew,
     isFeatured,
     discountPercentage,
@@ -160,7 +192,7 @@ function extractFormData(formData: FormData) {
 
 // 서버로 전송할 payload 생성
 // 서버로 전송할 payload 생성
-function createProductPayload(productData: ProductFormData) {
+function createProductPayload(productData: ProductFormData): ProductFormData {
   return {
     name: productData.name,
     description: productData.description,
@@ -171,19 +203,20 @@ function createProductPayload(productData: ProductFormData) {
     isNew: productData.isNew,
     isFeatured: productData.isFeatured,
     stock: productData.stock || 0,
-    sku: productData.sku || null,
-    weight: productData.weight || null,
-    dimensions: productData.dimensions || null,
+    ...(productData.sku && { sku: productData.sku }),
+    ...(productData.weight && { weight: productData.weight }),
+    ...(productData.dimensions && { dimensions: productData.dimensions }),
     discountPercentage: productData.discountPercentage || 0,
-    specifications: (productData.specifications && Object.keys(productData.specifications).length > 0) 
-      ? productData.specifications : null,
-    options: (productData.options && productData.options.length > 0) 
-      ? productData.options : null,
+    ...(productData.specifications && { specifications: productData.specifications }),
+    ...(productData.options && { options: productData.options }),
   };
 }
 
 // 상품 데이터 검증
-function validateProductData(productData: ProductFormData, imageCount: number): ProductActionResult | null {
+function validateProductData(
+  productData: ProductFormData,
+  imageCount: number,
+): ProductActionResult | null {
   if (!productData.name?.trim()) {
     return { success: false, errors: { name: '상품명을 입력해주세요.' } };
   }
@@ -199,7 +232,11 @@ function validateProductData(productData: ProductFormData, imageCount: number): 
   if (!productData.price || isNaN(Number(productData.price)) || Number(productData.price) <= 0) {
     return { success: false, errors: { price: '올바른 가격을 입력해주세요.' } };
   }
-  if (!productData.originalPrice || isNaN(Number(productData.originalPrice)) || Number(productData.originalPrice) <= 0) {
+  if (
+    !productData.originalPrice ||
+    isNaN(Number(productData.originalPrice)) ||
+    Number(productData.originalPrice) <= 0
+  ) {
     return { success: false, errors: { originalPrice: '올바른 원가를 입력해주세요.' } };
   }
   if (Number(productData.price) > Number(productData.originalPrice)) {
@@ -212,13 +249,23 @@ function validateProductData(productData: ProductFormData, imageCount: number): 
 }
 
 // 상품 옵션 검증
-function validateProductOptions(options: any[]): ProductActionResult | null {
+function validateProductOptions(options: ProductOption[]): ProductActionResult | null {
   for (let i = 0; i < options.length; i++) {
     const option = options[i];
+    if (!option) {
+      return {
+        success: false,
+        errors: { options: `옵션 ${i + 1}: 옵션 데이터가 올바르지 않습니다.` },
+      };
+    }
+
     const optionIndex = i + 1;
 
     if (!option.optionType?.trim()) {
-      return { success: false, errors: { options: `옵션 ${optionIndex}: 옵션 유형을 선택해주세요.` } };
+      return {
+        success: false,
+        errors: { options: `옵션 ${optionIndex}: 옵션 유형을 선택해주세요.` },
+      };
     }
     if (!option.optionName?.trim()) {
       return { success: false, errors: { options: `옵션 ${optionIndex}: 옵션명을 입력해주세요.` } };
@@ -227,19 +274,31 @@ function validateProductOptions(options: any[]): ProductActionResult | null {
       return { success: false, errors: { options: `옵션 ${optionIndex}: 옵션값을 입력해주세요.` } };
     }
     if (option.additionalPrice < 0) {
-      return { success: false, errors: { options: `옵션 ${optionIndex}: 추가 가격은 0 이상이어야 합니다.` } };
+      return {
+        success: false,
+        errors: { options: `옵션 ${optionIndex}: 추가 가격은 0 이상이어야 합니다.` },
+      };
     }
     if (option.stock < 0) {
-      return { success: false, errors: { options: `옵션 ${optionIndex}: 재고는 0 이상이어야 합니다.` } };
+      return {
+        success: false,
+        errors: { options: `옵션 ${optionIndex}: 재고는 0 이상이어야 합니다.` },
+      };
     }
   }
 
   // 중복 옵션 체크
-  const optionKeys = options.map(opt => `${opt.optionType}:${opt.optionValue}`);
+  const optionKeys = options.map((opt) => `${opt.optionType}:${opt.optionValue}`);
   const duplicates = optionKeys.filter((key, index) => optionKeys.indexOf(key) !== index);
-  
+
   if (duplicates.length > 0) {
-    return { success: false, errors: { options: '중복된 옵션이 있습니다. 같은 유형의 같은 값을 가진 옵션은 한 번만 등록할 수 있습니다.' } };
+    return {
+      success: false,
+      errors: {
+        options:
+          '중복된 옵션이 있습니다. 같은 유형의 같은 값을 가진 옵션은 한 번만 등록할 수 있습니다.',
+      },
+    };
   }
 
   return null;

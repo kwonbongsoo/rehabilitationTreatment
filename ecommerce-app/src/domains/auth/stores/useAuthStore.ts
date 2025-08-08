@@ -61,7 +61,7 @@ export const useAuthStore = create<AuthStore>()(
 
       logout: async () => {
         // 🔄 완전한 세션 초기화
-        set(() => ({
+        await set(() => ({
           ...initialState,
           isSessionInitialized: true, // 로그아웃도 초기화된 상태로 간주
           getUserRole: get().getUserRole,
@@ -104,7 +104,7 @@ export const useAuthStore = create<AuthStore>()(
 );
 
 // React Context 패턴과 호환되는 훅 (기존 코드 호환성)
-export const useAuth = () => {
+export const useAuth = (): AuthState & AuthActions => {
   const {
     user,
     isGuest,

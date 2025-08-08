@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, ImgHTMLAttributes } from 'react';
+import { useState, ImgHTMLAttributes, ReactElement } from 'react';
 
 interface OptimizedImageProps extends Omit<ImgHTMLAttributes<HTMLImageElement>, 'src'> {
   src: string;
@@ -9,7 +9,7 @@ interface OptimizedImageProps extends Omit<ImgHTMLAttributes<HTMLImageElement>, 
   priority?: boolean;
 }
 
-function buildCdnUrl(src: string, width?: number, height?: number): string {
+function buildCdnUrl(src: string, width?: number, height?: number, format?: string): string {
   const cdnDomain =
     process.env.NEXT_PUBLIC_CDN_DOMAIN || 'https://image-resizer.star1231076.workers.dev';
   if (!cdnDomain) return src;
@@ -19,10 +19,11 @@ function buildCdnUrl(src: string, width?: number, height?: number): string {
   if (width) params.set('w', width.toString());
   if (height) params.set('h', height.toString());
   params.set('fit', 'cover');
-  params.set('f', 'webp');
+  if (format) params.set('f', format);
 
   return `${cdnDomain}/?${params.toString()}`;
 }
+
 
 export default function OptimizedImage({
   src,
@@ -33,28 +34,52 @@ export default function OptimizedImage({
   height,
   loading,
   ...props
-}: OptimizedImageProps) {
-  const optimizedSrc = buildCdnUrl(src, width ? Number(width) : 500, height ? Number(height) : 500);
-  const optimizedFallbackSrc = buildCdnUrl(
-    fallbackSrc,
-    Number(width) ?? 500,
-    Number(height) ?? 500,
-  );
-  const [imgSrc, setImgSrc] = useState(optimizedSrc);
+}: OptimizedImageProps): ReactElement {
+  const w = width ? Number(width) : 500;
+  const h = height ? Number(height) : 500;
+  
+  // Build URLs for different formats
+  const avifSrc = buildCdnUrl(src, w, h, 'avif');
+  const webpSrc = buildCdnUrl(src, w, h, 'webp');
+  const jpgSrc = buildCdnUrl(src, w, h, 'jpeg');
+  
+  const optimizedFallbackSrc = buildCdnUrl(fallbackSrc, w, h, 'webp');
+  const [hasError, setHasError] = useState(false);
 
   const loadingStrategy = loading || (priority ? 'eager' : lazy ? 'lazy' : 'eager');
 
+  const handleError = (): void => {
+    if (!hasError) {
+      setHasError(true);
+    }
+  };
+
+  if (hasError) {
+    return (
+      <img
+        src={optimizedFallbackSrc}
+        width={width}
+        height={height}
+        loading={loadingStrategy}
+        {...props}
+        alt={props.alt}
+      />
+    );
+  }
+
   return (
-    <img
-      src={imgSrc}
-      width={width}
-      height={height}
-      onError={() => {
-        if (imgSrc !== optimizedFallbackSrc) setImgSrc(optimizedFallbackSrc);
-      }}
-      loading={loadingStrategy}
-      {...props}
-      alt={props.alt}
-    />
+    <picture>
+      <source srcSet={avifSrc} type="image/avif" />
+      <source srcSet={webpSrc} type="image/webp" />
+      <img 
+        src={jpgSrc}
+        width={width}
+        height={height}
+        onError={handleError}
+        loading={loadingStrategy}
+        {...props}
+        alt={props.alt}
+      />
+    </picture>
   );
 }

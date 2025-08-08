@@ -2,78 +2,28 @@ import { FastifyInstance } from 'fastify';
 import productController from '../controllers/productController';
 
 const productRoutes = async (fastify: FastifyInstance) => {
-  // 상품 등록 (이미지 포함)
+  // 상품 등록 (2단계 워크플로우) - 멀티파트 전용
   fastify.post('/products', {
     schema: {
       tags: ['Products'],
-      summary: '상품 등록',
-      description: '상품 정보와 이미지를 함께 등록합니다.',
-      consumes: ['multipart/form-data', 'application/json'],
-      body: {
-        type: 'object',
-        properties: {
-          productData: {
-            type: 'string',
-            description: '상품 정보 JSON 문자열 (multipart 요청 시)',
-          },
-          name: { type: 'string', description: '상품명' },
-          description: { type: 'string', description: '상품 설명' },
-          price: { type: 'number', description: '가격' },
-          originalPrice: { type: 'number', description: '원가' },
-          categoryId: { type: 'number', description: '카테고리 ID' },
-          sellerId: { type: 'string', description: '판매자 ID' },
-          mainImage: { type: 'string', description: '메인 이미지 URL' },
-          rating: { type: 'number', description: '평점' },
-          averageRating: { type: 'number', description: '평균 평점' },
-          reviewCount: { type: 'number', description: '리뷰 수' },
-          isNew: { type: 'boolean', description: '신상품 여부' },
-          isFeatured: { type: 'boolean', description: '추천 상품 여부' },
-          isActive: { type: 'boolean', description: '활성화 상태' },
-          discount: { type: 'number', description: '할인액' },
-          discountPercentage: { type: 'number', description: '할인율' },
-          stock: { type: 'number', description: '재고' },
-          sku: { type: 'string', description: 'SKU' },
-          weight: { type: 'number', description: '무게' },
-          dimensions: {
-            type: 'object',
-            description: '치수',
-            properties: {
-              length: { type: 'number' },
-              width: { type: 'number' },
-              height: { type: 'number' },
-            },
-          },
-          specifications: {
-            type: 'object',
-            description: '상품 스펙',
-          },
-          options: {
-            type: 'array',
-            description: '상품 옵션',
-            items: {
-              type: 'object',
-              properties: {
-                optionType: { type: 'string' },
-                optionName: { type: 'string' },
-                optionValue: { type: 'string' },
-                additionalPrice: { type: 'number' },
-                stock: { type: 'number' },
-                sku: { type: 'string' },
-                sortOrder: { type: 'number' },
-              },
-            },
-          },
-          images: {
-            type: 'array',
-            description: '상품 이미지 파일들',
-            items: {
-              type: 'string',
-              format: 'binary',
-            },
-          },
-        },
-        required: ['name', 'description', 'price', 'categoryId', 'sellerId'],
-      },
+      summary: '상품 등록 (2단계 워크플로우)',
+      description: `
+        상품 정보와 이미지를 2단계로 처리하여 등록합니다.
+
+        1단계: 이미지 업로드 (상품도메인서버 /products/images)
+        2단계: 상품 생성 (상품도메인서버 /products + imageUrls)
+
+        multipart/form-data 형식으로 전송:
+        - name: 상품명 (필수)
+        - description: 상품 설명 (필수)
+        - price: 가격 (필수)
+        - originalPrice: 원가 (필수)
+        - categoryId: 카테고리 ID (필수)
+        - sellerId: 판매자 ID (필수)
+        - images: 이미지 파일들 (선택, 최대 10개)
+        - 기타 선택적 필드들
+      `,
+      consumes: ['multipart/form-data'],
       response: {
         201: {
           type: 'object',
@@ -90,16 +40,19 @@ const productRoutes = async (fastify: FastifyInstance) => {
                 message: { type: 'string' },
               },
             },
+            message: { type: 'string' },
           },
         },
         400: {
           type: 'object',
           properties: {
+            success: { type: 'boolean' },
             error: {
               type: 'object',
               properties: {
                 message: { type: 'string' },
                 status: { type: 'number' },
+                code: { type: 'string' },
               },
             },
           },
@@ -134,7 +87,12 @@ const productRoutes = async (fastify: FastifyInstance) => {
           isNew: { type: 'boolean', description: '신상품 여부' },
           isFeatured: { type: 'boolean', description: '추천 상품 여부' },
           sortBy: { type: 'string', description: '정렬 기준', default: 'createdAt' },
-          sortOrder: { type: 'string', description: '정렬 순서', enum: ['ASC', 'DESC'], default: 'DESC' },
+          sortOrder: {
+            type: 'string',
+            description: '정렬 순서',
+            enum: ['ASC', 'DESC'],
+            default: 'DESC',
+          },
         },
       },
       response: {
@@ -157,12 +115,12 @@ const productRoutes = async (fastify: FastifyInstance) => {
     handler: productController.getProductsBySeller.bind(productController),
   });
 
-  // 기존 상품에 이미지 업로드
+  // 기존 상품에 이미지 업로드 - 멀티파트 전용
   fastify.post('/products/:productId/images', {
     schema: {
       tags: ['Products'],
       summary: '상품 이미지 업로드',
-      description: '기존 상품에 이미지를 추가로 업로드합니다.',
+      description: '기존 상품에 이미지를 추가로 업로드합니다. (multipart/form-data 전용)',
       consumes: ['multipart/form-data'],
       params: {
         type: 'object',
@@ -171,19 +129,8 @@ const productRoutes = async (fastify: FastifyInstance) => {
         },
         required: ['productId'],
       },
-      body: {
-        type: 'object',
-        properties: {
-          images: {
-            type: 'array',
-            description: '업로드할 이미지 파일들',
-            items: {
-              type: 'string',
-              format: 'binary',
-            },
-          },
-        },
-      },
+      // 멀티파트 이미지 업로드에서는 body 스키마 검증을 생략
+      // 컨트롤러에서 파일 존재 여부 및 타입 검증을 수행
       response: {
         200: {
           type: 'object',

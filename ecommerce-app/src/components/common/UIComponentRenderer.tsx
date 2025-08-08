@@ -7,13 +7,16 @@ import ProductSection from './ProductSection';
 import CategoryGridRenderer from '@/domains/category/components/CategoryGridRenderer';
 import ProductFiltersRenderer from '@/domains/category/components/ProductFiltersRenderer';
 import ProductGridRenderer from '@/domains/category/components/ProductGridRenderer';
+import { ReactElement } from 'react';
 
 interface UIComponentRendererProps {
   component: UIComponent;
   index?: number;
 }
 
-export default function UIComponentRenderer({ component }: UIComponentRendererProps) {
+export default function UIComponentRenderer({
+  component,
+}: UIComponentRendererProps): ReactElement | null {
   if (!component.visible) {
     return null;
   }
@@ -79,7 +82,7 @@ export default function UIComponentRenderer({ component }: UIComponentRendererPr
       return <ProductGridRenderer allProducts={component.data.allProducts} />;
 
     default:
-      console.warn(`Unknown component type: ${(component as any).type}`);
+      console.warn(`Unknown component type: ${(component as UIComponent & { type: string }).type}`);
       return null;
   }
 }

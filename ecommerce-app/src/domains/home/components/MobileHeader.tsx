@@ -8,7 +8,6 @@ interface MobileHeaderProps {
   title?: string;
   showBackButton?: boolean;
   onSearchClick?: () => void;
-  onNotificationClick?: () => void;
   onFilterClick?: () => void;
   customActionButton?: {
     icon: React.ReactNode;
@@ -21,17 +20,16 @@ const MobileHeader: React.FC<MobileHeaderProps> = ({
   title = 'Home',
   showBackButton = false,
   onSearchClick,
-  onNotificationClick,
   onFilterClick,
   customActionButton,
 }) => {
   const router = useRouter();
 
-  const handleBackClick = () => {
+  const handleBackClick = (): void => {
     router.back();
   };
 
-  const handleSearchClick = () => {
+  const handleSearchClick = (): void => {
     if (onSearchClick) {
       onSearchClick();
     } else {
@@ -39,13 +37,7 @@ const MobileHeader: React.FC<MobileHeaderProps> = ({
     }
   };
 
-  const handleNotificationClick = () => {
-    if (onNotificationClick) {
-      onNotificationClick();
-    }
-  };
-
-  const handleFilterClick = (event: React.MouseEvent) => {
+  const handleFilterClick = (event: React.MouseEvent): void => {
     // 이벤트 버블링 방지 - 부모의 onClick(서치바 클릭) 실행 방지
     event.stopPropagation();
 
@@ -70,22 +62,13 @@ const MobileHeader: React.FC<MobileHeaderProps> = ({
         )}
         <h1 className={styles.title}>{title}</h1>
         <div className={styles.headerActions}>
-          {customActionButton ? (
+          {customActionButton && (
             <button
               className={styles.actionButton}
               onClick={customActionButton.onClick}
               aria-label={customActionButton.label}
             >
               {customActionButton.icon}
-            </button>
-          ) : (
-            <button
-              className={styles.actionButton}
-              onClick={handleNotificationClick}
-              aria-label="알림"
-            >
-              <span className={styles.notificationIcon}>🔔</span>
-              <span className={styles.notificationBadge}>3</span>
             </button>
           )}
         </div>

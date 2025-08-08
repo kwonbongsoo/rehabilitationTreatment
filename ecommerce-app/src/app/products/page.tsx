@@ -1,16 +1,16 @@
 'use client';
 
-import React from 'react';
+import React, { ReactElement } from 'react';
 import styles from '@/styles/products/MobileProducts.module.css';
 import { useProductStore } from '@/domains/product/stores/useProductStore';
 import { useCartActions } from '@/domains/cart/hooks';
 import OptimizedImageNext from '@/components/common/OptimizedImageNext';
 
-export default function ProductsPage() {
+export default function ProductsPage(): ReactElement {
   const { products } = useProductStore();
   const { addToCart } = useCartActions();
 
-  const handleAddToCart = async (productId: number) => {
+  const handleAddToCart = async (productId: number): Promise<void> => {
     const product = products.find((p) => p.id === productId);
     if (product) {
       await addToCart({

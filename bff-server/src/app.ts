@@ -57,12 +57,12 @@ export async function buildApp(): Promise<FastifyInstance> {
     origin: process.env.CORS_ORIGIN || true,
   });
   await app.register(compress);
-  
+
   // Register multipart support for file uploads
   await app.register(multipart, {
     limits: {
-      fileSize: 10 * 1024 * 1024, // 10MB per file
-      files: 10, // Maximum 10 files
+      fileSize: 11 * 1024 * 1024, // 10MB per file
+      files: 5, // Maximum 10 files
     },
   });
 

@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import styles from '@/styles/account/AddProduct.module.css';
-import type { CategoryOption } from '@/domains/category/services/categoriesService';
+import { Category } from '@/domains/category/types/categories';
 
 interface ProductCategoryStockProps {
   formData: {
@@ -9,18 +9,18 @@ interface ProductCategoryStockProps {
     sku?: string;
   };
   errors: { [key: string]: string };
-  categories: CategoryOption[];
+  categories: Category[];
   loadingCategories: boolean;
   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
 }
 
-export function ProductCategoryStock({ 
-  formData, 
-  errors, 
-  categories, 
-  loadingCategories, 
-  onChange 
-}: ProductCategoryStockProps) {
+export function ProductCategoryStock({
+  formData,
+  errors,
+  categories,
+  loadingCategories,
+  onChange,
+}: ProductCategoryStockProps): ReactElement {
   return (
     <div className={styles.section}>
       <label className={styles.sectionTitle}>Category & Brand</label>
@@ -44,12 +44,8 @@ export function ProductCategoryStock({
             </option>
           ))}
         </select>
-        {errors.categoryId && (
-          <span className={styles.errorMessage}>{errors.categoryId}</span>
-        )}
-        {errors.categories && (
-          <span className={styles.errorMessage}>{errors.categories}</span>
-        )}
+        {errors.categoryId && <span className={styles.errorMessage}>{errors.categoryId}</span>}
+        {errors.categories && <span className={styles.errorMessage}>{errors.categories}</span>}
       </div>
 
       <div className={styles.inputGroup}>

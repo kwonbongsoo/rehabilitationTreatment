@@ -19,8 +19,7 @@ export interface RawCategoryData {
   isActive: boolean;
 }
 
-// RawProductData는 common.ts에서 import
-export { RawProductData } from './common';
+export { Product } from './common';
 
 export interface RawPromotionData {
   id: number;

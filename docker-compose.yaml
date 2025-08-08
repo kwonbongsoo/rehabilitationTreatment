@@ -10,7 +10,9 @@ services:
     #   - redis_data:/data
     env_file:
       - ./redis/.env
-    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - ./redis/entrypoint.sh:/redis/entrypoint.sh:ro
+    command: "/bin/sh /redis/entrypoint.sh"
     restart: unless-stopped
     networks:
       - app-network

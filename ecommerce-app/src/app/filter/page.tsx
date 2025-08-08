@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { ReactElement, useState } from 'react';
 import styles from './page.module.css';
 
-export default function FilterPage() {
+export default function FilterPage(): ReactElement {
   // 필터 상태
   const [selectedBrand, setSelectedBrand] = useState('All');
   const [selectedGender, setSelectedGender] = useState('All');
@@ -16,7 +16,7 @@ export default function FilterPage() {
   const sortOptions = ['Most Recent', 'Popular', 'Price High'];
   const ratings = [1, 2, 3, 4, 5];
 
-  const handleResetFilter = () => {
+  const handleResetFilter = (): void => {
     setSelectedBrand('All');
     setSelectedGender('All');
     setSelectedSort('Popular');
@@ -24,7 +24,7 @@ export default function FilterPage() {
     setPriceRange([10, 50]);
   };
 
-  const handlePriceChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePriceChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
     const value = parseInt(event.target.value);
     const index = parseInt(event.target.dataset.index || '0');
     const newRange = [...priceRange];
@@ -40,7 +40,7 @@ export default function FilterPage() {
     setPriceRange(newRange);
   };
 
-  const handleSliderInteraction = (clientX: number, rect: DOMRect) => {
+  const handleSliderInteraction = (clientX: number, rect: DOMRect): void => {
     const clickPosition = (clientX - rect.left) / rect.width;
     const clickValue = Math.round(10 + Math.max(0, Math.min(1, clickPosition)) * 90); // 10-100 범위, 경계값 처리
 
@@ -60,12 +60,12 @@ export default function FilterPage() {
     setPriceRange(newRange);
   };
 
-  const handleSliderMouseDown = (event: React.MouseEvent<HTMLDivElement>) => {
+  const handleSliderMouseDown = (event: React.MouseEvent<HTMLDivElement>): void => {
     const rect = event.currentTarget.getBoundingClientRect();
     handleSliderInteraction(event.clientX, rect);
   };
 
-  const handleSliderTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+  const handleSliderTouchStart = (event: React.TouchEvent<HTMLDivElement>): void => {
     const rect = event.currentTarget.getBoundingClientRect();
     const touch = event.touches[0];
     handleSliderInteraction(touch?.clientX || 0, rect);

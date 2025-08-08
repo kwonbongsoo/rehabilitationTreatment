@@ -1,8 +1,9 @@
 import Skeleton, { ImageSkeleton } from '../common/Skeleton';
 import styles from './HomeSkeleton.module.css';
+import { ReactElement } from 'react';
 
 // 배너 스켈레톤
-export function BannerSkeleton() {
+export function BannerSkeleton(): ReactElement {
   return (
     <div className={styles.bannerSkeleton}>
       <ImageSkeleton width="100%" height="400px" />
@@ -11,7 +12,7 @@ export function BannerSkeleton() {
 }
 
 // 카테고리 스켈레톤
-export function CategoriesSkeleton() {
+export function CategoriesSkeleton(): ReactElement {
   return (
     <div className={styles.categoriesSkeleton}>
       <div className={styles.sectionTitle}>
@@ -34,7 +35,7 @@ export function CategoriesSkeleton() {
 }
 
 // 상품 그리드 스켈레톤 (추천상품용)
-export function ProductGridSkeleton({ count = 4 }: { count?: number }) {
+export function ProductGridSkeleton({ count = 4 }: { count?: number }): ReactElement {
   return (
     <div className={styles.productGrid}>
       {Array.from({ length: count }, (_, index) => (
@@ -63,7 +64,7 @@ export function ProductGridSkeleton({ count = 4 }: { count?: number }) {
 }
 
 // 추천 상품 스켈레톤
-export function FeaturedProductsSkeleton() {
+export function FeaturedProductsSkeleton(): ReactElement {
   return (
     <div className={styles.featuredProducts}>
       <div className={styles.sectionTitle}>
@@ -75,7 +76,7 @@ export function FeaturedProductsSkeleton() {
 }
 
 // 신상품 스켈레톤
-export function NewArrivalsSkeleton() {
+export function NewArrivalsSkeleton(): ReactElement {
   return (
     <div className={styles.newArrivals}>
       <div className={styles.sectionTitle}>
@@ -103,7 +104,7 @@ export function NewArrivalsSkeleton() {
 }
 
 // 프로모션 스켈레톤
-export function PromotionSkeleton() {
+export function PromotionSkeleton(): ReactElement {
   return (
     <div className={styles.promotionSkeleton}>
       <div className={styles.promotionCard}>
@@ -118,7 +119,7 @@ export function PromotionSkeleton() {
 }
 
 // 리뷰 스켈레톤
-export function ReviewsSkeleton() {
+export function ReviewsSkeleton(): ReactElement {
   return (
     <div className={styles.reviewsSkeleton}>
       <div className={styles.sectionTitle}>
@@ -150,7 +151,7 @@ export function ReviewsSkeleton() {
 }
 
 // 전체 홈 스켈레톤
-export default function HomeSkeleton() {
+export default function HomeSkeleton(): ReactElement {
   return (
     <div className={styles.homeSkeleton}>
       <BannerSkeleton />

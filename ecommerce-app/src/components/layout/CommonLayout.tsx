@@ -1,6 +1,6 @@
 'use client';
 
-import React, { memo } from 'react';
+import React, { memo, ReactElement } from 'react';
 import { usePathname } from 'next/navigation';
 import CommonHeader from './CommonHeader';
 
@@ -40,12 +40,12 @@ const getPageTitle = (pathname: string): string => {
   return '페이지';
 };
 
-const CommonLayout: React.FC<CommonLayoutProps> = memo(({ children }) => {
+const CommonLayout: React.FC<CommonLayoutProps> = memo(({ children }): ReactElement => {
   const pathname = usePathname();
   const title = getPageTitle(pathname);
   const isCartPage = pathname === '/cart';
 
-  const handleClearCart = () => {
+  const handleClearCart = (): void => {
     // 카트 페이지에서 전체 삭제 이벤트를 자식 컴포넌트로 전달하기 위한 이벤트 발생
     const event = new CustomEvent('clearCart');
     window.dispatchEvent(event);

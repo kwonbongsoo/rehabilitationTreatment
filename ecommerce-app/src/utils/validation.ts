@@ -68,7 +68,7 @@ export class EmailValidator {
  * 비밀번호 검증 클래스
  */
 export class PasswordValidator {
-  static validate(password: string, minLength: number = 8): ValidationResult {
+  static validate(password: string, minLength = 8): ValidationResult {
     const errors: string[] = [];
 
     if (!password?.trim()) {
@@ -142,7 +142,7 @@ export class PasswordValidator {
 export class IdValidator {
   private static readonly ID_REGEX = /^[a-zA-Z0-9_-]+$/;
 
-  static validate(id: string, minLength: number = 4): ValidationResult {
+  static validate(id: string, minLength = 4): ValidationResult {
     const errors: string[] = [];
 
     if (!id?.trim()) {
@@ -167,7 +167,7 @@ export class IdValidator {
  * 이름 검증 클래스
  */
 export class NameValidator {
-  static validate(name: string, minLength: number = 2): ValidationResult {
+  static validate(name: string, minLength = 2): ValidationResult {
     const errors: string[] = [];
 
     if (!name?.trim()) {
@@ -190,7 +190,7 @@ export class PhoneValidator {
   private static readonly PHONE_REGEX_NO_HYPHEN = /^01[016789]\d{7,9}$/;
   private static readonly PHONE_REGEX_WITH_HYPHEN = /^01[016789]-\d{3,4}-\d{4}$/;
 
-  static validate(phone: string, required: boolean = false): ValidationResult {
+  static validate(phone: string, required = false): ValidationResult {
     const errors: string[] = [];
 
     if (!phone?.trim()) {
@@ -278,7 +278,7 @@ export class ValidationUtils {
   /**
    * 필수 필드 검증
    */
-  static required(value: any, fieldName: string): ValidationResult {
+  static required(value: unknown, fieldName: string): ValidationResult {
     const errors: string[] = [];
 
     if (

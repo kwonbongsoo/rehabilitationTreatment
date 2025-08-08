@@ -1,10 +1,14 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import styles from '@/styles/account/AddProduct.module.css';
 import type { ProductOption } from '@/domains/product/types/product';
 
 interface ProductOptionsProps {
   options: ProductOption[];
-  onOptionChange: (index: number, field: keyof ProductOption, value: string | number | boolean) => void;
+  onOptionChange: (
+    index: number,
+    field: keyof ProductOption,
+    value: string | number | boolean,
+  ) => void;
   onAddOption: () => void;
   onRemoveOption: (index: number) => void;
   onMoveOption: (fromIndex: number, toIndex: number) => void;
@@ -27,14 +31,14 @@ export function ProductOptions({
   onAddOption,
   onRemoveOption,
   onMoveOption,
-}: ProductOptionsProps) {
+}: ProductOptionsProps): ReactElement {
   const handleInputChange = (
     index: number,
     field: keyof ProductOption,
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ): void => {
     const { value, type } = e.target;
-    
+
     if (type === 'checkbox') {
       onOptionChange(index, field, (e.target as HTMLInputElement).checked);
     } else if (field === 'additionalPrice' || field === 'stock' || field === 'sortOrder') {
@@ -44,13 +48,13 @@ export function ProductOptions({
     }
   };
 
-  const moveUp = (index: number) => {
+  const moveUp = (index: number): void => {
     if (index > 0) {
       onMoveOption(index, index - 1);
     }
   };
 
-  const moveDown = (index: number) => {
+  const moveDown = (index: number): void => {
     if (index < options.length - 1) {
       onMoveOption(index, index + 1);
     }
@@ -61,7 +65,7 @@ export function ProductOptions({
       <div className={styles.specHeader}>
         <label className={styles.sectionTitle}>Product Options (Optional)</label>
         <button type="button" onClick={onAddOption} className={styles.addSpecButton}>
-          + Add Option
+          + Add
         </button>
       </div>
 

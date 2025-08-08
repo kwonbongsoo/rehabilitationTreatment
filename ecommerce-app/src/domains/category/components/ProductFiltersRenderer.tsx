@@ -2,6 +2,7 @@
 
 import ProductFilters from '@/components/common/ProductFilters';
 import { useCategoryContext } from '@/domains/category/context/CategoryContext';
+import { ReactElement } from 'react';
 
 interface ProductFiltersRendererProps {
   filterOptions: {
@@ -17,7 +18,7 @@ interface ProductFiltersRendererProps {
 export default function ProductFiltersRenderer({
   filterOptions,
   sortOptions,
-}: ProductFiltersRendererProps) {
+}: ProductFiltersRendererProps): ReactElement {
   const {
     currentFilter,
     currentSort,

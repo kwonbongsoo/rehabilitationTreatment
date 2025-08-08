@@ -1,12 +1,14 @@
 import CategoryIconGrid from '@/components/common/CategoryIconGrid';
-import { CategoryI } from '@/domains/category/types/categories';
+import { Category } from '@/domains/category/types/categories';
+import { ReactElement } from 'react';
 
 interface CategoriesProps {
   title?: string;
-  categories: CategoryI[];
+  categories: Category[];
 }
 
-export default function Categories({ title: _title, categories }: CategoriesProps) {
+export default function Categories({ title: _title, categories }: CategoriesProps): ReactElement {
+  void _title;
   return (
     <CategoryIconGrid
       categories={categories}

@@ -84,7 +84,7 @@ async function issueGuestToken(): Promise<{
   }
 }
 
-export async function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest): Promise<NextResponse> {
   const { pathname } = request.nextUrl;
   const isPrefetch = request.headers.get('x-nextjs-data') === '1';
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import styles from '@/styles/account/AddProduct.module.css';
 
 interface ProductBasicInfoProps {
@@ -12,7 +12,11 @@ interface ProductBasicInfoProps {
   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
 }
 
-export function ProductBasicInfo({ formData, errors, onChange }: ProductBasicInfoProps) {
+export function ProductBasicInfo({
+  formData,
+  errors,
+  onChange,
+}: ProductBasicInfoProps): ReactElement {
   return (
     <div className={styles.section}>
       <label className={styles.sectionTitle}>Basic Information</label>
@@ -42,9 +46,7 @@ export function ProductBasicInfo({ formData, errors, onChange }: ProductBasicInf
           rows={4}
           required
         />
-        {errors.description && (
-          <span className={styles.errorMessage}>{errors.description}</span>
-        )}
+        {errors.description && <span className={styles.errorMessage}>{errors.description}</span>}
       </div>
 
       <div className={styles.inputGroup}>

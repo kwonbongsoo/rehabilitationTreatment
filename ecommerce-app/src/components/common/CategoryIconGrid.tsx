@@ -1,11 +1,11 @@
 'use client';
 import Link from 'next/link';
 import styles from './CategoryIconGrid.module.css';
-import React, { useRef, useState } from 'react';
-import { CategoryI } from '@/domains/category/types/categories';
+import React, { ReactElement, useRef, useState } from 'react';
+import { Category } from '@/domains/category/types/categories';
 
 interface CategoryIconGridProps {
-  categories: CategoryI[];
+  categories: Category[];
   showHeader?: boolean;
   headerTitle?: string;
   seeAllLink?: string;
@@ -24,15 +24,15 @@ export default function CategoryIconGrid({
   selectedCategoryId = null,
   onCategoryClick,
   disableNavigation = false,
-}: CategoryIconGridProps) {
+}: CategoryIconGridProps): ReactElement {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
 
-  if (categories.length === 0) return null;
+  if (categories.length === 0) return <div>No categories</div>;
 
-  const handleCategoryClick = (category: CategoryI, e: React.MouseEvent) => {
+  const handleCategoryClick = (category: Category, e: React.MouseEvent): void => {
     if (isDragging) {
       e.preventDefault();
       return;
@@ -43,14 +43,14 @@ export default function CategoryIconGrid({
     }
   };
 
-  const handleMouseDown = (e: React.MouseEvent) => {
+  const handleMouseDown = (e: React.MouseEvent): void => {
     if (!scrollRef.current) return;
     setIsDragging(true);
     setStartX(e.pageX - scrollRef.current.offsetLeft);
     setScrollLeft(scrollRef.current.scrollLeft);
   };
 
-  const handleMouseMove = (e: React.MouseEvent) => {
+  const handleMouseMove = (e: React.MouseEvent): void => {
     if (!isDragging || !scrollRef.current) return;
     e.preventDefault();
     const x = e.pageX - scrollRef.current.offsetLeft;
@@ -58,25 +58,25 @@ export default function CategoryIconGrid({
     scrollRef.current.scrollLeft = scrollLeft - walk;
   };
 
-  const handleMouseUp = () => {
+  const handleMouseUp = (): void => {
     setIsDragging(false);
   };
 
-  const handleTouchStart = (e: React.TouchEvent) => {
+  const handleTouchStart = (e: React.TouchEvent): void => {
     if (!scrollRef.current || !e.touches[0]) return;
     setIsDragging(true);
     setStartX(e.touches[0].pageX - scrollRef.current.offsetLeft);
     setScrollLeft(scrollRef.current.scrollLeft);
   };
 
-  const handleTouchMove = (e: React.TouchEvent) => {
+  const handleTouchMove = (e: React.TouchEvent): void => {
     if (!isDragging || !scrollRef.current || !e.touches[0]) return;
     const x = e.touches[0].pageX - scrollRef.current.offsetLeft;
     const walk = x - startX;
     scrollRef.current.scrollLeft = scrollLeft - walk;
   };
 
-  const handleTouchEnd = () => {
+  const handleTouchEnd = (): void => {
     setIsDragging(false);
   };
 

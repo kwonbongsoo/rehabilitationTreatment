@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import { BaseError } from '@ecommerce/common';
 
 interface ErrorMessageProps {
@@ -15,18 +15,18 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({
   onRetry,
 }) => {
   // 에러 메시지 추출 (Common 모듈 기반)
-  const getMessage = () => {
+  const getMessage = (): string => {
     if (typeof error === 'string') return error;
-    
+
     // BaseError와 일반 Error 처리
     if (error instanceof BaseError || error instanceof Error) {
       return error.message;
     }
-    
+
     return '알 수 없는 오류가 발생했습니다.';
   };
 
-  const renderContent = () => (
+  const renderContent = (): ReactElement => (
     <>
       <div className="error-icon">⚠️</div>
       <div className="error-content">

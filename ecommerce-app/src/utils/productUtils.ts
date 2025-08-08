@@ -4,23 +4,7 @@
 
 import categoriesData from '@/mocks/categories.json';
 import sortOptionsData from '@/mocks/sort-options.json';
-
-export interface BaseProduct {
-  id: number;
-  name: string;
-  price: number;
-  originalPrice?: number;
-  image: string;
-  rating?: number;
-  category?: string;
-  sales?: number;
-  reviews?: number;
-  reviewCount?: number;
-  badge?: string;
-  discount?: number;
-  isNew?: boolean;
-  onSale?: boolean;
-}
+import { Product } from '@/domains/product/types/product';
 
 export type SortOption = 'price-low' | 'price-high' | 'rating' | 'sales' | 'newest';
 
@@ -30,7 +14,7 @@ export type SortOption = 'price-low' | 'price-high' | 'rating' | 'sales' | 'newe
  * @param sortBy 정렬 기준
  * @returns 정렬된 상품 배열
  */
-export const sortProducts = <T extends BaseProduct>(products: T[], sortBy: SortOption): T[] => {
+export const sortProducts = <T extends Product>(products: T[], sortBy: SortOption): T[] => {
   return [...products].sort((a, b) => {
     switch (sortBy) {
       case 'price-low':
@@ -40,9 +24,7 @@ export const sortProducts = <T extends BaseProduct>(products: T[], sortBy: SortO
       case 'rating':
         return (b.rating || 0) - (a.rating || 0);
       case 'sales':
-        return (b.sales || 0) - (a.sales || 0);
-      case 'newest':
-        return b.id - a.id; // ID가 클수록 최신이라고 가정
+        return (b.discount || 0) - (a.discount || 0);
       default:
         return 0;
     }
@@ -55,14 +37,14 @@ export const sortProducts = <T extends BaseProduct>(products: T[], sortBy: SortO
  * @param category 카테고리 (all인 경우 전체 반환)
  * @returns 필터링된 상품 배열
  */
-export const filterProductsByCategory = <T extends BaseProduct>(
+export const filterProductsByCategory = <T extends Product>(
   products: T[],
-  category: string,
+  categoryId: number,
 ): T[] => {
-  if (category === 'all') {
+  if (categoryId === 0) {
     return products;
   }
-  return products.filter((product) => product.category === category);
+  return products.filter((product) => product.categoryId === categoryId);
 };
 
 /**
@@ -72,12 +54,12 @@ export const filterProductsByCategory = <T extends BaseProduct>(
  * @param sortBy 정렬 기준
  * @returns 필터링되고 정렬된 상품 배열
  */
-export const filterAndSortProducts = <T extends BaseProduct>(
+export const filterAndSortProducts = <T extends Product>(
   products: T[],
-  category: string,
+  categoryId: number,
   sortBy: SortOption,
 ): T[] => {
-  const filtered = filterProductsByCategory(products, category);
+  const filtered = filterProductsByCategory(products, categoryId);
   return sortProducts(filtered, sortBy);
 };
 

@@ -1,6 +1,13 @@
 'use client';
 
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  ReactNode,
+  ReactElement,
+} from 'react';
 import { useSearchParams } from 'next/navigation';
 
 interface CategoryContextType {
@@ -25,7 +32,10 @@ interface CategoryProviderProps {
   initialCategoryFilter?: string;
 }
 
-export function CategoryProvider({ children, initialCategoryFilter }: CategoryProviderProps) {
+export function CategoryProvider({
+  children,
+  initialCategoryFilter,
+}: CategoryProviderProps): ReactElement {
   const searchParams = useSearchParams();
 
   // URL 기반 상태 초기화
@@ -76,7 +86,7 @@ export function CategoryProvider({ children, initialCategoryFilter }: CategoryPr
   return <CategoryContext.Provider value={value}>{children}</CategoryContext.Provider>;
 }
 
-export function useCategoryContext() {
+export function useCategoryContext(): CategoryContextType {
   const context = useContext(CategoryContext);
   if (context === undefined) {
     throw new Error('useCategoryContext must be used within a CategoryProvider');

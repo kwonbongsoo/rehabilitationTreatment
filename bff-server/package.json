@@ -4,6 +4,7 @@
   "description": "Backend for Frontend server that aggregates auth and member services",
   "main": "src/server.ts",
   "scripts": {
+    "prebuild": "npm --prefix ../common ci && npm --prefix ../common run build",
     "start": "node dist/server.js",
     "build": "tsc",
     "dev": "ts-node-dev src/server.ts",

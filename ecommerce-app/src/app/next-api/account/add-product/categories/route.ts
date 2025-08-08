@@ -3,7 +3,7 @@ import categoriesService from '@/domains/category/services/categoriesService';
 import { BaseError } from '@ecommerce/common';
 import { HeaderBuilderFactory } from '@/lib/server/headerBuilder';
 
-export async function GET() {
+export async function GET(): Promise<NextResponse> {
   try {
     const headers = await HeaderBuilderFactory.createForApiRequest().build();
 

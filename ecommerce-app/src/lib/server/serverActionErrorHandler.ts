@@ -8,7 +8,7 @@ import { BaseError, ErrorCode } from '@ecommerce/common';
 /**
  * Server Action 결과 타입
  */
-export interface ServerActionResult<T = any> {
+export interface ServerActionResult<T = unknown> {
   success: boolean;
   data?: T;
   error?: string;
@@ -123,14 +123,14 @@ export async function handleApiResponseForServerAction<T>(
       data,
     };
   } catch (error) {
-    return handleServerActionError(error, context);
+    return handleServerActionError(error, context) as ServerActionResult<T>;
   }
 }
 
 /**
  * Server Action 래퍼 - 표준화된 에러 처리
  */
-export function withServerActionErrorHandling<T extends any[], R>(
+export function withServerActionErrorHandling<T extends readonly unknown[], R>(
   action: (...args: T) => Promise<R>,
   context?: string,
 ) {
@@ -155,6 +155,6 @@ export async function safeServerAction<T>(
     return await action();
   } catch (error) {
     console.error(`[SafeServerAction:${context || 'Unknown'}] Error:`, error);
-    return handleServerActionError(error, context);
+    return handleServerActionError(error, context) as ServerActionResult<T>;
   }
 }

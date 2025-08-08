@@ -23,7 +23,7 @@ class HttpHeaderBuilder implements HeaderBuilder {
   private authType?: 'bearer' | 'basic';
   private authValue?: string;
 
-  withContentType(contentType: string = 'application/json'): HeaderBuilder {
+  withContentType(contentType = 'application/json'): HeaderBuilder {
     this.headers['Content-Type'] = contentType;
     return this;
   }
@@ -119,7 +119,7 @@ class MiddlewareHeaderBuilder implements HeaderBuilder {
     }
   }
 
-  withContentType(contentType: string = 'application/json'): HeaderBuilder {
+  withContentType(contentType = 'application/json'): HeaderBuilder {
     this.headers['Content-Type'] = contentType;
     return this;
   }
@@ -152,7 +152,7 @@ class MiddlewareHeaderBuilder implements HeaderBuilder {
   async build(): Promise<Record<string, string>> {
     // Authorization 헤더 처리
     if (this.authType) {
-      const authToken = this.resolveAuthTokenFromRequest();
+      const authToken = await this.resolveAuthTokenFromRequest();
       if (authToken) {
         this.headers['Authorization'] = this.formatAuthHeader(authToken);
       }
@@ -161,13 +161,13 @@ class MiddlewareHeaderBuilder implements HeaderBuilder {
     return { ...this.headers };
   }
 
-  private resolveAuthTokenFromRequest(): string | undefined {
+  private async resolveAuthTokenFromRequest(): Promise<string | undefined> {
     if (this.authValue) {
       return this.authValue;
     }
 
     // NextRequest에서 토큰 추출
-    return this.request?.cookies.get('access_token')?.value;
+    return await this.request?.cookies.get('access_token')?.value;
   }
 
   private formatAuthHeader(token: string): string {
@@ -216,6 +216,15 @@ export class HeaderBuilderFactory {
   static createForIdempotentRequest(idempotencyKey: string): HeaderBuilder {
     return new HttpHeaderBuilder()
       .withContentType()
+      .withAuth('bearer')
+      .withIdempotencyKey(idempotencyKey);
+  }
+
+  /**
+   * 멀티파트 요청용 헤더 빌더 프리셋 (Content-Type 제외)
+   */
+  static createForMultipartRequest(idempotencyKey: string): HeaderBuilder {
+    return new HttpHeaderBuilder()
       .withAuth('bearer')
       .withIdempotencyKey(idempotencyKey);
   }

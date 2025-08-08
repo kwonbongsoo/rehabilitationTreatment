@@ -7,12 +7,14 @@ export const NAVIGATION_ITEMS: NavItem[] = [
     label: 'Home',
     path: '/',
     icon: HomeIcon,
+    isActive: false,
   },
   {
     id: 'cart',
     label: 'Cart',
     path: '/cart',
     icon: CartIcon,
+    isActive: false,
   },
   {
     id: 'orders',
@@ -20,12 +22,14 @@ export const NAVIGATION_ITEMS: NavItem[] = [
     path: '/account/orders',
     icon: OrdersIcon,
     requiresAuth: true,
+    isActive: false,
   },
   {
     id: 'profile',
     label: 'Profile',
     path: '/account',
     icon: ProfileIcon,
+    isActive: false,
     requiresAuth: true,
   },
 ];

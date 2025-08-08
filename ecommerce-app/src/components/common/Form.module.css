@@ -1,0 +1,240 @@
+/**
+ * 공통 폼 컴포넌트 스타일
+ * 인라인 스타일을 CSS 모듈로 변환
+ */
+
+/* 공통 변수 정의 */
+.formField {
+  margin-bottom: 16px;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 8px;
+  display: block;
+}
+
+
+.baseInput {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.baseInput:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.baseInput.error {
+  border-color: #e74c3c;
+}
+
+.baseInput.error:focus {
+  border-color: #e74c3c;
+  box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.25);
+}
+
+.textInput {
+  composes: baseInput;
+}
+
+.selectInput {
+  composes: baseInput;
+  background: white;
+}
+
+.textareaInput {
+  composes: baseInput;
+  resize: vertical;
+}
+
+.checkboxContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.checkbox {
+  width: 16px;
+  height: 16px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.checkbox.error {
+  border-color: #e74c3c;
+}
+
+.checkboxLabel {
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+}
+
+.radioFieldset {
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+
+.radioLegend {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.radioGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.radioContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.radio {
+  width: 16px;
+  height: 16px;
+  border: 1px solid #ddd;
+  border-radius: 50%;
+}
+
+.radio.error {
+  border-color: #e74c3c;
+}
+
+.radioLabel {
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+}
+
+.errorMessage {
+  font-size: 12px;
+  color: #e74c3c;
+  margin-top: 4px;
+  display: block;
+}
+
+.helpText {
+  font-size: 12px;
+  color: #666;
+  margin-top: 4px;
+  display: block;
+}
+
+.fieldGroup {
+  margin-bottom: 24px;
+}
+
+.fieldGroupTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 12px;
+}
+
+.fieldGroupDescription {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 16px;
+}
+
+.fieldGroupContent {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.formActions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.formActions.left {
+  justify-content: flex-start;
+}
+
+.formActions.center {
+  justify-content: center;
+}
+
+.formActions.right {
+  justify-content: flex-end;
+}
+
+.formActions.spaceBetween {
+  justify-content: space-between;
+}
+
+.formContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .baseInput {
+    padding: 10px;
+    font-size: 16px; /* iOS zoom 방지 */
+  }
+  
+  .formActions {
+    flex-direction: column;
+  }
+  
+  .formActions.spaceBetween {
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+
+/* 접근성 개선 */
+.baseInput:focus-visible {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+}
+
+.checkbox:focus-visible,
+.radio:focus-visible {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+}
+
+/* 다크모드 지원 */
+@media (prefers-color-scheme: dark) {
+  .label,
+  .checkboxLabel,
+  .radioLabel,
+  .fieldGroupTitle {
+    color: #f0f0f0;
+  }
+  
+  .fieldGroupDescription,
+  .helpText {
+    color: #b0b0b0;
+  }
+  
+  .baseInput {
+    background: #2a2a2a;
+    border-color: #555;
+    color: #f0f0f0;
+  }
+  
+  .baseInput:focus {
+    border-color: #66b3ff;
+  }
+}

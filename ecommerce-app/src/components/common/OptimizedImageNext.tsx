@@ -25,7 +25,7 @@ export default function OptimizedImageNext({
   fallbackSrc = 'https://www.kbs-cdn.shop/image/placeholder.webp',
   lazy = false,
   style = { objectFit: 'cover' },
-}: OptimizedImageNextProps) {
+}: OptimizedImageNextProps): React.ReactElement {
   const [imgSrc, setImgSrc] = useState(src);
   const [hasError, setHasError] = useState(false);
 

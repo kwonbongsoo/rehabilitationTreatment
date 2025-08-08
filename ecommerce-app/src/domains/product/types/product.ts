@@ -3,15 +3,25 @@ export interface Product {
   name: string;
   description: string;
   price: number;
+  originalPrice?: number;
+  discount?: number;
+  mainImage: string;
   images: string[];
-  category: string;
+  categoryId: number;
   stock: number;
   rating: number;
   reviews: number;
-  createdAt: string;
-  updatedAt: string;
   size?: string;
   color?: string;
+  tags?: Tag[];
+  sellerId: string;
+  isNew: boolean;
+  isFeatured: boolean;
+}
+
+interface Tag {
+  name: string;
+  color: string;
 }
 
 export interface ProductListItem {
@@ -68,6 +78,7 @@ export interface ProductFormData {
   discountPercentage: number;
   specifications?: { [key: string]: string };
   options?: ProductOption[]; // 상품 옵션 추가
+  images?: File[];
 }
 // 상품 액션 결과 타입
 export interface ProductActionResult {
@@ -79,4 +90,10 @@ export interface ProductActionResult {
   };
   message?: string;
   errors?: { [key: string]: string };
+}
+
+export interface ProductSubmissionData extends ProductFormData {
+  images: File[];
+  options: ProductOption[];
+  specifications: Record<string, string>;
 }

@@ -5,11 +5,11 @@ import { useLogoutForm } from '@/domains/auth/hooks/useLogoutForm';
 import { useAuth } from '@/domains/auth/stores';
 import { ErrorHandler } from '@/utils/errorHandling';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { ReactElement, useState } from 'react';
 import { FiHeart, FiLogOut, FiPlus, FiSettings, FiShoppingBag, FiUser } from 'react-icons/fi';
 import styles from '@/styles/account/MobileAccount.module.css';
 
-export default function AccountPage() {
+export default function AccountPage(): ReactElement {
   const router = useRouter();
   const { user } = useAuth();
   const { handleLogout, isLoading } = useLogoutForm();
@@ -17,7 +17,7 @@ export default function AccountPage() {
   const isClientSide = typeof window !== 'undefined';
 
   // 로그아웃 처리
-  const handleLogoutClick = async () => {
+  const handleLogoutClick = async (): Promise<void> => {
     if (isLoading) return; // 이미 로딩 중이면 무시
 
     try {

@@ -8,7 +8,7 @@
  * - 접근성 지원
  */
 
-import { ButtonHTMLAttributes, ReactNode } from 'react';
+import { ButtonHTMLAttributes, ReactElement, ReactNode } from 'react';
 import styles from './Button.module.css';
 
 /**
@@ -50,7 +50,7 @@ export function Button({
   className = '',
   children,
   ...props
-}: ButtonProps) {
+}: ButtonProps): ReactElement {
   const isDisabled = disabled || isLoading;
 
   const buttonClasses = [
@@ -65,7 +65,7 @@ export function Button({
     .filter(Boolean)
     .join(' ');
 
-  const renderContent = () => {
+  const renderContent = (): ReactElement => {
     if (isLoading) {
       return (
         <>
@@ -107,7 +107,7 @@ export function IconButton({
   variant = 'outline',
   className = '',
   ...props
-}: IconButtonProps) {
+}: IconButtonProps): ReactElement {
   return (
     <Button
       variant={variant}

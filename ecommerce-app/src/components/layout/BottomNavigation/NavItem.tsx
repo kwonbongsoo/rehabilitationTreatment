@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, ReactElement } from 'react';
 import { NavItem as NavItemType } from './types';
 import styles from '@/styles/layout/BottomNavigation.module.css';
 
@@ -7,10 +7,10 @@ interface NavItemProps {
   onClick: (item: NavItemType) => void;
 }
 
-export const NavItem = memo<NavItemProps>(({ item, onClick }) => {
+export const NavItem = memo<NavItemProps>(({ item, onClick }): ReactElement => {
   const Icon = item.icon;
 
-  const handleClick = () => {
+  const handleClick = (): void => {
     onClick(item);
   };
 

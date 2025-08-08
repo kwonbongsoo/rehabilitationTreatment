@@ -7,10 +7,16 @@ import { useCallback, useState } from 'react';
 /**
  * 모달 훅
  */
-export function useModal(initialState: boolean = false) {
+export function useModal(initialState = false): {
+  isOpen: boolean;
+  openModal: () => void;
+  closeModal: () => void;
+  toggleModal: () => void;
+  setIsOpen: (state: boolean) => void;
+} {
   const [isOpen, setIsOpen] = useState(initialState);
 
-  const openModal = useCallback(() => {
+  const openModal = useCallback((): void => {
     setIsOpen(true);
   }, []);
 
@@ -34,7 +40,22 @@ export function useModal(initialState: boolean = false) {
 /**
  * 확인 다이얼로그 훅
  */
-export function useConfirmDialog() {
+export function useConfirmDialog(): {
+  showConfirm: (
+    title: string,
+    message: string,
+    onConfirm: () => void,
+    variant?: 'default' | 'danger' | 'warning',
+  ) => void;
+  confirmDialogProps: {
+    isOpen: boolean;
+    onConfirm: () => void;
+    onCancel: () => void;
+    title: string;
+    message: string;
+    variant?: 'default' | 'danger' | 'warning';
+  };
+} {
   const [dialogState, setDialogState] = useState<{
     isOpen: boolean;
     title: string;

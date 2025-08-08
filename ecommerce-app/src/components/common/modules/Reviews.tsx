@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import Rating from '@/components/common/Rating';
 import OptimizedImageNext from '@/components/common/OptimizedImageNext';
 import styles from '@/styles/home/Reviews.module.css';
@@ -16,9 +16,9 @@ interface ReviewsProps {
   }[];
 }
 
-export default function Reviews({ title, reviews }: ReviewsProps) {
+export default function Reviews({ title, reviews }: ReviewsProps): ReactElement {
   if (!reviews || reviews.length === 0) {
-    return null;
+    return <></>;
   }
 
   return (

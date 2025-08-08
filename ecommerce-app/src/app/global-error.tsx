@@ -1,13 +1,13 @@
 'use client';
 
-import React from 'react';
+import React, { ReactElement } from 'react';
 
 interface GlobalErrorProps {
   error: Error & { digest?: string };
   reset: () => void;
 }
 
-export default function GlobalError({ error, reset }: GlobalErrorProps) {
+export default function GlobalError({ error, reset }: GlobalErrorProps): ReactElement {
   React.useEffect(() => {
     // 글로벌 에러는 심각한 오류이므로 반드시 로깅
     console.error('Global error:', {
@@ -19,9 +19,11 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
 
     // 401 에러 감지 (에러 메시지나 스택에서 감지)
     const errorText = (error.message + (error.stack || '')).toLowerCase();
-    if (errorText.includes('401') || 
-        errorText.includes('unauthorized') || 
-        errorText.includes('authentication')) {
+    if (
+      errorText.includes('401') ||
+      errorText.includes('unauthorized') ||
+      errorText.includes('authentication')
+    ) {
       window.location.reload();
     }
 
@@ -47,9 +49,7 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
                   />
                 </svg>
               </div>
-              <h1 className="mt-6 text-3xl font-extrabold text-gray-900">
-                심각한 오류 발생
-              </h1>
+              <h1 className="mt-6 text-3xl font-extrabold text-gray-900">심각한 오류 발생</h1>
               <p className="mt-2 text-sm text-gray-600">
                 애플리케이션에 심각한 문제가 발생했습니다.
                 <br />

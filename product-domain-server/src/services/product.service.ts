@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, SelectQueryBuilder } from 'typeorm';
 import { Product, ProductOption, ProductImage } from '@entities/index';
@@ -12,6 +8,7 @@ import {
   QueryProductDto,
 } from '@dto/index';
 import { S3UploadService } from './s3-upload.service';
+import { BaseError, ErrorCode } from '@ecommerce/common';
 
 @Injectable()
 export class ProductService {
@@ -25,7 +22,47 @@ export class ProductService {
     private s3UploadService: S3UploadService,
   ) {}
 
-  async create(createProductDto: CreateProductDto): Promise<Product> {
+  /**
+   * 이미지 URL을 포함한 상품 생성 (새로운 방식)
+   * @param createProductDto 상품 생성 데이터 (이미지 URL 포함)
+   */
+  async createWithImageUrls(
+    createProductDto: CreateProductDto,
+  ): Promise<Product> {
+    const { options, ...productData } = createProductDto;
+
+    const product = this.productRepository.create(productData);
+    const savedProduct = await this.productRepository.save(product);
+
+    // 옵션 생성
+    if (options && options.length > 0) {
+      const productOptions = options.map((option) =>
+        this.productOptionRepository.create({
+          ...option,
+          productId: savedProduct.id,
+        }),
+      );
+      await this.productOptionRepository.save(productOptions);
+    }
+
+    // 이미지 URL이 있으면 ProductImage 엔티티 생성
+    if (createProductDto.imageUrls && createProductDto.imageUrls.length > 0) {
+      await this.createProductImagesFromUrls(
+        savedProduct.id,
+        createProductDto.imageUrls,
+      );
+    }
+
+    return this.findOne(savedProduct.id);
+  }
+
+  /**
+   * 기존 방식 (multipart 파일 처리) - 호환성 유지
+   */
+  async create(
+    createProductDto: CreateProductDto,
+    files?: Express.Multer.File[],
+  ): Promise<Product> {
     const { options, ...productData } = createProductDto;
 
     const product = this.productRepository.create(productData);
@@ -41,7 +78,45 @@ export class ProductService {
       await this.productOptionRepository.save(productOptions);
     }
 
+    // 이미지 파일이 있으면 업로드 처리
+    if (files && files.length > 0) {
+      await this.uploadImages(savedProduct.id, files);
+    }
+
     return this.findOne(savedProduct.id);
+  }
+
+  /**
+   * 이미지 URL로부터 ProductImage 엔티티 생성
+   */
+  private async createProductImagesFromUrls(
+    productId: number,
+    imageUrls: string[],
+  ): Promise<void> {
+    const productImages = imageUrls.map((url, index) => {
+      // URL에서 파일명 추출
+      const fileName = url.split('/').pop() || `image_${index}`;
+
+      return this.productImageRepository.create({
+        productId,
+        imageUrl: url,
+        originalUrl: url,
+        fileName,
+        fileType: 'image/jpeg', // 기본값, 실제로는 URL에서 추출하거나 별도로 저장
+        fileSize: 0, // 실제 크기는 별도 API로 조회 가능
+        sortOrder: index,
+        isMain: index === 0,
+      });
+    });
+
+    await this.productImageRepository.save(productImages);
+
+    // 메인 이미지 설정
+    if (imageUrls.length > 0) {
+      await this.productRepository.update(productId, {
+        mainImage: imageUrls[0],
+      });
+    }
   }
 
   async findAll(queryDto: QueryProductDto) {
@@ -189,13 +264,31 @@ export class ProductService {
     await this.productRepository.save(product);
   }
 
+  /**
+   * 상품 생성 전 이미지 업로드 (독립적)
+   * @param files 업로드할 이미지 파일들
+   * @returns 업로드된 이미지 URL 배열
+   */
+  async uploadProductImages(files: Express.Multer.File[]): Promise<string[]> {
+    // 파일 유효성 검사
+    this.validateImageFiles(files);
+
+    // 임시 폴더에 업로드 (나중에 상품 생성시 이동)
+    const uploadResults = await this.s3UploadService.uploadMultipleFiles(
+      files,
+      'images/products',
+    );
+
+    return uploadResults.map((result) => result.url);
+  }
+
   async uploadImages(
     productId: number,
     files: Express.Multer.File[],
   ): Promise<ProductImage[]> {
     // 파일 유효성 검사
     this.validateImageFiles(files);
-    
+
     const product = await this.findOne(productId);
 
     const uploadResults = await this.s3UploadService.uploadMultipleFiles(
@@ -268,8 +361,15 @@ export class ProductService {
     queryBuilder: SelectQueryBuilder<Product>,
     filters: any,
   ): void {
-    const { search, categoryId, sellerId, minPrice, maxPrice, isNew, isFeatured } =
-      filters;
+    const {
+      search,
+      categoryId,
+      sellerId,
+      minPrice,
+      maxPrice,
+      isNew,
+      isFeatured,
+    } = filters;
 
     if (search) {
       queryBuilder.andWhere(
@@ -322,45 +422,62 @@ export class ProductService {
    */
   private validateImageFiles(files: Express.Multer.File[]): void {
     const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-    const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    const ALLOWED_TYPES = [
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'image/webp',
+      'image/avif',
+      'image/gif',
+    ];
     const MAX_FILE_COUNT = 10;
 
     if (!files || files.length === 0) {
-      throw new BadRequestException('업로드할 이미지 파일이 없습니다.');
+      throw new BaseError(
+        ErrorCode.VALIDATION_ERROR,
+        '업로드할 이미지 파일이 없습니다.',
+      );
     }
 
     if (files.length > MAX_FILE_COUNT) {
-      throw new BadRequestException(`이미지는 최대 ${MAX_FILE_COUNT}개까지 업로드 가능합니다.`);
+      throw new BaseError(
+        ErrorCode.VALIDATION_ERROR,
+        `이미지는 최대 ${MAX_FILE_COUNT}개까지 업로드 가능합니다.`,
+      );
     }
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      
+
       // 파일 크기 검증
       if (file.size > MAX_FILE_SIZE) {
-        throw new BadRequestException(
-          `이미지 파일 크기가 10MB를 초과합니다. (파일: ${file.originalname}, 크기: ${(file.size / 1024 / 1024).toFixed(2)}MB)`
+        throw new BaseError(
+          ErrorCode.VALIDATION_ERROR,
+          `이미지 파일 크기가 10MB를 초과합니다. (파일: ${file.originalname}, 크기: ${(file.size / 1024 / 1024).toFixed(2)}MB)`,
         );
       }
 
       // 파일 타입 검증
       if (!ALLOWED_TYPES.includes(file.mimetype)) {
-        throw new BadRequestException(
-          `지원하지 않는 이미지 형식입니다. (파일: ${file.originalname}, 형식: ${file.mimetype})`
+        throw new BaseError(
+          ErrorCode.VALIDATION_ERROR,
+          `지원하지 않는 이미지 형식입니다. (파일: ${file.originalname}, 형식: ${file.mimetype})`,
         );
       }
 
       // 파일명 검증
       if (!file.originalname || file.originalname.trim() === '') {
-        throw new BadRequestException(
-          '이미지 파일명이 유효하지 않습니다.'
+        throw new BaseError(
+          ErrorCode.VALIDATION_ERROR,
+          '이미지 파일명이 유효하지 않습니다.',
         );
       }
 
       // 파일 내용 검증 (빈 파일 체크)
       if (file.size === 0) {
-        throw new BadRequestException(
-          `빈 파일은 업로드할 수 없습니다. (파일: ${file.originalname})`
+        throw new BaseError(
+          ErrorCode.VALIDATION_ERROR,
+          `빈 파일은 업로드할 수 없습니다. (파일: ${file.originalname})`,
         );
       }
     }

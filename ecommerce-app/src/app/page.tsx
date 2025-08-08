@@ -3,11 +3,12 @@ import styles from '@/styles/home/HomePage.module.css';
 import { UIComponent } from '@/components/common/types/ui-components';
 import homeService from '@/domains/home/services/homeService';
 import { HeaderBuilderFactory } from '@/lib/server/headerBuilder';
+import { ReactElement } from 'react';
 
 // 쿠키 사용으로 인해 동적 렌더링 강제
 export const dynamic = 'force-dynamic';
 
-export default async function HomePage() {
+export default async function HomePage(): Promise<ReactElement> {
   try {
     // 서버에서 헤더 생성
     const headers = await HeaderBuilderFactory.createForApiRequest().build();

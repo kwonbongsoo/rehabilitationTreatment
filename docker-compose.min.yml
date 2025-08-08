@@ -14,13 +14,9 @@ services:
           cpus: '0.02'
           memory: 16M
     # Redis 설정 최적화
-    command: >
-      redis-server
-      --appendonly yes
-      --requirepass ${REDIS_PASSWORD}
-      --maxmemory 24mb
-      --maxmemory-policy allkeys-lru
-      --save ""
+    command: "/bin/sh /redis/entrypoint.min.sh"
+    volumes:
+      - ./redis/entrypoint.min.sh:/redis/entrypoint.min.sh:ro
 
   db:
     deploy:
@@ -45,6 +41,11 @@ services:
       -c effective_io_concurrency=200
 
   fastify-member-server:
+    build:
+      context: .
+      dockerfile: ./fastify-member-server/Dockerfile
+      args:
+        - RUN npm install --omit=dev && npm run build
     deploy:
       resources:
         limits:
@@ -58,6 +59,11 @@ services:
       - NODE_OPTIONS=--max-old-space-size=100
 
   koa-auth-server:
+    build:
+      context: .
+      dockerfile: ./koa-auth-server/Dockerfile
+      args:
+        - RUN npm install --omit=dev && npm run build
     deploy:
       resources:
         limits:
@@ -71,6 +77,11 @@ services:
       - NODE_OPTIONS=--max-old-space-size=50
 
   bff-server:
+    build:
+      context: .
+      dockerfile: ./bff-server/Dockerfile
+      args:
+        - RUN npm install --omit=dev && npm run build
     deploy:
       resources:
         limits:
@@ -84,6 +95,11 @@ services:
       - NODE_OPTIONS=--max-old-space-size=50
 
   proxy-server:
+    build:
+      context: .
+      dockerfile: ./proxy-server/Dockerfile
+      args:
+        - RUN npm install --omit=dev && npm run build
     deploy:
       resources:
         limits:
@@ -97,6 +113,11 @@ services:
       - BUN_ENV=production
 
   ecommerce-app:
+    build:
+      context: .
+      dockerfile: ./ecommerce-app/Dockerfile
+      args:
+        - RUN npm install --omit=dev && npm run build
     deploy:
       resources:
         limits:
@@ -155,4 +176,4 @@ services:
       -c work_mem=2MB
 
 
-# docker-compose -f docker-compose.yaml -f docker-compose.min.yml up --build
+# docker-compose -f docker-compose.yaml -f docker-compose.min.yml up --build -d

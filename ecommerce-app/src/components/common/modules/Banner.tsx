@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, ReactElement } from 'react';
 import Link from 'next/link';
 import OptimizedImageNext from '@/components/common/OptimizedImageNext';
 import styles from '@/styles/home/Banner.module.css';
@@ -15,7 +15,10 @@ export default function Banner({
   showArrows: _showArrows = DEFAULT_BANNER_CONFIG.showArrows,
   imageSizes: _imageSizes = DEFAULT_BANNER_CONFIG.imageSizes,
   className = '',
-}: BannerProps) {
+}: BannerProps): ReactElement {
+  void _showDots;
+  void _showArrows;
+  void _imageSizes;
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [startPos, setStartPos] = useState({ x: 0, y: 0 });
@@ -167,7 +170,9 @@ export default function Banner({
     [hasDragged],
   );
 
-  if (slides.length === 0) return null;
+  if (slides.length === 0) {
+    return <></>;
+  }
 
   return (
     <section className={`${styles.sliderSection} ${className}`}>

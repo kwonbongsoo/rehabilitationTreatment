@@ -1,12 +1,49 @@
 {
   "categories": [
-    { "value": "all", "label": "전체" },
-    { "value": "dress", "label": "원피스" },
-    { "value": "top", "label": "상의" },
-    { "value": "pants", "label": "바지" },
-    { "value": "jacket", "label": "아우터" },
-    { "value": "shoes", "label": "신발" },
-    { "value": "bag", "label": "가방" },
-    { "value": "accessories", "label": "액세서리" }
+    {
+      "id": 1,
+      "name": "Clothing",
+      "slug": "clothing",
+      "iconCode": "👕",
+      "isActive": true,
+      "order": 1,
+      "link": "/categories?category=1"
+    },
+    {
+      "id": 2,
+      "name": "Shoes",
+      "slug": "shoes",
+      "iconCode": "👞",
+      "isActive": true,
+      "order": 2,
+      "link": "/categories?category=2"
+    },
+    {
+      "id": 3,
+      "name": "Accessories",
+      "slug": "accessories",
+      "iconCode": "👜",
+      "isActive": true,
+      "order": 3,
+      "link": "/categories?category=3"
+    },
+    {
+      "id": 4,
+      "name": "Electronics",
+      "slug": "electronics",
+      "iconCode": "📱",
+      "isActive": true,
+      "order": 4,
+      "link": "/categories?category=4"
+    },
+    {
+      "id": 5,
+      "name": "Home & Garden",
+      "slug": "home-garden",
+      "iconCode": "🏠",
+      "isActive": true,
+      "order": 5,
+      "link": "/categories?category=5"
+    }
   ]
 }

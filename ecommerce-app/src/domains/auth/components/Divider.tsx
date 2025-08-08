@@ -1,10 +1,10 @@
-// import styles from '@/styles/templates/UserFormLayout.module.css';
+import { ReactElement } from 'react';
 
 interface DividerProps {
   text: string;
 }
 
-export function Divider({ text }: DividerProps) {
+export function Divider({ text }: DividerProps): ReactElement {
   return (
     <div style={{ display: 'flex', alignItems: 'center', margin: '24px 0' }}>
       <div style={{ flex: '1', height: '1px', background: '#e9ecef' }}></div>

@@ -4,7 +4,7 @@
  * 장바구니의 모든 액션들을 사용하기 쉽게 래핑합니다.
  */
 import { useCallback } from 'react';
-import { useCartStore, useCartSummary } from '../stores/useCartStore';
+import { useCartState, useCartSummaryHook } from './useCartState';
 import { NotificationManager } from '@/utils/notifications';
 import type { CartItem, UpdateCartItemRequest, AddToCartRequest } from '../types/cart';
 import { fetchProductInfo } from '../services/productInfoService';
@@ -25,28 +25,30 @@ export interface UseCartActionsReturn {
   isLoading: boolean;
 
   // 계산 값들
-  summary: ReturnType<typeof useCartSummary>;
+  summary: ReturnType<typeof useCartSummaryHook>;
   itemCount: number;
   isEmpty: boolean;
 }
 
 export function useCartActions(): UseCartActionsReturn {
-  // Zustand selector를 사용하여 필요한 상태와 액션만 선택
-  const items = useCartStore((state) => state.cartItems);
-  const addItem = useCartStore((state) => state.addItem);
-  const updateQuantity = useCartStore((state) => state.updateQuantity);
-  const removeItem = useCartStore((state) => state.removeItem);
-  const updateItem = useCartStore((state) => state.updateItem);
-  const clear = useCartStore((state) => state.clear);
-  const getItem = useCartStore((state) => state.getItem);
-  const getItemCount = useCartStore((state) => state.getItemCount);
-  const isItemInCart = useCartStore((state) => state.isItemInCart);
-  const validateItem = useCartStore((state) => state.validateItem);
-  const isLoading = useCartStore((state) => state.isLoading);
-  const setLoading = useCartStore((state) => state.setLoading);
-  const setError = useCartStore((state) => state.setError);
+  // 새로운 cart hooks 사용
+  const cartState = useCartState();
+  const {
+    addItem,
+    updateQuantity,
+    removeItem,
+    updateItem,
+    clear,
+    getItem,
+    getItemCount,
+    isItemInCart,
+    validateItem,
+    isLoading,
+    setLoading,
+    setError,
+  } = cartState;
 
-  const summary = useCartSummary();
+  const summary = useCartSummaryHook();
 
   // === 장바구니 추가 ===
   const handleAddToCart = useCallback(
@@ -172,7 +174,7 @@ export function useCartActions(): UseCartActionsReturn {
       }
 
       const itemCount = getItemCount();
-      clear();
+      await clear();
 
       if (showNotification && itemCount > 0) {
         NotificationManager.showSuccess('장바구니가 비워졌습니다.');
@@ -219,20 +221,34 @@ export function useCartActions(): UseCartActionsReturn {
   );
 
   const updateItemOptions = useCallback(
-    (request: UpdateCartItemRequest | { id: string; [key: string]: any }) => {
-      // id 또는 itemId 둘 다 지원
-      const itemId = 'itemId' in request ? request.itemId : (request as any).id;
-      const { quantity, size, color, options } = request;
+    (request: UpdateCartItemRequest | { id: string; [key: string]: unknown }) => {
+      // id 또는 itemId 둘 다 지원 (타입 가드 사용)
+      let itemId: string;
+      if ('itemId' in request && typeof request.itemId === 'string') {
+        itemId = request.itemId;
+      } else if ('id' in request && typeof request.id === 'string') {
+        itemId = request.id;
+      } else {
+        console.warn('updateItemOptions: itemId를 찾을 수 없습니다.');
+        return;
+      }
 
       const updates: Partial<CartItem> = {};
 
-      if (quantity !== undefined) updates.quantity = quantity;
-      if (size !== undefined) updates.size = size;
-      if (color !== undefined) updates.color = color;
+      // 안전한 속성 추출 및 타입 검증
+      if ('quantity' in request && typeof request.quantity === 'number') {
+        updates.quantity = request.quantity;
+      }
+      if ('size' in request && typeof request.size === 'string') {
+        updates.size = request.size;
+      }
+      if ('color' in request && typeof request.color === 'string') {
+        updates.color = request.color;
+      }
 
       // 기타 옵션들 병합
-      if (options) {
-        Object.assign(updates, options);
+      if ('options' in request && request.options && typeof request.options === 'object') {
+        Object.assign(updates, request.options);
       }
 
       updateItem(itemId, updates);
@@ -263,6 +279,6 @@ export function useCartActions(): UseCartActionsReturn {
     // 계산 값들
     summary,
     itemCount: getItemCount(),
-    isEmpty: items.length === 0,
+    isEmpty: summary.itemCount === 0,
   };
 }
