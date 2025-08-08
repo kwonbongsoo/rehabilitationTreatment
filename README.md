@@ -2,7 +2,7 @@
 
 마이크로서비스 아키텍처 기반의 이커머스 플랫폼으로, Kong API Gateway, BFF(Backend for Frontend) 패턴, 그리고 Redis 기반 HTML 캐싱 프록시 서버를 적용한 현대적인 웹 애플리케이션입니다.
 
-## 📑 목차
+## 목차
 
 - [UI 데모](#ui-demo)
 - [성능 지표](#lightHouse)
@@ -30,7 +30,7 @@
 ## 성능 지표 {#lightHouse}
 ![Performance](lighthouse.png)
 
-## 🚀 이미지 최적화 성능 비교
+## 이미지 최적화 성능 비교
 
 ### Cloudflare Workers vs Next.js Image 응답속도 테스트
 
@@ -522,14 +522,15 @@ cache:GET:/api/categories
   - ProductOption: 색상, 사이즈 등 상품 옵션
   - ProductImage: 상품 이미지 관리 (S3 연동)
 
-주요 엔드포인트:
-  - GET /api/v1/categories: 카테고리 목록 조회
-  - GET /api/v1/products: 상품 목록 조회 (페이지네이션)
-  - GET /api/v1/products/:id: 특정 상품 상세 조회
-  - POST /api/v1/products: 상품 생성
-  - PUT /api/v1/products/:id: 상품 수정
-  - DELETE /api/v1/products/:id: 상품 삭제 (소프트 삭제)
-  - POST /api/v1/products/:id/images: 상품 이미지 업로드
+주요 엔드포인트(게이트웨이 기준 `/api` 접두사):
+  - GET    /api/categories: 카테고리 목록 조회
+  - GET    /api/products: 상품 목록 조회 (페이지네이션)
+  - GET    /api/products/:id: 특정 상품 상세 조회
+  - POST   /api/products: 상품 생성 (JSON Body; `imageUrls` 포함)
+  - POST   /api/products/images: 이미지 업로드 (상품 생성 전, multipart/form-data → URL 반환)
+  - POST   /api/products/:id/images: 기존 상품에 이미지 추가 (multipart/form-data)
+  - PATCH  /api/products/:id: 상품 수정
+  - DELETE /api/products/:id: 상품 삭제 (소프트 삭제)
 
 데이터베이스 최적화:
   - 컨테이너 재시작 시 데이터 초기화 (개발 환경)
@@ -822,7 +823,40 @@ curl http://localhost:8000/api/members \
   -H "X-Idempotency-Key: unique-key-456"
 ```
 
-### 3. 직접 서비스 호출 (개발/테스트용)
+### 3. 상품 생성 (BFF 경유, 2단계 워크플로우)
+
+- 단일 요청(multipart/form-data)을 BFF로 전송하면, BFF가 내부적으로 다음을 수행합니다.
+  1) 이미지 업로드(`/products/images`) → S3 업로드 후 URL 수집
+  2) 상품 생성(`/products`, JSON) 시 수집된 `imageUrls` 포함하여 상품 도메인 서버 호출
+
+```bash
+curl -X POST http://localhost:8000/api/products \
+  -H "Authorization: Bearer your-jwt-token" \
+  -H "X-Idempotency-Key: unique-key-789" \
+  -F "name=샘플 상품" \
+  -F "description=설명" \
+  -F "price=10000" \
+  -F "originalPrice=15000" \
+  -F "categoryId=1" \
+  -F "sellerId=seller-001" \
+  -F "images=@./path/to/image1.webp" \
+  -F "images=@./path/to/image2.webp"
+```
+
+응답 예시:
+
+```json
+{
+  "productId": 123,
+  "imageUrls": [
+    "https://<cdn-or-s3>/products/123/....webp",
+    "https://<cdn-or-s3>/products/123/....webp"
+  ],
+  "message": "상품이 성공적으로 등록되었습니다."
+}
+```
+
+### 4. 직접 서비스 호출 (개발/테스트용)
 ```bash
 # Auth 서버 직접 호출
 curl -X POST http://localhost:4000/api/auth/login \
@@ -839,7 +873,7 @@ curl http://localhost:3001/api/home \
   -H "Authorization: Bearer your-jwt-token"
 ```
 
-## 📋 테스트 구현 현황
+## 테스트 구현 현황
 
 본 프로젝트는 포괄적인 테스트 전략을 통해 **코드 품질과 안정성을 보장**합니다.
 
@@ -851,13 +885,13 @@ curl http://localhost:3001/api/home \
 
 ### 서버 사이드 테스트
 
-#### 🔐 Auth Server (Koa.js)
+#### Auth Server (Koa.js)
 - **에러 미들웨어 테스트** (`errorMiddleware.test.ts`)
   - BaseError, AuthenticationError, 알 수 없는 에러 처리 검증
   - HTTP 상태 코드 및 에러 응답 형식 정확성 확인
   - 토큰 검증 실패 시나리오 테스트
 
-#### 👥 Member Server (Fastify)
+#### Member Server (Fastify)
 - **회원 컨트롤러 테스트** (`memberController.test.ts`)
   - 회원 생성, 조회, 수정 성공/실패 시나리오
   - ValidationError 처리 검증
@@ -866,7 +900,7 @@ curl http://localhost:3001/api/home \
 
 ### 클라이언트 사이드 테스트 (Next.js)
 
-#### 🧩 공통 컴포넌트
+#### 공통 컴포넌트
 - **Button 컴포넌트** (`Button.test.tsx`): 기본 버튼 기능 및 이벤트 처리
 - **Modal 컴포넌트** (`Modal.test.tsx`): 모달 열림/닫힘 상태 관리
 - **Form 컴포넌트** (`Form.test.tsx`): 폼 검증 및 제출 플로우
@@ -874,12 +908,12 @@ curl http://localhost:3001/api/home \
 - **ProductGrid 컴포넌트** (`ProductGrid.test.tsx`): 상품 목록 표시
 - **Rating 컴포넌트** (`Rating.test.tsx`): 별점 평가 시스템
 
-#### 🔑 인증 도메인
+#### 인증 도메인
 - **LoginForm** (`LoginForm.test.tsx`): 로그인 폼 검증 및 제출
 - **RegisterForm** (`RegisterForm.test.tsx`): 회원가입 폼 처리
 - **ForgotPasswordForm** (`ForgotPasswordForm.test.tsx`): 비밀번호 재설정
 
-#### 📦 상품 도메인
+#### 상품 도메인
 - **상품 폼 관련**:
   - `useProductForm.test.ts`: 상품 등록 폼 상태 관리
   - `useProductFormData.test.ts`: 폼 데이터 처리 로직
@@ -896,32 +930,32 @@ curl http://localhost:3001/api/home \
 - **useCartActions.test.ts**: 장바구니 추가/제거/수정 액션
 - **CartApiService.test.ts**: 장바구니 API 서비스 로직
 
-#### 🏠 홈 도메인
+#### 홈 도메인
 - **homeService.test.ts**: 홈페이지 데이터 로딩 서비스
 
-#### 📂 카테고리 도메인
+#### 카테고리 도메인
 - **categoriesService.test.ts**: 카테고리 관리 서비스
 
-#### 🛠️ 유틸리티 및 인프라
+#### 유틸리티 및 인프라
 - **Validation** (`validation.test.ts`): 데이터 검증 유틸리티
 - **Formatters** (`formatters.test.ts`): 데이터 포맷팅 함수들
 - **Error Handling** (`errorHandling.test.ts`): 에러 처리 유틸리티
 - **Notifications** (`notifications.test.ts`): 알림 시스템
 - **Product Utils** (`productUtils.test.ts`): 상품 관련 유틸리티
 
-#### 🎣 커스텀 훅
+#### 커스텀 훅
 - **useErrorHandler.test.ts**: 에러 처리 훅
 - **useIdempotentMutation.test.ts**: 멱등성 보장 뮤테이션 훅
 - **useFormState.test.ts**: 폼 상태 관리 훅
 
-#### 🌐 API 및 서버 통신
+#### API 및 서버 통신
 - **kongApiClient.test.ts**: Kong Gateway API 클라이언트
 - **Server 유틸리티**:
   - `errorHandler.test.ts`: 서버 에러 처리
   - `headerBuilder.test.ts`: HTTP 헤더 구성
   - `serverActionErrorHandler.test.ts`: 서버 액션 에러 처리
 
-#### 🚦 프록시 서버
+#### 프록시 서버
 - **error-handling.test.ts**: 프록시 서버 에러 처리 로직
 
 ### 테스트 커버리지 특징
@@ -972,13 +1006,13 @@ npm run test:coverage
 npm run test:watch
 ```
 
-## 🖼️ 이미지 압축 기능
+## 이미지 압축 기능
 
 본 프로젝트는 **고성능 이미지 처리 시스템**을 통해 사용자 경험과 성능을 최적화합니다.
 
 ### 핵심 기능
 
-#### 📱 클라이언트 사이드 압축 (`useProductImages` Hook)
+#### 클라이언트 사이드 압축 (`useProductImages` Hook)
 ```typescript
 // 실시간 이미지 압축 및 최적화
 const compressionOptions = {
@@ -993,12 +1027,12 @@ const compressionOptions = {
 ```
 
 **주요 특징:**
-- ⚡ **Web Worker 활용**: 메인 스레드 블로킹 없이 백그라운드 압축
-- 📊 **실시간 진행률**: 사용자에게 압축 진행 상황 표시
-- 🎯 **스마트 검증**: 10MB 이하, 이미지 파일만 허용
-- 🔄 **자동 최적화**: 파일 크기와 해상도 동시 최적화
+- **Web Worker 활용**: 메인 스레드 블로킹 없이 백그라운드 압축
+- **실시간 진행률**: 사용자에게 압축 진행 상황 표시
+- **스마트 검증**: 10MB 이하, 이미지 파일만 허용
+- **자동 최적화**: 파일 크기와 해상도 동시 최적화
 
-#### 🌐 CDN 기반 이미지 최적화 (Cloudflare Workers)
+#### CDN 기반 이미지 최적화 (Cloudflare Workers)
 ```javascript
 // 온디맨드 이미지 리사이징 및 포맷 변환
 const imageUrl = `https://image-resizer.star1231076.workers.dev/?
@@ -1034,11 +1068,11 @@ const imageUrl = `https://image-resizer.star1231076.workers.dev/?
 
 프로젝트는 이미지 압축 기능에 대한 **전문 테스트 스위트**를 제공합니다:
 
-#### 📋 테스트 파일들
+#### 테스트 파일들
 - `useProductImages.test.ts`: 기본 이미지 처리 로직
 - `useProductImages.compression.test.ts`: **압축 알고리즘 상세 테스트**
 
-#### 🧪 압축 테스트 시나리오
+#### 압축 테스트 시나리오
 ```typescript
 // 압축 품질 검증
 it('should compress images within size limits', async () => {
@@ -1060,14 +1094,14 @@ it('should report compression progress', async () => {
 
 ### 실제 사용 시나리오
 
-#### 📤 상품 등록 플로우
+#### 상품 등록 플로우
 1. **파일 선택** → 자동 유효성 검사
 2. **실시간 압축** → Web Worker에서 백그라운드 처리
 3. **진행률 표시** → 사용자 피드백
 4. **미리보기 생성** → 즉시 결과 확인
 5. **업로드 준비** → 최적화된 파일로 전송
 
-#### 🖼️ 이미지 렌더링 전략
+#### 이미지 렌더링 전략
 ```jsx
 // 조건부 이미지 최적화
 <OptimizedImageNext
