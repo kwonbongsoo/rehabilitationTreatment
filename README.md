@@ -24,10 +24,10 @@
 - [참고 문서](#참고-문서)
 - [라이선스](#-라이선스)
 
-## UI 데모 {#ui-demo}
+## UI 데모
 ![UI](커머스.png)
 
-## 성능 지표 {#lightHouse}
+## 성능 지표
 ![Performance](lighthouse.png)
 
 ## 이미지 최적화 성능 비교
