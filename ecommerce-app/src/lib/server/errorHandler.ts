@@ -56,8 +56,7 @@ export async function handleApiServerActionResponse<T>(
       error: errorMessage,
       statusCode: response.status,
     };
-  } catch (error) {
-    console.error('API response handling error:', error);
+  } catch {
     return {
       success: false,
       error: 'API 응답 처리 중 오류가 발생했습니다.',
@@ -70,8 +69,6 @@ export async function handleApiServerActionResponse<T>(
  * 네트워크 에러 등 예외 상황을 처리하고 ActionResult를 반환
  */
 export function handleActionError(error: unknown): ActionResult {
-  console.error('Server action error:', error);
-
   let errorMessage = '서버 오류가 발생했습니다.';
 
   if (error instanceof Error) {

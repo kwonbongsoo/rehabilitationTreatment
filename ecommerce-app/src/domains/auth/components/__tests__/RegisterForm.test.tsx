@@ -140,7 +140,9 @@ describe('RegisterForm', () => {
     fireEvent.click(checkbox);
 
     // Submit form
-    await mockSubmitHandler(mockFormReturn.data);
+    await act(async () => {
+      await mockSubmitHandler(mockFormReturn.data);
+    });
 
     expect(mockOnSubmit).toHaveBeenCalledWith(mockFormReturn.data);
   });

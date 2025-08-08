@@ -43,6 +43,12 @@ export interface LogoutActionResult {
   data?: LogoutResponse;
 }
 
+export interface ForgotPasswordActionResult {
+  success: boolean;
+  error?: string;
+  statusCode?: number;
+}
+
 interface LoginResponseI {
   role: UserRole;
   exp: number;

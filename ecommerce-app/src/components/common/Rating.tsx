@@ -35,8 +35,8 @@ export default function Rating({
 
     for (let i = 0; i < fullStars; i++) {
       stars.push(
-        <span 
-          key={`star-${i}`} 
+        <span
+          key={`star-${i}`}
           style={{ color: '#ffc107', fontSize: sizeStyles.fontSize }}
           data-testid="rating-star"
           data-star-type="full"
@@ -62,8 +62,8 @@ export default function Rating({
     const emptyStars = 5 - stars.length;
     for (let i = 0; i < emptyStars; i++) {
       stars.push(
-        <span 
-          key={`empty-${i}`} 
+        <span
+          key={`empty-${i}`}
           style={{ color: '#ddd', fontSize: sizeStyles.fontSize }}
           data-testid="rating-star"
           data-star-type="empty"

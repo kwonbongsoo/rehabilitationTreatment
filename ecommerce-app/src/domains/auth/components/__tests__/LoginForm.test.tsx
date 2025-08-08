@@ -83,7 +83,7 @@ describe('LoginForm', () => {
     });
 
     it('비밀번호 입력 필드가 올바른 속성을 가진다', () => {
-      render(<LoginForm onSubmit={mockOnSubmit} />);
+      render(<LoginForm onSubmit={mockOnSubmit} data-testid="login-password" />);
 
       const passwordInput = screen.getByPlaceholderText('Enter Password');
       expect(passwordInput).toHaveAttribute('type', 'password');
@@ -163,7 +163,7 @@ describe('LoginForm', () => {
     });
 
     it('로그인 상태 유지 체크박스가 올바르게 렌더링된다', () => {
-      render(<LoginForm onSubmit={mockOnSubmit} />);
+      render(<LoginForm onSubmit={mockOnSubmit} data-testid="remember-me" />);
 
       const checkbox = screen.getByTestId('remember-me');
       expect(checkbox).toBeInTheDocument();

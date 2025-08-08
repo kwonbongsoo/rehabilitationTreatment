@@ -73,7 +73,6 @@ export function LoginForm({
               placeholder: 'Enter Password',
               autoComplete: 'current-password',
               required: true,
-              'data-testid': 'login-password',
             },
             REGISTER_CONSTANTS.ERROR_KEYWORDS.PASSWORD,
           )}

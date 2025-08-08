@@ -10,6 +10,7 @@ import {
   ForgotPasswordRequest,
   LogoutActionResult,
   ProxyLoginResponse,
+  ForgotPasswordActionResult,
 } from '@/domains/auth/types/auth';
 import { HeaderBuilderFactory } from '@/lib/server/headerBuilder';
 import {
@@ -210,7 +211,9 @@ export async function register(
  * 실제 API가 준비되면 구현 예정. 현재는 호출 시 에러를 throw 하여
  * 개발 단계에서 인지할 수 있도록 한다.
  */
-export async function forgotPassword(_request: ForgotPasswordRequest): Promise<void> {
+export async function forgotPassword(
+  _request: ForgotPasswordRequest,
+): Promise<ForgotPasswordActionResult> {
   void _request;
   // TODO: 실제 API 구현 시 safeServerAction으로 래핑 필요
   await Promise.resolve();

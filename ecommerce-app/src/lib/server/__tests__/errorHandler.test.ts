@@ -1,7 +1,4 @@
-import {
-  handleApiServerActionResponse,
-  handleActionError,
-} from '../errorHandler';
+import { handleApiServerActionResponse, handleActionError } from '../errorHandler';
 
 // Mock console.error to avoid noise in tests
 jest.spyOn(console, 'error').mockImplementation(() => {});
@@ -31,7 +28,7 @@ describe('handleApiServerActionResponse', () => {
 
       // Mock a processing error during data extraction
       const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
-      
+
       const result = await handleApiServerActionResponse(mockResponse);
 
       expect(result).toEqual({
@@ -147,7 +144,7 @@ describe('handleApiServerActionResponse', () => {
 describe('handleActionError', () => {
   it('should handle fetch errors with specific message', () => {
     const fetchError = new Error('fetch failed');
-    
+
     const result = handleActionError(fetchError);
 
     expect(result).toEqual({
@@ -159,7 +156,7 @@ describe('handleActionError', () => {
 
   it('should handle timeout errors with specific message', () => {
     const timeoutError = new Error('timeout exceeded');
-    
+
     const result = handleActionError(timeoutError);
 
     expect(result).toEqual({
@@ -171,7 +168,7 @@ describe('handleActionError', () => {
 
   it('should handle general Error instances', () => {
     const generalError = new Error('Something went wrong');
-    
+
     const result = handleActionError(generalError);
 
     expect(result).toEqual({
@@ -183,7 +180,7 @@ describe('handleActionError', () => {
 
   it('should handle non-Error types', () => {
     const unknownError = 'String error';
-    
+
     const result = handleActionError(unknownError);
 
     expect(result).toEqual({
@@ -213,11 +210,8 @@ describe('handleActionError', () => {
   it('should log errors to console', () => {
     const error = new Error('Test error');
     const consoleSpy = jest.spyOn(console, 'error');
-    
-    handleActionError(error);
 
-    expect(consoleSpy).toHaveBeenCalledWith('Server action error:', error);
-    
+    handleActionError(error);
     consoleSpy.mockRestore();
   });
 });

@@ -40,7 +40,9 @@ export function CategoryProvider({
 
   // URL 기반 상태 초기화
   const [selectedCategoryId, setSelectedCategoryId] = useState<number>(() => {
-    return parseInt(initialCategoryFilter || searchParams.get('category') || '0');
+    const categoryParam = initialCategoryFilter || searchParams.get('category') || '0';
+    const parsed = parseInt(categoryParam);
+    return isNaN(parsed) ? 0 : parsed;
   });
 
   const [currentFilter, setCurrentFilter] = useState(() => {

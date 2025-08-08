@@ -1,13 +1,13 @@
 /**
  * ProductFiltersRenderer 테스트
- * 
+ *
  * 상품 필터 렌더러의 필터/정렬 옵션 표시, 상태 관리, 이벤트 처리를 테스트합니다.
  */
 
 import React from 'react';
 import { render, screen, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { useSearchParams } from 'next/navigation';
+import { ReadonlyURLSearchParams, useSearchParams } from 'next/navigation';
 import ProductFiltersRenderer from '../ProductFiltersRenderer';
 import { CategoryProvider } from '@/domains/category/context/CategoryContext';
 
@@ -42,7 +42,7 @@ jest.mock('@/components/common/ProductFilters', () => {
         <div data-testid="default-filter">{defaultFilter}</div>
         <div data-testid="default-sort">{defaultSort}</div>
         <div data-testid="default-view-mode">{defaultViewMode}</div>
-        
+
         {/* Filter Options */}
         <div data-testid="filter-options">
           {filterOptions.map((option) => (
@@ -71,16 +71,10 @@ jest.mock('@/components/common/ProductFilters', () => {
 
         {/* View Mode Toggle */}
         <div data-testid="view-mode-controls">
-          <button
-            data-testid="view-mode-grid"
-            onClick={() => onViewModeChange('grid')}
-          >
+          <button data-testid="view-mode-grid" onClick={() => onViewModeChange('grid')}>
             Grid View
           </button>
-          <button
-            data-testid="view-mode-list"
-            onClick={() => onViewModeChange('list')}
-          >
+          <button data-testid="view-mode-list" onClick={() => onViewModeChange('list')}>
             List View
           </button>
         </div>
@@ -122,25 +116,26 @@ const mockSortOptions = [
 describe('ProductFiltersRenderer', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockUseSearchParams.mockReturnValue(createMockSearchParams());
+    mockUseSearchParams.mockReturnValue(
+      createMockSearchParams() as unknown as ReadonlyURLSearchParams,
+    );
   });
 
   const renderWithProvider = (
     filterOptions = mockFilterOptions,
     sortOptions = mockSortOptions,
-    initialParams: Record<string, string> = {}
+    initialParams: Record<string, string> = {},
   ) => {
     if (Object.keys(initialParams).length > 0) {
-      mockUseSearchParams.mockReturnValue(createMockSearchParams(initialParams));
+      mockUseSearchParams.mockReturnValue(
+        createMockSearchParams(initialParams) as unknown as ReadonlyURLSearchParams,
+      );
     }
 
     return render(
       <CategoryProvider>
-        <ProductFiltersRenderer
-          filterOptions={filterOptions}
-          sortOptions={sortOptions}
-        />
-      </CategoryProvider>
+        <ProductFiltersRenderer filterOptions={filterOptions} sortOptions={sortOptions} />
+      </CategoryProvider>,
     );
   };
 
@@ -187,15 +182,11 @@ describe('ProductFiltersRenderer', () => {
     });
 
     it('URL 파라미터의 값을 기본값으로 설정해야 한다', () => {
-      renderWithProvider(
-        mockFilterOptions,
-        mockSortOptions,
-        {
-          filter: '할인상품',
-          sort: 'price-high',
-          view: 'list'
-        }
-      );
+      renderWithProvider(mockFilterOptions, mockSortOptions, {
+        filter: '할인상품',
+        sort: 'price-high',
+        view: 'list',
+      });
 
       expect(screen.getByTestId('default-filter')).toHaveTextContent('할인상품');
       expect(screen.getByTestId('default-sort')).toHaveTextContent('price-high');
@@ -285,11 +276,7 @@ describe('ProductFiltersRenderer', () => {
   describe('뷰 모드 변경 이벤트', () => {
     it('그리드 뷰를 클릭하면 상태가 변경되어야 한다', async () => {
       const user = userEvent.setup();
-      renderWithProvider(
-        mockFilterOptions,
-        mockSortOptions,
-        { view: 'list' }
-      );
+      renderWithProvider(mockFilterOptions, mockSortOptions, { view: 'list' });
 
       expect(screen.getByTestId('default-view-mode')).toHaveTextContent('list');
 
@@ -382,7 +369,7 @@ describe('ProductFiltersRenderer', () => {
           <ProductFiltersRenderer
             filterOptions={mockFilterOptions}
             sortOptions={mockSortOptions}
-          />
+          />,
         );
       }).toThrow('useCategoryContext must be used within a CategoryProvider');
 
@@ -390,15 +377,11 @@ describe('ProductFiltersRenderer', () => {
     });
 
     it('컨텍스트 상태가 컴포넌트에 반영되어야 한다', () => {
-      renderWithProvider(
-        mockFilterOptions,
-        mockSortOptions,
-        {
-          filter: '신상품',
-          sort: 'rating',
-          view: 'list'
-        }
-      );
+      renderWithProvider(mockFilterOptions, mockSortOptions, {
+        filter: '신상품',
+        sort: 'rating',
+        view: 'list',
+      });
 
       expect(screen.getByTestId('default-filter')).toHaveTextContent('신상품');
       expect(screen.getByTestId('default-sort')).toHaveTextContent('rating');
@@ -407,16 +390,27 @@ describe('ProductFiltersRenderer', () => {
   });
 
   describe('edge cases', () => {
-    it('중복된 값을 가진 옵션을 처리해야 한다', () => {
+    it('중복된 값을 가진 옵션을 전달하면 React key 경고가 발생해야 한다', () => {
       const duplicateOptions = [
         { value: 'duplicate', label: '중복 옵션 1' },
         { value: 'duplicate', label: '중복 옵션 2' },
       ];
 
+      const originalError = console.error;
+      const consoleSpy = jest.fn();
+      console.error = consoleSpy;
+
       renderWithProvider(duplicateOptions, mockSortOptions);
 
-      // React key warning이 발생하지만 렌더링은 성공해야 함
+      // React의 key 경고 메시지 검증
+      expect(consoleSpy).toHaveBeenCalled();
+      const joined = consoleSpy.mock.calls.map((c) => c.join(' ')).join(' ');
+      expect(joined).toContain('Encountered two children with the same key');
+
+      // 렌더 자체는 성공해야 함
       expect(screen.getByTestId('product-filters')).toBeInTheDocument();
+
+      console.error = originalError;
     });
 
     it('특수 문자가 포함된 옵션 값을 처리해야 한다', () => {
@@ -434,7 +428,7 @@ describe('ProductFiltersRenderer', () => {
     it('매우 긴 레이블을 가진 옵션을 처리해야 한다', () => {
       const longLabelOption = {
         value: 'long',
-        label: '매우 긴 레이블을 가진 옵션입니다. 이것은 UI에서 어떻게 표시될까요?'
+        label: '매우 긴 레이블을 가진 옵션입니다. 이것은 UI에서 어떻게 표시될까요?',
       };
 
       renderWithProvider([longLabelOption], mockSortOptions);

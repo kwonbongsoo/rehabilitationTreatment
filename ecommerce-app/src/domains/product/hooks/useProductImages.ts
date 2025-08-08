@@ -12,7 +12,23 @@ function generateRandomFileName(originalExtension: string): string {
 // 파일 확장자 추출 유틸리티
 function getFileExtension(filename: string): string {
   const lastDotIndex = filename.lastIndexOf('.');
-  return lastDotIndex !== -1 ? filename.substring(lastDotIndex) : '.jpg';
+  return lastDotIndex !== -1 ? filename.substring(lastDotIndex).toLowerCase() : '.jpg';
+}
+
+// MIME → 확장자 매핑 유틸리티
+function getExtensionForMime(mimeType: string | undefined): string | undefined {
+  switch (mimeType) {
+    case 'image/webp':
+      return '.webp';
+    case 'image/jpeg':
+      return '.jpg';
+    case 'image/png':
+      return '.png';
+    case 'image/avif':
+      return '.avif';
+    default:
+      return undefined;
+  }
 }
 
 interface CompressionProgress {
@@ -49,11 +65,17 @@ export function useProductImages(): UseProductImagesReturn {
           return null;
         }
 
-        // 100KB 이하라면 압축하지 않고 원본 그대로 사용
+        // 100KB 이하라면 압축하지 않되, 파일명은 일관된 규칙으로 랜덤 변경
         if (file.size < 100 * 1024) {
+          const fileExtension = getFileExtension(file.name);
+          const randomFileName = generateRandomFileName(fileExtension);
+          const renamedFile = new File([file], randomFileName, {
+            type: file.type,
+            lastModified: file.lastModified,
+          });
           return {
-            file,
-            preview: URL.createObjectURL(file),
+            file: renamedFile,
+            preview: URL.createObjectURL(renamedFile),
           };
         }
 
@@ -81,14 +103,17 @@ export function useProductImages(): UseProductImagesReturn {
             return newProgress;
           });
 
-          // 랜덤한 파일명 생성
-          const fileExtension = getFileExtension(file.name);
+          // 출력 MIME에 맞춰 확장자 결정(없으면 원본 확장자)
+          const outputMime =
+            (compressedFile as File).type || (options as { fileType?: string }).fileType;
+          const extFromMime = getExtensionForMime(outputMime);
+          const fileExtension = extFromMime || getFileExtension(file.name);
           const randomFileName = generateRandomFileName(fileExtension);
 
-          // 새로운 파일명으로 File 객체 재생성
+          // 새로운 파일명으로 File 객체 재생성 (MIME은 라이브러리 결과를 신뢰)
           const renamedFile = new File([compressedFile], randomFileName, {
-            type: compressedFile.type,
-            lastModified: compressedFile.lastModified,
+            type: (compressedFile as File).type,
+            lastModified: (compressedFile as File).lastModified,
           });
 
           const originalSizeMB = file.size / 1024 / 1024;
@@ -101,8 +126,7 @@ export function useProductImages(): UseProductImagesReturn {
             file: renamedFile,
             preview: URL.createObjectURL(renamedFile),
           };
-        } catch (error) {
-          console.error('Image compression failed:', error);
+        } catch {
           toast.error(`${file.name}: 이미지 압축에 실패했습니다.`);
           return null;
         }

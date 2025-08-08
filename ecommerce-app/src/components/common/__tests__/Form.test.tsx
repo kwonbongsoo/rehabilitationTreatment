@@ -477,26 +477,38 @@ describe('FormActions', () => {
 
   describe('정렬 옵션', () => {
     it('기본적으로 오른쪽 정렬이 적용되어야 한다', () => {
-      render(<FormActions>{children}</FormActions>);
+      render(<FormActions data-testid="form-actions">{children}</FormActions>);
 
       const container = screen.getByTestId('form-actions');
       expect(container).toHaveClass('right');
     });
 
     it('왼쪽 정렬이 적용되어야 한다', () => {
-      render(<FormActions align="left">{children}</FormActions>);
+      render(
+        <FormActions align="left" data-testid="form-actions">
+          {children}
+        </FormActions>,
+      );
       const container = screen.getByTestId('form-actions');
       expect(container).toHaveClass('left');
     });
 
     it('가운데 정렬이 적용되어야 한다', () => {
-      render(<FormActions align="center">{children}</FormActions>);
+      render(
+        <FormActions align="center" data-testid="form-actions">
+          {children}
+        </FormActions>,
+      );
       const container = screen.getByTestId('form-actions');
       expect(container).toHaveClass('center');
     });
 
     it('양끝 정렬이 적용되어야 한다', () => {
-      render(<FormActions align="space-between">{children}</FormActions>);
+      render(
+        <FormActions align="space-between" data-testid="form-actions">
+          {children}
+        </FormActions>,
+      );
       const container = screen.getByTestId('form-actions');
       expect(container).toHaveClass('spaceBetween');
     });
@@ -512,7 +524,7 @@ describe('FormContainer', () => {
 
   describe('기본 렌더링', () => {
     it('form 요소가 올바르게 렌더링되어야 한다', () => {
-      render(<FormContainer>{children}</FormContainer>);
+      render(<FormContainer data-testid="form-container">{children}</FormContainer>);
 
       const formElement = screen.getByTestId('form-container');
       expect(formElement).toBeInTheDocument();
@@ -520,14 +532,18 @@ describe('FormContainer', () => {
     });
 
     it('기본적으로 noValidate가 true여야 한다', () => {
-      render(<FormContainer>{children}</FormContainer>);
+      render(<FormContainer data-testid="form-container">{children}</FormContainer>);
 
       const formElement = screen.getByTestId('form-container');
       expect(formElement).toHaveAttribute('novalidate');
     });
 
     it('noValidate를 false로 설정할 수 있어야 한다', () => {
-      render(<FormContainer noValidate={false}>{children}</FormContainer>);
+      render(
+        <FormContainer noValidate={false} data-testid="form-container">
+          {children}
+        </FormContainer>,
+      );
 
       const formElement = screen.getByTestId('form-container');
       expect(formElement).not.toHaveAttribute('novalidate');

@@ -11,17 +11,17 @@ import { useProductImages } from '../useProductImages';
 
 // browser-image-compression 모킹
 jest.mock('browser-image-compression', () => {
-  return jest
-    .fn()
-    .mockImplementation((file: File) => {
-      // 랜덤 파일명 생성 시뮬레이션
-      const timestamp = Date.now();
-      const random = Math.random().toString(36).substring(2, 15);
-      const extension = file.name.includes('.') ? file.name.substring(file.name.lastIndexOf('.')) : '.jpg';
-      const randomFileName = `product_image_${timestamp}_${random}${extension}`;
-      
-      return Promise.resolve(new File(['compressed'], randomFileName, { type: file.type }));
-    });
+  return jest.fn().mockImplementation((file: File) => {
+    // 랜덤 파일명 생성 시뮬레이션
+    const timestamp = Date.now();
+    const random = Math.random().toString(36).substring(2, 15);
+    const extension = file.name.includes('.')
+      ? file.name.substring(file.name.lastIndexOf('.'))
+      : '.jpg';
+    const randomFileName = `product_image_${timestamp}_${random}${extension}`;
+
+    return Promise.resolve(new File(['compressed'], randomFileName, { type: file.type }));
+  });
 });
 
 // react-toastify 모킹
@@ -101,7 +101,11 @@ describe('useProductImages', () => {
         // 랜덤 파일명이 생성되었는지 확인
         const fileName = result.current.images[0]?.name;
         expect(fileName).toMatch(/^product_image_\d+_[a-z0-9]+\.jpg$/);
-        expect(fileName).not.toBe('test1.jpg'); // 원본 파일명과 다름
+      });
+
+      await waitFor(() => {
+        const fileName = result.current.images[0]?.name;
+        expect(fileName).not.toBe('test1.jpg');
       });
 
       await waitFor(() => {
@@ -161,12 +165,18 @@ describe('useProductImages', () => {
       await waitFor(() => {
         // 두 이미지 모두 랜덤 파일명이 생성되었는지 확인
         const firstFileName = result.current.images[0]?.name;
-        const secondFileName = result.current.images[1]?.name;
-        
         expect(firstFileName).toMatch(/^product_image_\d+_[a-z0-9]+\.jpg$/);
-        expect(secondFileName).toMatch(/^product_image_\d+_[a-z0-9]+\.jpg$/);
-        expect(firstFileName).not.toBe('first.jpg');
+      });
+
+      await waitFor(() => {
+        // 두 이미지 모두 랜덤 파일명이 생성되었는지 확인
+        const secondFileName = result.current.images[1]?.name;
         expect(secondFileName).not.toBe('second.jpg');
+      });
+
+      await waitFor(() => {
+        const firstFileName = result.current.images[0]?.name;
+        const secondFileName = result.current.images[1]?.name;
         expect(firstFileName).not.toBe(secondFileName); // 서로 다른 파일명
       });
     });
@@ -251,7 +261,7 @@ describe('useProductImages', () => {
       });
 
       // 파일명들을 미리 저장 (랜덤 생성되므로)
-      const fileNames = result.current.images.map(img => img.name);
+      const fileNames = result.current.images.map((img) => img.name);
 
       // 인덱스 1의 이미지 제거
       act(() => {
@@ -531,43 +541,43 @@ describe('useProductImages', () => {
     it('동일한 파일을 여러 번 업로드해도 다른 파일명이 생성되어야 한다', async () => {
       const { result } = renderHook(() => useProductImages());
       const sameFileName = 'duplicate.jpg';
-      
+
       // 첫 번째 업로드
       const firstFile = createMockFile(sameFileName);
       const firstEvent = createMockEvent([firstFile]);
-      
+
       await act(async () => {
         await result.current.handleImageUpload(firstEvent);
       });
-      
+
       await waitFor(() => {
         expect(result.current.images).toHaveLength(1);
       });
-      
+
       const firstName = result.current.images[0]?.name;
-      
+
       // 짧은 시간 후 같은 파일 다시 업로드
-      await new Promise(resolve => setTimeout(resolve, 10));
-      
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
       const secondFile = createMockFile(sameFileName);
       const secondEvent = createMockEvent([secondFile]);
-      
+
       await act(async () => {
         await result.current.handleImageUpload(secondEvent);
       });
-      
+
       await waitFor(() => {
         expect(result.current.images).toHaveLength(2);
       });
-      
+
       const secondName = result.current.images[1]?.name;
-      
+
       // 두 파일명이 서로 달라야 함
       expect(firstName).not.toBe(secondName);
       expect(firstName).toMatch(/^product_image_\d+_[a-z0-9]+\.jpg$/);
       expect(secondName).toMatch(/^product_image_\d+_[a-z0-9]+\.jpg$/);
     });
-    
+
     it('파일 확장자가 올바르게 유지되어야 한다', async () => {
       const { result } = renderHook(() => useProductImages());
       const testFiles = [
@@ -576,56 +586,56 @@ describe('useProductImages', () => {
         createMockFile('test.webp', 'image/webp'),
         createMockFile('no-extension', 'image/jpeg'), // 확장자 없는 경우
       ];
-      
+
       for (const file of testFiles) {
         const event = createMockEvent([file]);
         await act(async () => {
           await result.current.handleImageUpload(event);
         });
       }
-      
+
       await waitFor(() => {
         expect(result.current.images).toHaveLength(4);
       });
-      
-      const fileNames = result.current.images.map(img => img.name);
-      
+
+      const fileNames = result.current.images.map((img) => img.name);
+
       expect(fileNames[0]).toMatch(/^product_image_\d+_[a-z0-9]+\.png$/);
       expect(fileNames[1]).toMatch(/^product_image_\d+_[a-z0-9]+\.gif$/);
       expect(fileNames[2]).toMatch(/^product_image_\d+_[a-z0-9]+\.webp$/);
       expect(fileNames[3]).toMatch(/^product_image_\d+_[a-z0-9]+\.jpg$/); // 기본 확장자
     });
-    
+
     it('파일명이 유니크하고 예측 불가능해야 한다', async () => {
       const { result } = renderHook(() => useProductImages());
       const fileNames: string[] = [];
-      
+
       // 5개의 동일한 파일을 업로드하여 파일명 패턴 확인
       for (let i = 0; i < 5; i++) {
         const file = createMockFile('test.jpg');
         const event = createMockEvent([file]);
-        
+
         await act(async () => {
           await result.current.handleImageUpload(event);
         });
-        
+
         await waitFor(() => {
           expect(result.current.images).toHaveLength(i + 1);
         });
-        
+
         const latestFileName = result.current.images[i]?.name;
         fileNames.push(latestFileName!);
-        
+
         // 약간의 지연 (타임스탬프 차이를 위해)
-        await new Promise(resolve => setTimeout(resolve, 1));
+        await new Promise((resolve) => setTimeout(resolve, 1));
       }
-      
+
       // 모든 파일명이 유니크한지 확인
       const uniqueNames = new Set(fileNames);
       expect(uniqueNames.size).toBe(5);
-      
+
       // 모든 파일명이 올바른 패턴을 따르는지 확인
-      fileNames.forEach(name => {
+      fileNames.forEach((name) => {
         expect(name).toMatch(/^product_image_\d+_[a-z0-9]+\.jpg$/);
       });
     });

@@ -48,7 +48,7 @@ export default function ProductCard({
   };
 
   return (
-    <div className={`${styles.productCard} ${className}`} data-testid="product-card">
+    <div className={`${styles.productCard} ${className}`}>
       <Link
         href={`/product/${product.id}`}
         className={styles.productLink}

@@ -1,11 +1,11 @@
 /**
  * CategoryGridRenderer 테스트
- * 
+ *
  * 카테고리 그리드 렌더러의 카테고리 표시, 선택 상태, 클릭 이벤트를 테스트합니다.
  */
 
 import React from 'react';
-import { render, screen, act } from '@testing-library/react';
+import { render, screen, RenderResult } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useSearchParams } from 'next/navigation';
 import CategoryGridRenderer from '../CategoryGridRenderer';
@@ -19,11 +19,11 @@ jest.mock('next/navigation', () => ({
 
 // CategoryIconGrid 컴포넌트 모킹
 jest.mock('@/components/common/CategoryIconGrid', () => {
-  return function MockCategoryIconGrid({ 
-    categories, 
-    selectedCategoryId, 
+  return function MockCategoryIconGrid({
+    categories,
+    selectedCategoryId,
     onCategoryClick,
-    disableNavigation 
+    disableNavigation,
   }: {
     categories: Category[];
     selectedCategoryId: number;
@@ -34,9 +34,9 @@ jest.mock('@/components/common/CategoryIconGrid', () => {
       <div data-testid="category-icon-grid">
         <div data-testid="selected-category">{selectedCategoryId}</div>
         <div data-testid="disable-navigation">{disableNavigation?.toString()}</div>
-        {categories.map((category) => (
+        {categories.map((category, index) => (
           <button
-            key={category.id}
+            key={`${category.id}-${index}`}
             data-testid={`category-${category.id}`}
             onClick={() => onCategoryClick(category.id)}
             className={selectedCategoryId === category.id ? 'selected' : ''}
@@ -98,17 +98,17 @@ const mockCategories: Category[] = [
 describe('CategoryGridRenderer', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockUseSearchParams.mockReturnValue(createMockSearchParams());
+    mockUseSearchParams.mockReturnValue(createMockSearchParams() as any);
   });
 
   const renderWithProvider = (
     categories = mockCategories,
-    initialCategoryFilter?: string
-  ) => {
+    initialCategoryFilter?: string,
+  ): RenderResult => {
     return render(
-      <CategoryProvider initialCategoryFilter={initialCategoryFilter}>
+      <CategoryProvider initialCategoryFilter={initialCategoryFilter ?? ''}>
         <CategoryGridRenderer categories={categories} />
-      </CategoryProvider>
+      </CategoryProvider>,
     );
   };
 
@@ -155,9 +155,7 @@ describe('CategoryGridRenderer', () => {
     });
 
     it('URL 파라미터의 카테고리가 선택되어야 한다', () => {
-      mockUseSearchParams.mockReturnValue(
-        createMockSearchParams({ category: '3' })
-      );
+      mockUseSearchParams.mockReturnValue(createMockSearchParams({ category: '3' }) as any);
 
       renderWithProvider();
 
@@ -171,10 +169,7 @@ describe('CategoryGridRenderer', () => {
       renderWithProvider();
 
       expect(screen.getByTestId('selected-category')).toHaveTextContent('0');
-
-      await act(async () => {
-        await user.click(screen.getByTestId('category-2'));
-      });
+      await user.click(screen.getByTestId('category-2'));
 
       expect(screen.getByTestId('selected-category')).toHaveTextContent('2');
     });
@@ -182,13 +177,9 @@ describe('CategoryGridRenderer', () => {
     it('이미 선택된 카테고리를 다시 클릭해도 정상적으로 처리되어야 한다', async () => {
       const user = userEvent.setup();
       renderWithProvider(mockCategories, '1');
-
       expect(screen.getByTestId('selected-category')).toHaveTextContent('1');
 
-      await act(async () => {
-        await user.click(screen.getByTestId('category-1'));
-      });
-
+      await user.click(screen.getByTestId('category-1'));
       expect(screen.getByTestId('selected-category')).toHaveTextContent('1');
     });
 
@@ -196,16 +187,10 @@ describe('CategoryGridRenderer', () => {
       const user = userEvent.setup();
       renderWithProvider();
 
-      // 첫 번째 카테고리 선택
-      await act(async () => {
-        await user.click(screen.getByTestId('category-1'));
-      });
+      await user.click(screen.getByTestId('category-1'));
       expect(screen.getByTestId('selected-category')).toHaveTextContent('1');
 
-      // 두 번째 카테고리 선택
-      await act(async () => {
-        await user.click(screen.getByTestId('category-3'));
-      });
+      await user.click(screen.getByTestId('category-3'));
       expect(screen.getByTestId('selected-category')).toHaveTextContent('3');
     });
   });
@@ -260,12 +245,12 @@ describe('CategoryGridRenderer', () => {
 
     it('컨텍스트 상태 변경이 컴포넌트에 반영되어야 한다', async () => {
       const user = userEvent.setup();
-      
+
       const TestWrapper = () => {
         return (
           <CategoryProvider>
             <CategoryGridRenderer categories={mockCategories} />
-            <button 
+            <button
               data-testid="external-category-button"
               onClick={() => {
                 // 외부에서 카테고리 상태 변경을 시뮬레이션하기 위해
@@ -283,9 +268,7 @@ describe('CategoryGridRenderer', () => {
 
       expect(screen.getByTestId('selected-category')).toHaveTextContent('0');
 
-      await act(async () => {
-        await user.click(screen.getByTestId('external-category-button'));
-      });
+      await user.click(screen.getByTestId('external-category-button'));
 
       expect(screen.getByTestId('selected-category')).toHaveTextContent('1');
     });
@@ -337,9 +320,7 @@ describe('CategoryGridRenderer', () => {
 
       renderWithProvider(largeIdCategory);
 
-      await act(async () => {
-        await user.click(screen.getByTestId('category-999999999'));
-      });
+      await user.click(screen.getByTestId('category-999999999'));
 
       expect(screen.getByTestId('selected-category')).toHaveTextContent('999999999');
     });

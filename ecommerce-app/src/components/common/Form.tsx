@@ -13,6 +13,8 @@ import React, {
   ReactElement,
   SelectHTMLAttributes,
   TextareaHTMLAttributes,
+  HTMLAttributes,
+  FormHTMLAttributes,
 } from 'react';
 import styles from './Form.module.css';
 
@@ -391,7 +393,7 @@ export function FormFieldGroup({
 /**
  * 폼 액션 버튼 그룹 컴포넌트
  */
-interface FormActionsProps {
+interface FormActionsProps extends HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
   align?: 'left' | 'center' | 'right' | 'space-between';
   className?: string;
@@ -401,14 +403,12 @@ export function FormActions({
   children,
   align = 'right',
   className = '',
+  ...props
 }: FormActionsProps): ReactElement {
   const alignmentClass = align === 'space-between' ? styles.spaceBetween : styles[align];
 
   return (
-    <div
-      className={`${styles.formActions} ${alignmentClass} ${className}`}
-      data-testid="form-actions"
-    >
+    <div className={`${styles.formActions} ${alignmentClass} ${className}`} {...props}>
       {children}
     </div>
   );
@@ -417,8 +417,7 @@ export function FormActions({
 /**
  * 폼 컨테이너 컴포넌트
  */
-interface FormContainerProps {
-  onSubmit?: (event: React.FormEvent<HTMLFormElement>) => void;
+interface FormContainerProps extends FormHTMLAttributes<HTMLFormElement> {
   children: React.ReactNode;
   className?: string;
   noValidate?: boolean;
@@ -429,13 +428,14 @@ export function FormContainer({
   children,
   className = '',
   noValidate = true,
+  ...props
 }: FormContainerProps): ReactElement {
   return (
     <form
       onSubmit={onSubmit}
       className={`${styles.formContainer} ${className}`}
-      noValidate={noValidate}
-      data-testid="form-container"
+      noValidate={noValidate ? true : false}
+      {...props}
     >
       {children}
     </form>

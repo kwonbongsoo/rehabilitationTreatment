@@ -87,7 +87,8 @@ describe('useProductImages - 압축 기능', () => {
       };
 
       const originalFile = createMockFile('test.jpg', 'image/jpeg', 5 * 1024 * 1024);
-      const compressedFile = createMockFile('test.jpg', 'image/jpeg', 1.5 * 1024 * 1024);
+      // 압축 결과는 webp로 반환되도록 모킹 (옵션 fileType: 'image/webp'와 일치)
+      const compressedFile = createMockFile('test.webp', 'image/webp', 1.5 * 1024 * 1024);
 
       mockImageCompression.mockResolvedValue(compressedFile);
 
@@ -99,21 +100,25 @@ describe('useProductImages - 압축 기능', () => {
         await result.current.handleImageUpload(mockEvent);
       });
 
-      expect(mockImageCompression).toHaveBeenCalledWith(originalFile, {
-        maxSizeMB: 2,
-        maxWidthOrHeight: 1920,
-        useWebWorker: true,
-        preserveExif: false,
-        onProgress: expect.any(Function),
-      });
+      expect(mockImageCompression).toHaveBeenCalledWith(
+        originalFile,
+        expect.objectContaining({
+          maxSizeMB: 2,
+          maxWidthOrHeight: 1920,
+          useWebWorker: true,
+          preserveExif: false,
+          onProgress: expect.any(Function),
+        }),
+      );
 
       expect(result.current.images).toHaveLength(1);
 
       // File 객체 속성별 검증 (랜덤 파일명이므로 패턴으로 검증)
       const uploadedFile = result.current.images[0];
       expect(uploadedFile).toBeDefined();
-      expect(uploadedFile?.type).toBe('image/jpeg');
-      expect(uploadedFile?.name).toMatch(/^product_image_\d+_[a-z0-9]+\.jpg$/);
+      // 옵션에 따라 webp로 반환되어야 한다
+      expect(uploadedFile?.type).toBe('image/webp');
+      expect(uploadedFile?.name).toMatch(/^product_image_\d+_[a-z0-9]+\.webp$/);
 
       // 토스트 메시지 검증 (원본 파일명 사용)
       expect(toast.success).toHaveBeenCalledWith('test.jpg 압축 완료: 5.0MB → 1.5MB');
@@ -158,7 +163,7 @@ describe('useProductImages - 압축 기능', () => {
         progressCallback = options.onProgress;
         return new Promise((resolve) => {
           setTimeout(() => {
-            const compressedFile = createMockFile('test.jpg', 'image/jpeg', 1 * 1024 * 1024);
+            const compressedFile = createMockFile('test.webp', 'image/webp', 1 * 1024 * 1024);
             resolve(compressedFile);
           }, 100);
         });
@@ -194,7 +199,7 @@ describe('useProductImages - 압축 기능', () => {
 
       // 최종 파일 검증 (랜덤 파일명 패턴 확인)
       expect(result.current.images).toHaveLength(1);
-      expect(result.current.images[0]?.name).toMatch(/^product_image_\d+_[a-z0-9]+\.jpg$/);
+      expect(result.current.images[0]?.name).toMatch(/^product_image_\d+_[a-z0-9]+\.webp$/);
     });
   });
 
@@ -216,15 +221,15 @@ describe('useProductImages - 압축 기능', () => {
 
       mockImageCompression.mockImplementation((file) => Promise.resolve(file));
 
-      await Promise.all(
-        existingFiles.map(async (file) => {
-          await act(async () => {
-            await result.current.handleImageUpload({
-              target: { files: [file], value: '' },
-            } as unknown as React.ChangeEvent<HTMLInputElement>);
-          });
-        }),
-      );
+      /* eslint-disable no-await-in-loop */
+      for (const file of existingFiles) {
+        await act(async () => {
+          await result.current.handleImageUpload({
+            target: { files: [file], value: '' },
+          } as unknown as React.ChangeEvent<HTMLInputElement>);
+        });
+      }
+      /* eslint-enable no-await-in-loop */
 
       expect(result.current.images).toHaveLength(5);
 

@@ -69,7 +69,7 @@ describe('HeaderBuilderFactory', () => {
       delete process.env.AUTH_BASIC_KEY;
 
       expect(() => HeaderBuilderFactory.createForBasicAuth()).toThrow(
-        'AUTH_BASIC_KEY 환경 변수가 설정되어 있지 않습니다.'
+        'AUTH_BASIC_KEY 환경 변수가 설정되어 있지 않습니다.',
       );
     });
   });
@@ -115,7 +115,7 @@ describe('HeaderBuilderFactory', () => {
   describe('createForMiddlewareBasicAuth', () => {
     it('should create middleware header builder with basic auth using environment variable', async () => {
       process.env.AUTH_BASIC_KEY = 'middleware-key';
-      
+
       const mockRequest = {
         cookies: {
           get: jest.fn().mockReturnValue({ value: 'middleware-token' }),
@@ -133,7 +133,7 @@ describe('HeaderBuilderFactory', () => {
 
     it('should create middleware header builder with custom auth key', async () => {
       const customKey = 'custom-middleware-key';
-      
+
       const builder = HeaderBuilderFactory.createForMiddlewareBasicAuth(undefined, customKey);
       const headers = await builder.build();
 
@@ -146,7 +146,7 @@ describe('HeaderBuilderFactory', () => {
       delete process.env.AUTH_BASIC_KEY;
 
       expect(() => HeaderBuilderFactory.createForMiddlewareBasicAuth()).toThrow(
-        'AUTH_BASIC_KEY 환경 변수가 설정되어 있지 않습니다.'
+        'AUTH_BASIC_KEY 환경 변수가 설정되어 있지 않습니다.',
       );
     });
   });
@@ -172,7 +172,7 @@ describe('HttpHeaderBuilder', () => {
 
       expect(headers).toEqual({
         'Content-Type': 'application/xml',
-        'Authorization': 'Bearer chain-test-token',
+        Authorization: 'Bearer chain-test-token',
         'X-Idempotency-Key': 'test-key-123',
         'X-Previous-Token': 'prev-token',
         'X-Custom': 'custom-value',
@@ -203,8 +203,7 @@ describe('HttpHeaderBuilder', () => {
         get: jest.fn().mockReturnValue({ value: 'cookie-token' }),
       });
 
-      const builder = HeaderBuilderFactory.create()
-        .withAuth('bearer', 'explicit-token');
+      const builder = HeaderBuilderFactory.create().withAuth('bearer', 'explicit-token');
 
       const headers = await builder.build();
 
@@ -289,9 +288,8 @@ describe('MiddlewareHeaderBuilder', () => {
         },
       } as unknown as NextRequest;
 
-      const builder = HeaderBuilderFactory.createForMiddleware(mockRequest)
-        .withAuth('bearer');
-      
+      const builder = HeaderBuilderFactory.createForMiddleware(mockRequest).withAuth('bearer');
+
       const headers = await builder.build();
 
       expect(headers['Authorization']).toBe('Bearer middleware-token');
@@ -304,9 +302,8 @@ describe('MiddlewareHeaderBuilder', () => {
         },
       } as unknown as NextRequest;
 
-      const builder = HeaderBuilderFactory.createForMiddleware(mockRequest)
-        .withAuth('bearer');
-      
+      const builder = HeaderBuilderFactory.createForMiddleware(mockRequest).withAuth('bearer');
+
       const headers = await builder.build();
 
       expect(headers['Authorization']).toBeUndefined();
@@ -318,9 +315,8 @@ describe('MiddlewareHeaderBuilder', () => {
       // Mock btoa for Node.js environment
       global.btoa = jest.fn().mockReturnValue('YnRvYS1lbmNvZGVk');
 
-      const builder = HeaderBuilderFactory.createForMiddleware()
-        .withAuth('basic', 'test-creds');
-      
+      const builder = HeaderBuilderFactory.createForMiddleware().withAuth('basic', 'test-creds');
+
       const headers = await builder.build();
 
       expect(headers['Authorization']).toBe('Basic YnRvYS1lbmNvZGVk');

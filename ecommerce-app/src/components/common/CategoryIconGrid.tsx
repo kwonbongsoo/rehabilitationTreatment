@@ -102,10 +102,11 @@ export default function CategoryIconGrid({
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
         >
-          {categories.map((category) => {
+          {categories.map((category, index) => {
             const icon = category.iconCode;
             const href = disableNavigation ? '#' : category.link;
             const isSelected = selectedCategoryId === category.id;
+            const uniqueKey = `${category.id}-${index}`;
 
             const categoryElement = (
               <div
@@ -120,11 +121,11 @@ export default function CategoryIconGrid({
             );
 
             if (disableNavigation) {
-              return <div key={category.id}>{categoryElement}</div>;
+              return <div key={uniqueKey}>{categoryElement}</div>;
             }
 
             return (
-              <Link href={href} key={category.id}>
+              <Link href={href} key={uniqueKey}>
                 {categoryElement}
               </Link>
             );

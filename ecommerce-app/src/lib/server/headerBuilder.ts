@@ -80,15 +80,13 @@ class HttpHeaderBuilder implements HeaderBuilder {
         const token = authHeader.substring(7); // "Bearer " 제거
         return token;
       }
-    } catch (error) {
-      console.error('Error reading headers:', error);
+    } catch {
+      // Authorization 헤더가 없으면 쿠키에서 토큰 추출 (fallback)
+      const cookieStore = await cookies();
+      const token = cookieStore.get('access_token')?.value;
+
+      return token;
     }
-
-    // Authorization 헤더가 없으면 쿠키에서 토큰 추출 (fallback)
-    const cookieStore = await cookies();
-    const token = cookieStore.get('access_token')?.value;
-
-    return token;
   }
 
   private formatAuthHeader(token: string): string {
@@ -224,9 +222,7 @@ export class HeaderBuilderFactory {
    * 멀티파트 요청용 헤더 빌더 프리셋 (Content-Type 제외)
    */
   static createForMultipartRequest(idempotencyKey: string): HeaderBuilder {
-    return new HttpHeaderBuilder()
-      .withAuth('bearer')
-      .withIdempotencyKey(idempotencyKey);
+    return new HttpHeaderBuilder().withAuth('bearer').withIdempotencyKey(idempotencyKey);
   }
 
   /**

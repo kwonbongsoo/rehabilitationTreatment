@@ -257,7 +257,9 @@ describe('ProductCard', () => {
 
   describe('찜하기 기능', () => {
     it('기본적으로 빈 하트 아이콘이 표시되어야 한다', () => {
-      render(<ProductCard {...defaultProps} isWishlisted={false} />);
+      render(
+        <ProductCard {...defaultProps} isWishlisted={false} data-testid="wishlist-button-empty" />,
+      );
 
       const emptyIcon = screen.getByTestId('wishlist-button-empty');
       expect(emptyIcon).toBeInTheDocument();
@@ -266,7 +268,9 @@ describe('ProductCard', () => {
     });
 
     it('찜한 상태일 때 채워진 하트 아이콘이 표시되어야 한다', () => {
-      render(<ProductCard {...defaultProps} isWishlisted={true} />);
+      render(
+        <ProductCard {...defaultProps} isWishlisted={true} data-testid="wishlist-button-filled" />,
+      );
 
       const filledIcon = screen.getByTestId('wishlist-button-filled');
       expect(filledIcon).toBeInTheDocument();

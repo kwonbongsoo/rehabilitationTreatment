@@ -359,8 +359,8 @@ describe('CategoryContext', () => {
         </CategoryProvider>
       );
 
-      // parseInt('invalid-number')는 NaN을 반환
-      expect(screen.getByTestId('categoryId')).toHaveTextContent('NaN');
+      // parseInt('invalid-number')는 NaN을 반환하지만 isNaN 체크로 0으로 fallback
+      expect(screen.getByTestId('categoryId')).toHaveTextContent('0');
       // 잘못된 view mode는 그대로 사용됨 (실제 구현에서는 fallback 없음)
       expect(screen.getByTestId('viewMode')).toHaveTextContent('invalid-view-mode');
     });

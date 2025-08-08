@@ -13,7 +13,7 @@ describe('Rating', () => {
     render(<Rating rating={3} />);
 
     const allStars = screen.getAllByTestId('rating-star');
-    const fullStars = allStars.filter(star => star.getAttribute('data-star-type') === 'full');
+    const fullStars = allStars.filter((star) => star.getAttribute('data-star-type') === 'full');
     expect(fullStars).toHaveLength(3);
     expect(allStars).toHaveLength(5); // Total stars should be 5
   });
@@ -22,9 +22,9 @@ describe('Rating', () => {
     render(<Rating rating={3.5} />);
 
     const allStars = screen.getAllByTestId('rating-star');
-    const fullStars = allStars.filter(star => star.getAttribute('data-star-type') === 'full');
-    const halfStars = allStars.filter(star => star.getAttribute('data-star-type') === 'half');
-    
+    const fullStars = allStars.filter((star) => star.getAttribute('data-star-type') === 'full');
+    const halfStars = allStars.filter((star) => star.getAttribute('data-star-type') === 'half');
+
     expect(fullStars).toHaveLength(3);
     expect(halfStars).toHaveLength(1);
     expect(allStars).toHaveLength(5);
@@ -34,9 +34,9 @@ describe('Rating', () => {
     render(<Rating rating={2} />);
 
     const allStars = screen.getAllByTestId('rating-star');
-    const fullStars = allStars.filter(star => star.getAttribute('data-star-type') === 'full');
-    const emptyStars = allStars.filter(star => star.getAttribute('data-star-type') === 'empty');
-    
+    const fullStars = allStars.filter((star) => star.getAttribute('data-star-type') === 'full');
+    const emptyStars = allStars.filter((star) => star.getAttribute('data-star-type') === 'empty');
+
     expect(fullStars).toHaveLength(2);
     expect(emptyStars).toHaveLength(3);
     expect(allStars).toHaveLength(5);
@@ -85,7 +85,7 @@ describe('Rating', () => {
       render(<Rating rating={0} />);
 
       const allStars = screen.getAllByTestId('rating-star');
-      const emptyStars = allStars.filter(star => star.getAttribute('data-star-type') === 'empty');
+      const emptyStars = allStars.filter((star) => star.getAttribute('data-star-type') === 'empty');
       expect(emptyStars).toHaveLength(5);
       expect(allStars).toHaveLength(5);
     });
@@ -94,7 +94,7 @@ describe('Rating', () => {
       render(<Rating rating={5} />);
 
       const allStars = screen.getAllByTestId('rating-star');
-      const fullStars = allStars.filter(star => star.getAttribute('data-star-type') === 'full');
+      const fullStars = allStars.filter((star) => star.getAttribute('data-star-type') === 'full');
       expect(fullStars).toHaveLength(5);
       expect(allStars).toHaveLength(5);
     });
@@ -103,7 +103,7 @@ describe('Rating', () => {
       render(<Rating rating={6} />);
 
       const allStars = screen.getAllByTestId('rating-star');
-      const fullStars = allStars.filter(star => star.getAttribute('data-star-type') === 'full');
+      const fullStars = allStars.filter((star) => star.getAttribute('data-star-type') === 'full');
       expect(fullStars).toHaveLength(5);
       expect(allStars).toHaveLength(5);
     });
@@ -112,7 +112,7 @@ describe('Rating', () => {
       render(<Rating rating={-1} />);
 
       const allStars = screen.getAllByTestId('rating-star');
-      const emptyStars = allStars.filter(star => star.getAttribute('data-star-type') === 'empty');
+      const emptyStars = allStars.filter((star) => star.getAttribute('data-star-type') === 'empty');
       expect(emptyStars).toHaveLength(5);
       expect(allStars).toHaveLength(5);
     });
@@ -123,19 +123,19 @@ describe('Rating', () => {
       // Test rating below half star threshold (3.4)
       const { rerender } = render(<Rating rating={3.4} />);
       const stars1 = screen.getAllByTestId('rating-star');
-      const halfStars1 = stars1.filter(star => star.getAttribute('data-star-type') === 'half');
+      const halfStars1 = stars1.filter((star) => star.getAttribute('data-star-type') === 'half');
       expect(halfStars1).toHaveLength(0); // No half star for 3.4
 
       // Test rating at half star threshold (3.5)
       rerender(<Rating rating={3.5} />);
       const stars2 = screen.getAllByTestId('rating-star');
-      const halfStars2 = stars2.filter(star => star.getAttribute('data-star-type') === 'half');
+      const halfStars2 = stars2.filter((star) => star.getAttribute('data-star-type') === 'half');
       expect(halfStars2).toHaveLength(1); // Half star for 3.5
 
       // Test rating above half star threshold (3.7)
       rerender(<Rating rating={3.7} />);
       const stars3 = screen.getAllByTestId('rating-star');
-      const halfStars3 = stars3.filter(star => star.getAttribute('data-star-type') === 'half');
+      const halfStars3 = stars3.filter((star) => star.getAttribute('data-star-type') === 'half');
       expect(halfStars3).toHaveLength(1); // Half star for 3.7
     });
 
@@ -143,8 +143,8 @@ describe('Rating', () => {
       render(<Rating rating={3.8} />);
 
       const allStars = screen.getAllByTestId('rating-star');
-      const fullStars = allStars.filter(star => star.getAttribute('data-star-type') === 'full');
-      const halfStars = allStars.filter(star => star.getAttribute('data-star-type') === 'half');
+      const fullStars = allStars.filter((star) => star.getAttribute('data-star-type') === 'full');
+      const halfStars = allStars.filter((star) => star.getAttribute('data-star-type') === 'half');
 
       expect(fullStars).toHaveLength(3);
       expect(halfStars).toHaveLength(1);

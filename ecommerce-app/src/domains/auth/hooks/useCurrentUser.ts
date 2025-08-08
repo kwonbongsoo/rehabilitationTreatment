@@ -11,7 +11,7 @@ export function useCurrentUser(): UseQueryResult<UserResponse | undefined, Error
     queryFn: async () => {
       const { success, error, statusCode = 500, data } = await getCurrentUser();
 
-      if (!success && error) {
+      if (!success) {
         throw new Error(error ?? '사용자 정보 조회에 실패했습니다.', {
           cause: { statusCode },
         });
