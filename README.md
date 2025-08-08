@@ -31,7 +31,7 @@
 ## 성능 지표
 ![Performance](lighthouse.png)
 
-## 테스트 코드(테스트코드)
+## 테스트 코드
   - 이커머스앱
    ![이커머스앱 테스트코드](test.png)
 
