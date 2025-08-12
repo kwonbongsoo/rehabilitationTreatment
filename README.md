@@ -1537,8 +1537,13 @@ private isHealthCheckRequest(req: Request, url: URL): boolean {
 - [ ] **Cart Service**: Redis 기반 장바구니 서비스 (주문 서버 구현 후 작성 예정) -->
 
 
+### Phase 4: 모니터링 & 관찰성
+- [ ] **메트릭 수집**: Prometheus + Grafana
+<!-- - [ ] **분산 추적**: 서비스 간 호출 추적
+- [ ] **로그 집계**: 중앙집중식 로깅
+- [ ] **알림 체계**: 장애 알림 시스템 -->
 
-### Phase 4: 성능 테스트 & 캐싱 전략 비교
+### Phase 5: 성능 테스트 & 캐싱 전략 비교
 - [ ] **Artillery.js 기반 RPS 테스트**: JavaScript 기반 정밀 부하 테스트
   - 동시 사용자 100-1000명 시나리오 구성
   - 실제 사용자 패턴 시뮬레이션 (게스트/로그인 사용자)
@@ -1560,12 +1565,6 @@ private isHealthCheckRequest(req: Request, url: URL): boolean {
   - 캐시 히트율 및 성능 개선 효과 분석
   - 실제 사용자 워크플로우 기반 성능 테스트
   - Core Web Vitals (FCP, LCP, CLS) 측정 통합
-
-### Phase 5: 모니터링 & 관찰성
-- [ ] **메트릭 수집**: Prometheus + Grafana
-- [ ] **분산 추적**: 서비스 간 호출 추적
-- [ ] **로그 집계**: 중앙집중식 로깅
-- [ ] **알림 체계**: 장애 알림 시스템
 
 ## 참고 문서
 
