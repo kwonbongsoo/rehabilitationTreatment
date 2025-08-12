@@ -1533,12 +1533,35 @@ private isHealthCheckRequest(req: Request, url: URL): boolean {
   - S3 이미지 업로드 서비스 통합
   - 카테고리 8개, 상품 12개 초기 데이터
   - BFF 서버 연동 완료
-- [ ] **Order Service**: 주문 관리 서비스 (포트 7000)
-- [ ] **Cart Service**: Redis 기반 장바구니 서비스 (주문 서버 구현 후 작성 예정)
+<!-- - [ ] **Order Service**: 주문 관리 서비스 (포트 7000)
+- [ ] **Cart Service**: Redis 기반 장바구니 서비스 (주문 서버 구현 후 작성 예정) -->
 
 
 
-### Phase 4: 모니터링 & 관찰성
+### Phase 4: 성능 테스트 & 캐싱 전략 비교
+- [ ] **Artillery.js 기반 RPS 테스트**: JavaScript 기반 정밀 부하 테스트
+  - 동시 사용자 100-1000명 시나리오 구성
+  - 실제 사용자 패턴 시뮬레이션 (게스트/로그인 사용자)
+  - 초당 요청 수(RPS) 측정 및 분석
+  - Next.js 특화 테스트 시나리오 (SSR, ISR, API Routes)
+- [ ] **Artillery.js 학습 및 테스트**:
+  - JavaScript 기반 부하 테스트 도구 사용 해보려 함. (기존 nGrinder, Apache Bench 경험 보유)
+  - Next.js 환경에 특화된 테스트 시나리오 구성 방법 학습
+- [ ] **Next.js Frontend Docker 인스턴스 최소 사양 RPS 한계 측정**:
+  - Artillery.js를 통한 Next.js 프론트엔드 Docker 컨테이너 성능 한계 측정
+  - CPU/메모리 제약 조건별 성능 임계점 분석
+  - Docker 환경에서의 최대 처리 용량 식별
+- [ ] **캐싱 전략 성능 비교**:
+  - **Redis HTML 캐시** (프록시 서버): Artillery.js로 HTML 페이지 캐싱 효과 측정
+  - **Next.js ISR** (Incremental Static Regeneration): ISR vs 실시간 렌더링 성능 비교
+  - **BFF 엔드포인트 Redis 캐시** (Kong Gateway): API 응답 캐싱 성능 검증
+- [ ] **홈페이지 & 카테고리 페이지 최적화**:
+  - Artillery.js 시나리오별 응답 시간 측정
+  - 캐시 히트율 및 성능 개선 효과 분석
+  - 실제 사용자 워크플로우 기반 성능 테스트
+  - Core Web Vitals (FCP, LCP, CLS) 측정 통합
+
+### Phase 5: 모니터링 & 관찰성
 - [ ] **메트릭 수집**: Prometheus + Grafana
 - [ ] **분산 추적**: 서비스 간 호출 추적
 - [ ] **로그 집계**: 중앙집중식 로깅
