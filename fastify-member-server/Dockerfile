@@ -51,6 +51,9 @@ COPY --from=common-builder /common ./node_modules/@ecommerce/common
 # 애플리케이션 코드 복사
 COPY --from=build /app/dist ./dist
 
+# 모니터링 메트릭 파일 복사
+COPY monitoring/application-metrics/fastify-metrics.mjs ./monitoring/
+
 RUN npm run postinstall
 
 RUN chmod +x /app/entrypoint.sh

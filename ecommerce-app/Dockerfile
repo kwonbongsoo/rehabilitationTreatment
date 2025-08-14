@@ -61,6 +61,9 @@ COPY --from=builder /app/.next/static ./_next/static
 # 빌드된 common 패키지를 복사 (runtime에서도 필요할 수 있음)
 COPY --from=common-builder /common ./node_modules/@ecommerce/common
 
+# 모니터링 메트릭 파일 복사
+COPY monitoring/application-metrics/nextjs-metrics.js ./monitoring/
+
 # 앱 실행 (포트는 실제 앱 포트에 맞게 수정)
 EXPOSE 3000
 CMD ["node", "server.js"]

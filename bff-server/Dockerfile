@@ -46,5 +46,8 @@ COPY --from=common-builder /common ./node_modules/@ecommerce/common
 # 앱 빌드 결과 복사
 COPY --from=build /app/dist ./dist
 
+# 모니터링 메트릭 파일 복사
+COPY monitoring/application-metrics/fastify-metrics.mjs ./monitoring/
+
 EXPOSE 3001
 CMD ["npm", "start"]

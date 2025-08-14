@@ -46,6 +46,9 @@ COPY --from=common-builder /common ./node_modules/@ecommerce/common
 # 애플리케이션 빌드 결과 복사
 COPY --from=build /app/dist ./dist
 
+# 모니터링 메트릭 파일 복사
+COPY monitoring/application-metrics/nestjs-metrics.js ./monitoring/
+
 # 업로드 디렉토리 권한 설정
 RUN mkdir -p /app/uploads && chown -R nestjs:nodejs /app/uploads
 

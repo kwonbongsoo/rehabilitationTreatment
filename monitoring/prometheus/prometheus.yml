@@ -1,0 +1,104 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'ecommerce-app'
+    environment: 'development'
+
+rule_files:
+  - "/etc/prometheus/rules/*.yml"
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+scrape_configs:
+  # Prometheus 자체 모니터링
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+    scrape_interval: 30s
+
+  # 시스템 메트릭 (Node Exporter)
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+    scrape_interval: 30s
+
+  # 컨테이너 메트릭 (cAdvisor)
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+    scrape_interval: 30s
+
+  # Redis 메트릭
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+    scrape_interval: 30s
+
+  # PostgreSQL 메트릭
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+    scrape_interval: 30s
+
+  # Kong Gateway 메트릭 (Kong Admin API)
+  - job_name: 'kong'
+    static_configs:
+      - targets: ['kong:8001']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+
+  # 애플리케이션 서비스 메트릭
+  - job_name: 'bff-server'
+    static_configs:
+      - targets: ['bff-server:3001']
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+    scrape_timeout: 10s
+
+  - job_name: 'auth-server'
+    static_configs:
+      - targets: ['koa-auth-server:4000']
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+    scrape_timeout: 10s
+
+  - job_name: 'member-server'
+    static_configs:
+      - targets: ['fastify-member-server:5000']
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+    scrape_timeout: 10s
+
+  - job_name: 'product-server'
+    static_configs:
+      - targets: ['product-domain-server:3002']
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+    scrape_timeout: 10s
+
+  - job_name: 'proxy-server'
+    static_configs:
+      - targets: ['proxy-server:9000']
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+    scrape_timeout: 10s
+
+  # Next.js Frontend 메트릭 (Next.js telemetry)
+  - job_name: 'nextjs-frontend'
+    static_configs:
+      - targets: ['ecommerce-app:3000']
+    metrics_path: '/api/metrics'
+    scrape_interval: 30s
+    scrape_timeout: 10s
+
+# 원격 쓰기 설정 (장기 저장용, 선택사항)
+# remote_write:
+#   - url: "https://prometheus-remote-write-url"
+#     basic_auth:
+#       username: "username"
+#       password: "password"

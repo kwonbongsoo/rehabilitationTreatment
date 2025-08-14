@@ -41,6 +41,9 @@ COPY --from=common-builder /common ./node_modules/@ecommerce/common
 # 애플리케이션 코드 복사
 COPY --from=build /app/dist ./dist
 
+# 모니터링 메트릭 파일 복사
+COPY monitoring/application-metrics/koa-metrics.mjs ./monitoring/
+
 USER node
 EXPOSE 4000
 HEALTHCHECK --interval=30s --timeout=3s CMD wget -q --spider http://localhost:4000/api/auth/health || exit 1
