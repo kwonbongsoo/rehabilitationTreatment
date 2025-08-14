@@ -1,4 +1,4 @@
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import { NextRequest } from 'next/server';
 
 /**
@@ -65,27 +65,27 @@ class HttpHeaderBuilder implements HeaderBuilder {
     return { ...this.headers };
   }
 
-  private async resolveAuthToken(): Promise<string | undefined> {
+  private async resolveAuthToken(): Promise<string> {
     if (this.authValue) {
       return this.authValue;
     }
 
-    // 먼저 요청 헤더에서 Authorization 토큰 확인 (프록시에서 전달된 것)
     try {
-      const { headers } = await import('next/headers');
       const headersList = await headers();
       const authHeader = headersList.get('authorization');
-
-      if (authHeader && authHeader.startsWith('Bearer ')) {
-        const token = authHeader.substring(7); // "Bearer " 제거
-        return token;
+      if (authHeader?.startsWith('Bearer ')) {
+        return authHeader.substring(7);
       }
     } catch {
-      // Authorization 헤더가 없으면 쿠키에서 토큰 추출 (fallback)
-      const cookieStore = await cookies();
-      const token = cookieStore.get('access_token')?.value;
+      // 헤더 읽기 자체가 실패한 경우는 그냥 넘어감
+    }
 
-      return token;
+    // 헤더에서 못 찾았거나 읽기 실패한 경우
+    try {
+      const cookieStore = await cookies();
+      return cookieStore.get('access_token')?.value || '';
+    } catch {
+      return '';
     }
   }
 
