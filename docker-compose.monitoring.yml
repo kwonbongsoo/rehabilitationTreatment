@@ -1,0 +1,405 @@
+version: '3.8'
+
+services:
+  # Prometheus - 메트릭 수집 및 저장 (OverlayFS 최적화)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/prometheus/rules:/etc/prometheus/rules:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=15d'     # 데이터 보존 기간 단축 (30d→15d)
+      - '--storage.tsdb.retention.size=2GB'     # 스토리지 크기 제한
+      - '--storage.tsdb.wal-compression'        # WAL 압축 활성화
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+      - '--query.timeout=30s'                   # 쿼리 타임아웃 설정
+      - '--query.max-concurrency=10'            # 동시 쿼리 제한
+    networks:
+      - monitoring-network
+      - app-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.4'           # CPU 제한 완화 (0.5→0.4)
+          memory: 384M          # 메모리 제한 완화 (512M→384M)
+        reservations:
+          cpus: '0.15'          # CPU 예약 완화 (0.2→0.15)
+          memory: 192M          # 메모리 예약 완화 (256M→192M)
+    # OverlayFS 이슈 완화를 위한 로깅 제한
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"       # 로그 파일 최대 크기
+        max-file: "3"         # 로그 파일 최대 개수
+
+  # Grafana - 데이터 시각화 및 대시보드 (OverlayFS 최적화)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3004:3000"  # 기존 BFF 서버와 포트 충돌 방지
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin123}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_USERS_ALLOW_ORG_CREATE=false
+      - GF_SECURITY_ALLOW_EMBEDDING=true
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+      - GF_ALERTING_ENABLED=true
+      - GF_EXPLORE_ENABLED=true
+      - GF_FEATURE_TOGGLES_ENABLE=ngalert
+      # OverlayFS 최적화 설정
+      - GF_LOG_LEVEL=warn                       # 로그 레벨 최적화 (info→warn)
+      - GF_LOG_MODE=console
+      - GF_ANALYTICS_REPORTING_ENABLED=false    # 분석 보고 비활성화
+      - GF_ANALYTICS_CHECK_FOR_UPDATES=false    # 업데이트 확인 비활성화
+      - GF_DATABASE_WAL=true                    # WAL 모드 활성화
+      - GF_DATABASE_CACHE_MODE=shared           # 캐시 모드 최적화
+      - GF_DASHBOARDS_MIN_REFRESH_INTERVAL=30s  # 최소 새로고침 간격
+    networks:
+      - monitoring-network
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'          # CPU 제한 완화 (0.3→0.25)
+          memory: 192M          # 메모리 제한 완화 (256M→192M)
+        reservations:
+          cpus: '0.08'          # CPU 예약 완화 (0.1→0.08)
+          memory: 96M           # 메모리 예약 완화 (128M→96M)
+    # OverlayFS 이슈 완화를 위한 로깅 제한
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"        # 로그 파일 최대 크기
+        max-file: "2"         # 로그 파일 최대 개수
+
+  # Node Exporter - 시스템 메트릭 수집
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    ports:
+      - "9100:9100"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    networks:
+      - monitoring-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.1'
+          memory: 64M
+        reservations:
+          cpus: '0.05'
+          memory: 32M
+
+  # Redis Exporter - Redis 메트릭 수집 (주석 처리 - 별도 실행 시 Redis 없음)
+  # redis-exporter:
+  #   image: oliver006/redis_exporter:latest
+  #   container_name: redis-exporter
+  #   env_file:
+  #     - ./monitoring/.env
+  #   ports:
+  #     - "9121:9121"
+  #   environment:
+  #     - REDIS_ADDR=redis://redis:6379
+  #     - REDIS_PASSWORD=${REDIS_PASSWORD}
+  #   networks:
+  #     - monitoring-network
+  #     - app-network
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - redis
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         cpus: '0.1'
+  #         memory: 64M
+  #       reservations:
+  #         cpus: '0.05'
+  #         memory: 32M
+
+  # Member DB Exporter - 회원 데이터베이스 메트릭 수집
+  # member-db-exporter:
+  #   image: prometheuscommunity/postgres-exporter:latest
+  #   container_name: member-db-exporter
+  #   ports:
+  #     - "9187:9187"
+  #   environment:
+  #     - DATA_SOURCE_NAME=postgresql://postgres:1234@practice_app-network:5432/fastify_member_db?sslmode=disable
+  #   networks:
+  #     - monitoring-network
+  #     - app-network
+  #   restart: unless-stopped
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         cpus: '0.1'
+  #         memory: 64M
+  #       reservations:
+  #         cpus: '0.05'
+  #         memory: 32M
+
+  # # Product DB Exporter - 상품 데이터베이스 메트릭 수집
+  # product-db-exporter:
+  #   image: prometheuscommunity/postgres-exporter:latest
+  #   container_name: product-db-exporter
+  #   ports:
+  #     - "9188:9187"
+  #   environment:
+  #     - DATA_SOURCE_NAME=postgresql://product_db:product_bongsoo@practice_app-network:5434/product_db?sslmode=disable
+  #   networks:
+  #     - monitoring-network
+  #     - app-network
+  #   restart: unless-stopped
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         cpus: '0.1'
+  #         memory: 64M
+  #       reservations:
+  #         cpus: '0.05'
+  #         memory: 32M
+
+  # cAdvisor - 컨테이너 메트릭 수집 (Windows Docker Desktop 최적화)
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.47.0
+    container_name: cadvisor
+    ports:
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    command:
+      - '--port=8080'
+      - '--docker_only=true'
+      - '--housekeeping_interval=30s'
+      - '--max_housekeeping_interval=60s'
+      - '--v=1'                        # 로그 레벨 조정 (경고 감소)
+      - '--logtostderr=true'           # 로그 출력 방식
+    networks:
+      - monitoring-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.15'          # CPU 제한 완화 (0.2→0.15)
+          memory: 96M           # 메모리 제한 완화 (128M→96M)
+        reservations:
+          cpus: '0.08'          # CPU 예약 완화 (0.1→0.08)
+          memory: 48M           # 메모리 예약 완화 (64M→48M)
+    # OverlayFS 이슈 완화를 위한 로깅 제한
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"        # 로그 파일 최대 크기
+        max-file: "2"         # 로그 파일 최대 개수
+
+  # Config Preprocessor - 환경변수 치환
+  alertmanager-config:
+    image: alpine:latest
+    container_name: alertmanager-config
+    env_file:
+      - ./monitoring/.env
+    volumes:
+      - ./monitoring/alertmanager/alertmanager.yml:/tmp/alertmanager.yml.template:ro
+      - alertmanager_config:/etc/alertmanager
+    command: >
+      /bin/sh -c "
+        apk add --no-cache gettext &&
+        envsubst < /tmp/alertmanager.yml.template > /etc/alertmanager/alertmanager.yml &&
+        echo 'Configuration processed successfully'
+      "
+    restart: "no"
+
+  # AlertManager - 알림 관리
+  alertmanager:
+    image: prom/alertmanager:latest
+    container_name: alertmanager
+    depends_on:
+      - alertmanager-config
+    ports:
+      - "9093:9093"
+    volumes:
+      - alertmanager_config:/etc/alertmanager:ro
+      - alertmanager_data:/alertmanager
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+      - '--web.external-url=http://localhost:9093'
+      - '--cluster.advertise-address=0.0.0.0:9093'
+    networks:
+      - monitoring-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.1'
+          memory: 64M
+        reservations:
+          cpus: '0.05'
+          memory: 32M
+
+  # 자동 헬스체크 서비스
+  health-monitor:
+    image: alpine:latest
+    container_name: health-monitor
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./monitoring:/monitoring:ro
+    environment:
+      - HEALTH_CHECK_INTERVAL=300  # 5분마다 체크
+      - SLACK_WEBHOOK_URL=${SLACK_WEBHOOK_URL:-}
+      - EMAIL_ALERTS=${EMAIL_ALERTS:-false}
+    command: |
+      sh -c '
+        apk add --no-cache curl jq
+        echo "Starting automated health monitoring..."
+
+        # 헬스체크 함수
+        check_service() {
+          local service=$$1
+          local port=$$2
+          local endpoint=$$3
+          local timeout=5
+
+          if curl -s --connect-timeout $$timeout "http://localhost:$$port$$endpoint" > /dev/null 2>&1; then
+            return 0
+          else
+            return 1
+          fi
+        }
+
+        # 알림 함수 (Slack)
+        send_slack_alert() {
+          local message="$$1"
+          if [ ! -z "$$SLACK_WEBHOOK_URL" ]; then
+            curl -X POST -H "Content-type: application/json" \
+              --data "{\"text\":\"🚨 Docker Monitoring Alert: $$message\"}" \
+              "$$SLACK_WEBHOOK_URL" 2>/dev/null || true
+          fi
+        }
+
+        # 리소스 사용량 체크
+        check_resources() {
+          # 디스크 사용량 체크 (85% 이상시 경고)
+          local disk_usage=$$(df -h / | awk "NR==2 {print $$5}" | sed "s/%//")
+          if [ $$disk_usage -gt 85 ]; then
+            echo "⚠ High disk usage: $$disk_usage%"
+            send_slack_alert "High disk usage: $$disk_usage%"
+          fi
+        }
+
+        # 메인 헬스체크 루프
+        while true; do
+          echo "Running health check at $$(date)"
+          failed_services=""
+
+          # 각 서비스 체크
+          services="prometheus:9090:/api/v1/query?query=up grafana:3004:/api/health cadvisor:8080:/healthz node-exporter:9100:/metrics"
+
+          for service_info in $$services; do
+            service_name=$$(echo $$service_info | cut -d: -f1)
+            port=$$(echo $$service_info | cut -d: -f2)
+            endpoint=$$(echo $$service_info | cut -d: -f3-)
+
+            if ! check_service $$service_name $$port "/$$endpoint"; then
+              failed_services="$$failed_services $$service_name"
+              echo "❌ $$service_name failed health check"
+            else
+              echo "✅ $$service_name healthy"
+            fi
+          done
+
+          # 컨테이너 상태 체크
+          containers="prometheus grafana cadvisor node-exporter"
+          stopped_containers=""
+
+          for container in $$containers; do
+            if ! docker ps --format "{{.Names}}" | grep -q "^$$container$$"; then
+              stopped_containers="$$stopped_containers $$container"
+            fi
+          done
+
+          # 리소스 사용량 체크
+          check_resources
+
+          # 알림 전송
+          if [ ! -z "$$failed_services" ] || [ ! -z "$$stopped_containers" ]; then
+            alert_message="Health check failed!"
+            [ ! -z "$$failed_services" ] && alert_message="$$alert_message Services down:$$failed_services"
+            [ ! -z "$$stopped_containers" ] && alert_message="$$alert_message Containers stopped:$$stopped_containers"
+
+            send_slack_alert "$$alert_message"
+            echo "🚨 Alert sent: $$alert_message"
+          fi
+
+          echo "Health check completed. Next check in $$HEALTH_CHECK_INTERVAL seconds."
+          sleep $$HEALTH_CHECK_INTERVAL
+        done
+      '
+    restart: unless-stopped
+    networks:
+      - monitoring-network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.05'
+          memory: 64M
+        reservations:
+          cpus: '0.02'
+          memory: 32M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "2m"
+        max-file: "2"
+    profiles:
+      - health-check
+
+volumes:
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+  alertmanager_data:
+    driver: local
+  alertmanager_config:
+    driver: local
+
+networks:
+  monitoring-network:
+    driver: bridge
+  app-network:
+    driver: bridge
+    name: practice_app-network
+
+# 실행 명령어:
+# docker-compose -f docker-compose.yaml -f docker-compose.min.yml -f docker-compose.monitoring.yml up --build -d
+#
+# OverlayFS 이슈 완화를 위한 정리 서비스 포함하여 실행:
+# docker-compose -f docker-compose.yaml -f docker-compose.min.yml -f docker-compose.monitoring.yml --profile cleanup up --build -d

@@ -13,15 +13,15 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 export class CreateProductOptionDto {
   @ApiProperty({ description: '옵션 타입', example: 'color' })
   @IsString()
-  optionType: string;
+  optionType!: string;
 
   @ApiProperty({ description: '옵션 이름', example: '색상' })
   @IsString()
-  optionName: string;
+  optionName!: string;
 
   @ApiProperty({ description: '옵션 값', example: '블랙' })
   @IsString()
-  optionValue: string;
+  optionValue!: string;
 
   @ApiPropertyOptional({ description: '추가 가격', example: 0 })
   @IsOptional()
@@ -50,14 +50,14 @@ export class CreateProductOptionDto {
 export class CreateProductDto {
   @ApiProperty({ description: '상품명', example: '심플 티셔츠' })
   @IsString()
-  name: string;
+  name!: string;
 
   @ApiProperty({
     description: '상품 설명',
     example: '편안한 착용감과 심플한 디자인이 매력적인 기본 티셔츠입니다.',
   })
   @IsString()
-  description: string;
+  description!: string;
 
   @ApiProperty({ description: '가격', example: 29000 })
   @IsNumber()
@@ -69,7 +69,7 @@ export class CreateProductDto {
     }
     return value;
   })
-  price: number;
+  price!: number;
 
   @ApiProperty({ description: '원가', example: 29000 })
   @IsNumber()
@@ -81,7 +81,7 @@ export class CreateProductDto {
     }
     return value;
   })
-  originalPrice: number;
+  originalPrice!: number;
 
   @ApiProperty({ description: '카테고리 ID', example: 1 })
   @IsNumber()
@@ -93,11 +93,11 @@ export class CreateProductDto {
     }
     return value;
   })
-  categoryId: number;
+  categoryId!: number;
 
   @ApiProperty({ description: '판매자 ID', example: 'seller123' })
   @IsString()
-  sellerId: string;
+  sellerId!: string;
 
   @ApiPropertyOptional({ description: '메인 이미지 URL' })
   @IsOptional()

@@ -16,6 +16,9 @@ RUN bun install --production --frozen-lockfile || bun install --production
 # 소스 코드 복사 (공통 에러 모듈 포함)
 COPY proxy-server/src ./src
 
+# 모니터링 메트릭 파일 복사
+COPY monitoring/application-metrics/bun-proxy-metrics.js ./monitoring/
+
 # 포트 노출
 EXPOSE 9000
 

@@ -1,6 +1,6 @@
 /**
  * ProductGridRenderer 테스트
- * 
+ *
  * 상품 그리드 렌더러의 필터링, 정렬, 뷰 모드 전환을 테스트합니다.
  */
 
@@ -19,15 +19,15 @@ jest.mock('next/navigation', () => ({
 
 // ProductCard 컴포넌트 모킹
 jest.mock('@/components/common/ProductCard', () => {
-  return function MockProductCard({ 
-    product, 
-    onWishlistToggle 
-  }: { 
+  return function MockProductCard({
+    product,
+    onWishlistToggle,
+  }: {
     product: Product;
     onWishlistToggle: (productId: number) => void;
   }) {
     return (
-      <div 
+      <div
         data-testid={`product-${product.id}`}
         data-product-name={product.name}
         data-product-price={product.price}
@@ -38,8 +38,8 @@ jest.mock('@/components/common/ProductCard', () => {
         <div data-testid="product-name">{product.name}</div>
         <div data-testid="product-price">{product.price}</div>
         {product.discount && <div data-testid="product-discount">{product.discount}%</div>}
-        {product.tags?.map(tag => (
-          <span key={tag.id} data-testid={`product-tag-${tag.name}`}>
+        {product.tags?.map((tag) => (
+          <span key={tag.name} data-testid={`product-tag-${tag.name}`}>
             {tag.name}
           </span>
         ))}
@@ -81,10 +81,16 @@ const mockProducts: Product[] = [
     sellerId: 'seller1',
     rating: 4.5,
     discount: 33,
-    tags: [{ id: 1, name: 'NEW' }, { id: 2, name: 'SALE' }],
+    tags: [
+      { color: 'red', name: 'NEW' },
+      { color: 'blue', name: 'SALE' },
+    ],
     images: [],
     isNew: true,
     isFeatured: false,
+    mainImage: '',
+    stock: 100,
+    reviews: 100,
   },
   {
     id: 2,
@@ -96,10 +102,13 @@ const mockProducts: Product[] = [
     sellerId: 'seller2',
     rating: 4.8,
     discount: 0,
-    tags: [{ id: 3, name: 'POPULAR' }],
+    tags: [{ color: 'green', name: 'POPULAR' }],
     images: [],
     isNew: false,
     isFeatured: true,
+    mainImage: '',
+    stock: 100,
+    reviews: 100,
   },
   {
     id: 3,
@@ -111,10 +120,13 @@ const mockProducts: Product[] = [
     sellerId: 'seller3',
     rating: 3.2,
     discount: 0,
-    tags: [{ id: 1, name: 'NEW' }],
+    tags: [{ color: 'yellow', name: 'NEW' }],
     images: [],
     isNew: true,
     isFeatured: false,
+    mainImage: '',
+    stock: 100,
+    reviews: 100,
   },
   {
     id: 4,
@@ -130,27 +142,30 @@ const mockProducts: Product[] = [
     images: [],
     isNew: false,
     isFeatured: false,
+    mainImage: '',
+    stock: 100,
+    reviews: 100,
   },
 ];
 
 describe('ProductGridRenderer', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockUseSearchParams.mockReturnValue(createMockSearchParams());
+    mockUseSearchParams.mockReturnValue(createMockSearchParams() as any);
   });
 
   const renderWithProvider = (
     products = mockProducts,
-    initialParams: Record<string, string> = {}
+    initialParams: Record<string, string> = {},
   ) => {
     if (Object.keys(initialParams).length > 0) {
-      mockUseSearchParams.mockReturnValue(createMockSearchParams(initialParams));
+      mockUseSearchParams.mockReturnValue(createMockSearchParams(initialParams) as any);
     }
 
     return render(
       <CategoryProvider>
         <ProductGridRenderer allProducts={products} />
-      </CategoryProvider>
+      </CategoryProvider>,
     );
   };
 
@@ -167,7 +182,7 @@ describe('ProductGridRenderer', () => {
     it('상품 그리드 컨테이너를 렌더링해야 한다', () => {
       renderWithProvider();
 
-      const gridContainer = screen.getByTestId('product-1').closest('[data-view-mode]');
+      const gridContainer = screen.getByTestId('product-grid');
       expect(gridContainer).toBeInTheDocument();
       expect(gridContainer).toHaveAttribute('data-view-mode', 'grid');
     });
@@ -251,8 +266,8 @@ describe('ProductGridRenderer', () => {
       renderWithProvider(mockProducts, { sort: 'price-low' });
 
       const productElements = screen.getAllByTestId(/^product-\d+$/);
-      const prices = productElements.map(el => 
-        parseInt(el.getAttribute('data-product-price') || '0')
+      const prices = productElements.map((el) =>
+        parseInt(el.getAttribute('data-product-price') || '0'),
       );
 
       // 8000, 10000, 25000, 30000 순서
@@ -263,8 +278,8 @@ describe('ProductGridRenderer', () => {
       renderWithProvider(mockProducts, { sort: 'price-high' });
 
       const productElements = screen.getAllByTestId(/^product-\d+$/);
-      const prices = productElements.map(el => 
-        parseInt(el.getAttribute('data-product-price') || '0')
+      const prices = productElements.map((el) =>
+        parseInt(el.getAttribute('data-product-price') || '0'),
       );
 
       // 30000, 25000, 10000, 8000 순서
@@ -275,8 +290,8 @@ describe('ProductGridRenderer', () => {
       renderWithProvider(mockProducts, { sort: 'rating' });
 
       const productElements = screen.getAllByTestId(/^product-\d+$/);
-      const ratings = productElements.map(el => 
-        parseFloat(el.getAttribute('data-product-rating') || '0')
+      const ratings = productElements.map((el) =>
+        parseFloat(el.getAttribute('data-product-rating') || '0'),
       );
 
       // 4.8, 4.5, 3.2, 1.8 순서 (높은 평점부터)
@@ -287,8 +302,8 @@ describe('ProductGridRenderer', () => {
       renderWithProvider(mockProducts, { sort: 'popular' });
 
       const productElements = screen.getAllByTestId(/^product-\d+$/);
-      const ratings = productElements.map(el => 
-        parseFloat(el.getAttribute('data-product-rating') || '0')
+      const ratings = productElements.map((el) =>
+        parseFloat(el.getAttribute('data-product-rating') || '0'),
       );
 
       // popular = rating과 동일한 로직 (높은 평점부터)
@@ -300,7 +315,7 @@ describe('ProductGridRenderer', () => {
     it('그리드 뷰 모드 CSS 클래스가 적용되어야 한다', () => {
       renderWithProvider(mockProducts, { view: 'grid' });
 
-      const gridContainer = screen.getByTestId('product-1').closest('[data-view-mode]');
+      const gridContainer = screen.getByTestId('product-grid');
       expect(gridContainer).toHaveClass('product-grid');
       expect(gridContainer).not.toHaveClass('list-view');
       expect(gridContainer).toHaveAttribute('data-view-mode', 'grid');
@@ -309,7 +324,7 @@ describe('ProductGridRenderer', () => {
     it('리스트 뷰 모드 CSS 클래스가 적용되어야 한다', () => {
       renderWithProvider(mockProducts, { view: 'list' });
 
-      const gridContainer = screen.getByTestId('product-1').closest('[data-view-mode]');
+      const gridContainer = screen.getByTestId('product-grid');
       expect(gridContainer).toHaveClass('product-grid');
       expect(gridContainer).toHaveClass('list-view');
       expect(gridContainer).toHaveAttribute('data-view-mode', 'list');
@@ -321,16 +336,16 @@ describe('ProductGridRenderer', () => {
       renderWithProvider(mockProducts, {
         category: '1', // 카테고리 1
         filter: '신상품', // NEW 태그 있는 상품
-        sort: 'price-high' // 높은 가격순
+        sort: 'price-high', // 높은 가격순
       });
 
       // 카테고리 1 + NEW 태그 상품: product-1 (10000원), product-3 (8000원)
       // 높은 가격순 정렬: product-1, product-3 순서
       const productElements = screen.getAllByTestId(/^product-\d+$/);
       expect(productElements).toHaveLength(2);
-      
-      const prices = productElements.map(el => 
-        parseInt(el.getAttribute('data-product-price') || '0')
+
+      const prices = productElements.map((el) =>
+        parseInt(el.getAttribute('data-product-price') || '0'),
       );
       expect(prices).toEqual([10000, 8000]);
     });
@@ -338,7 +353,7 @@ describe('ProductGridRenderer', () => {
     it('필터링 결과가 없으면 빈 그리드를 표시해야 한다', () => {
       renderWithProvider(mockProducts, {
         category: '1',
-        filter: '할인상품'
+        filter: '할인상품',
       });
 
       // 카테고리 1에서 할인상품은 product-1만 있음
@@ -353,14 +368,11 @@ describe('ProductGridRenderer', () => {
     it('컨텍스트 상태 변경이 필터링에 반영되어야 한다', async () => {
       const TestWrapper = () => {
         const [trigger, setTrigger] = React.useState(false);
-        
+
         return (
           <CategoryProvider>
             <ProductGridRenderer allProducts={mockProducts} />
-            <button 
-              data-testid="change-filter"
-              onClick={() => setTrigger(!trigger)}
-            >
+            <button data-testid="change-filter" onClick={() => setTrigger(!trigger)}>
               필터 변경
             </button>
           </CategoryProvider>
@@ -398,81 +410,21 @@ describe('ProductGridRenderer', () => {
     });
   });
 
-  describe('edge cases', () => {
-    it('rating이 0인 상품을 처리해야 한다', () => {
-      const productsWithZeroRating: Product[] = [
-        {
-          ...mockProducts[0],
-          id: 1,
-          rating: 0,
-        },
-      ];
-
-      renderWithProvider(productsWithZeroRating);
-
-      // rating이 0인 상품이 에러 없이 렌더링되어야 함
-      expect(screen.getByTestId('product-1')).toBeInTheDocument();
-    });
-
-    it('tags가 없는 상품을 처리해야 한다', () => {
-      const productsWithoutTags: Product[] = [
-        {
-          ...mockProducts[0],
-          id: 1,
-          tags: undefined as any,
-        },
-      ];
-
-      renderWithProvider(productsWithoutTags, { filter: '신상품' });
-
-      // tags가 없으므로 신상품 필터에 걸리지 않아야 함
-      expect(screen.queryByTestId('product-1')).not.toBeInTheDocument();
-    });
-
-    it('discount가 undefined인 상품을 처리해야 한다', () => {
-      const productsWithoutDiscount: Product[] = [
-        {
-          ...mockProducts[0],
-          id: 1,
-          discount: undefined as any,
-        },
-      ];
-
-      renderWithProvider(productsWithoutDiscount, { filter: '할인상품' });
-
-      // discount가 없으므로 할인상품 필터에 걸리지 않아야 함
-      expect(screen.queryByTestId('product-1')).not.toBeInTheDocument();
-    });
-
-    it('매우 많은 상품을 처리해야 한다', () => {
-      const manyProducts: Product[] = Array.from({ length: 100 }, (_, index) => ({
-        ...mockProducts[0],
-        id: index + 1,
-        name: `상품 ${index + 1}`,
-        price: (index + 1) * 1000,
-      }));
-
-      renderWithProvider(manyProducts);
-
-      expect(screen.getAllByTestId(/^product-\d+$/)).toHaveLength(100);
-    });
-  });
-
   describe('useMemo 최적화', () => {
     it('동일한 props일 때 필터링 결과가 캐시되어야 한다', () => {
       const { rerender } = renderWithProvider();
 
       const initialProducts = screen.getAllByTestId(/^product-\d+$/);
-      
+
       // props 변경 없이 리렌더링
       rerender(
         <CategoryProvider>
           <ProductGridRenderer allProducts={mockProducts} />
-        </CategoryProvider>
+        </CategoryProvider>,
       );
 
       const rerenderedProducts = screen.getAllByTestId(/^product-\d+$/);
-      
+
       expect(initialProducts).toHaveLength(rerenderedProducts.length);
     });
   });

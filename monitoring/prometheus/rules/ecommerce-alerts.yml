@@ -1,0 +1,168 @@
+groups:
+  - name: ecommerce.critical
+    rules:
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: "Service {{ $labels.instance }} is down"
+          description: "{{ $labels.job }} on {{ $labels.instance }} has been down for more than 1 minute"
+
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: critical
+          team: backend
+        annotations:
+          summary: "High error rate on {{ $labels.service }}"
+          description: "Error rate is {{ $value | humanizePercentage }} for {{ $labels.service }}"
+
+      - alert: DatabaseConnectionFailure
+        expr: postgres_up == 0
+        for: 30s
+        labels:
+          severity: critical
+          team: database
+        annotations:
+          summary: "Database connection failed"
+          description: "PostgreSQL database is not accessible"
+
+      - alert: RedisDown
+        expr: redis_up == 0
+        for: 30s
+        labels:
+          severity: critical
+          team: cache
+        annotations:
+          summary: "Redis is down"
+          description: "Redis cache server is not accessible"
+
+      - alert: KongGatewayDown
+        expr: up{job="kong"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: gateway
+        annotations:
+          summary: "Kong Gateway is down"
+          description: "API Gateway is not responding"
+
+  - name: ecommerce.warning
+    rules:
+      - alert: HighResponseTime
+        expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le, service)) > 3
+        for: 5m
+        labels:
+          severity: warning
+          team: backend
+        annotations:
+          summary: "High response time on {{ $labels.service }}"
+          description: "95th percentile latency is {{ $value }}s for {{ $labels.service }}"
+
+      - alert: LowCacheHitRate
+        expr: redis_keyspace_hits_total / (redis_keyspace_hits_total + redis_keyspace_misses_total) < 0.8
+        for: 10m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Low Redis cache hit rate"
+          description: "Cache hit rate is {{ $value | humanizePercentage }}"
+
+      - alert: HighMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes > 0.85
+        for: 10m
+        labels:
+          severity: warning
+          team: infrastructure
+        annotations:
+          summary: "High memory usage on {{ $labels.instance }}"
+          description: "Memory usage is {{ $value | humanizePercentage }}"
+
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 10m
+        labels:
+          severity: warning
+          team: infrastructure
+        annotations:
+          summary: "High CPU usage on {{ $labels.instance }}"
+          description: "CPU usage is {{ $value }}%"
+
+      - alert: DiskSpaceRunningOut
+        expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100 < 20
+        for: 5m
+        labels:
+          severity: warning
+          team: infrastructure
+        annotations:
+          summary: "Disk space running out on {{ $labels.instance }}"
+          description: "Only {{ $value }}% disk space left on root filesystem"
+
+      - alert: ContainerHighMemoryUsage
+        expr: (container_memory_usage_bytes / container_spec_memory_limit_bytes) > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Container {{ $labels.name }} high memory usage"
+          description: "Container memory usage is {{ $value | humanizePercentage }}"
+
+  - name: ecommerce.business
+    rules:
+      - alert: HighAuthenticationFailureRate
+        expr: rate(authentication_attempts_total{status="failure"}[5m]) / rate(authentication_attempts_total[5m]) > 0.3
+        for: 5m
+        labels:
+          severity: warning
+          team: security
+        annotations:
+          summary: "High authentication failure rate"
+          description: "Authentication failure rate is {{ $value | humanizePercentage }}"
+
+      - alert: ProductAPIHighErrorRate
+        expr: rate(http_requests_total{service="product-server",status=~"5.."}[5m]) / rate(http_requests_total{service="product-server"}[5m]) > 0.05
+        for: 3m
+        labels:
+          severity: warning
+          team: product
+        annotations:
+          summary: "High error rate in Product API"
+          description: "Product API error rate is {{ $value | humanizePercentage }}"
+
+      - alert: LowProductViewRate
+        expr: rate(product_views_total[1h]) < rate(product_views_total[1h] offset 24h) * 0.5
+        for: 30m
+        labels:
+          severity: info
+          team: business
+        annotations:
+          summary: "Product views significantly dropped"
+          description: "Product views are 50% lower than same time yesterday"
+
+  - name: ecommerce.kong
+    rules:
+      - alert: KongHighLatency
+        expr: histogram_quantile(0.95, sum(rate(kong_latency_seconds_bucket[5m])) by (le, service)) > 2
+        for: 5m
+        labels:
+          severity: warning
+          team: gateway
+        annotations:
+          summary: "Kong Gateway high latency"
+          description: "Kong latency is {{ $value }}s for service {{ $labels.service }}"
+
+      - alert: KongPluginError
+        expr: rate(kong_plugin_errors_total[5m]) > 1
+        for: 2m
+        labels:
+          severity: warning
+          team: gateway
+        annotations:
+          summary: "Kong plugin errors"
+          description: "Kong plugin {{ $labels.plugin_name }} is generating errors"

@@ -1,4 +1,5 @@
 import type { NextConfig } from 'next';
+import path from 'path';
 
 const nextConfig: NextConfig = {
   output: 'standalone',
@@ -20,14 +21,29 @@ const nextConfig: NextConfig = {
 
   // 빌드 최적화
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
+    // TypeScript 경로 매핑을 webpack 별칭으로 추가 (Docker 환경 대응)
+    const srcPath = path.resolve(process.cwd(), 'src');
+
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@': srcPath,
+    };
+
+    // 모듈 해석 설정 강화
+    config.resolve.modules = [
+      ...(config.resolve.modules || []),
+      path.resolve(process.cwd(), 'src'),
+      'node_modules',
+    ];
+
     // React DevTools를 프로덕션에서 제외
     if (!dev) {
-      config.resolve.alias = {
-        ...config.resolve.alias,
+      // 기존 alias를 유지하면서 react-devtools만 추가
+      Object.assign(config.resolve.alias, {
         'react-devtools-shared': false,
         'react-devtools-core': false,
         'react-devtools': false,
-      };
+      });
 
       // React DevTools 관련 모듈을 완전히 제외
       config.externals = config.externals || [];
@@ -91,8 +107,8 @@ const nextConfig: NextConfig = {
     };
 
     // Tree shaking 최적화
-    config.optimization.usedExports = true;
-    config.optimization.sideEffects = true;
+    // config.optimization.usedExports = true;
+    // config.optimization.sideEffects = true;
 
     // 프로덕션에서 React DevTools 완전 제거
     if (!dev) {

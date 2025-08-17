@@ -8,8 +8,8 @@ export interface AwsConfig {
 }
 
 export const getAwsConfig = (configService: ConfigService): AwsConfig => ({
-  accessKeyId: configService.get<string>('AWS_ACCESS_KEY_ID'),
-  secretAccessKey: configService.get<string>('AWS_SECRET_ACCESS_KEY'),
-  region: configService.get<string>('AWS_REGION', 'ap-northeast-2'),
-  bucketName: configService.get<string>('S3_BUCKET_NAME'),
+  accessKeyId: configService.get<string>('AWS_ACCESS_KEY_ID') || '',
+  secretAccessKey: configService.get<string>('AWS_SECRET_ACCESS_KEY') || '',
+  region: configService.get<string>('AWS_REGION') || 'ap-northeast-2',
+  bucketName: configService.get<string>('S3_BUCKET_NAME') || '',
 });

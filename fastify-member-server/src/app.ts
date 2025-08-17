@@ -15,6 +15,28 @@ import { MemberController } from './controllers/memberController';
 // import { redisClient } from './utils/redisClient';
 import './types/fastify'; // 타입 확장 임포트
 
+// Member 서버 전용 메트릭 시스템 import
+const metricsPath = '/app/monitoring/member-metrics.js';
+let metricsModule: any = null;
+
+// Member 메트릭 시스템 동적 로딩
+async function loadMetrics() {
+  try {
+    if (process.env.METRICS_ENABLED === 'true') {
+      metricsModule = require(metricsPath);
+      console.log('Member Server metrics system loaded successfully');
+      return metricsModule;
+    } else {
+      console.log('Member Server metrics disabled by METRICS_ENABLED flag');
+      return null;
+    }
+  } catch (error) {
+    console.warn('Failed to load metrics in Member Server:', error instanceof Error ? error.message : error);
+    console.log('Member Server continues without metrics');
+    return null;
+  }
+}
+
 function validateConfig(): void {
   const requiredEnvVars = ['DATABASE_URL'];
 
@@ -32,6 +54,15 @@ export async function buildApp(): Promise<FastifyInstance> {
   const app = fastify({
     logger: true,
   });
+
+  // 메트릭 시스템 로드 및 등록
+  const metrics = await loadMetrics();
+  if (metrics && metrics.metricsPlugin) {
+    await app.register(metrics.metricsPlugin, {
+      serviceName: 'member-server',
+    });
+    console.log('Metrics plugin registered for member-server');
+  }
 
   // 싱글톤 의존성 설정
   const prisma = new PrismaClient();
@@ -89,10 +120,10 @@ export async function buildApp(): Promise<FastifyInstance> {
   // 라우트 등록
   await app.register(memberRoutes(memberController), { prefix: '/api/members' });
 
-  // 헬스체크 엔드포인트
-  app.get('/health', async () => {
-    return { status: 'ok', timestamp: new Date() };
-  });
+  // // 헬스체크 엔드포인트
+  // app.get('/health', async () => {
+  //   return { status: 'ok', timestamp: new Date() };
+  // });
 
   return app;
 }

@@ -8,6 +8,7 @@ COPY common/package*.json ./
 RUN npm ci
 COPY common/src ./src
 COPY common/tsconfig.json ./
+COPY common/tsconfig.base.json ./
 RUN npm run build
 
 # =========================================
@@ -34,6 +35,7 @@ COPY ecommerce-app/public ./public
 COPY ecommerce-app/src ./src
 COPY ecommerce-app/next.config.ts ./
 COPY ecommerce-app/tsconfig.json ./
+COPY ecommerce-app/tsconfig.base.json ./
 COPY ecommerce-app/.env ./
 
 # 빌드 시 환경변수 설정
@@ -60,6 +62,9 @@ COPY --from=builder /app/.next/static ./_next/static
 
 # 빌드된 common 패키지를 복사 (runtime에서도 필요할 수 있음)
 COPY --from=common-builder /common ./node_modules/@ecommerce/common
+
+# 모니터링 메트릭 파일 복사 (글로벌 경로에서)
+COPY monitoring/application-metrics/nextjs-metrics.mjs ./monitoring/
 
 # 앱 실행 (포트는 실제 앱 포트에 맞게 수정)
 EXPOSE 3000

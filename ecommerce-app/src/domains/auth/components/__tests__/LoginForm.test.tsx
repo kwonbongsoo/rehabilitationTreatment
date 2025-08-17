@@ -6,7 +6,7 @@ import { jest, describe, beforeEach, it } from '@jest/globals';
 import type { LoginRequest } from '../../types/auth';
 
 // Override expect to support jest-dom matchers
-const expect = (actual: any) => (global as any).expect(actual);
+const expect = (actual: any): any => (global as any).expect(actual);
 
 // Create mock functions first
 const mockValidateLoginForm = jest.fn();

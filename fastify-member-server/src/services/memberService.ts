@@ -11,6 +11,8 @@ import {
 import { IMemberService } from '../interfaces/memberService';
 import bcrypt from 'bcryptjs';
 
+// 메트릭은 서버 시작 시에만 초기화됩니다.
+
 export class MemberService implements IMemberService {
   private static instance: MemberService;
   private constructor(private readonly prisma: PrismaClient) {}
@@ -152,37 +154,48 @@ export class MemberService implements IMemberService {
 
   // ===== 공개 API 메서드 =====
   async create(data: MemberInput): Promise<MemberOutput> {
-    // 1. 비즈니스 규칙 검증
-    this.validateCreateMember(data);
+    const startTime = Date.now();
 
-    // 트랜잭션으로 중복 검증과 생성을 원자적으로 처리
-    return await this.prisma.$transaction(async (tx) => {
-      // 2. 이메일과 ID 중복 확인 (단일 쿼리로 최적화)
-      const [existingEmail, existingId] = await Promise.all([
-        tx.member.findUnique({ where: { email: data.email } }),
-        tx.member.findUnique({ where: { id: data.id } }),
-      ]);
+    try {
+      // 1. 비즈니스 규칙 검증
+      this.validateCreateMember(data);
 
-      // 3. 중복 검증
-      if (existingEmail) {
-        throw new DuplicateValueError('Email');
-      }
+      // 트랜잭션으로 중복 검증과 생성을 원자적으로 처리
+      const result = await this.prisma.$transaction(async (tx) => {
+        // 2. 이메일과 ID 중복 확인 (단일 쿼리로 최적화)
+        const [existingEmail, existingId] = await Promise.all([
+          tx.member.findUnique({ where: { email: data.email } }),
+          tx.member.findUnique({ where: { id: data.id } }),
+        ]);
 
-      if (existingId) {
-        throw new DuplicateValueError('ID');
-      }
+        // 3. 중복 검증
+        if (existingEmail) {
+          throw new DuplicateValueError('Email');
+        }
 
-      // 4. 비밀번호 해싱
-      const hashedPassword = await this.hashPassword(data.password);
+        if (existingId) {
+          throw new DuplicateValueError('ID');
+        }
 
-      // 5. 멤버 생성
-      return await tx.member.create({
-        data: {
-          ...data,
-          password: hashedPassword,
-        },
+        // 4. 비밀번호 해싱
+        const hashedPassword = await this.hashPassword(data.password);
+
+        // 5. 멤버 생성
+        return await tx.member.create({
+          data: {
+            ...data,
+            password: hashedPassword,
+          },
+        });
       });
-    });
+
+      // ✅ 성공 메트릭 기록은 app 레벨에서 처리됩니다.
+
+      return result;
+    } catch (error) {
+      // ❌ 실패 메트릭 기록은 app 레벨에서 처리됩니다.
+      throw error;
+    }
   }
 
   async findById(id: string): Promise<MemberOutput> {

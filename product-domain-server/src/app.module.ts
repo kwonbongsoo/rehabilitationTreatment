@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MulterModule } from '@nestjs/platform-express';
@@ -12,10 +12,14 @@ import {
 } from '@entities/index';
 import { ProductController } from '@controllers/product.controller';
 import { CategoryController } from '@controllers/category.controller';
+import { MetricsController } from '@controllers/metrics.controller';
 import { ProductService } from '@services/product.service';
 import { CategoryService } from '@services/category.service';
 import { S3UploadService } from '@services/s3-upload.service';
 import { DataInitializerService } from '@services/data-initializer.service';
+
+// NestJS 전용 메트릭 시스템 활성화
+const { MetricsMiddleware, ProductMetricsService } = require('/app/monitoring/nestjs-metrics.js');
 
 @Module({
   imports: [
@@ -57,12 +61,27 @@ import { DataInitializerService } from '@services/data-initializer.service';
       },
     }),
   ],
-  controllers: [ProductController, CategoryController],
+  controllers: [ProductController, CategoryController, MetricsController],
   providers: [
     ProductService,
     CategoryService,
     S3UploadService,
     DataInitializerService,
+    ProductMetricsService, // NestJS 메트릭 서비스 활성화
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    // NestJS 메트릭 미들웨어 활성화
+    consumer
+      .apply(MetricsMiddleware)
+      .forRoutes('*'); // 모든 라우트에 적용
+    
+    console.log('✅ Product Domain Server: NestJS 메트릭 시스템 활성화');
+    
+    // Event Loop Lag 정기 측정 시작
+    const productMetricsService = new ProductMetricsService();
+    productMetricsService.startEventLoopLagMeasurement('product-server', 5000);
+    console.log('🔄 Event Loop Lag 측정 시작 (5초 간격)');
+  }
+}

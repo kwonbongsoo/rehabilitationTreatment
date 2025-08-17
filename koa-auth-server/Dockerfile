@@ -7,10 +7,11 @@ COPY common/package*.json ./
 RUN npm ci
 COPY common/src ./src
 COPY common/tsconfig.json ./
+COPY common/tsconfig.base.json ./
 RUN npm run build
 
 # =========================================
-# 빌드 스테이지 
+# 빌드 스테이지
 # =========================================
 FROM node:20-alpine AS build
 WORKDIR /app
@@ -23,10 +24,11 @@ COPY --from=common-builder /common ./node_modules/@ecommerce/common
 
 COPY koa-auth-server/src ./src
 COPY koa-auth-server/tsconfig.json ./
+COPY koa-auth-server/tsconfig.base.json ./
 RUN npm run build
 
 # =========================================
-# 실행 스테이지 
+# 실행 스테이지
 # =========================================
 FROM node:20-alpine
 WORKDIR /app
@@ -40,6 +42,9 @@ COPY --from=common-builder /common ./node_modules/@ecommerce/common
 
 # 애플리케이션 코드 복사
 COPY --from=build /app/dist ./dist
+
+# 모니터링 메트릭 파일 복사 (글로벌 경로에서)
+COPY monitoring/application-metrics/koa-metrics.js ./monitoring/
 
 USER node
 EXPOSE 4000

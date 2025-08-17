@@ -54,7 +54,9 @@ jest.useFakeTimers();
 
 const mockUseRouter = useRouter as jest.MockedFunction<typeof useRouter>;
 const mockRegisterAction = registerAction as jest.MockedFunction<typeof registerAction>;
-const mockUseIdempotentMutation = useIdempotentMutation as jest.MockedFunction<typeof useIdempotentMutation>;
+const mockUseIdempotentMutation = useIdempotentMutation as jest.MockedFunction<
+  typeof useIdempotentMutation
+>;
 const mockNotificationManager = NotificationManager as jest.Mocked<typeof NotificationManager>;
 const mockErrorHandler = ErrorHandler as jest.Mocked<typeof ErrorHandler>;
 
@@ -67,10 +69,12 @@ describe('useRegisterForm', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockUseRouter.mockReturnValue(mockRouter as any);
-    
+
     mockUseIdempotentMutation.mockReturnValue({
       executeMutation: mockExecuteMutation,
       getRequestStatus: mockGetRequestStatus,
+      cancelCurrentRequest: jest.fn(),
+      generateIdempotencyKey: jest.fn(),
     });
 
     mockGetRequestStatus.mockReturnValue({
@@ -110,7 +114,6 @@ describe('useRegisterForm', () => {
     it('회원가입을 성공적으로 처리해야 한다', async () => {
       mockRegisterAction.mockResolvedValue({
         success: true,
-        error: null,
         statusCode: 201,
       });
 
@@ -135,15 +138,16 @@ describe('useRegisterForm', () => {
           name: 'Test User',
           email: 'test@example.com',
         },
-        { useSessionKey: true }
+        { useSessionKey: true },
       );
-      expect(mockNotificationManager.showSuccess).toHaveBeenCalledWith(REGISTER_CONSTANTS.SUCCESS_MESSAGE);
+      expect(mockNotificationManager.showSuccess).toHaveBeenCalledWith(
+        REGISTER_CONSTANTS.SUCCESS_MESSAGE,
+      );
     });
 
     it('성공 후 지연된 리다이렉트를 수행해야 한다', async () => {
       mockRegisterAction.mockResolvedValue({
         success: true,
-        error: null,
         statusCode: 201,
       });
 
@@ -187,7 +191,6 @@ describe('useRegisterForm', () => {
 
       mockRegisterAction.mockResolvedValue({
         success: true,
-        error: null,
         statusCode: 201,
       });
 
@@ -239,7 +242,7 @@ describe('useRegisterForm', () => {
           message: errorMessage,
           statusCode: 409,
         }),
-        '회원가입'
+        '회원가입',
       );
       expect(mockPush).not.toHaveBeenCalled();
     });
@@ -247,7 +250,6 @@ describe('useRegisterForm', () => {
     it('기본 에러 메시지를 사용해야 한다', async () => {
       mockRegisterAction.mockResolvedValue({
         success: false,
-        error: null,
         statusCode: 500,
       });
 
@@ -269,7 +271,7 @@ describe('useRegisterForm', () => {
           message: '회원가입에 실패했습니다.',
           statusCode: 500,
         }),
-        '회원가입'
+        '회원가입',
       );
     });
 
@@ -290,10 +292,7 @@ describe('useRegisterForm', () => {
 
       expect(registerResult!).toBe(false);
       expect(mockNotificationManager.showError).toHaveBeenCalledWith('Network Error');
-      expect(mockErrorHandler.handleFormError).toHaveBeenCalledWith(
-        networkError,
-        '회원가입'
-      );
+      expect(mockErrorHandler.handleFormError).toHaveBeenCalledWith(networkError, '회원가입');
     });
 
     it('알 수 없는 에러를 처리해야 한다', async () => {
@@ -308,11 +307,10 @@ describe('useRegisterForm', () => {
       });
 
       expect(registerResult!).toBe(false);
-      expect(mockNotificationManager.showError).toHaveBeenCalledWith('회원가입 중 오류가 발생했습니다.');
-      expect(mockErrorHandler.handleFormError).toHaveBeenCalledWith(
-        unknownError,
-        '회원가입'
+      expect(mockNotificationManager.showError).toHaveBeenCalledWith(
+        '회원가입 중 오류가 발생했습니다.',
       );
+      expect(mockErrorHandler.handleFormError).toHaveBeenCalledWith(unknownError, '회원가입');
     });
   });
 
@@ -352,7 +350,6 @@ describe('useRegisterForm', () => {
     it('세션 키를 사용하여 멱등성을 보장해야 한다', async () => {
       mockRegisterAction.mockResolvedValue({
         success: true,
-        error: null,
         statusCode: 201,
       });
 
@@ -366,30 +363,24 @@ describe('useRegisterForm', () => {
         await result.current.handleRegister(validFormData);
       });
 
-      expect(mockExecuteMutation).toHaveBeenCalledWith(
-        expect.any(Function),
-        expect.any(Object),
-        { useSessionKey: true }
-      );
+      expect(mockExecuteMutation).toHaveBeenCalledWith(expect.any(Function), expect.any(Object), {
+        useSessionKey: true,
+      });
     });
 
     it('멱등성 키와 함께 올바른 파라미터를 전달해야 한다', async () => {
       mockRegisterAction.mockResolvedValue({
         success: true,
-        error: null,
         statusCode: 201,
       });
 
-      let capturedKey: string | undefined;
       mockExecuteMutation.mockImplementation(async (mutationFn, data) => {
         await mutationFn(data, 'test-key');
       });
 
-      mockRegisterAction.mockImplementation((data, key) => {
-        capturedKey = key;
+      mockRegisterAction.mockImplementation(() => {
         return Promise.resolve({
           success: true,
-          error: null,
           statusCode: 201,
         });
       });
@@ -400,10 +391,7 @@ describe('useRegisterForm', () => {
         await result.current.handleRegister(validFormData);
       });
 
-      expect(mockRegisterAction).toHaveBeenCalledWith(
-        expect.any(Object),
-        'test-key'
-      );
+      expect(mockRegisterAction).toHaveBeenCalledWith(expect.any(Object), 'test-key');
     });
   });
 
@@ -412,7 +400,7 @@ describe('useRegisterForm', () => {
       const { result, rerender } = renderHook(() => useRegisterForm());
 
       const firstHandleRegister = result.current.handleRegister;
-      
+
       rerender();
 
       const secondHandleRegister = result.current.handleRegister;
@@ -449,10 +437,9 @@ describe('useRegisterForm', () => {
     it('성공 후 타이머가 올바르게 설정되어야 한다', async () => {
       // 타이머를 클리어해서 깨끗한 상태로 시작
       jest.clearAllTimers();
-      
+
       mockRegisterAction.mockResolvedValue({
         success: true,
-        error: null,
         statusCode: 201,
       });
 
@@ -480,7 +467,7 @@ describe('useRegisterForm', () => {
     it('에러 시 타이머가 설정되지 않아야 한다', async () => {
       // 타이머를 클리어해서 깨끗한 상태로 시작
       jest.clearAllTimers();
-      
+
       mockRegisterAction.mockResolvedValue({
         success: false,
         error: '회원가입 실패',

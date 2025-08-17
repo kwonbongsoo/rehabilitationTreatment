@@ -116,7 +116,7 @@ describe('useAuthStore', () => {
   describe('logout 액션', () => {
     it('로그아웃 시 상태를 초기화한다', async () => {
       const { result } = renderHook(() => useAuthStore());
-      
+
       // 먼저 사용자 로그인 상태 설정
       act(() => {
         result.current.setUser({
@@ -144,10 +144,6 @@ describe('useAuthStore', () => {
 
     it('로그아웃 후에도 액션 함수들이 유지된다', async () => {
       const { result } = renderHook(() => useAuthStore());
-      
-      const initialSetUser = result.current.setUser;
-      const initialLogout = result.current.logout;
-      const initialClearSession = result.current.clearSession;
 
       // 사용자 로그인
       act(() => {
@@ -170,7 +166,7 @@ describe('useAuthStore', () => {
   describe('clearSession 액션', () => {
     it('세션을 완전히 초기화한다', () => {
       const { result } = renderHook(() => useAuthStore());
-      
+
       // 사용자 상태 설정
       act(() => {
         result.current.setUser({
@@ -218,7 +214,7 @@ describe('useAuthStore', () => {
 
     it('다른 상태에 영향을 주지 않는다', () => {
       const { result } = renderHook(() => useAuthStore());
-      
+
       const userData: UserResponse = {
         role: 'user',
         id: 'test',
@@ -244,7 +240,7 @@ describe('useAuthStore', () => {
   describe('getUserRole 계산된 값', () => {
     it('사용자 역할을 올바르게 반환한다', () => {
       const { result } = renderHook(() => useAuthStore());
-      
+
       const roles: UserRole[] = ['guest', 'user', 'admin'];
 
       roles.forEach((role) => {
@@ -258,7 +254,7 @@ describe('useAuthStore', () => {
 
     it('사용자가 없을 때 guest를 반환한다', () => {
       const { result } = renderHook(() => useAuthStore());
-      
+
       act(() => {
         result.current.setUser(null);
       });
@@ -268,7 +264,7 @@ describe('useAuthStore', () => {
 
     it('사용자 정보가 없을 때도 guest를 반환한다', () => {
       const { result } = renderHook(() => useAuthStore());
-      
+
       // 초기 상태에서도 guest 반환
       expect(result.current.getUserRole()).toBe('guest');
     });
@@ -277,7 +273,7 @@ describe('useAuthStore', () => {
   describe('isAdmin 계산된 값', () => {
     it('관리자일 때 true를 반환한다', () => {
       const { result } = renderHook(() => useAuthStore());
-      
+
       act(() => {
         result.current.setUser({
           role: 'admin',
@@ -290,7 +286,7 @@ describe('useAuthStore', () => {
 
     it('일반 사용자일 때 false를 반환한다', () => {
       const { result } = renderHook(() => useAuthStore());
-      
+
       act(() => {
         result.current.setUser({
           role: 'user',
@@ -303,7 +299,7 @@ describe('useAuthStore', () => {
 
     it('게스트일 때 false를 반환한다', () => {
       const { result } = renderHook(() => useAuthStore());
-      
+
       act(() => {
         result.current.setUser({
           role: 'guest',
@@ -315,7 +311,7 @@ describe('useAuthStore', () => {
 
     it('사용자가 없을 때 false를 반환한다', () => {
       const { result } = renderHook(() => useAuthStore());
-      
+
       act(() => {
         result.current.setUser(null);
       });
@@ -327,7 +323,7 @@ describe('useAuthStore', () => {
   describe('상태 변화 추적', () => {
     it('여러 상태 변경이 올바르게 반영된다', () => {
       const { result } = renderHook(() => useAuthStore());
-      
+
       // 초기 상태 확인
       expect(result.current.user).toBeNull();
       expect(result.current.isGuest).toBe(true);

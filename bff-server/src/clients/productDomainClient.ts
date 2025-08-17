@@ -24,7 +24,7 @@ class ProductDomainClient extends HttpClient {
   constructor() {
     super(serviceEndpoints.product.baseURL, {
       timeout: serviceEndpoints.product.timeout,
-      headers: serviceEndpoints.product.headers,
+      headers: serviceEndpoints.product.headers || {},
     });
   }
 

@@ -1,7 +1,7 @@
 /**
  * TokenService 단위 테스트
  */
-import { TokenService, type TokenWithCookieResult } from '../TokenService';
+import { TokenService } from '../TokenService';
 import { ServerResponse } from 'http';
 import { createTokenCookies } from '../cookieService';
 
@@ -68,7 +68,7 @@ describe('TokenService', () => {
     it('AUTH_PREFIX가 없으면 예외를 발생시킨다', async () => {
       process.env = {
         ...originalEnv,
-        AUTH_SERVICE_URL: 'http://localhost:3001',
+        AUTH_SERVICE_URL: 'http://localhost:4000',
         AUTH_PREFIX: undefined,
       };
 
@@ -84,7 +84,7 @@ describe('TokenService', () => {
 
   describe('issueGuestTokenWithCookie', () => {
     beforeEach(() => {
-      process.env.AUTH_SERVICE_URL = 'http://localhost:3001';
+      process.env.AUTH_SERVICE_URL = 'http://localhost:4000';
       process.env.AUTH_PREFIX = '/api/auth';
     });
 
@@ -199,17 +199,14 @@ describe('TokenService', () => {
       const mockRes = createMockResponse();
       await tokenService.issueGuestTokenWithCookie(mockRes);
 
-      expect(mockFetch).toHaveBeenCalledWith(
-        'http://localhost:3001/api/auth/guest-token',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'User-Agent': 'NextJS-SSR',
-          },
-          signal: expect.any(AbortSignal),
-        }
-      );
+      expect(mockFetch).toHaveBeenCalledWith('http://localhost:4000/api/auth/guest-token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'User-Agent': 'NextJS-SSR',
+        },
+        signal: expect.any(AbortSignal),
+      });
     });
 
     it('쿠키 생성 실패 시에도 적절히 처리한다', async () => {
@@ -246,7 +243,7 @@ describe('TokenService', () => {
     const originalEnv = process.env.NODE_ENV;
 
     beforeEach(() => {
-      process.env.AUTH_SERVICE_URL = 'http://localhost:3001';
+      process.env.AUTH_SERVICE_URL = 'http://localhost:4000';
       process.env.AUTH_PREFIX = '/api/auth';
     });
 
@@ -283,7 +280,7 @@ describe('TokenService', () => {
 describe('TokenService 싱글톤', () => {
   it('tokenService 인스턴스가 올바르게 생성된다', () => {
     const { tokenService } = require('../TokenService');
-    
+
     expect(tokenService).toBeInstanceOf(TokenService);
   });
 });

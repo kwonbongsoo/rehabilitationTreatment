@@ -18,7 +18,7 @@ export class BaseError extends Error {
       error: {
         code: this.code,
         message: this.message,
-        details: this.details,
+        ...(this.details && { details: this.details }),
       },
       timestamp: new Date().toISOString(),
     };

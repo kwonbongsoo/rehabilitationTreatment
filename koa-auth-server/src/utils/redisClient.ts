@@ -75,8 +75,7 @@ export class RedisClient {
     try {
       return await this.client.get(key);
     } catch (error) {
-      this.handleRedisError(error, 'get', key);
-      return null; // 컴파일러용 (실제로는 위에서 에러 throw)
+      return this.handleRedisError(error, 'get', key);
     }
   }
 
@@ -111,12 +110,7 @@ export class RedisClient {
       if (error.message.includes('connection') || error.message.includes('ECONNREFUSED')) {
         throw new ApiUnavailableError('Redis 서버 연결 불가', 'redis-service');
       } // 그 외 Redis 에러
-      throw new BaseError(
-        ErrorCode.INTERNAL_ERROR,
-        `Redis ${operation} 작업 실패`,
-        undefined,
-        500,
-      );
+      throw new BaseError(ErrorCode.INTERNAL_ERROR, `Redis ${operation} 작업 실패`, undefined, 500);
     } // 알 수 없는 에러
     throw new BaseError(
       ErrorCode.INTERNAL_ERROR,

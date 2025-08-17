@@ -191,7 +191,7 @@ export class MultipartParser {
     }
 
     const missingFields = this.config.requiredFields.filter(
-      (field) => !data.fields[field] || data.fields[field].trim() === '',
+      (field) => !data.fields[field] || data.fields[field]?.trim() === '',
     );
 
     if (missingFields.length > 0) {

@@ -222,9 +222,10 @@ class HomePageService {
           .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
           .slice(0, 3)
           .map((item) => {
-            const nameWords = item.customerName.split('');
+            const name = item.customerName ?? '';
+            const nameWords = name.split('');
             const initials =
-              nameWords.length >= 2 ? nameWords[0] + nameWords[1] : nameWords[0] + 'K';
+              nameWords.length >= 2 ? `${nameWords[0]}${nameWords[1]}` : `${nameWords[0] ?? ''}K`;
 
             return {
               id: item.id,

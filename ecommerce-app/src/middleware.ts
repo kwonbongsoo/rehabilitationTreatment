@@ -3,6 +3,8 @@
  *
  * Edge Runtime에서 실행되어 빠른 성능 제공
  * 조건부 게스트 토큰 발급 및 인증 검증
+ *
+ * 참고: HTTP 메트릭은 글로벌 메트릭 시스템(/monitoring/application-metrics/)에서 수집
  */
 import { setTokenCookiesEdge } from '@/domains/auth/services';
 import { NextRequest, NextResponse } from 'next/server';
@@ -25,6 +27,7 @@ const SKIP_ROUTES = [
   '/.well-known',
   '/_next/static/', // 명시적 추가
   '/_next/image/', // 명시적 추가
+  '/api/metrics', // 메트릭 엔드포인트는 모니터링에서 제외
 ];
 
 /**
@@ -32,6 +35,47 @@ const SKIP_ROUTES = [
  */
 function getTokenFromCookies(request: NextRequest): string | null {
   return request.cookies.get('access_token')?.value || null;
+}
+
+/**
+ * HTTP 메트릭 기록 함수 (Edge Runtime 호환)
+ */
+async function recordHttpMetric(
+  method: string,
+  route: string,
+  status: number,
+  duration: number,
+  request: NextRequest,
+): Promise<void> {
+  try {
+    // Edge Runtime에서는 절대 URL이 필요
+    const baseUrl = new URL(request.url).origin;
+    const metricUrl = `${baseUrl}/api/metrics/record`;
+    
+    // API 엔드포인트로 메트릭 전송 (백그라운드)
+    if (typeof fetch !== 'undefined') {
+      fetch(metricUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'request',
+          route,
+          method,
+          status,
+          duration: duration * 1000, // 밀리초로 변환
+        }),
+      }).catch(() => {
+        // 메트릭 기록 실패는 조용히 무시
+      });
+    }
+    
+    // 개발 환경에서 로그 출력
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`📊 Next.js Metric: ${method} ${route} - ${status} (${duration.toFixed(3)}s)`);
+    }
+  } catch {
+    // 메트릭 기록 실패는 조용히 무시
+  }
 }
 
 /**
@@ -85,7 +129,9 @@ async function issueGuestToken(): Promise<{
 }
 
 export async function middleware(request: NextRequest): Promise<NextResponse> {
+  const startTime = Date.now();
   const { pathname } = request.nextUrl;
+  const method = request.method;
   const isPrefetch = request.headers.get('x-nextjs-data') === '1';
 
   // Health check 및 웜업 요청 감지
@@ -118,15 +164,29 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
       const tokenData = await issueGuestToken();
       if (tokenData) {
         setTokenCookiesEdge(response, tokenData);
-        return response;
       }
     }
+
+    // HTTP 메트릭 기록 (백그라운드에서 실행, await 제거하여 블로킹 방지)
+    const duration = (Date.now() - startTime) / 1000;
+    const normalizedRoute = pathname.replace(/\/\d+/g, '/:id'); // ID를 일반화
+
+    // 백그라운드에서 메트릭 기록 (블로킹하지 않음)
+    recordHttpMetric(method, normalizedRoute, response.status || 200, duration, request).catch(() => {
+      // 메트릭 기록 실패는 조용히 무시
+    });
+
     return response;
   } catch {
+    // 에러 발생 시에도 메트릭 기록
+    const duration = (Date.now() - startTime) / 1000;
+    const normalizedRoute = pathname.replace(/\/\d+/g, '/:id');
+    recordHttpMetric(method, normalizedRoute, 500, duration, request);
+
     return NextResponse.next();
   }
 }
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|api/metrics|metric-api).*)'],
 };

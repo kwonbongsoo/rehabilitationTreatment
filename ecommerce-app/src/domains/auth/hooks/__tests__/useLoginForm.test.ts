@@ -4,7 +4,7 @@
  * 멱등성 키를 활용한 로그인 폼 훅의 검증, 상태 관리, 에러 처리를 테스트합니다.
  */
 
-import { renderHook, act, waitFor } from '@testing-library/react';
+import { renderHook, act } from '@testing-library/react';
 import { useLoginForm } from '../useLoginForm';
 import { login as loginAction } from '../../services';
 import { authValidationService } from '../../services';
@@ -49,8 +49,12 @@ Object.defineProperty(window, 'location', {
 });
 
 const mockLoginAction = loginAction as jest.MockedFunction<typeof loginAction>;
-const mockAuthValidationService = authValidationService as jest.Mocked<typeof authValidationService>;
-const mockUseIdempotentMutation = useIdempotentMutation as jest.MockedFunction<typeof useIdempotentMutation>;
+const mockAuthValidationService = authValidationService as jest.Mocked<
+  typeof authValidationService
+>;
+const mockUseIdempotentMutation = useIdempotentMutation as jest.MockedFunction<
+  typeof useIdempotentMutation
+>;
 const mockNotificationManager = NotificationManager as jest.Mocked<typeof NotificationManager>;
 const mockErrorHandler = ErrorHandler as jest.Mocked<typeof ErrorHandler>;
 
@@ -61,10 +65,12 @@ describe('useLoginForm', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockLocation.search = '';
-    
+
     mockUseIdempotentMutation.mockReturnValue({
       executeMutation: mockExecuteMutation,
       getRequestStatus: mockGetRequestStatus,
+      cancelCurrentRequest: jest.fn(),
+      generateIdempotencyKey: jest.fn(),
     });
 
     mockGetRequestStatus.mockReturnValue({
@@ -97,7 +103,6 @@ describe('useLoginForm', () => {
     it('로그인을 성공적으로 처리해야 한다', async () => {
       mockLoginAction.mockResolvedValue({
         success: true,
-        error: null,
         statusCode: 200,
       });
 
@@ -122,7 +127,7 @@ describe('useLoginForm', () => {
           useSessionKey: true,
           onSuccess: expect.any(Function),
           onError: expect.any(Function),
-        })
+        }),
       );
       expect(mockNotificationManager.showSuccess).toHaveBeenCalledWith('로그인에 성공했습니다!');
       expect(mockLocation.replace).toHaveBeenCalledWith('/');
@@ -130,10 +135,9 @@ describe('useLoginForm', () => {
 
     it('리다이렉트 URL이 있을 때 해당 URL로 리다이렉트해야 한다', async () => {
       mockLocation.search = '?redirect=/dashboard';
-      
+
       mockLoginAction.mockResolvedValue({
         success: true,
-        error: null,
         statusCode: 200,
       });
 
@@ -153,10 +157,9 @@ describe('useLoginForm', () => {
 
     it('안전하지 않은 리다이렉트 URL을 기본값으로 처리해야 한다', async () => {
       mockLocation.search = '?redirect=//malicious.com';
-      
+
       mockLoginAction.mockResolvedValue({
         success: true,
-        error: null,
         statusCode: 200,
       });
 
@@ -187,7 +190,7 @@ describe('useLoginForm', () => {
       await expect(
         act(async () => {
           await result.current.handleLogin({ id: '', password: 'password123' });
-        })
+        }),
       ).rejects.toThrow(validationError);
 
       expect(mockExecuteMutation).not.toHaveBeenCalled();
@@ -197,8 +200,8 @@ describe('useLoginForm', () => {
       const errorMessage = '아이디 또는 비밀번호가 잘못되었습니다';
       const error = new Error(errorMessage);
       (error as any).statusCode = 500; // 401이 아닌 500으로 변경하여 401 처리 로직 회피
-      
-      mockExecuteMutation.mockImplementation(async (mutationFn, data, options) => {
+
+      mockExecuteMutation.mockImplementation((mutationFn, data, options): void => {
         options.onError(error);
       });
 
@@ -214,7 +217,7 @@ describe('useLoginForm', () => {
           message: errorMessage,
           statusCode: 500,
         }),
-        '로그인'
+        '로그인',
       );
     });
 
@@ -222,7 +225,7 @@ describe('useLoginForm', () => {
       const error = new Error('인증이 필요합니다');
       (error as any).statusCode = 401;
 
-      mockExecuteMutation.mockImplementation(async (mutationFn, data, options) => {
+      mockExecuteMutation.mockImplementation((mutationFn, data, options): void => {
         options.onError(error);
       });
 
@@ -235,7 +238,9 @@ describe('useLoginForm', () => {
         await result.current.handleLogin({ id: 'testuser', password: 'password123' });
       });
 
-      expect(mockNotificationManager.showError).toHaveBeenCalledWith('로그인이 필요합니다. 페이지를 새로고침합니다.');
+      expect(mockNotificationManager.showError).toHaveBeenCalledWith(
+        '로그인이 필요합니다. 페이지를 새로고침합니다.',
+      );
 
       // Fast-forward time
       act(() => {
@@ -266,17 +271,14 @@ describe('useLoginForm', () => {
       });
 
       expect(mockNotificationManager.showError).toHaveBeenCalledWith('Network Error');
-      expect(mockErrorHandler.handleFormError).toHaveBeenCalledWith(
-        networkError,
-        '로그인'
-      );
+      expect(mockErrorHandler.handleFormError).toHaveBeenCalledWith(networkError, '로그인');
     });
 
     it('기본 에러 메시지를 사용해야 한다', async () => {
       const error = new Error();
       (error as any).statusCode = 500;
 
-      mockExecuteMutation.mockImplementation(async (mutationFn, data, options) => {
+      mockExecuteMutation.mockImplementation((mutationFn, data, options): void => {
         options.onError(error);
       });
 
@@ -286,7 +288,9 @@ describe('useLoginForm', () => {
         await result.current.handleLogin({ id: 'testuser', password: 'password123' });
       });
 
-      expect(mockNotificationManager.showError).toHaveBeenCalledWith('로그인 중 오류가 발생했습니다.');
+      expect(mockNotificationManager.showError).toHaveBeenCalledWith(
+        '로그인 중 오류가 발생했습니다.',
+      );
     });
   });
 
@@ -318,7 +322,6 @@ describe('useLoginForm', () => {
     it('세션 키를 사용하여 멱등성을 보장해야 한다', async () => {
       mockLoginAction.mockResolvedValue({
         success: true,
-        error: null,
         statusCode: 200,
       });
 
@@ -333,14 +336,13 @@ describe('useLoginForm', () => {
         { id: 'testuser', password: 'password123' },
         expect.objectContaining({
           useSessionKey: true,
-        })
+        }),
       );
     });
 
     it('중복 요청을 적절히 처리해야 한다', async () => {
       mockLoginAction.mockResolvedValue({
         success: true,
-        error: null,
         statusCode: 200,
       });
 
@@ -375,10 +377,10 @@ describe('useLoginForm', () => {
 
   describe('메모리 누수 방지', () => {
     it('콜백 함수가 올바르게 메모이제이션되어야 한다', () => {
-      const { result, rerender } = renderHook(() => useLoginForm());
+      const { rerender } = renderHook(() => useLoginForm());
 
       const firstCallbacks = mockExecuteMutation.mock.calls[0]?.[2];
-      
+
       rerender();
 
       const secondCallbacks = mockExecuteMutation.mock.calls[1]?.[2];
@@ -392,7 +394,7 @@ describe('useLoginForm', () => {
       const { result, rerender } = renderHook(() => useLoginForm());
 
       const firstHandleLogin = result.current.handleLogin;
-      
+
       rerender();
 
       const secondHandleLogin = result.current.handleLogin;

@@ -1,17 +1,18 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, SelectQueryBuilder } from 'typeorm';
 import { Product, ProductOption, ProductImage } from '@entities/index';
-import {
-  CreateProductDto,
-  UpdateProductDto,
-  QueryProductDto,
-} from '@dto/index';
+import { CreateProductDto, UpdateProductDto, QueryProductDto } from '@dto/index';
 import { S3UploadService } from './s3-upload.service';
 import { BaseError, ErrorCode } from '@ecommerce/common';
 
+// 메트릭 서비스 import
+const { ProductMetricsService } = require('/app/monitoring/nestjs-metrics.js');
+
 @Injectable()
 export class ProductService {
+  private metricsService: any;
+
   constructor(
     @InjectRepository(Product)
     private productRepository: Repository<Product>,
@@ -20,40 +21,60 @@ export class ProductService {
     @InjectRepository(ProductImage)
     private productImageRepository: Repository<ProductImage>,
     private s3UploadService: S3UploadService,
-  ) {}
+  ) {
+    // 메트릭 서비스 초기화
+    this.metricsService = new ProductMetricsService();
+  }
 
   /**
    * 이미지 URL을 포함한 상품 생성 (새로운 방식)
    * @param createProductDto 상품 생성 데이터 (이미지 URL 포함)
    */
-  async createWithImageUrls(
-    createProductDto: CreateProductDto,
-  ): Promise<Product> {
-    const { options, ...productData } = createProductDto;
+  async createWithImageUrls(createProductDto: CreateProductDto): Promise<Product> {
+    const startTime = Date.now();
 
-    const product = this.productRepository.create(productData);
-    const savedProduct = await this.productRepository.save(product);
+    try {
+      const { options, ...productData } = createProductDto;
 
-    // 옵션 생성
-    if (options && options.length > 0) {
-      const productOptions = options.map((option) =>
-        this.productOptionRepository.create({
-          ...option,
-          productId: savedProduct.id,
-        }),
+      const product = this.productRepository.create(productData);
+      const savedProduct = await this.productRepository.save(product);
+
+      // 옵션 생성
+      if (options && options.length > 0) {
+        const productOptions = options.map((option) =>
+          this.productOptionRepository.create({
+            ...option,
+            productId: savedProduct.id,
+          }),
+        );
+        await this.productOptionRepository.save(productOptions);
+      }
+
+      // 이미지 URL이 있으면 ProductImage 엔티티 생성
+      if (createProductDto.imageUrls && createProductDto.imageUrls.length > 0) {
+        await this.createProductImagesFromUrls(savedProduct.id, createProductDto.imageUrls);
+      }
+
+      const result = await this.findOne(savedProduct.id);
+
+      // 성공 메트릭 기록
+      this.metricsService.recordProductCreated(productData.categoryId || 'unknown');
+      const duration = (Date.now() - startTime) / 1000;
+      this.metricsService.recordDatabaseQuery(
+        'createWithImageUrls',
+        'products',
+        'success',
+        duration,
       );
-      await this.productOptionRepository.save(productOptions);
-    }
 
-    // 이미지 URL이 있으면 ProductImage 엔티티 생성
-    if (createProductDto.imageUrls && createProductDto.imageUrls.length > 0) {
-      await this.createProductImagesFromUrls(
-        savedProduct.id,
-        createProductDto.imageUrls,
-      );
+      return result;
+    } catch (error) {
+      // 실패 메트릭 기록
+      this.metricsService.recordProductCreationFailed((error as Error).message);
+      const duration = (Date.now() - startTime) / 1000;
+      this.metricsService.recordDatabaseQuery('createWithImageUrls', 'products', 'error', duration);
+      throw error;
     }
-
-    return this.findOne(savedProduct.id);
   }
 
   /**
@@ -89,10 +110,7 @@ export class ProductService {
   /**
    * 이미지 URL로부터 ProductImage 엔티티 생성
    */
-  private async createProductImagesFromUrls(
-    productId: number,
-    imageUrls: string[],
-  ): Promise<void> {
+  private async createProductImagesFromUrls(productId: number, imageUrls: string[]): Promise<void> {
     const productImages = imageUrls.map((url, index) => {
       // URL에서 파일명 추출
       const fileName = url.split('/').pop() || `image_${index}`;
@@ -112,7 +130,7 @@ export class ProductService {
     await this.productImageRepository.save(productImages);
 
     // 메인 이미지 설정
-    if (imageUrls.length > 0) {
+    if (imageUrls.length > 0 && imageUrls[0]) {
       await this.productRepository.update(productId, {
         mainImage: imageUrls[0],
       });
@@ -168,18 +186,32 @@ export class ProductService {
   }
 
   async findOne(id: number): Promise<Product> {
-    const product = await this.productRepository.findOne({
-      where: { id, isActive: true },
-      relations: ['category', 'options', 'images'],
-    });
+    const startTime = Date.now();
 
-    if (!product) {
-      throw new NotFoundException(
-        `ID ${id}에 해당하는 상품을 찾을 수 없습니다.`,
+    try {
+      const product = await this.productRepository.findOne({
+        where: { id, isActive: true },
+        relations: ['category', 'options', 'images'],
+      });
+
+      if (!product) {
+        throw new NotFoundException(`ID ${id}에 해당하는 상품을 찾을 수 없습니다.`);
+      }
+
+      // 상품 조회 메트릭 기록
+      this.metricsService.recordProductDetailView(
+        id.toString(),
+        product.category?.name || 'unknown',
       );
-    }
+      const duration = (Date.now() - startTime) / 1000;
+      this.metricsService.recordDatabaseQuery('findOne', 'products', 'success', duration);
 
-    return product;
+      return product;
+    } catch (error) {
+      const duration = (Date.now() - startTime) / 1000;
+      this.metricsService.recordDatabaseQuery('findOne', 'products', 'error', duration);
+      throw error;
+    }
   }
 
   async findBySeller(sellerId: string, queryDto?: QueryProductDto) {
@@ -229,10 +261,7 @@ export class ProductService {
     };
   }
 
-  async update(
-    id: number,
-    updateProductDto: UpdateProductDto,
-  ): Promise<Product> {
+  async update(id: number, updateProductDto: UpdateProductDto): Promise<Product> {
     const { options, ...productData } = updateProductDto;
 
     const product = await this.findOne(id);
@@ -274,18 +303,12 @@ export class ProductService {
     this.validateImageFiles(files);
 
     // 임시 폴더에 업로드 (나중에 상품 생성시 이동)
-    const uploadResults = await this.s3UploadService.uploadMultipleFiles(
-      files,
-      'images/products',
-    );
+    const uploadResults = await this.s3UploadService.uploadMultipleFiles(files, 'images/products');
 
     return uploadResults.map((result) => result.url);
   }
 
-  async uploadImages(
-    productId: number,
-    files: Express.Multer.File[],
-  ): Promise<ProductImage[]> {
+  async uploadImages(productId: number, files: Express.Multer.File[]): Promise<ProductImage[]> {
     // 파일 유효성 검사
     this.validateImageFiles(files);
 
@@ -311,7 +334,7 @@ export class ProductService {
 
     const savedImages = await this.productImageRepository.save(productImages);
 
-    if (savedImages.length > 0 && !product.mainImage) {
+    if (savedImages.length > 0 && !product.mainImage && savedImages[0]) {
       product.mainImage = savedImages[0].imageUrl;
       await this.productRepository.save(product);
     }
@@ -338,44 +361,36 @@ export class ProductService {
         order: { sortOrder: 'ASC' },
       });
 
-      if (remainingImages.length > 0) {
+      if (remainingImages.length > 0 && remainingImages[0]) {
         remainingImages[0].isMain = true;
         await this.productImageRepository.save(remainingImages[0]);
 
         const product = await this.productRepository.findOne({
           where: { id: productId },
         });
-        product.mainImage = remainingImages[0].imageUrl;
-        await this.productRepository.save(product);
+        if (product) {
+          product.mainImage = remainingImages[0].imageUrl;
+          await this.productRepository.save(product);
+        }
       } else {
         const product = await this.productRepository.findOne({
           where: { id: productId },
         });
-        product.mainImage = null;
-        await this.productRepository.save(product);
+        if (product) {
+          product.mainImage = '';
+          await this.productRepository.save(product);
+        }
       }
     }
   }
 
-  private applyFilters(
-    queryBuilder: SelectQueryBuilder<Product>,
-    filters: any,
-  ): void {
-    const {
-      search,
-      categoryId,
-      sellerId,
-      minPrice,
-      maxPrice,
-      isNew,
-      isFeatured,
-    } = filters;
+  private applyFilters(queryBuilder: SelectQueryBuilder<Product>, filters: any): void {
+    const { search, categoryId, sellerId, minPrice, maxPrice, isNew, isFeatured } = filters;
 
     if (search) {
-      queryBuilder.andWhere(
-        '(product.name ILIKE :search OR product.description ILIKE :search)',
-        { search: `%${search}%` },
-      );
+      queryBuilder.andWhere('(product.name ILIKE :search OR product.description ILIKE :search)', {
+        search: `%${search}%`,
+      });
     }
 
     if (categoryId) {
@@ -433,10 +448,7 @@ export class ProductService {
     const MAX_FILE_COUNT = 10;
 
     if (!files || files.length === 0) {
-      throw new BaseError(
-        ErrorCode.VALIDATION_ERROR,
-        '업로드할 이미지 파일이 없습니다.',
-      );
+      throw new BaseError(ErrorCode.VALIDATION_ERROR, '업로드할 이미지 파일이 없습니다.');
     }
 
     if (files.length > MAX_FILE_COUNT) {
@@ -448,6 +460,10 @@ export class ProductService {
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
+
+      if (!file) {
+        throw new BaseError(ErrorCode.VALIDATION_ERROR, `빈 파일은 업로드할 수 없습니다.`);
+      }
 
       // 파일 크기 검증
       if (file.size > MAX_FILE_SIZE) {
@@ -467,10 +483,7 @@ export class ProductService {
 
       // 파일명 검증
       if (!file.originalname || file.originalname.trim() === '') {
-        throw new BaseError(
-          ErrorCode.VALIDATION_ERROR,
-          '이미지 파일명이 유효하지 않습니다.',
-        );
+        throw new BaseError(ErrorCode.VALIDATION_ERROR, '이미지 파일명이 유효하지 않습니다.');
       }
 
       // 파일 내용 검증 (빈 파일 체크)

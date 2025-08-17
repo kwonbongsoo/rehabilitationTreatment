@@ -50,6 +50,8 @@ c2c-rules/
 dist
 .dockerignore
 .env.*
+.env.monitoring
+monitoring/.env
 /postgres-data
 /.next
 prisma/client/

@@ -7,10 +7,11 @@ COPY common/package*.json ./
 RUN npm ci
 COPY common/src ./src
 COPY common/tsconfig.json ./
+COPY common/tsconfig.base.json ./
 RUN npm run build
 
 # =========================================
-# 빌드 스테이지 
+# 빌드 스테이지
 # =========================================
 FROM node:20-alpine AS build
 
@@ -28,10 +29,11 @@ COPY --from=common-builder /common ./node_modules/@ecommerce/common
 
 COPY fastify-member-server/src ./src
 COPY fastify-member-server/tsconfig.json ./
+COPY fastify-member-server/tsconfig.base.json ./
 RUN npm run build
 
 # =========================================
-# 실행 스테이지 
+# 실행 스테이지
 # =========================================
 FROM node:20-alpine
 
@@ -50,6 +52,9 @@ COPY --from=common-builder /common ./node_modules/@ecommerce/common
 
 # 애플리케이션 코드 복사
 COPY --from=build /app/dist ./dist
+
+# Member 서버 전용 모니터링 메트릭 파일 복사
+COPY monitoring/application-metrics/member-metrics.js ./monitoring/member-metrics.js
 
 RUN npm run postinstall
 

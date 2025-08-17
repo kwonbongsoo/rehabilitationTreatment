@@ -149,7 +149,7 @@ export class ValidationError extends BaseHttpError {
     this.fields = fields;
   }
 
-  toResponse() {
+  override toResponse() {
     return {
       success: false,
       error: this.message,
