@@ -1,0 +1,157 @@
+'use client';
+
+import { useMetrics } from '@/providers/MetricsProvider';
+import { useCallback } from 'react';
+
+/**
+ * Next.js 애플리케이션용 메트릭 수집 훅
+ *
+ * 기능:
+ * - 사용자 상호작용 메트릭
+ * - 성능 측정
+ * - 에러 추적
+ * - 비즈니스 로직 메트릭
+ */
+export const useAppMetrics = () => {
+  const { metrics, isEnabled } = useMetrics();
+
+  // 페이지 방문 기록
+  const recordPageView = useCallback(
+    (pathname: string, userId?: string) => {
+      if (metrics && isEnabled) {
+        metrics.recordPageView(pathname, userId);
+      }
+    },
+    [metrics, isEnabled],
+  );
+
+  // 사용자 이벤트 기록
+  const recordUserEvent = useCallback(
+    (eventType: string, eventData?: Record<string, any>) => {
+      if (metrics && isEnabled) {
+        metrics.recordUserEvent(eventType, eventData);
+      }
+    },
+    [metrics, isEnabled],
+  );
+
+  // 상품 관련 이벤트 기록
+  const recordProductEvent = useCallback(
+    (action: string, productId: string, category?: string) => {
+      if (metrics && isEnabled) {
+        metrics.recordProductEvent(action, productId, category);
+      }
+    },
+    [metrics, isEnabled],
+  );
+
+  // 장바구니 관련 이벤트 기록
+  const recordCartEvent = useCallback(
+    (action: string, itemCount: number, totalValue?: number) => {
+      if (metrics && isEnabled) {
+        metrics.recordCartEvent(action, itemCount, totalValue);
+      }
+    },
+    [metrics, isEnabled],
+  );
+
+  // 검색 관련 이벤트 기록
+  const recordSearchEvent = useCallback(
+    (query: string, resultCount: number, filters?: Record<string, any>) => {
+      if (metrics && isEnabled) {
+        metrics.recordSearchEvent(query, resultCount, filters);
+      }
+    },
+    [metrics, isEnabled],
+  );
+
+  // API 호출 메트릭 기록
+  const recordApiCall = useCallback(
+    (endpoint: string, method: string, status: number, duration: number) => {
+      if (metrics && isEnabled) {
+        metrics.recordApiCall(endpoint, method, status, duration);
+      }
+    },
+    [metrics, isEnabled],
+  );
+
+  // 컴포넌트 렌더링 시간 측정
+  const measureComponentRender = useCallback(
+    (componentName: string) => {
+      if (metrics && isEnabled) {
+        return metrics.startRenderTimer(componentName);
+      }
+      return () => {}; // 빈 함수 반환
+    },
+    [metrics, isEnabled],
+  );
+
+  // 폼 상호작용 기록
+  const recordFormEvent = useCallback(
+    (formName: string, action: string, fieldName?: string) => {
+      if (metrics && isEnabled) {
+        metrics.recordFormEvent(formName, action, fieldName);
+      }
+    },
+    [metrics, isEnabled],
+  );
+
+  // 에러 기록
+  const recordError = useCallback(
+    (errorType: string, errorMessage: string, context?: Record<string, any>) => {
+      if (metrics && isEnabled) {
+        metrics.recordClientError(errorType, errorMessage, window.location.pathname, context);
+      }
+    },
+    [metrics, isEnabled],
+  );
+
+  // 성능 메트릭 기록
+  const recordPerformanceMetric = useCallback(
+    (metricName: string, value: number, unit = 'ms') => {
+      if (metrics && isEnabled) {
+        metrics.recordPerformanceMetric(metricName, value, unit);
+      }
+    },
+    [metrics, isEnabled],
+  );
+
+  // 사용자 인증 이벤트 기록
+  const recordAuthEvent = useCallback(
+    (action: string, result: string, method?: string) => {
+      if (metrics && isEnabled) {
+        metrics.recordAuthEvent(action, result, method);
+      }
+    },
+    [metrics, isEnabled],
+  );
+
+  // 주문 관련 이벤트 기록
+  const recordOrderEvent = useCallback(
+    (action: string, orderId?: string, totalAmount?: number) => {
+      if (metrics && isEnabled) {
+        metrics.recordOrderEvent(action, orderId, totalAmount);
+      }
+    },
+    [metrics, isEnabled],
+  );
+
+  return {
+    // 상태
+    isEnabled,
+
+    // 메서드들
+    recordPageView,
+    recordUserEvent,
+    recordProductEvent,
+    recordCartEvent,
+    recordSearchEvent,
+    recordApiCall,
+    measureComponentRender,
+    recordFormEvent,
+    recordError,
+    recordPerformanceMetric,
+    recordAuthEvent,
+    recordOrderEvent,
+  };
+};

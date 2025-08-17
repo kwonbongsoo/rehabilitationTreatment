@@ -7,7 +7,7 @@ export class RedisClient {
       const redisConfig = {
         host: process.env.REDIS_URL || 'localhost',
         port: parseInt(process.env.REDIS_PORT || '6379'),
-        password: process.env.REDIS_PASSWORD,
+        password: process.env.REDIS_PASSWORD || '',
         db: parseInt(process.env.REDIS_DB || '0'),
         maxRetriesPerRequest: 3,
         lazyConnect: true,
@@ -81,8 +81,7 @@ export class RedisClient {
     try {
       return await this.client.get(key);
     } catch (error) {
-      this.handleRedisError(error, 'get', key);
-      return null;
+      return this.handleRedisError(error, 'get', key);
     }
   }
 
@@ -104,8 +103,7 @@ export class RedisClient {
     try {
       return await this.client.del(key);
     } catch (error) {
-      this.handleRedisError(error, 'del', key);
-      return 0;
+      return this.handleRedisError(error, 'del', key);
     }
   }
 
@@ -116,8 +114,7 @@ export class RedisClient {
     try {
       return await this.client.del(...keys);
     } catch (error) {
-      this.handleRedisError(error, 'del', keys.join(', '));
-      return 0;
+      return this.handleRedisError(error, 'del', keys.join(', '));
     }
   }
 
@@ -129,20 +126,18 @@ export class RedisClient {
     try {
       const keys: string[] = [];
       let cursor = '0';
-      
+
       do {
         const result = await this.client.scan(cursor, 'MATCH', pattern, 'COUNT', count);
         cursor = result[0];
         keys.push(...result[1]);
       } while (cursor !== '0');
-      
+
       return keys;
     } catch (error) {
-      this.handleRedisError(error, 'scan', pattern);
-      return [];
+      return this.handleRedisError(error, 'scan', pattern);
     }
   }
-
 
   /**
    * 키의 TTL 확인
@@ -151,8 +146,7 @@ export class RedisClient {
     try {
       return await this.client.ttl(key);
     } catch (error) {
-      this.handleRedisError(error, 'ttl', key);
-      return -1;
+      return this.handleRedisError(error, 'ttl', key);
     }
   }
 
@@ -167,8 +161,7 @@ export class RedisClient {
       }
       return result;
     } catch (error) {
-      this.handleRedisError(error, 'ping', 'ping');
-      return 'ERROR'; // 컴파일러용
+      return this.handleRedisError(error, 'ping', 'ping');
     }
   }
 
@@ -183,7 +176,7 @@ export class RedisClient {
 
       // lazyConnect가 true이므로 첫 번째 명령어로 연결 시도
       const result = await this.client.ping();
-      
+
       if (process.env.NODE_ENV !== 'production') {
         console.log('Redis 연결 성공! Ping 결과:', result);
         console.log('Redis 연결 상태:', this.client.status);

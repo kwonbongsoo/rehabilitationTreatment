@@ -35,14 +35,17 @@ describe('userActions', () => {
     mockHeaderBuilder = {
       build: jest.fn().mockResolvedValue({
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer test-token',
+        Authorization: 'Bearer test-token',
       }),
     };
     (HeaderBuilderFactory.createForApiRequest as jest.Mock).mockReturnValue(mockHeaderBuilder);
 
     // Mock errorHandler
-    const { handleApiServerActionResponse, handleActionError } = require('@/lib/server/errorHandler');
-    
+    const {
+      handleApiServerActionResponse,
+      handleActionError,
+    } = require('@/lib/server/errorHandler');
+
     handleApiServerActionResponse.mockImplementation(async (response: any) => {
       if (response.ok) {
         return await response.json();
@@ -100,7 +103,7 @@ describe('userActions', () => {
         expect.objectContaining({
           method: 'GET',
           cache: 'no-store',
-        })
+        }),
       );
 
       // 헤더 빌더 사용 확인
@@ -165,10 +168,10 @@ describe('userActions', () => {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer test-token',
+            Authorization: 'Bearer test-token',
           },
           cache: 'no-store',
-        })
+        }),
       );
     });
 
@@ -275,13 +278,6 @@ describe('userActions', () => {
 
     it('getCurrentUser가 getSessionInfo를 올바르게 래핑한다', async () => {
       // Mock a successful getSessionInfo response
-      const mockSessionResponse = {
-        success: true,
-        data: {
-          id: 'testuser',
-          role: 'user',
-        },
-      };
 
       const mockResponse = {
         ok: true,
@@ -307,7 +303,7 @@ describe('userActions', () => {
         expect.objectContaining({
           method: 'GET',
           cache: 'no-store',
-        })
+        }),
       );
     });
   });
@@ -328,7 +324,7 @@ describe('userActions', () => {
 
       expect(mockFetch).toHaveBeenCalledWith(
         'http://koa-auth-server:4000/api/auth/session-info',
-        expect.any(Object)
+        expect.any(Object),
       );
     });
   });
@@ -351,7 +347,7 @@ describe('userActions', () => {
         expect.any(String),
         expect.objectContaining({
           cache: 'no-store',
-        })
+        }),
       );
     });
   });

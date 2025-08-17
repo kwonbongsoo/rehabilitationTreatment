@@ -12,6 +12,31 @@ import productRoutes from './routes/productRoutes';
 // import { authRoutes } from './routes/authRoutes';
 // import { memberRoutes } from './routes/memberRoutes';
 
+// BFF 서버 전용 메트릭 시스템 import
+const metricsPath = '/app/monitoring/bff-metrics.js';
+let metricsModule: any = null;
+
+// BFF 메트릭 시스템 동적 로딩
+async function loadMetrics() {
+  try {
+    if (process.env.METRICS_ENABLED === 'true') {
+      metricsModule = require(metricsPath);
+      console.log('BFF Server metrics system loaded successfully');
+      return metricsModule;
+    } else {
+      console.log('BFF Server metrics disabled by METRICS_ENABLED flag');
+      return null;
+    }
+  } catch (error) {
+    console.warn(
+      'Failed to load metrics in BFF Server:',
+      error instanceof Error ? error.message : error,
+    );
+    console.log('BFF Server continues without metrics');
+    return null;
+  }
+}
+
 export async function buildApp(): Promise<FastifyInstance> {
   const app = Fastify({
     logger: {
@@ -19,6 +44,15 @@ export async function buildApp(): Promise<FastifyInstance> {
     },
     bodyLimit: 20 * 1024 * 1024, // 20MB
   });
+
+  // 메트릭 시스템 로드 및 등록
+  const metrics = await loadMetrics();
+  if (metrics && metrics.metricsPlugin) {
+    await app.register(metrics.metricsPlugin, {
+      serviceName: 'bff-server',
+    });
+    console.log('📊 BFF Server metrics plugin registered');
+  }
 
   // Register Swagger
   await app.register(swagger, {

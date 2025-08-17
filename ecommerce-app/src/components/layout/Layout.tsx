@@ -1,6 +1,6 @@
 'use client';
 
-import React, { memo, ReactElement, ReactNode } from 'react';
+import React, { memo, ReactElement, ReactNode, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import BottomNavigation from './BottomNavigation';
 import HomeLayout from './HomeLayout';

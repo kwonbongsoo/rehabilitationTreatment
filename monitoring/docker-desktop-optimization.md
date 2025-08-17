@@ -51,7 +51,7 @@ localhostForwarding=true
 - **자동 헬스체크**: `docker logs health-monitor -f` (5분마다 자동 실행)
 - **Docker Stats**: `docker stats --no-stream`
 - **시스템 리소스**: Activity Monitor (macOS) / Task Manager (Windows)
-- **Grafana 대시보드**: http://localhost:3001
+- **Grafana 대시보드**: http://localhost:3004
 
 ## 실행 명령어
 
@@ -90,6 +90,6 @@ docker builder prune -af
 
 ### 모니터링 접속 불가
 - Prometheus: http://localhost:9090
-- Grafana: http://localhost:3001 (admin/admin123)
+- Grafana: http://localhost:3004 (admin/admin123)
 - cAdvisor: http://localhost:8080
 - AlertManager: http://localhost:9093

@@ -3,9 +3,9 @@
  * Zustand 기반 에러 상태 관리 테스트
  */
 import { renderHook, act } from '@testing-library/react';
-import { useErrorStore, useGlobalError, useToastError } from '../useErrorStore';
+import { useErrorStore } from '../useErrorStore';
 import type { ToastError } from '../useErrorStore';
-import { BaseError } from '@ecommerce/common';
+import { BaseError, ErrorCode } from '@ecommerce/common';
 
 // Zustand 스토어를 초기 상태로 리셋하는 헬퍼 함수
 const resetErrorStore = () => {
@@ -58,10 +58,10 @@ describe('useErrorStore', () => {
     it('BaseError를 글로벌 에러로 설정한다', () => {
       const { result } = renderHook(() => useErrorStore());
       const baseError = new BaseError(
-        'VALIDATION_ERROR',
+        ErrorCode.VALIDATION_ERROR,
         'Validation failed',
         { field: 'email' },
-        400
+        400,
       );
 
       act(() => {
@@ -76,7 +76,7 @@ describe('useErrorStore', () => {
 
     it('글로벌 에러를 null로 설정한다', () => {
       const { result } = renderHook(() => useErrorStore());
-      
+
       // 먼저 에러를 설정
       act(() => {
         result.current.setGlobalError(new Error('Test error'));
@@ -96,7 +96,7 @@ describe('useErrorStore', () => {
 
     it('글로벌 에러를 클리어한다', () => {
       const { result } = renderHook(() => useErrorStore());
-      
+
       // 에러 설정
       act(() => {
         result.current.setGlobalError(new Error('Test error'));
@@ -116,7 +116,7 @@ describe('useErrorStore', () => {
 
     it('글로벌 에러를 여러 번 변경할 수 있다', () => {
       const { result } = renderHook(() => useErrorStore());
-      
+
       const firstError = new Error('First error');
       const secondError = new Error('Second error');
 
@@ -140,20 +140,20 @@ describe('useErrorStore', () => {
   describe('토스트 에러 관리', () => {
     it('에러 토스트를 추가한다 (기본 타입)', () => {
       const { result } = renderHook(() => useErrorStore());
-      let toastId: string;
+      let toastId = '';
 
       act(() => {
         toastId = result.current.addToastError('Test error message');
       });
 
       expect(result.current.toastErrors).toHaveLength(1);
-      
+
       const toastError = result.current.toastErrors[0];
-      expect(toastError.id).toBe(toastId!);
-      expect(toastError.message).toBe('Test error message');
-      expect(toastError.type).toBe('error');
-      expect(toastError.timestamp).toBe(1234567890000);
-      
+      expect(toastError?.id).toBe(toastId);
+      expect(toastError?.message).toBe('Test error message');
+      expect(toastError?.type).toBe('error');
+      expect(toastError?.timestamp).toBe(1234567890000);
+
       expect(result.current.hasErrors()).toBe(true);
       expect(result.current.getErrorCount()).toBe(1);
     });
@@ -168,8 +168,8 @@ describe('useErrorStore', () => {
         });
 
         const toastError = result.current.toastErrors[index];
-        expect(toastError.type).toBe(type);
-        expect(toastError.message).toBe(`${type} message`);
+        expect(toastError?.type).toBe(type);
+        expect(toastError?.message).toBe(`${type} message`);
       });
 
       expect(result.current.toastErrors).toHaveLength(4);
@@ -188,9 +188,9 @@ describe('useErrorStore', () => {
 
       expect(result.current.toastErrors).toHaveLength(3);
       expect(result.current.getErrorCount()).toBe(3);
-      
+
       messages.forEach((message, index) => {
-        expect(result.current.toastErrors[index].message).toBe(message);
+        expect(result.current.toastErrors[index]?.message).toBe(message);
       });
     });
 
@@ -217,7 +217,7 @@ describe('useErrorStore', () => {
       expect(ids).toHaveLength(3);
 
       // ID 형식 확인 (timestamp-randomString)
-      ids.forEach(id => {
+      ids.forEach((id) => {
         expect(id).toMatch(/^\d+-[a-z0-9]+$/);
       });
 
@@ -226,7 +226,9 @@ describe('useErrorStore', () => {
 
     it('특정 토스트 에러를 제거한다', () => {
       const { result } = renderHook(() => useErrorStore());
-      let firstId: string, secondId: string, thirdId: string;
+      let firstId = '',
+        secondId = '',
+        thirdId = '';
 
       // 여러 토스트 추가
       act(() => {
@@ -243,10 +245,10 @@ describe('useErrorStore', () => {
       });
 
       expect(result.current.toastErrors).toHaveLength(2);
-      expect(result.current.toastErrors[0].id).toBe(firstId);
-      expect(result.current.toastErrors[1].id).toBe(thirdId);
-      
-      const remainingIds = result.current.toastErrors.map(toast => toast.id);
+      expect(result.current.toastErrors[0]?.id).toBe(firstId);
+      expect(result.current.toastErrors[1]?.id).toBe(thirdId);
+
+      const remainingIds = result.current.toastErrors.map((toast) => toast.id);
       expect(remainingIds).not.toContain(secondId);
     });
 

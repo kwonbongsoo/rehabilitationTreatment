@@ -1,4 +1,4 @@
-// Next.js Frontend 메트릭 (API Routes)
+// Next.js Frontend 메트릭 (API Routes) - ES 모듈 버전
 import client from 'prom-client';
 
 // 기본 메트릭 활성화 (서버사이드만)
@@ -7,6 +7,30 @@ if (typeof window === 'undefined') {
     timeout: 5000,
     prefix: 'nextjs_'
   });
+}
+
+// Event Loop Lag 메트릭
+const eventLoopLag = new client.Histogram({
+  name: 'nextjs_event_loop_lag_seconds',
+  help: 'Event loop lag in seconds',
+  labelNames: ['service'],
+  buckets: [0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1, 2, 5]
+});
+
+// Event Loop Lag 측정 함수
+function measureEventLoopLag() {
+  if (typeof window !== 'undefined') return; // 서버사이드만
+  
+  const start = process.hrtime.bigint();
+  setImmediate(() => {
+    const lag = Number(process.hrtime.bigint() - start) / 1e9; // 나노초를 초로 변환
+    eventLoopLag.observe({ service: 'nextjs-frontend' }, lag);
+  });
+}
+
+// Event Loop Lag 정기 측정 (5초마다)
+if (typeof window === 'undefined') {
+  setInterval(measureEventLoopLag, 5000);
 }
 
 // 페이지 렌더링 메트릭
@@ -59,7 +83,7 @@ const webVitals = new client.Histogram({
 });
 
 // API Route 미들웨어
-export function withMetrics(handler) {
+function withMetrics(handler) {
   return async (req, res) => {
     const startTime = Date.now();
     const route = req.url.split('?')[0]; // 쿼리 파라미터 제외
@@ -98,82 +122,58 @@ export function withMetrics(handler) {
   };
 }
 
-// 페이지 컴포넌트 HOC
-export function withPageMetrics(WrappedComponent, pageName) {
-  return function MetricsWrappedPage(props) {
-    const startTime = Date.now();
-    
-    React.useEffect(() => {
-      // 페이지 렌더링 완료 기록
-      const renderDuration = (Date.now() - startTime) / 1000;
-      
-      if (typeof window !== 'undefined') {
-        // 클라이언트 사이드 렌더링
-        recordPageRender(pageName, 'CSR', renderDuration);
-      }
-    }, []);
-    
-    return <WrappedComponent {...props} />;
-  };
-}
+// Next.js 메트릭 클래스
+class NextjsMetrics {
+  constructor(serviceName = 'nextjs-frontend') {
+    this.serviceName = serviceName;
+  }
 
-// 클라이언트 사이드 메트릭 함수들
-export const clientMetrics = {
-  // 페이지 렌더링 기록
-  recordPageRender(page, type = 'CSR', duration = 0) {
-    // 클라이언트에서는 API를 통해 메트릭 전송
+  // 페이지 로드 기록
+  recordPageLoad(page) {
     if (typeof window !== 'undefined') {
-      fetch('/api/metrics/page-render', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ page, type, duration })
-      }).catch(console.error);
+      // 클라이언트 사이드에서는 API를 통해 메트릭 전송
+      this.sendMetricsToAPI('page-load', { page, service: this.serviceName });
     }
-  },
+  }
+
+  // 클라이언트 에러 기록
+  recordClientError(type, message, page) {
+    if (typeof window !== 'undefined') {
+      this.sendMetricsToAPI('client-error', { 
+        type, 
+        message, 
+        page, 
+        service: this.serviceName 
+      });
+    }
+  }
 
   // 사용자 상호작용 기록
-  recordUserInteraction(action, component, page = window.location.pathname) {
+  recordUserInteraction(action, component, page) {
     if (typeof window !== 'undefined') {
-      fetch('/api/metrics/user-interaction', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action, component, page })
-      }).catch(console.error);
+      this.sendMetricsToAPI('user-interaction', { 
+        action, 
+        component, 
+        page, 
+        service: this.serviceName 
+      });
     }
-  },
+  }
 
-  // 프론트엔드 에러 기록
-  recordError(error, page = window.location.pathname, component = 'unknown') {
-    const errorType = error.name || 'UnknownError';
-    
+  // 메트릭 API 전송 (클라이언트용)
+  sendMetricsToAPI(endpoint, data) {
     if (typeof window !== 'undefined') {
-      fetch('/api/metrics/frontend-error', {
+      fetch(`/api/metrics/${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          type: errorType, 
-          message: error.message,
-          page, 
-          component 
-        })
-      }).catch(console.error);
-    }
-  },
-
-  // Web Vitals 기록
-  recordWebVital(name, value, page = window.location.pathname) {
-    if (typeof window !== 'undefined') {
-      fetch('/api/metrics/web-vitals', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, value, page })
+        body: JSON.stringify(data)
       }).catch(console.error);
     }
   }
-};
+}
 
 // 서버사이드 메트릭 함수들
-export const serverMetrics = {
+const serverMetrics = {
   recordPageRender(page, type, duration) {
     pageRenders.inc({ page, type, service: 'nextjs-frontend' });
     if (duration > 0) {
@@ -194,17 +194,11 @@ export const serverMetrics = {
   }
 };
 
-// Web Vitals 자동 수집 (클라이언트)
-export function initWebVitals() {
-  if (typeof window !== 'undefined') {
-    import('web-vitals').then(({ getCLS, getFID, getFCP, getLCP, getTTFB }) => {
-      getCLS(clientMetrics.recordWebVital.bind(null, 'CLS'));
-      getFID(clientMetrics.recordWebVital.bind(null, 'FID'));
-      getFCP(clientMetrics.recordWebVital.bind(null, 'FCP'));
-      getLCP(clientMetrics.recordWebVital.bind(null, 'LCP'));
-      getTTFB(clientMetrics.recordWebVital.bind(null, 'TTFB'));
-    });
-  }
-}
-
-export default client;
+export {
+  NextjsMetrics,
+  withMetrics,
+  serverMetrics,
+  eventLoopLag,
+  measureEventLoopLag,
+  client
+};

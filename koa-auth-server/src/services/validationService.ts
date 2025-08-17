@@ -35,8 +35,8 @@ export class ValidationService {
       // 여러 필드 오류가 있을 때는 첫 번째 필드의 오류를 사용
       const firstField = Object.keys(errors)[0];
       throw new ValidationError('Validation failed', {
-        field: firstField,
-        reason: errors[firstField],
+        field: firstField ?? '',
+        reason: errors[firstField ?? ''] ?? '',
       });
     }
   }

@@ -23,12 +23,18 @@ export default function ProductCard({
   priority = false,
   lazy = false,
 }: ProductCardProps): ReactElement {
+
   const handleWishlistClick = (e: React.MouseEvent): void => {
     e.preventDefault();
     e.stopPropagation();
+
+
     if (onWishlistToggle) {
       onWishlistToggle(product.id);
     }
+  };
+
+  const handleProductClick = (): void => {
   };
 
   const formatPrice = (price: number): string => {
@@ -54,6 +60,7 @@ export default function ProductCard({
         className={styles.productLink}
         prefetch={false}
         data-testid="product-link"
+        onClick={handleProductClick}
       >
         <div className={styles.imageContainer}>
           <OptimizedImageNext

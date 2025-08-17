@@ -1,10 +1,6 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import {
-  S3Client,
-  PutObjectCommand,
-  DeleteObjectCommand,
-} from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { v4 as uuidv4 } from 'uuid';
 import { getAwsConfig } from '@config/aws.config';
@@ -42,9 +38,7 @@ export class S3UploadService {
 
     this.bucketName = awsConfig.bucketName;
     this.awsRegion = awsConfig.region;
-    this.cdnDomain = this.configService
-      .get<string>('CDN_DOMAIN')
-      ?.replace(/\/$/, ''); // trailing slash 제거
+    this.cdnDomain = this.configService.get<string>('CDN_DOMAIN')?.replace(/\/$/, '') ?? ''; // trailing slash 제거
     this.allowedFileTypes = configService
       .get<string>('ALLOWED_FILE_TYPES', 'jpg,jpeg,png,webp,gif,avif')
       .split(',');
@@ -63,9 +57,7 @@ export class S3UploadService {
 
     // 메모리 스토리지 아닐 수 있는 상황 대비: buffer가 없거나 size가 0이면 에러 처리
     if (!file.buffer || file.size === 0) {
-      throw new BadRequestException(
-        '유효하지 않은 파일 데이터입니다.(빈 파일)',
-      );
+      throw new BadRequestException('유효하지 않은 파일 데이터입니다.(빈 파일)');
     }
 
     const command = new PutObjectCommand({
@@ -91,7 +83,7 @@ export class S3UploadService {
         mimeType: file.mimetype,
       };
     } catch (error) {
-      throw new BadRequestException(`파일 업로드 실패: ${error.message}`);
+      throw new BadRequestException(`파일 업로드 실패: ${error}`);
     }
   }
 
@@ -112,14 +104,11 @@ export class S3UploadService {
     try {
       await this.s3Client.send(command);
     } catch (error) {
-      throw new BadRequestException(`파일 삭제 실패: ${error.message}`);
+      throw new BadRequestException(`파일 삭제 실패: ${error}`);
     }
   }
 
-  async getPresignedUrl(
-    key: string,
-    expiresIn: number = 3600,
-  ): Promise<string> {
+  async getPresignedUrl(key: string, expiresIn: number = 3600): Promise<string> {
     const command = new PutObjectCommand({
       Bucket: this.bucketName,
       Key: key,

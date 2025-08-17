@@ -167,3 +167,8 @@ services:
                 - "PUT"
                 - "PATCH"
                 - "DELETE"
+
+# Global plugins (prometheus plugin not available in Kong 3.9)
+# plugins:
+#   - name: prometheus
+#     config: {}

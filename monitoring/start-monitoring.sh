@@ -82,38 +82,38 @@ read -p "실행하시겠습니까? (y/N): " confirm
 if [[ $confirm =~ ^[Yy]$ ]]; then
     echo "모니터링 스택을 시작합니다..."
     echo ""
-    
+
     # 실행
     eval $FULL_CMD
-    
+
     if [ $? -eq 0 ]; then
         echo ""
         echo -e "${GREEN}✅ 모니터링 스택이 성공적으로 시작되었습니다!${NC}"
         echo ""
-        
+
         # 서비스 상태 확인
         echo "=== 서비스 상태 확인 ==="
         sleep 10  # 서비스 시작 대기
-        
+
         docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" --filter "label=com.docker.compose.project=practice"
-        
+
         echo ""
         echo "=== 접속 정보 ==="
         echo -e "${GREEN}🔍 Prometheus:${NC} http://localhost:9090"
-        echo -e "${GREEN}📊 Grafana:${NC} http://localhost:3001 (admin/admin123)"
+        echo -e "${GREEN}📊 Grafana:${NC} http://localhost:3004 (admin/admin123)"
         echo -e "${GREEN}🐳 cAdvisor:${NC} http://localhost:8080"
         echo -e "${GREEN}📈 Node Exporter:${NC} http://localhost:9100/metrics"
-        
+
         if [[ $PROFILES == *"health-check"* ]]; then
             echo -e "${GREEN}🏥 자동 헬스체크:${NC} 5분마다 실행됨"
             echo "   헬스체크 로그: docker logs health-monitor -f"
         fi
-        
+
         if [[ $PROFILES == *"cleanup"* ]]; then
             echo -e "${GREEN}🧹 자동 정리:${NC} 6시간마다 실행됨"
             echo "   정리 로그: docker logs docker-cleanup -f"
         fi
-        
+
         echo ""
         echo "=== 유용한 명령어 ==="
         echo "• 자동 헬스체크 로그: docker logs health-monitor -f"
@@ -122,7 +122,7 @@ if [[ $confirm =~ ^[Yy]$ ]]; then
         echo "• 수동 정리: ./monitoring/cleanup-script.sh"
         echo "• 서비스 중지: docker-compose -f docker-compose.monitoring.yml down"
         echo "• 전체 로그 확인: docker-compose -f docker-compose.monitoring.yml logs -f"
-        
+
     else
         echo -e "${RED}✗ 모니터링 스택 시작에 실패했습니다.${NC}"
         echo "오류를 확인하고 다시 시도하세요."

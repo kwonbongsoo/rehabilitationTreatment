@@ -62,7 +62,7 @@ export default function ProductGridRenderer({
 
   return (
     <div>
-      <div className={gridClasses} data-view-mode={viewMode}>
+      <div className={gridClasses} data-view-mode={viewMode} data-testid="product-grid">
         {filteredAndSortedProducts.map((product) => (
           <ProductCard
             key={product.id}

@@ -1,7 +1,6 @@
-// NestJS 서버용 메트릭 (Product Domain Server)
-import { Injectable, NestMiddleware } from '@nestjs/common';
-import { Request, Response, NextFunction } from 'express';
-import * as client from 'prom-client';
+// NestJS 서버용 메트릭 (Product Domain Server) - CommonJS 버전
+const { Injectable, NestMiddleware } = require('@nestjs/common');
+const client = require('prom-client');
 
 // 기본 메트릭 활성화
 client.collectDefaultMetrics({
@@ -61,9 +60,26 @@ const databaseQueryDuration = new client.Histogram({
   buckets: [0.01, 0.05, 0.1, 0.25, 0.5, 1, 2]
 });
 
-@Injectable()
-export class MetricsMiddleware implements NestMiddleware {
-  use(req: Request, res: Response, next: NextFunction) {
+// Event Loop Lag 메트릭
+const eventLoopLag = new client.Histogram({
+  name: 'nestjs_event_loop_lag_seconds',
+  help: 'Event loop lag in seconds',
+  labelNames: ['service'],
+  buckets: [0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1, 2, 5]
+});
+
+// Event Loop Lag 측정 함수
+function measureEventLoopLag(serviceName = 'product-server') {
+  const start = process.hrtime.bigint();
+  setImmediate(() => {
+    const lag = Number(process.hrtime.bigint() - start) / 1e9; // 나노초를 초로 변환
+    eventLoopLag.labels(serviceName).observe(lag);
+  });
+}
+
+// 메트릭 미들웨어
+class MetricsMiddleware {
+  use(req, res, next) {
     const startTime = Date.now();
     
     res.on('finish', () => {
@@ -88,38 +104,15 @@ export class MetricsMiddleware implements NestMiddleware {
   }
 }
 
-// 메트릭 컨트롤러
-import { Controller, Get } from '@nestjs/common';
-
-@Controller()
-export class MetricsController {
-  @Get('metrics')
-  async getMetrics() {
-    return client.register.metrics();
-  }
-
-  @Get('health')
-  async getHealth() {
-    return {
-      status: 'ok',
-      timestamp: new Date().toISOString(),
-      service: 'product-server',
-      uptime: process.uptime(),
-      memory: process.memoryUsage()
-    };
-  }
-}
-
 // 비즈니스 메트릭 서비스
-@Injectable()
-export class ProductMetricsService {
+class ProductMetricsService {
   // 상품 작업 기록
-  recordProductOperation(operation: string, status: string) {
+  recordProductOperation(operation, status) {
     productOperations.inc({ operation, status, service: 'product-server' });
   }
 
   // 상품 조회 기록
-  recordProductView(productId: string, category: string) {
+  recordProductView(productId, category) {
     productViews.inc({ 
       product_id: productId, 
       category: category, 
@@ -128,7 +121,7 @@ export class ProductMetricsService {
   }
 
   // 카테고리 작업 기록
-  recordCategoryOperation(operation: string, categoryId: string) {
+  recordCategoryOperation(operation, categoryId) {
     categoryOperations.inc({ 
       operation, 
       category_id: categoryId, 
@@ -137,7 +130,7 @@ export class ProductMetricsService {
   }
 
   // 이미지 업로드 기록
-  recordImageUpload(status: string, fileSize: number) {
+  recordImageUpload(status, fileSize) {
     let sizeBucket = 'small';
     if (fileSize > 1024 * 1024) sizeBucket = 'large';
     else if (fileSize > 512 * 1024) sizeBucket = 'medium';
@@ -150,49 +143,58 @@ export class ProductMetricsService {
   }
 
   // 데이터베이스 쿼리 기록
-  recordDatabaseQuery(operation: string, table: string, status: string, duration: number) {
+  recordDatabaseQuery(operation, table, status, duration) {
     databaseQueries.inc({ operation, table, status, service: 'product-server' });
     databaseQueryDuration.observe({ operation, table, service: 'product-server' }, duration);
   }
 
   // 상품 생성 성공
-  recordProductCreated(categoryId: string) {
+  recordProductCreated(categoryId) {
     this.recordProductOperation('create', 'success');
     this.recordCategoryOperation('product_added', categoryId);
   }
 
   // 상품 생성 실패
-  recordProductCreationFailed(reason: string) {
+  recordProductCreationFailed(reason) {
     this.recordProductOperation('create', 'failure');
   }
 
   // 상품 조회 (상세 페이지)
-  recordProductDetailView(productId: string, category: string) {
+  recordProductDetailView(productId, category) {
     this.recordProductView(productId, category);
     this.recordProductOperation('read', 'success');
   }
 
   // 상품 업데이트
-  recordProductUpdated(productId: string) {
+  recordProductUpdated(productId) {
     this.recordProductOperation('update', 'success');
   }
 
   // 상품 삭제
-  recordProductDeleted(productId: string) {
+  recordProductDeleted(productId) {
     this.recordProductOperation('delete', 'success');
+  }
+
+  // Event Loop Lag 측정
+  measureEventLoopLag(service = 'product-server') {
+    measureEventLoopLag(service);
+  }
+
+  // Event Loop Lag 정기 측정 시작
+  startEventLoopLagMeasurement(service = 'product-server', intervalMs = 5000) {
+    return setInterval(() => {
+      measureEventLoopLag(service);
+    }, intervalMs);
   }
 }
 
-// TypeORM 인터셉터 (데이터베이스 쿼리 추적)
-import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
-import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
+// 데이터베이스 메트릭 인터셉터
+class DatabaseMetricsInterceptor {
+  constructor(metricsService) {
+    this.metricsService = metricsService;
+  }
 
-@Injectable()
-export class DatabaseMetricsInterceptor implements NestInterceptor {
-  constructor(private metricsService: ProductMetricsService) {}
-
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+  intercept(context, next) {
     const startTime = Date.now();
     const handler = context.getHandler();
     const operation = handler.name; // 메서드 이름
@@ -212,10 +214,11 @@ export class DatabaseMetricsInterceptor implements NestInterceptor {
   }
 }
 
-export {
+module.exports = {
   MetricsMiddleware,
-  MetricsController,
   ProductMetricsService,
   DatabaseMetricsInterceptor,
-  client
+  client,
+  eventLoopLag,
+  measureEventLoopLag
 };

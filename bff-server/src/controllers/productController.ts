@@ -101,12 +101,12 @@ export class ProductController {
     this.validateRequiredFields(fields);
 
     const productData: CreateProductRequest = {
-      name: fields.name,
-      description: fields.description,
-      price: this.parseNumber(fields.price, '가격'),
-      originalPrice: this.parseNumber(fields.originalPrice, '원가'),
-      categoryId: this.parseNumber(fields.categoryId, '카테고리 ID'),
-      sellerId: fields.sellerId,
+      name: fields.name || '',
+      description: fields.description || '',
+      price: this.parseNumber(fields.price || '', '가격'),
+      originalPrice: this.parseNumber(fields.originalPrice || '', '원가'),
+      categoryId: this.parseNumber(fields.categoryId || '', '카테고리 ID'),
+      sellerId: fields.sellerId || '',
       images: files,
     };
 
@@ -129,7 +129,7 @@ export class ProductController {
       'sellerId',
     ];
     const missingFields = requiredFields.filter(
-      (field) => !fields[field] || fields[field].trim() === '',
+      (field) => !fields[field] || fields[field]?.trim() === '',
     );
 
     if (missingFields.length > 0) {

@@ -39,7 +39,7 @@ export class AuthMiddleware {
       }
 
       // Base64 디코딩
-      const base64Credentials = authHeader.split(' ')[1].trim();
+      const base64Credentials = authHeader.split(' ')[1]?.trim() ?? '';
       const key = Buffer.from(base64Credentials, 'base64')
         .toString('utf-8')
         .replace(/\r?\n|\r/g, '')

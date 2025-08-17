@@ -4,7 +4,7 @@
  * Auth 공통 폼 훅의 타입 안전성, 검증 로직, 에러 처리를 테스트합니다.
  */
 
-import { renderHook, act, waitFor } from '@testing-library/react';
+import { renderHook, act } from '@testing-library/react';
 import { useAuthForm, useLoginForm, useRegisterForm, useForgotPasswordForm } from '../useAuthForm';
 import { authValidationService } from '../../services';
 import { ValidationError } from '@ecommerce/common';
@@ -22,7 +22,9 @@ jest.mock('@/hooks/useFormState', () => ({
   useFormState: jest.fn(),
 }));
 
-const mockAuthValidationService = authValidationService as jest.Mocked<typeof authValidationService>;
+const mockAuthValidationService = authValidationService as jest.Mocked<
+  typeof authValidationService
+>;
 
 // useFormState mock implementation
 const mockUseFormState = require('@/hooks/useFormState').useFormState as jest.MockedFunction<any>;
@@ -32,7 +34,7 @@ describe('useAuthForm', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    
+
     // useFormState 기본 mock 구현
     mockUseFormState.mockReturnValue({
       formData: { id: '', password: '' },
@@ -118,7 +120,7 @@ describe('useAuthForm', () => {
       // useFormState의 validate 함수 호출
       const validateCall = mockUseFormState.mock.calls[0][0];
       const testData = { id: 'test', password: 'test123' };
-      
+
       validateCall.validate(testData);
 
       expect(mockAuthValidationService.validateLoginCredentials).toHaveBeenCalledWith(testData);
@@ -139,8 +141,14 @@ describe('useAuthForm', () => {
       renderHook(() => useAuthForm(options));
 
       const validateCall = mockUseFormState.mock.calls[0][0];
-      const testData = { id: 'test', password: 'test123', confirmPassword: 'test123', name: 'Test', email: 'test@test.com' };
-      
+      const testData = {
+        id: 'test',
+        password: 'test123',
+        confirmPassword: 'test123',
+        name: 'Test',
+        email: 'test@test.com',
+      };
+
       validateCall.validate(testData);
 
       expect(mockAuthValidationService.validateRegisterForm).toHaveBeenCalledWith(testData);
@@ -162,7 +170,7 @@ describe('useAuthForm', () => {
 
       const validateCall = mockUseFormState.mock.calls[0][0];
       const testData = { email: 'test@test.com' };
-      
+
       validateCall.validate(testData);
 
       expect(mockAuthValidationService.validateForgotPasswordForm).toHaveBeenCalledWith(testData);
@@ -211,9 +219,9 @@ describe('useAuthForm', () => {
     });
 
     it('ValidationError를 다시 던져야 한다', async () => {
-      const validationError = new ValidationError('검증 실패', 'validation_error', {
+      const validationError = new ValidationError('검증 실패', {
         field: 'id',
-        value: 'invalid',
+        reason: 'invalid',
       });
 
       // handleSubmit mock이 ValidationError를 던지도록 수정
@@ -225,7 +233,7 @@ describe('useAuthForm', () => {
         isValid: true,
         handleChange: jest.fn(),
         handleBlur: jest.fn(),
-        handleSubmit: jest.fn(() => async (e) => {
+        handleSubmit: jest.fn(() => (e) => {
           e?.preventDefault?.();
           throw validationError;
         }),
@@ -309,7 +317,7 @@ describe('useLoginForm', () => {
 
   it('추가 옵션을 올바르게 전달해야 한다', () => {
     const options = { resetOnSuccess: true, preventDuplicateSubmit: false };
-    
+
     renderHook(() => useLoginForm(mockOnSubmit, options));
 
     expect(mockUseFormState).toHaveBeenCalledWith({
@@ -356,7 +364,7 @@ describe('useRegisterForm', () => {
 
   it('추가 옵션을 올바르게 전달해야 한다', () => {
     const options = { resetOnSuccess: false };
-    
+
     renderHook(() => useRegisterForm(mockOnSubmit, options));
 
     expect(mockUseFormState).toHaveBeenCalledWith({
@@ -403,7 +411,7 @@ describe('useForgotPasswordForm', () => {
 
   it('추가 옵션을 올바르게 전달해야 한다', () => {
     const options = { resetOnSuccess: true };
-    
+
     renderHook(() => useForgotPasswordForm(mockOnSubmit, options));
 
     expect(mockUseFormState).toHaveBeenCalledWith({

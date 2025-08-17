@@ -6,6 +6,29 @@ import { SessionService } from './sessionService';
 import { ValidationService } from './validationService';
 import { AuthenticationError } from '../middlewares/errorMiddleware';
 
+// 메트릭 시스템 import
+const metricsPath = '/app/monitoring/koa-metrics.mjs';
+let authMetrics: any = null;
+
+// 메트릭 시스템 동적 로딩
+async function loadMetrics() {
+  try {
+    if (process.env.METRICS_ENABLED === 'true' && !authMetrics) {
+      const metricsModule = await import(metricsPath);
+      authMetrics = metricsModule.authMetrics;
+      console.log('Auth Service metrics loaded');
+    }
+  } catch (error) {
+    console.warn(
+      'Failed to load metrics in AuthService:',
+      error instanceof Error ? error.message : error,
+    );
+  }
+}
+
+// 메트릭 로딩 실행
+loadMetrics();
+
 /**
  * 인증 서비스: 인증 관련 비즈니스 로직 처리
  */
@@ -42,40 +65,68 @@ export class AuthService {
    * 사용자 로그인 처리
    */
   public async login(credentials: LoginBody, previousToken?: string): Promise<TokenResponseDataI> {
-    // 입력 유효성 검증
-    this.validationService.validateCredentials(credentials);
+    const startTime = Date.now();
 
-    // 멤버 API에서 사용자 검증
-    const user = await this.memberApiClient.verifyCredentials(credentials.id, credentials.password);
+    try {
+      // 입력 유효성 검증
+      this.validationService.validateCredentials(credentials);
 
-    // 유저 토큰 생성
-    const tokenResponse = this.tokenService.generateUserToken({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-    });
+      // 멤버 API에서 사용자 검증
+      const user = await this.memberApiClient.verifyCredentials(
+        credentials.id,
+        credentials.password,
+      );
 
-    // Redis에 세션 저장
-    const now = Math.floor(Date.now() / 1000);
-    const ttl = Math.max(0, tokenResponse.payload.exp - now);
-    await this.sessionService.storeSession(tokenResponse.token, tokenResponse.payload, ttl);
-
-    // 기존 게스트 토큰이 있다면 만료 처리 (세션 고정 공격 방지)
-    if (previousToken) {
-      await this.sessionService.removeSession(previousToken);
-    }
-
-    return {
-      data: {
-        access_token: tokenResponse.token,
-        role: tokenResponse.payload.role,
-        exp: tokenResponse.payload.exp,
-        iat: tokenResponse.payload.iat,
+      // 유저 토큰 생성
+      const tokenResponse = this.tokenService.generateUserToken({
         id: user.id,
-        email: user.email,
         name: user.name,
-      },
-    };
+        email: user.email,
+      });
+
+      // Redis에 세션 저장
+      const now = Math.floor(Date.now() / 1000);
+      const ttl = Math.max(0, tokenResponse.payload.exp - now);
+      const redisDuration = Date.now();
+      await this.sessionService.storeSession(tokenResponse.token, tokenResponse.payload, ttl);
+
+      // 기존 게스트 토큰이 있다면 만료 처리 (세션 고정 공격 방지)
+      if (previousToken) {
+        await this.sessionService.removeSession(previousToken);
+      }
+
+      // ✅ 성공 메트릭 기록
+      if (authMetrics) {
+        const redisDurationMs = (Date.now() - redisDuration) / 1000;
+        authMetrics.recordLoginSuccess('password');
+        authMetrics.recordSessionOperation('create', 'success');
+        authMetrics.recordRedisOperation('set', 'success', 'auth-server', redisDurationMs);
+        authMetrics.recordTokenGeneration(true);
+      }
+
+      return {
+        data: {
+          access_token: tokenResponse.token,
+          role: tokenResponse.payload.role,
+          exp: tokenResponse.payload.exp,
+          iat: tokenResponse.payload.iat,
+          id: user.id,
+          email: user.email,
+          name: user.name,
+        },
+      };
+    } catch (error) {
+      // ❌ 실패 메트릭 기록
+      if (authMetrics) {
+        if (error instanceof AuthenticationError) {
+          authMetrics.recordLoginFailure('invalid_credentials');
+        } else {
+          authMetrics.recordLoginFailure('system_error');
+        }
+        authMetrics.recordTokenGeneration(false);
+      }
+      throw error;
+    }
   }
 
   /**

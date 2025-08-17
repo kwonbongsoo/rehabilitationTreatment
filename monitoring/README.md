@@ -40,7 +40,7 @@ monitoring/
 - ✅ Slack 알림 자동 설정 (웹훅 URL 입력시)
 
 ### 2. 접속 확인
-- **Grafana**: http://localhost:3001 (admin/admin123)
+- **Grafana**: http://localhost:3004 (admin/admin123)
 - **Prometheus**: http://localhost:9090
 - **cAdvisor**: http://localhost:8080
 - **Node Exporter**: http://localhost:9100

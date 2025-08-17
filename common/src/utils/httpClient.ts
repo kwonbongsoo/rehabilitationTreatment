@@ -200,8 +200,8 @@ class HttpClient {
 
     try {
       // 서버 환경에서 form-data 라이브러리 사용
-      const FormDataLib = await import('form-data');
-      const form = new FormDataLib.default();
+      const { default: FormDataLib } = await import('form-data');
+      const form = new FormDataLib();
 
       let fieldCount = 0;
       for (const [key, value] of formData.entries()) {
@@ -233,8 +233,8 @@ class HttpClient {
         ...customHeaders,
       };
 
-      // form-data를 Buffer로 변환 (BodyInit 호환)
-      let bodyData: BodyInit;
+      // form-data를 Buffer로 변환
+      let bodyData: Buffer | string;
 
       try {
         if (form.getBuffer && typeof form.getBuffer === 'function') {
@@ -381,4 +381,5 @@ class HttpClient {
 }
 
 export default HttpClient;
-export { HttpClient, FetchOptions, ApiResponse };
+export { HttpClient };
+export type { FetchOptions, ApiResponse };

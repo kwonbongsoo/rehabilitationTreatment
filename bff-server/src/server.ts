@@ -1,4 +1,4 @@
-import Fastify, { FastifyInstance } from 'fastify';
+import { FastifyInstance } from 'fastify';
 import dotenv from 'dotenv';
 import { buildApp } from './app';
 import { EnvValidator } from '@ecommerce/common';
@@ -46,6 +46,23 @@ async function startServer() {
     console.log(`🚀 BFF Server is running on ${HOST}:${PORT}`);
     console.log(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`);
     console.log(`⚡ Using Fastify for optimal performance`);
+
+    // Event Loop Lag 측정 시작
+    try {
+      const { metrics } = require('/app/monitoring/bff-metrics.js');
+      const intervalId = metrics.startEventLoopLagMeasurement('bff-server', 5000);
+      console.log('📈 BFF Server Event Loop Lag 측정 시작됨');
+      
+      // 서버 종료시 interval 정리
+      process.on('SIGTERM', () => {
+        if (intervalId) clearInterval(intervalId);
+      });
+      process.on('SIGINT', () => {
+        if (intervalId) clearInterval(intervalId);
+      });
+    } catch (error) {
+      console.warn('Failed to start Event Loop Lag measurement:', (error as Error).message);
+    }
 
     process.on('SIGINT', () => gracefulShutdown(app));
     process.on('SIGTERM', () => gracefulShutdown(app));

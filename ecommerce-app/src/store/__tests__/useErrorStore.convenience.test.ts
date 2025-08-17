@@ -4,7 +4,7 @@
  */
 import { renderHook, act } from '@testing-library/react';
 import { useErrorStore, useGlobalError, useToastError } from '../useErrorStore';
-import { BaseError } from '@ecommerce/common';
+import { BaseError, ErrorCode } from '@ecommerce/common';
 
 // Zustand 스토어를 초기 상태로 리셋하는 헬퍼 함수
 const resetErrorStore = () => {
@@ -48,12 +48,7 @@ describe('useGlobalError 편의 훅', () => {
 
   it('BaseError 설정이 올바르게 작동한다', () => {
     const { result } = renderHook(() => useGlobalError());
-    const baseError = new BaseError(
-      'AUTHENTICATION_ERROR',
-      'Login failed',
-      { attempts: 3 },
-      401
-    );
+    const baseError = new BaseError(ErrorCode.INVALID_TOKEN, 'Login failed', { field: 'id' }, 401);
 
     act(() => {
       result.current.setGlobalError(baseError);
@@ -65,7 +60,7 @@ describe('useGlobalError 편의 훅', () => {
 
   it('글로벌 에러 클리어가 올바르게 작동한다', () => {
     const { result } = renderHook(() => useGlobalError());
-    
+
     // 에러 설정
     act(() => {
       result.current.setGlobalError(new Error('Test error'));
@@ -108,7 +103,7 @@ describe('useGlobalError 편의 훅', () => {
 
   it('null로 에러 설정이 가능하다', () => {
     const { result } = renderHook(() => useGlobalError());
-    
+
     // 먼저 에러 설정
     act(() => {
       result.current.setGlobalError(new Error('Test'));
@@ -150,7 +145,7 @@ describe('useToastError 편의 훅', () => {
 
   it('토스트 에러 추가가 올바르게 작동한다', () => {
     const { result } = renderHook(() => useToastError());
-    let toastId: string;
+    let toastId = '';
 
     expect(result.current.toastErrors).toHaveLength(0);
 
@@ -159,9 +154,9 @@ describe('useToastError 편의 훅', () => {
     });
 
     expect(result.current.toastErrors).toHaveLength(1);
-    expect(result.current.toastErrors[0].id).toBe(toastId!);
-    expect(result.current.toastErrors[0].message).toBe('Test toast message');
-    expect(result.current.toastErrors[0].type).toBe('error');
+    expect(result.current.toastErrors[0]?.id).toBe(toastId);
+    expect(result.current.toastErrors[0]?.message).toBe('Test toast message');
+    expect(result.current.toastErrors[0]?.type).toBe('error');
   });
 
   it('다양한 타입의 토스트 에러 추가가 가능하다', () => {
@@ -175,15 +170,16 @@ describe('useToastError 편의 훅', () => {
     });
 
     expect(result.current.toastErrors).toHaveLength(4);
-    expect(result.current.toastErrors[0].type).toBe('error');
-    expect(result.current.toastErrors[1].type).toBe('warning');
-    expect(result.current.toastErrors[2].type).toBe('info');
-    expect(result.current.toastErrors[3].type).toBe('success');
+    expect(result.current.toastErrors[0]?.type).toBe('error');
+    expect(result.current.toastErrors[1]?.type).toBe('warning');
+    expect(result.current.toastErrors[2]?.type).toBe('info');
+    expect(result.current.toastErrors[3]?.type).toBe('success');
   });
 
   it('토스트 에러 제거가 올바르게 작동한다', () => {
     const { result } = renderHook(() => useToastError());
-    let firstId: string, secondId: string;
+    let firstId = '',
+      secondId = '';
 
     // 토스트 추가
     act(() => {
@@ -199,8 +195,8 @@ describe('useToastError 편의 훅', () => {
     });
 
     expect(result.current.toastErrors).toHaveLength(1);
-    expect(result.current.toastErrors[0].id).toBe(secondId);
-    expect(result.current.toastErrors[0].message).toBe('Second toast');
+    expect(result.current.toastErrors[0]?.id).toBe(secondId);
+    expect(result.current.toastErrors[0]?.message).toBe('Second toast');
   });
 
   it('모든 토스트 에러 클리어가 올바르게 작동한다', () => {
@@ -235,8 +231,8 @@ describe('useToastError 편의 훅', () => {
     // 두 훅 모두 동일한 상태 반영
     expect(toastErrorResult.current.toastErrors).toHaveLength(1);
     expect(storeResult.current.toastErrors).toHaveLength(1);
-    expect(toastErrorResult.current.toastErrors[0].message).toBe('Shared toast');
-    expect(storeResult.current.toastErrors[0].message).toBe('Shared toast');
+    expect(toastErrorResult.current.toastErrors[0]?.message).toBe('Shared toast');
+    expect(storeResult.current.toastErrors[0]?.message).toBe('Shared toast');
 
     // useErrorStore를 통해 토스트 클리어
     act(() => {
@@ -253,9 +249,7 @@ describe('useToastError 편의 훅', () => {
     const ids: string[] = [];
 
     const mockRandom = jest.spyOn(Math, 'random');
-    mockRandom
-      .mockReturnValueOnce(0.123456789)
-      .mockReturnValueOnce(0.987654321);
+    mockRandom.mockReturnValueOnce(0.123456789).mockReturnValueOnce(0.987654321);
 
     act(() => {
       ids.push(result.current.addToastError('Toast 1'));
@@ -268,8 +262,8 @@ describe('useToastError 편의 훅', () => {
     expect(typeof ids[1]).toBe('string');
 
     // ID가 실제로 토스트와 연결되었는지 확인
-    expect(result.current.toastErrors[0].id).toBe(ids[0]);
-    expect(result.current.toastErrors[1].id).toBe(ids[1]);
+    expect(result.current.toastErrors[0]?.id).toBe(ids[0]);
+    expect(result.current.toastErrors[1]?.id).toBe(ids[1]);
 
     mockRandom.mockRestore();
   });
@@ -293,7 +287,7 @@ describe('편의 훅들의 통합 테스트', () => {
 
     // 상태 확인
     expect(globalErrorResult.current.globalError?.message).toBe('Global error');
-    expect(toastErrorResult.current.toastErrors[0].message).toBe('Toast error');
+    expect(toastErrorResult.current.toastErrors[0]?.message).toBe('Toast error');
     expect(storeResult.current.hasErrors()).toBe(true);
     expect(storeResult.current.getErrorCount()).toBe(2);
 
@@ -331,7 +325,7 @@ describe('편의 훅들의 통합 테스트', () => {
 
     // 편의 훅들이 변경 사항을 반영하는지 확인
     expect(globalErrorResult.current.globalError?.message).toBe('From store');
-    expect(toastErrorResult.current.toastErrors[0].message).toBe('From store toast');
+    expect(toastErrorResult.current.toastErrors[0]?.message).toBe('From store toast');
 
     // 편의 훅을 통해 상태 변경
     act(() => {
@@ -341,7 +335,7 @@ describe('편의 훅들의 통합 테스트', () => {
 
     // 메인 스토어가 변경 사항을 반영하는지 확인
     expect(storeResult.current.globalError?.message).toBe('From global hook');
-    expect(storeResult.current.toastErrors[1].message).toBe('From toast hook');
+    expect(storeResult.current.toastErrors[1]?.message).toBe('From toast hook');
     expect(storeResult.current.toastErrors).toHaveLength(2);
   });
 });

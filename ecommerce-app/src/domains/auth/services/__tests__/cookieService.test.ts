@@ -7,7 +7,7 @@ import type { NextResponse } from 'next/server';
 import type { ProxyLoginResponse, UserRole } from '../../types/auth';
 
 // Mock NextApiResponse
-const createMockNextApiResponse = () => {
+const createMockNextApiResponse = (): NextApiResponse => {
   const mockRes = {
     setHeader: jest.fn(),
   } as unknown as NextApiResponse;
@@ -15,7 +15,7 @@ const createMockNextApiResponse = () => {
 };
 
 // Mock NextResponse for Edge Runtime tests
-const createMockNextResponse = () => {
+const createMockNextResponse = (): NextResponse => {
   const mockResponse = {
     cookies: {
       set: jest.fn(),
@@ -210,7 +210,8 @@ describe('CookieService', () => {
       const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
 
       // 실제로 에러를 발생시키는 형식으로 변경
-      const cookieHeader = null as any; // 파싱 중 실제 에러가 발생하도록
+      const cookieHeader = null as unknown as string; // 파싱 중 실제 에러가 발생하도록
+      void cookieHeader;
 
       // parseServerCookies 메서드를 직접 테스트하기 위해 헤더를 조작
       const token = cookieServiceInstance.getTokenFromHeader('invalid=');

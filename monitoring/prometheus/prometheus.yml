@@ -6,13 +6,13 @@ global:
     environment: 'development'
 
 rule_files:
-  - "/etc/prometheus/rules/*.yml"
+  - '/etc/prometheus/rules/*.yml'
 
 alerting:
   alertmanagers:
     - static_configs:
         - targets:
-          - alertmanager:9093
+            - alertmanager:9093
 
 scrape_configs:
   # Prometheus 자체 모니터링
@@ -77,7 +77,7 @@ scrape_configs:
   - job_name: 'product-server'
     static_configs:
       - targets: ['product-domain-server:3002']
-    metrics_path: '/metrics'
+    metrics_path: '/api/v1/metrics'
     scrape_interval: 15s
     scrape_timeout: 10s
 
@@ -88,14 +88,20 @@ scrape_configs:
     scrape_interval: 15s
     scrape_timeout: 10s
 
-  # Next.js Frontend 메트릭 (Next.js telemetry)
+  # Next.js Frontend 메트릭 (CPU, Memory, Request Rate, Performance)
   - job_name: 'nextjs-frontend'
     static_configs:
       - targets: ['ecommerce-app:3000']
     metrics_path: '/api/metrics'
     scrape_interval: 30s
     scrape_timeout: 10s
-
+    # 메트릭 수집 시 에러를 무시하고 계속 시도
+    honor_labels: true
+    metric_relabel_configs:
+      - source_labels: [__name__]
+        regex: 'nextjs_.*'
+        target_label: service
+        replacement: 'nextjs-frontend'
 # 원격 쓰기 설정 (장기 저장용, 선택사항)
 # remote_write:
 #   - url: "https://prometheus-remote-write-url"

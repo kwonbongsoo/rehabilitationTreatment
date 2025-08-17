@@ -7,6 +7,7 @@ COPY common/package*.json ./
 RUN npm ci
 COPY common/src ./src
 COPY common/tsconfig.json ./
+COPY common/tsconfig.base.json ./
 RUN npm run build
 
 ##############################
@@ -25,6 +26,7 @@ COPY --from=common-builder /common ./node_modules/@ecommerce/common
 
 # 소스 복사 및 빌드
 COPY bff-server/src ./src
+COPY bff-server/tsconfig.base.json ./
 RUN npm run build
 
 # 정적 데이터 복사(필요 시)
@@ -46,8 +48,8 @@ COPY --from=common-builder /common ./node_modules/@ecommerce/common
 # 앱 빌드 결과 복사
 COPY --from=build /app/dist ./dist
 
-# 모니터링 메트릭 파일 복사
-COPY monitoring/application-metrics/fastify-metrics.mjs ./monitoring/
+# BFF 서버 전용 모니터링 메트릭 파일 복사
+COPY monitoring/application-metrics/bff-metrics.js ./monitoring/bff-metrics.js
 
 EXPOSE 3001
 CMD ["npm", "start"]

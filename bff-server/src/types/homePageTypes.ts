@@ -19,7 +19,7 @@ export interface RawCategoryData {
   isActive: boolean;
 }
 
-export { Product } from './common';
+export type { Product } from './common';
 
 export interface RawPromotionData {
   id: number;

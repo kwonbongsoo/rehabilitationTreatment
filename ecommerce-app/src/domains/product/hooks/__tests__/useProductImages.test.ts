@@ -264,7 +264,7 @@ describe('useProductImages', () => {
       const fileNames = result.current.images.map((img) => img.name);
 
       // 인덱스 1의 이미지 제거
-      act(() => {
+      await act(() => {
         result.current.removeImage(1);
       });
 
@@ -291,7 +291,7 @@ describe('useProductImages', () => {
       const previewUrl = result.current.imagePreviews[0];
 
       // 이미지 제거
-      act(() => {
+      await act(() => {
         result.current.removeImage(0);
       });
 
@@ -316,7 +316,7 @@ describe('useProductImages', () => {
       // 파일명들을 미리 저장 (랜덤 생성되므로)
       const secondFileName = result.current.images[1]?.name;
 
-      act(() => {
+      await act(() => {
         result.current.removeImage(0);
       });
 
@@ -340,7 +340,7 @@ describe('useProductImages', () => {
       // 파일명들을 미리 저장 (랜덤 생성되므로)
       const firstFileName = result.current.images[0]?.name;
 
-      act(() => {
+      await act(() => {
         result.current.removeImage(1);
       });
 
@@ -353,16 +353,18 @@ describe('useProductImages', () => {
       const mockFile = createMockFile('test.jpg');
       const mockEvent = createMockEvent([mockFile]);
 
-      await act(async () => {
-        await result.current.handleImageUpload(mockEvent);
-      });
+      await Promise.resolve(
+        await act(() => {
+          result.current.handleImageUpload(mockEvent);
+        }),
+      );
 
       await waitFor(() => {
         expect(result.current.images).toHaveLength(1);
       });
 
-      expect(() => {
-        act(() => {
+      expect(async () => {
+        await act(() => {
           result.current.removeImage(10);
         });
       }).not.toThrow();
@@ -391,7 +393,7 @@ describe('useProductImages', () => {
       });
 
       // 초기화
-      act(() => {
+      await act(() => {
         result.current.resetImages();
       });
 
@@ -416,7 +418,7 @@ describe('useProductImages', () => {
       const previewUrls = [...result.current.imagePreviews];
 
       // 초기화
-      act(() => {
+      await act(() => {
         result.current.resetImages();
       });
 
@@ -428,8 +430,8 @@ describe('useProductImages', () => {
     it('빈 상태에서 초기화해도 에러가 발생하지 않아야 한다', () => {
       const { result } = renderHook(() => useProductImages());
 
-      expect(() => {
-        act(() => {
+      expect(async () => {
+        await act(() => {
           result.current.resetImages();
         });
       }).not.toThrow();
@@ -587,16 +589,19 @@ describe('useProductImages', () => {
         createMockFile('no-extension', 'image/jpeg'), // 확장자 없는 경우
       ];
 
-      for (const file of testFiles) {
-        const event = createMockEvent([file]);
+      // 순차적으로 업로드하여 act() 겹침 방지
+      for (let i = 0; i < testFiles.length; i++) {
+        const file = testFiles[i];
+        const event = createMockEvent([file as unknown as File]);
+
         await act(async () => {
           await result.current.handleImageUpload(event);
         });
-      }
 
-      await waitFor(() => {
-        expect(result.current.images).toHaveLength(4);
-      });
+        await waitFor(() => {
+          expect(result.current.images).toHaveLength(i + 1);
+        });
+      }
 
       const fileNames = result.current.images.map((img) => img.name);
 
@@ -609,9 +614,11 @@ describe('useProductImages', () => {
     it('파일명이 유니크하고 예측 불가능해야 한다', async () => {
       const { result } = renderHook(() => useProductImages());
       const fileNames: string[] = [];
+      const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-      // 5개의 동일한 파일을 업로드하여 파일명 패턴 확인
+      // 각 파일을 순차적으로 업로드하여 act() 겹침 방지
       for (let i = 0; i < 5; i++) {
+        await delay(i + 1); // 타임스탬프 분리를 위한 지연
         const file = createMockFile('test.jpg');
         const event = createMockEvent([file]);
 
@@ -622,13 +629,11 @@ describe('useProductImages', () => {
         await waitFor(() => {
           expect(result.current.images).toHaveLength(i + 1);
         });
-
-        const latestFileName = result.current.images[i]?.name;
-        fileNames.push(latestFileName!);
-
-        // 약간의 지연 (타임스탬프 차이를 위해)
-        await new Promise((resolve) => setTimeout(resolve, 1));
       }
+
+      // 파일명들 수집
+      const names = result.current.images.map((img) => img.name);
+      fileNames.push(...names);
 
       // 모든 파일명이 유니크한지 확인
       const uniqueNames = new Set(fileNames);

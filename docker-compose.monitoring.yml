@@ -47,7 +47,7 @@ services:
     image: grafana/grafana:latest
     container_name: grafana
     ports:
-      - "3001:3000"  # 기존 BFF 서버와 포트 충돌 방지
+      - "3004:3000"  # 기존 BFF 서버와 포트 충돌 방지
     volumes:
       - grafana_data:/var/lib/grafana
       - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
@@ -184,26 +184,23 @@ services:
   #         cpus: '0.05'
   #         memory: 32M
 
-  # cAdvisor - 컨테이너 메트릭 수집 (OverlayFS 최적화)
+  # cAdvisor - 컨테이너 메트릭 수집 (Windows Docker Desktop 최적화)
   cadvisor:
-    image: gcr.io/cadvisor/cadvisor:latest
+    image: gcr.io/cadvisor/cadvisor:v0.47.0
     container_name: cadvisor
     ports:
       - "8080:8080"
     volumes:
-      - /:/rootfs:ro
-      - /var/run:/var/run:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
-    privileged: true
     command:
-      - '--docker_only=true'                    # Docker만 모니터링
-      - '--housekeeping_interval=60s'           # 수집 간격 최적화 (30s→60s)
-      - '--max_housekeeping_interval=120s'      # 최대 간격 (35s→120s)
-      - '--store_container_labels=false'        # 레이블 저장 비활성화
-      - '--disable_metrics=accelerator,cpu_topology,disk,memory_numa,tcp,udp,percpu,sched,process,hugetlb,referenced_memory,resctrl,cpuset,advtcp,memory_numa'  # 불필요한 메트릭 비활성화
-      - '--event_storage_event_limit=default'   # 이벤트 제한
-      - '--event_storage_age_limit=default'     # 이벤트 보존 기간
+      - '--port=8080'
+      - '--docker_only=true'
+      - '--housekeeping_interval=30s'
+      - '--max_housekeeping_interval=60s'
+      - '--v=1'                        # 로그 레벨 조정 (경고 감소)
+      - '--logtostderr=true'           # 로그 출력 방식
     networks:
       - monitoring-network
     restart: unless-stopped
@@ -282,21 +279,21 @@ services:
       sh -c '
         apk add --no-cache curl jq
         echo "Starting automated health monitoring..."
-        
+
         # 헬스체크 함수
         check_service() {
           local service=$$1
           local port=$$2
           local endpoint=$$3
           local timeout=5
-          
+
           if curl -s --connect-timeout $$timeout "http://localhost:$$port$$endpoint" > /dev/null 2>&1; then
             return 0
           else
             return 1
           fi
         }
-        
+
         # 알림 함수 (Slack)
         send_slack_alert() {
           local message="$$1"
@@ -306,7 +303,7 @@ services:
               "$$SLACK_WEBHOOK_URL" 2>/dev/null || true
           fi
         }
-        
+
         # 리소스 사용량 체크
         check_resources() {
           # 디스크 사용량 체크 (85% 이상시 경고)
@@ -316,20 +313,20 @@ services:
             send_slack_alert "High disk usage: $$disk_usage%"
           fi
         }
-        
+
         # 메인 헬스체크 루프
         while true; do
           echo "Running health check at $$(date)"
           failed_services=""
-          
+
           # 각 서비스 체크
-          services="prometheus:9090:/api/v1/query?query=up grafana:3001:/api/health cadvisor:8080:/healthz node-exporter:9100:/metrics"
-          
+          services="prometheus:9090:/api/v1/query?query=up grafana:3004:/api/health cadvisor:8080:/healthz node-exporter:9100:/metrics"
+
           for service_info in $$services; do
             service_name=$$(echo $$service_info | cut -d: -f1)
             port=$$(echo $$service_info | cut -d: -f2)
             endpoint=$$(echo $$service_info | cut -d: -f3-)
-            
+
             if ! check_service $$service_name $$port "/$$endpoint"; then
               failed_services="$$failed_services $$service_name"
               echo "❌ $$service_name failed health check"
@@ -337,30 +334,30 @@ services:
               echo "✅ $$service_name healthy"
             fi
           done
-          
+
           # 컨테이너 상태 체크
           containers="prometheus grafana cadvisor node-exporter"
           stopped_containers=""
-          
+
           for container in $$containers; do
             if ! docker ps --format "{{.Names}}" | grep -q "^$$container$$"; then
               stopped_containers="$$stopped_containers $$container"
             fi
           done
-          
+
           # 리소스 사용량 체크
           check_resources
-          
+
           # 알림 전송
           if [ ! -z "$$failed_services" ] || [ ! -z "$$stopped_containers" ]; then
             alert_message="Health check failed!"
             [ ! -z "$$failed_services" ] && alert_message="$$alert_message Services down:$$failed_services"
             [ ! -z "$$stopped_containers" ] && alert_message="$$alert_message Containers stopped:$$stopped_containers"
-            
+
             send_slack_alert "$$alert_message"
             echo "🚨 Alert sent: $$alert_message"
           fi
-          
+
           echo "Health check completed. Next check in $$HEALTH_CHECK_INTERVAL seconds."
           sleep $$HEALTH_CHECK_INTERVAL
         done
@@ -401,57 +398,8 @@ networks:
     driver: bridge
     name: practice_app-network
 
-
-  # Docker 시스템 정리 서비스 (OverlayFS 최적화)
-  docker-cleanup:
-    image: alpine:latest
-    container_name: docker-cleanup
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    command: |
-      sh -c '
-        echo "Starting Docker cleanup service..."
-        while true; do
-          echo "Running cleanup at $$(date)"
-          
-          # 사용하지 않는 이미지 정리 (24시간 이전)
-          docker image prune -af --filter "until=24h" 2>/dev/null || true
-          
-          # 사용하지 않는 컨테이너 정리
-          docker container prune -f --filter "until=24h" 2>/dev/null || true
-          
-          # 사용하지 않는 네트워크 정리
-          docker network prune -f 2>/dev/null || true
-          
-          # 빌드 캐시 정리 (1GB 이상일 때)
-          CACHE_SIZE=$$(docker system df --format "table {{.Type}}\t{{.Size}}" | grep "Build Cache" | awk "{print \$3}" | sed "s/GB//" | cut -d"." -f1)
-          if [ "$$CACHE_SIZE" -gt 1 ] 2>/dev/null; then
-            docker builder prune -af --filter "until=24h" 2>/dev/null || true
-          fi
-          
-          echo "Cleanup completed. Next run in 6 hours."
-          sleep 21600  # 6시간 대기
-        done
-      '
-    restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          cpus: '0.05'
-          memory: 32M
-        reservations:
-          cpus: '0.02'
-          memory: 16M
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "1m"
-        max-file: "1"
-    profiles:
-      - cleanup
-
 # 실행 명령어:
 # docker-compose -f docker-compose.yaml -f docker-compose.min.yml -f docker-compose.monitoring.yml up --build -d
-# 
+#
 # OverlayFS 이슈 완화를 위한 정리 서비스 포함하여 실행:
 # docker-compose -f docker-compose.yaml -f docker-compose.min.yml -f docker-compose.monitoring.yml --profile cleanup up --build -d
