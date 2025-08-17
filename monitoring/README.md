@@ -2,6 +2,12 @@
 
 Docker Desktop에서 Grafana + cAdvisor + Prometheus 모니터링 스택을 **완전 자동화**로 실행하는 가이드입니다.
 
+## 모니터링 대시보드 미리보기
+
+![Grafana 모니터링 대시보드](grafana.png)
+
+*실시간 서버 성능 모니터링과 시스템 메트릭을 한눈에 확인할 수 있습니다.*
+
 ## 파일 구조
 
 ```
@@ -39,11 +45,22 @@ monitoring/
 - ✅ **6시간마다 자동 시스템 정리** 실행
 - ✅ Slack 알림 자동 설정 (웹훅 URL 입력시)
 
-### 2. 접속 확인
-- **Grafana**: http://localhost:3004 (admin/admin123)
-- **Prometheus**: http://localhost:9090
-- **cAdvisor**: http://localhost:8080
-- **Node Exporter**: http://localhost:9100
+### 2. 접속 확인 및 대시보드 이용
+
+**Grafana 대시보드**
+- **URL**: http://localhost:3004
+- **로그인**: admin / admin123
+- **대시보드**: 서버별 성능 모니터링
+  - BFF Server Dashboard - API 성능 및 요청 메트릭
+  - Auth Server Dashboard - 인증 서버 모니터링
+  - Product Server Dashboard - 상품 서버 성능
+  - Member Server Dashboard - 회원 서버 상태
+  - Next.js Frontend Dashboard - 프론트엔드 성능
+
+**기타 모니터링 도구**
+- **Prometheus**: http://localhost:9090 - 메트릭 수집 및 쿼리
+- **cAdvisor**: http://localhost:8080 - 컨테이너 성능
+- **Node Exporter**: http://localhost:9100 - 시스템 메트릭
 
 ## 완전 자동화 기능
 
@@ -70,7 +87,7 @@ docker logs health-monitor -f
 docker logs docker-cleanup -f
 ```
 
-## ⚙️ 간편 설정
+## 간편 설정
 
 ### Slack 알림 설정 (선택사항)
 ```bash
@@ -101,7 +118,7 @@ docker stats --no-stream
 docker logs health-monitor -f
 ```
 
-### 🔧 문제 해결
+### 문제 해결
 ```bash
 # 서비스 재시작 (문제 발생시)
 docker-compose -f docker-compose.monitoring.yml restart
@@ -142,11 +159,6 @@ docker-compose -f docker-compose.monitoring.yml down
 - **원클릭 실행** - 하나의 명령어로 모든 설정 완료
 
 ## 문제가 생겼을 때
-
-### 자주 발생하는 문제
-1. **서비스 접속 안됨** → `docker-compose restart`
-2. **메모리 부족** → Docker Desktop 메모리 할당 증가
-3. **알림이 안옴** → `.env`에서 `SLACK_WEBHOOK_URL` 확인
 
 ### 도움 받기
 ```bash
