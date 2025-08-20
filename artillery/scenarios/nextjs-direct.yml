@@ -1,0 +1,100 @@
+config:
+  target: 'http://localhost:3000'
+  phases:
+    # Next.js 직접 접근 테스트 - 단계별 부하 증가
+    - duration: 30
+      arrivalRate: 10
+      name: "Next.js Direct - Baseline"
+    - duration: 60
+      arrivalRate: 25
+      rampTo: 50
+      name: "Next.js Direct - Moderate Load"
+    - duration: 90
+      arrivalRate: 50
+      name: "Next.js Direct - Sustained"
+    - duration: 60
+      arrivalRate: 75
+      name: "Next.js Direct - High Load"
+    - duration: 30
+      arrivalRate: 100
+      name: "Next.js Direct - Peak"
+  http:
+    timeout: 15
+    pool: 50
+  payload:
+    path: "../data/user-sessions.csv"
+    fields:
+      - "sessionId"
+      - "userAgent"
+      - "region"
+  processor: "../processors/nextjs-metrics.js"
+
+scenarios:
+  - name: "Homepage SSR Performance"
+    weight: 50
+    flow:
+      - get:
+          url: "/"
+          headers:
+            User-Agent: "{{ userAgent }}"
+            X-Session-ID: "{{ sessionId }}"
+          capture:
+            - header: "x-response-time"
+              as: "serverResponseTime"
+            - header: "x-cache-status"
+              as: "cacheStatus"
+          expect:
+            - statusCode: 200
+            - contentType: "text/html"
+            - header: "content-length"
+              value: 
+                min: 1000
+          afterResponse: "captureMetrics"
+          think: 
+            min: 1
+            max: 3
+
+  - name: "Categories SSR Performance"
+    weight: 35
+    flow:
+      - get:
+          url: "/categories"
+          headers:
+            User-Agent: "{{ userAgent }}"
+            X-Session-ID: "{{ sessionId }}"
+          capture:
+            - header: "x-response-time"
+              as: "serverResponseTime"
+            - header: "x-cache-status"
+              as: "cacheStatus"
+          expect:
+            - statusCode: 200
+            - contentType: "text/html"
+          afterResponse: "captureMetrics"
+          think:
+            min: 2
+            max: 5
+
+  - name: "API Routes Load Test"
+    weight: 15
+    flow:
+      - get:
+          url: "/api/health"
+          expect:
+            - statusCode: 200
+          think: 1
+      # 추가 API 엔드포인트 테스트 가능
+      - get:
+          url: "/api/categories"
+          expect:
+            - statusCode: 200
+          afterResponse: "captureApiMetrics"
+
+# Core Web Vitals 및 Next.js 특화 메트릭 수집
+metrics:
+  - name: "next_ssr_render_time"
+    unit: "milliseconds"
+  - name: "next_cache_hit_rate"
+    unit: "percentage"
+  - name: "next_bundle_size"
+    unit: "bytes"

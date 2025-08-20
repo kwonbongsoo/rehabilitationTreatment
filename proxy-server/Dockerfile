@@ -1,6 +1,9 @@
 # Bun 프록시 서버 Dockerfile
 FROM oven/bun:1-alpine
 
+# 헬스체크용 도구 설치
+RUN apk add --no-cache curl wget
+
 # 성능 최적화를 위한 환경 변수
 ENV BUN_ENV=production
 ENV NODE_ENV=production
@@ -22,9 +25,9 @@ COPY monitoring/application-metrics/bun-proxy-metrics.js ./monitoring/
 # 포트 노출
 EXPOSE 9000
 
-# 헬스체크 추가 (컨테이너 준비 상태 확인)
-HEALTHCHECK --interval=10s --timeout=3s --start-period=10s --retries=3 \
-  CMD curl -f http://localhost:9000/ || exit 1
+# 헬스체크 추가 (컨테이너 준비 상태 확인) - 더 관대한 설정
+HEALTHCHECK --interval=15s --timeout=10s --start-period=30s --retries=5 \
+  CMD curl -f --connect-timeout 5 --max-time 8 http://localhost:9000/ || wget -q --timeout=8 -O /dev/null http://localhost:9000/ || exit 1
 
 # 서버 실행 (성능 최적화 플래그)
 CMD ["bun", "--smol", "run", "src/index.ts"]

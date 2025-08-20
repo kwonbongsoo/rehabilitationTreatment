@@ -1,0 +1,11 @@
+sessionId,userAgent,region
+sess_001,Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36,US
+sess_002,Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36,EU
+sess_003,Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X),ASIA
+sess_004,Mozilla/5.0 (Linux; Android 11; SM-G998B),US
+sess_005,Mozilla/5.0 (iPad; CPU OS 15_0 like Mac OS X),EU
+sess_006,Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:92.0) Gecko/20100101,ASIA
+sess_007,Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36,US
+sess_008,Mozilla/5.0 (iPhone; CPU iPhone OS 14_7_1 like Mac OS X),EU
+sess_009,Mozilla/5.0 (Windows NT 10.0; Win64; x64) Edge/92.0,ASIA
+sess_010,Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Safari/605.1.15,US

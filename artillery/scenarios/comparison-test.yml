@@ -1,0 +1,97 @@
+config:
+  # 동적 타겟 설정 - 환경 변수로 제어
+  target: 'http://localhost:{{ $env.TARGET_PORT || "3000" }}'
+  phases:
+    # 캐싱 전략 비교 테스트
+    - duration: 60
+      arrivalRate: 30
+      name: "Comparison Baseline"
+    - duration: 120
+      arrivalRate: 60
+      name: "Comparison Sustained"
+    - duration: 60
+      arrivalRate: 100
+      name: "Comparison Peak"
+  http:
+    timeout: 15
+    pool: 75
+  environments:
+    nextjs_direct:
+      target: 'http://localhost:3000'
+      variables:
+        testType: 'nextjs_direct'
+        cacheStrategy: 'next_isr'
+    proxy_cached:
+      target: 'http://localhost:9000'
+      variables:
+        testType: 'proxy_cached'
+        cacheStrategy: 'redis_html'
+  payload:
+    path: "../data/comparison-data.csv"
+    fields:
+      - "comparisonId"
+      - "scenario"
+      - "timestamp"
+  processor: "../processors/comparison-metrics.js"
+
+scenarios:
+  - name: "Performance Comparison - Homepage"
+    weight: 50
+    flow:
+      - get:
+          url: "/"
+          headers:
+            X-Test-Type: "{{ $env.testType }}"
+            X-Cache-Strategy: "{{ $env.cacheStrategy }}"
+            X-Comparison-ID: "{{ comparisonId }}"
+          capture:
+            - header: "x-response-time"
+              as: "totalResponseTime"
+            - header: "x-cache-status"
+              as: "cacheHitStatus"
+            - header: "server"
+              as: "serverType"
+            - header: "x-render-time"
+              as: "renderTime"
+          expect:
+            - statusCode: 200
+            - contentType: "text/html"
+          afterResponse: "recordComparisonMetrics"
+          think:
+            min: 1
+            max: 3
+
+  - name: "Performance Comparison - Categories"
+    weight: 50
+    flow:
+      - get:
+          url: "/categories"
+          headers:
+            X-Test-Type: "{{ $env.testType }}"
+            X-Cache-Strategy: "{{ $env.cacheStrategy }}"
+            X-Comparison-ID: "{{ comparisonId }}"
+          capture:
+            - header: "x-response-time"
+              as: "totalResponseTime"
+            - header: "x-cache-status"
+              as: "cacheHitStatus"
+            - header: "server"
+              as: "serverType"
+          expect:
+            - statusCode: 200
+            - contentType: "text/html"
+          afterResponse: "recordComparisonMetrics"
+          think:
+            min: 2
+            max: 5
+
+# 비교 분석 특화 메트릭
+metrics:
+  - name: "nextjs_vs_proxy_response_time"
+    unit: "milliseconds"
+  - name: "cache_efficiency_ratio"
+    unit: "ratio"
+  - name: "ssr_vs_cache_performance"
+    unit: "percentage"
+  - name: "cost_benefit_analysis"
+    unit: "score"

@@ -1,0 +1,33 @@
+{
+  "name": "artillery-performance-tests",
+  "version": "1.0.0",
+  "description": "Artillery.js 기반 Next.js 성능 테스트 스위트",
+  "scripts": {
+    "test:basic": "artillery run scenarios/basic-load-test.yml",
+    "test:next-direct": "artillery run scenarios/nextjs-direct.yml",
+    "test:proxy-cached": "artillery run scenarios/proxy-cached.yml",
+    "test:user-patterns": "artillery run scenarios/user-patterns.yml",
+    "test:scaling": "artillery run scenarios/scaling-test.yml",
+    "test:comparison": "npm run test:next-direct && npm run test:proxy-cached",
+    "test:all": "artillery run scenarios/basic-load-test.yml && artillery run scenarios/nextjs-direct.yml && artillery run scenarios/proxy-cached.yml && artillery run scenarios/user-patterns.yml && artillery run scenarios/scaling-test.yml",
+    "test:minimal": "artillery run scenarios/minimal-cache-test.yml",
+    "test:reduced": "artillery run scenarios/reduced-cache-test.yml",
+    "test:safe": "node run-reduced-test.js minimal",
+    "test:safe-moderate": "node run-reduced-test.js reduced",
+    "report:html": "artillery run --output report.json scenarios/basic-load-test.yml && artillery report --output report.html report.json",
+    "install-artillery": "npm install -g artillery@latest"
+  },
+  "devDependencies": {
+    "artillery": "^2.0.15"
+  },
+  "keywords": [
+    "artillery",
+    "load-testing",
+    "performance",
+    "nextjs",
+    "redis-cache",
+    "rps-testing"
+  ],
+  "author": "Performance Testing Team",
+  "license": "MIT"
+}

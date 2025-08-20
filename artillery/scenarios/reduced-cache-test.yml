@@ -1,0 +1,135 @@
+config:
+  target: 'http://localhost:9000'
+  phases:
+    # Redis 캐시 프록시 테스트 - 낮은 강도로 캐시 효과 측정
+    - duration: 60
+      arrivalRate: 2
+      name: "Proxy Cache - Initial Warm-up"
+    - duration: 90
+      arrivalRate: 5
+      rampTo: 8
+      name: "Proxy Cache - Light Load"
+    - duration: 120
+      arrivalRate: 10
+      name: "Proxy Cache - Moderate Load"
+    - duration: 90
+      arrivalRate: 15
+      name: "Proxy Cache - High Load"
+    - duration: 60
+      arrivalRate: 20
+      name: "Proxy Cache - Peak Load"
+    - duration: 30
+      arrivalRate: 25
+      name: "Proxy Cache - Maximum Safe Load"
+  http:
+    timeout: 15
+    pool: 50
+    keepAlive: true
+  payload:
+    path: "../data/cache-test-data.csv"
+    fields:
+      - "cacheKey"
+      - "region"
+      - "deviceType"
+  processor: "../processors/cache-metrics.js"
+
+scenarios:
+  - name: "Homepage Cache Performance"
+    weight: 50
+    flow:
+      - get:
+          url: "/"
+          headers:
+            X-Cache-Key: "{{ cacheKey }}"
+            X-Device-Type: "{{ deviceType }}"
+            X-Region: "{{ region }}"
+          capture:
+            - header: "x-cache-status"
+              as: "cacheHitStatus"
+            - header: "x-response-time"
+              as: "proxyResponseTime"
+            - header: "x-cache-ttl"
+              as: "cacheTtl"
+          expect:
+            - statusCode: 200
+            - contentType: "text/html"
+            - header: "x-cache-status"
+              # HIT, MISS, STALE 등
+          afterResponse: "analyzeCachePerformance"
+          think:
+            min: 1
+            max: 3
+
+  - name: "Categories Cache Performance"
+    weight: 35
+    flow:
+      - get:
+          url: "/categories"
+          headers:
+            X-Cache-Key: "{{ cacheKey }}"
+            X-Device-Type: "{{ deviceType }}"
+            X-Region: "{{ region }}"
+          capture:
+            - header: "x-cache-status"
+              as: "cacheHitStatus"
+            - header: "x-response-time"
+              as: "proxyResponseTime"
+          expect:
+            - statusCode: 200
+            - contentType: "text/html"
+          afterResponse: "analyzeCachePerformance"
+          think:
+            min: 2
+            max: 4
+
+  - name: "Cache Invalidation Test"
+    weight: 10
+    flow:
+      # 캐시 무효화 시나리오 - 더 여유롭게
+      - get:
+          url: "/"
+          headers:
+            Cache-Control: "no-cache"
+          expect:
+            - statusCode: 200
+          think: 2
+      - get:
+          url: "/categories"
+          headers:
+            Cache-Control: "no-cache"
+          expect:
+            - statusCode: 200
+          think: 1
+
+  - name: "Mixed Cache Strategy Test"
+    weight: 5
+    flow:
+      # 캐시 + 비캐시 혼합 요청 패턴 - 더 여유로운 대기 시간
+      - get:
+          url: "/"
+          expect:
+            - statusCode: 200
+          think: 2
+      - get:
+          url: "/categories"
+          headers:
+            Cache-Control: "max-age=0"
+          expect:
+            - statusCode: 200
+          think: 3
+      - get:
+          url: "/"
+          expect:
+            - statusCode: 200
+          think: 1
+
+# Redis 캐시 특화 메트릭
+metrics:
+  - name: "cache_hit_ratio"
+    unit: "percentage"
+  - name: "cache_response_time"
+    unit: "milliseconds"
+  - name: "cache_miss_penalty"
+    unit: "milliseconds"
+  - name: "redis_memory_usage"
+    unit: "bytes"

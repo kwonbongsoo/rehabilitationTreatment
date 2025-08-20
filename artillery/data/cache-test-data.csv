@@ -1,0 +1,11 @@
+cacheKey,region,deviceType
+cache_key_001,US,desktop
+cache_key_002,EU,mobile
+cache_key_003,ASIA,tablet
+cache_key_004,US,mobile
+cache_key_005,EU,desktop
+cache_key_006,ASIA,desktop
+cache_key_007,US,tablet
+cache_key_008,EU,mobile
+cache_key_009,ASIA,mobile
+cache_key_010,US,desktop

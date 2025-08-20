@@ -1,0 +1,96 @@
+config:
+  target: 'http://localhost:{{ $env.TARGET_PORT || "3000" }}'
+  phases:
+    # 단계별 스케일링 테스트 - Docker 인스턴스 한계 측정
+    - duration: 60
+      arrivalRate: 50
+      name: "Scale Phase 1 - 50 RPS"
+    - duration: 60
+      arrivalRate: 100
+      name: "Scale Phase 2 - 100 RPS"
+    - duration: 60
+      arrivalRate: 200
+      name: "Scale Phase 3 - 200 RPS"
+    - duration: 60
+      arrivalRate: 300
+      name: "Scale Phase 4 - 300 RPS"
+    - duration: 60
+      arrivalRate: 500
+      name: "Scale Phase 5 - 500 RPS"
+    - duration: 60
+      arrivalRate: 750
+      name: "Scale Phase 6 - 750 RPS"
+    - duration: 60
+      arrivalRate: 1000
+      name: "Scale Phase 7 - 1000 RPS (TARGET)"
+    # 임계점 테스트
+    - duration: 30
+      arrivalRate: 1500
+      name: "Scale Test - Breaking Point"
+  http:
+    timeout: 30
+    pool: 200
+    keepAlive: true
+  payload:
+    path: "../data/scaling-data.csv"
+    fields:
+      - "testPhase"
+      - "expectedRPS"
+      - "resourceLimit"
+  processor: "../processors/scaling-metrics.js"
+
+scenarios:
+  - name: "RPS Scaling Test - Homepage"
+    weight: 60
+    flow:
+      - get:
+          url: "/"
+          headers:
+            X-Test-Phase: "{{ testPhase }}"
+            X-Expected-RPS: "{{ expectedRPS }}"
+          capture:
+            - header: "x-response-time"
+              as: "responseTime"
+            - header: "x-server-load"
+              as: "serverLoad"
+          expect:
+            - statusCode: 200
+            - responseTime: 
+                max: 5000  # 5초 이내
+          afterResponse: "trackScalingMetrics"
+          think: 0.1
+
+  - name: "RPS Scaling Test - Categories"
+    weight: 40
+    flow:
+      - get:
+          url: "/categories"
+          headers:
+            X-Test-Phase: "{{ testPhase }}"
+            X-Expected-RPS: "{{ expectedRPS }}"
+          capture:
+            - header: "x-response-time"
+              as: "responseTime"
+            - header: "x-server-load"
+              as: "serverLoad"
+          expect:
+            - statusCode: 200
+            - responseTime:
+                max: 5000  # 5초 이내
+          afterResponse: "trackScalingMetrics"
+          think: 0.1
+
+# 스케일링 임계점 분석 메트릭
+metrics:
+  - name: "rps_achievement_rate"
+    unit: "percentage"
+  - name: "response_time_degradation"
+    unit: "milliseconds"
+  - name: "error_rate_by_rps"
+    unit: "percentage"
+  - name: "docker_resource_utilization"
+    unit: "percentage"
+  - name: "memory_pressure_threshold"
+    unit: "MB"
+  - name: "cpu_saturation_point"
+    unit: "percentage"

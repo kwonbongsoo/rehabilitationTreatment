@@ -1,0 +1,73 @@
+config:
+  target: 'http://localhost:3000'
+  phases:
+    # 워밍업 페이즈
+    - duration: 30
+      arrivalRate: 5
+      name: "Warm-up"
+    # 점진적 증가
+    - duration: 60
+      arrivalRate: 10
+      rampTo: 30
+      name: "Ramp-up"
+    # 지속적 부하
+    - duration: 120
+      arrivalRate: 30
+      name: "Sustained Load"
+    # 피크 부하
+    - duration: 60
+      arrivalRate: 50
+      name: "Peak Load"
+  http:
+    timeout: 10
+  payload:
+    path: "../data/test-data.csv"
+    fields:
+      - "userId"
+      - "sessionId"
+  processor: "../processors/metrics-processor.js"
+
+scenarios:
+  - name: "Basic Homepage Load Test"
+    weight: 40
+    flow:
+      - get:
+          url: "/"
+          capture:
+            - json: "$"
+              as: "homepageResponse"
+          expect:
+            - statusCode: 200
+            - contentType: "text/html"
+          think: 2
+
+  - name: "Category Page Load Test"
+    weight: 30
+    flow:
+      - get:
+          url: "/categories"
+          capture:
+            - json: "$"
+              as: "categoryResponse"
+          expect:
+            - statusCode: 200
+            - contentType: "text/html"
+          think: 3
+
+  - name: "Mixed Navigation Pattern"
+    weight: 30
+    flow:
+      - get:
+          url: "/"
+          expect:
+            - statusCode: 200
+          think: 1
+      - get:
+          url: "/categories"
+          expect:
+            - statusCode: 200
+          think: 2
+      - get:
+          url: "/"
+          expect:
+            - statusCode: 200

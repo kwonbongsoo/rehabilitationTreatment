@@ -1,0 +1,159 @@
+config:
+  target: 'http://localhost:{{ $env.TARGET_PORT || "3000" }}'
+  phases:
+    # 실제 사용자 패턴 시뮬레이션
+    - duration: 120
+      arrivalRate: 20
+      name: "Real User Patterns - Normal"
+    - duration: 180
+      arrivalRate: 35
+      name: "Real User Patterns - Busy"
+    - duration: 240
+      arrivalRate: 50
+      name: "Real User Patterns - Peak Hours"
+  http:
+    timeout: 20
+    pool: 75
+  payload:
+    path: "../data/user-personas.csv"
+    fields:
+      - "userType"
+      - "sessionDuration" 
+      - "browseBehavior"
+      - "deviceType"
+      - "connectionSpeed"
+  processor: "../processors/user-behavior-metrics.js"
+
+scenarios:
+  # 게스트 사용자 패턴 (70%)
+  - name: "Guest User Browsing"
+    weight: 35
+    flow:
+      - get:
+          url: "/"
+          headers:
+            User-Agent: "{{ $randomString() }}"
+          expect:
+            - statusCode: 200
+          think:
+            min: 3
+            max: 8
+      - get:
+          url: "/categories"
+          expect:
+            - statusCode: 200
+          think:
+            min: 5
+            max: 12
+      - loop:
+          count: "{{ $randomInt(1, 4) }}"
+          over:
+            - get:
+                url: "/"
+                expect:
+                  - statusCode: 200
+              think:
+                min: 2
+                max: 6
+
+  - name: "Quick Browse Pattern"
+    weight: 25
+    flow:
+      # 빠른 브라우징 패턴 (모바일 사용자)
+      - get:
+          url: "/"
+          headers:
+            User-Agent: "Mobile Safari/{{ $randomString() }}"
+          expect:
+            - statusCode: 200
+          think:
+            min: 1
+            max: 3
+      - get:
+          url: "/categories"
+          expect:
+            - statusCode: 200
+          think:
+            min: 2
+            max: 4
+
+  - name: "Detailed Explorer Pattern"
+    weight: 20
+    flow:
+      # 상세 탐색 패턴 (데스크톱 사용자)
+      - get:
+          url: "/"
+          headers:
+            User-Agent: "Desktop Chrome/{{ $randomString() }}"
+          expect:
+            - statusCode: 200
+          think:
+            min: 5
+            max: 10
+      - get:
+          url: "/categories"
+          expect:
+            - statusCode: 200
+          think:
+            min: 8
+            max: 15
+      - get:
+          url: "/"
+          expect:
+            - statusCode: 200
+          think:
+            min: 3
+            max: 7
+
+  - name: "Return Visitor Pattern"
+    weight: 15
+    flow:
+      # 재방문 사용자 (쿠키/세션 있음)
+      - get:
+          url: "/"
+          headers:
+            Cookie: "session_id={{ sessionId }}; returning_user=true"
+          expect:
+            - statusCode: 200
+          think:
+            min: 2
+            max: 5
+      - get:
+          url: "/categories"
+          headers:
+            Cookie: "session_id={{ sessionId }}; returning_user=true"
+          expect:
+            - statusCode: 200
+          think:
+            min: 3
+            max: 8
+
+  - name: "Bot/Crawler Pattern"
+    weight: 5
+    flow:
+      # 봇/크롤러 패턴 (SEO, 모니터링)
+      - get:
+          url: "/"
+          headers:
+            User-Agent: "Googlebot/2.1 (+http://www.google.com/bot.html)"
+          expect:
+            - statusCode: 200
+          think: 0.5
+      - get:
+          url: "/categories"
+          headers:
+            User-Agent: "Googlebot/2.1 (+http://www.google.com/bot.html)"
+          expect:
+            - statusCode: 200
+          think: 0.3
+
+# 사용자 행동 분석 메트릭
+metrics:
+  - name: "user_session_duration"
+    unit: "seconds"
+  - name: "page_bounce_rate"
+    unit: "percentage"
+  - name: "user_engagement_score"
+    unit: "number"
+  - name: "device_performance_ratio"
+    unit: "ratio"
